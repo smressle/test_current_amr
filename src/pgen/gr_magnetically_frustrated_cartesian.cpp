@@ -649,50 +649,50 @@ if (any_at_current_level==1) return 0;
 void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
 
-  Real r,th,ph;
-  AthenaArray<Real> g, gi;
-  g.InitWithShallowCopy(pmb->ruser_meshblock_data[0]);
-  gi.InitWithShallowCopy(pmb->ruser_meshblock_data[1]);
+//   Real r,th,ph;
+//   AthenaArray<Real> g, gi;
+//   g.InitWithShallowCopy(pmb->ruser_meshblock_data[0]);
+//   gi.InitWithShallowCopy(pmb->ruser_meshblock_data[1]);
 
 
 
-   for (int k=pmb->ks; k<=pmb->ke; ++k) {
-#pragma omp parallel for schedule(static)
-    for (int j=pmb->js; j<=pmb->je; ++j) {
-      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
-#pragma simd
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+//    for (int k=pmb->ks; k<=pmb->ke; ++k) {
+// #pragma omp parallel for schedule(static)
+//     for (int j=pmb->js; j<=pmb->je; ++j) {
+//       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+// #pragma simd
+//       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
 
-         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
+//          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
 
-          if (r < r_inner_boundary){
+//           if (r < r_inner_boundary){
               
 
-              //set uu assuming u is zero
-              Real gamma = 1.0;
-              Real alpha = std::sqrt(-1.0/gi(I00,i));
-              Real u0 = gamma/alpha;
-              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+//               //set uu assuming u is zero
+//               Real gamma = 1.0;
+//               Real alpha = std::sqrt(-1.0/gi(I00,i));
+//               Real u0 = gamma/alpha;
+//               Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
+//               Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
+//               Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
               
-              prim(IDN,k,j,i) = dfloor;
-              prim(IVX,k,j,i) = 0.;
-              prim(IVY,k,j,i) = 0.;
-              prim(IVZ,k,j,i) = 0.;
-              prim(IPR,k,j,i) = pfloor;
+//               prim(IDN,k,j,i) = dfloor;
+//               prim(IVX,k,j,i) = 0.;
+//               prim(IVY,k,j,i) = 0.;
+//               prim(IVZ,k,j,i) = 0.;
+//               prim(IPR,k,j,i) = pfloor;
             
               
               
-          }
+//           }
 
 
 
-}}}
+// }}}
 
-g.DeleteAthenaArray();
-gi.DeleteAthenaArray();
+// g.DeleteAthenaArray();
+// gi.DeleteAthenaArray();
 
 
 
@@ -715,70 +715,70 @@ static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, con
 //   writes to user_out_var array the following quantities:
 //     0: gamma (normal-frame Lorentz factor)
 //     1: p_mag (magnetic pressure)
-void MeshBlock::UserWorkInLoop(void)
-{
-  // Create aliases for metric
-  AthenaArray<Real> g, gi;
-  g.InitWithShallowCopy(ruser_meshblock_data[0]);
-  gi.InitWithShallowCopy(ruser_meshblock_data[1]);
+// void MeshBlock::UserWorkInLoop(void)
+// {
+//   // Create aliases for metric
+//   AthenaArray<Real> g, gi;
+//   g.InitWithShallowCopy(ruser_meshblock_data[0]);
+//   gi.InitWithShallowCopy(ruser_meshblock_data[1]);
 
 
-  // Go through all cells
-  for (int k = ks; k <= ke; ++k) {
-    for (int j = js; j <= je; ++j) {
-      pcoord->CellMetric(k, j, is, ie, g, gi);
-      for (int i = is; i <= ie; ++i) {
+//   // Go through all cells
+//   for (int k = ks; k <= ke; ++k) {
+//     for (int j = js; j <= je; ++j) {
+//       pcoord->CellMetric(k, j, is, ie, g, gi);
+//       for (int i = is; i <= ie; ++i) {
 
-        // Calculate normal frame Lorentz factor
-        Real uu1 = phydro->w(IM1,k,j,i);
-        Real uu2 = phydro->w(IM2,k,j,i);
-        Real uu3 = phydro->w(IM3,k,j,i);
-        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                 + g(I33,i)*uu3*uu3;
-        Real gamma = std::sqrt(1.0 + tmp);
-        user_out_var(0,k,j,i) = gamma;
+//         // Calculate normal frame Lorentz factor
+//         Real uu1 = phydro->w(IM1,k,j,i);
+//         Real uu2 = phydro->w(IM2,k,j,i);
+//         Real uu3 = phydro->w(IM3,k,j,i);
+//         Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+//                  + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+//                  + g(I33,i)*uu3*uu3;
+//         Real gamma = std::sqrt(1.0 + tmp);
+//         user_out_var(0,k,j,i) = gamma;
 
-        // Calculate 4-velocity
-        Real alpha = std::sqrt(-1.0/gi(I00,i));
-        Real u0 = gamma/alpha;
-        Real u1 = uu1 - alpha * gamma * gi(I01,i);
-        Real u2 = uu2 - alpha * gamma * gi(I02,i);
-        Real u3 = uu3 - alpha * gamma * gi(I03,i);
-        Real u_0, u_1, u_2, u_3;
+//         // Calculate 4-velocity
+//         Real alpha = std::sqrt(-1.0/gi(I00,i));
+//         Real u0 = gamma/alpha;
+//         Real u1 = uu1 - alpha * gamma * gi(I01,i);
+//         Real u2 = uu2 - alpha * gamma * gi(I02,i);
+//         Real u3 = uu3 - alpha * gamma * gi(I03,i);
+//         Real u_0, u_1, u_2, u_3;
 
-        user_out_var(1,k,j,i) = u0;
-        user_out_var(2,k,j,i) = u1;
-        user_out_var(3,k,j,i) = u2;
-        user_out_var(4,k,j,i) = u3;
-        if (not MAGNETIC_FIELDS_ENABLED) {
-          continue;
-        }
+//         user_out_var(1,k,j,i) = u0;
+//         user_out_var(2,k,j,i) = u1;
+//         user_out_var(3,k,j,i) = u2;
+//         user_out_var(4,k,j,i) = u3;
+//         if (not MAGNETIC_FIELDS_ENABLED) {
+//           continue;
+//         }
 
-        pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+//         pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
-        // Calculate 4-magnetic field
-        Real bb1 = pfield->bcc(IB1,k,j,i);
-        Real bb2 = pfield->bcc(IB2,k,j,i);
-        Real bb3 = pfield->bcc(IB3,k,j,i);
-        Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-        Real b1 = (bb1 + b0 * u1) / u0;
-        Real b2 = (bb2 + b0 * u2) / u0;
-        Real b3 = (bb3 + b0 * u3) / u0;
-        Real b_0, b_1, b_2, b_3;
-        pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+//         // Calculate 4-magnetic field
+//         Real bb1 = pfield->bcc(IB1,k,j,i);
+//         Real bb2 = pfield->bcc(IB2,k,j,i);
+//         Real bb3 = pfield->bcc(IB3,k,j,i);
+//         Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+//                 + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+//                 + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+//                 + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+//         Real b1 = (bb1 + b0 * u1) / u0;
+//         Real b2 = (bb2 + b0 * u2) / u0;
+//         Real b3 = (bb3 + b0 * u3) / u0;
+//         Real b_0, b_1, b_2, b_3;
+//         pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-        // Calculate magnetic pressure
-        Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
-        user_out_var(5,k,j,i) = b_sq/2.0;
-      }
-    }
-  }
-  return;
-}
+//         // Calculate magnetic pressure
+//         Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+//         user_out_var(5,k,j,i) = b_sq/2.0;
+//       }
+//     }
+//   }
+//   return;
+// }
 //----------------------------------------------------------------------------------------
 // Function for returning corresponding Boyer-Lindquist coordinates of point
 // Inputs:
