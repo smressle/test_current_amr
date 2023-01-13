@@ -610,9 +610,9 @@ int RefinementCondition(MeshBlock *pmb)
             Real y = pmb->pcoord->x2v(j);
             Real z = pmb->pcoord->x3v(k);
 
-            Real xprime = x;
+            Real xprime = x-20.0;
             Real yprime = y;
-            Real zprime = z-20.0;
+            Real zprime = z;
 
             Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
