@@ -95,12 +95,12 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   magnetic_field_inclination = pin->GetOrAddReal("problem","field_inclination",0.0);
 
-  EnrollUserBoundaryFunction(INNER_X1, FixedBoundary);
-  EnrollUserBoundaryFunction(OUTER_X1, FixedBoundary);
-  EnrollUserBoundaryFunction(OUTER_X2, FixedBoundary);
-  EnrollUserBoundaryFunction(INNER_X2, FixedBoundary);
-  EnrollUserBoundaryFunction(OUTER_X3, FixedBoundary);
-  EnrollUserBoundaryFunction(INNER_X3, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, FixedBoundary);
 
   EnrollUserMetric(Cartesian_GR);
 
