@@ -841,7 +841,7 @@ if (any_at_current_level==1) return 0;
 void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
 
-  Real v_ff = std::sqrt(2.*gm_/(pmb->r_inner_boundary+SMALL));
+  Real v_ff = std::sqrt(2.*gm_/(r_inner_boundary+SMALL));
   Real va_max; /* Maximum Alfven speed allowed */
   Real bsq,bsq_rho_ceiling;
 
@@ -889,7 +889,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
             }
 
-          if (r < pmb->r_inner_boundary){
+          if (r < r_inner_boundary){
               
               // r_hat_x = x/r;
               // r_hat_y = y/r;
@@ -1069,7 +1069,7 @@ Real compute_mass_in_boundary(MeshBlock *pmb, int iout){
         Real r = std::sqrt( SQR(x) + SQR(y)*is_2D + SQR(z)*is_3D);
 
 
-        if (r<pmb->r_inner_boundary) sum += pmb->phydro->u(IDN,k,j,i) * vol(i);
+        if (r<r_inner_boundary) sum += pmb->phydro->u(IDN,k,j,i) * vol(i);
       }
     }
   }
@@ -1087,7 +1087,7 @@ Real radial_profile(MeshBlock *pmb, int iout){
     int i_user_var = i_prim - (NHYDRO) - IDN -1;
 
 
-    r_dump_min = pmb->r_inner_boundary/2.;
+    r_dump_min = r_inner_boundary/2.;
     r_dump_max = pmb->pmy_mesh->mesh_size.x1max;
     
     Real r = r_dump_min * std::pow(10., (i_r * std::log10(r_dump_max/r_dump_min)/(1.*N_r-1.)) );
