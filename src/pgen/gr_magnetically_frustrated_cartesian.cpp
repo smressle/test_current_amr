@@ -579,6 +579,8 @@ int RefinementCondition(MeshBlock *pmb)
 {
   int refine = 0;
 
+  if (pmb->pmy_mesh->ncycle<2) return 0;
+
     Real DX,DY,DZ;
     Real dx,dy,dz;
   get_uniform_box_spacing(pmb->pmy_mesh->mesh_size,&DX,&DY,&DZ);
