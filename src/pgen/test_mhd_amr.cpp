@@ -725,45 +725,45 @@ void bound_ijk(Coordinates *pcoord, int *i, int *j, int*k){
 }
 
 
-/* Set maximum temperature such that v_th <= c */
-void limit_temperature(MeshBlock *pmb,AthenaArray<Real> &cons,const AthenaArray<Real> &prim_old){
+// /* Set maximum temperature such that v_th <= c */
+// void limit_temperature(MeshBlock *pmb,AthenaArray<Real> &cons,const AthenaArray<Real> &prim_old){
 
-  AthenaArray<Real> prim;
-  prim.InitWithShallowCopy(pmb->phydro->w);
-  pmb->peos->ConservedToPrimitive(cons, prim_old, pmb->pfield->b, prim, pmb->pfield->bcc,
-           pmb->pcoord, pmb->is, pmb->ie, pmb->js, pmb->je, pmb->ks, pmb->ke);
-    Real gamma = gm1 +1.;
+//   AthenaArray<Real> prim;
+//   prim.InitWithShallowCopy(pmb->phydro->w);
+//   pmb->peos->ConservedToPrimitive(cons, prim_old, pmb->pfield->b, prim, pmb->pfield->bcc,
+//            pmb->pcoord, pmb->is, pmb->ie, pmb->js, pmb->je, pmb->ks, pmb->ke);
+//     Real gamma = gm1 +1.;
 
-for (int k=pmb->ks; k<=pmb->ke; ++k) {
-#pragma omp parallel for schedule(static)
-    for (int j=pmb->js; j<=pmb->je; ++j) {
-#pragma simd
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+// for (int k=pmb->ks; k<=pmb->ke; ++k) {
+// #pragma omp parallel for schedule(static)
+//     for (int j=pmb->js; j<=pmb->je; ++j) {
+// #pragma simd
+//       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-    Real v_s = sqrt(gamma*prim(IPR,k,j,i)/prim(IDN,k,j,i));
+//     Real v_s = sqrt(gamma*prim(IPR,k,j,i)/prim(IDN,k,j,i));
 
-        if (v_s>cs_max) v_s = cs_max;
+//         if (v_s>cs_max) v_s = cs_max;
           
-        if ( fabs(prim(IVX,k,j,i)) > cs_max) prim(IVX,k,j,i) = cs_max * ( (prim(IVX,k,j,i) >0) - (prim(IVX,k,j,i)<0) ) ;
-        if ( fabs(prim(IVY,k,j,i)) > cs_max) prim(IVY,k,j,i) = cs_max * ( (prim(IVY,k,j,i) >0) - (prim(IVY,k,j,i)<0) ) ;
-        if ( fabs(prim(IVZ,k,j,i)) > cs_max) prim(IVZ,k,j,i) = cs_max * ( (prim(IVZ,k,j,i) >0) - (prim(IVZ,k,j,i)<0) ) ;
+//         if ( fabs(prim(IVX,k,j,i)) > cs_max) prim(IVX,k,j,i) = cs_max * ( (prim(IVX,k,j,i) >0) - (prim(IVX,k,j,i)<0) ) ;
+//         if ( fabs(prim(IVY,k,j,i)) > cs_max) prim(IVY,k,j,i) = cs_max * ( (prim(IVY,k,j,i) >0) - (prim(IVY,k,j,i)<0) ) ;
+//         if ( fabs(prim(IVZ,k,j,i)) > cs_max) prim(IVZ,k,j,i) = cs_max * ( (prim(IVZ,k,j,i) >0) - (prim(IVZ,k,j,i)<0) ) ;
 
-    prim(IPR,k,j,i) = SQR(v_s) *prim(IDN,k,j,i)/gamma ;
-
-
-
-  }}}
+//     prim(IPR,k,j,i) = SQR(v_s) *prim(IDN,k,j,i)/gamma ;
 
 
-  pmb->peos->PrimitiveToConserved(prim, pmb->pfield->bcc,
-       cons, pmb->pcoord,
-       pmb->is, pmb->ie, pmb->js, pmb->je, pmb->ks, pmb->ke);
 
-  prim.DeleteAthenaArray();
+//   }}}
 
-  return;
 
-}
+//   pmb->peos->PrimitiveToConserved(prim, pmb->pfield->bcc,
+//        cons, pmb->pcoord,
+//        pmb->is, pmb->ie, pmb->js, pmb->je, pmb->ks, pmb->ke);
+
+//   prim.DeleteAthenaArray();
+
+//   return;
+
+// }
 
 
 
