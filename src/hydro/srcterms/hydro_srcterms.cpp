@@ -108,6 +108,10 @@ HydroSourceTerms::HydroSourceTerms(Hydro *phyd, ParameterInput *pin) {
 
   UserSourceTerm = phyd->pmy_block->pmy_mesh->UserSourceTerm_;
   if (UserSourceTerm != nullptr) hydro_sourceterms_defined = true;
+
+  UserRadSourceTerm = phyd->pmy_block->pmy_mesh->UserRadSourceTerm_;
+  if(UserRadSourceTerm != nullptr) rad_sourceterms_defined = true;
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -150,6 +154,27 @@ void HydroSourceTerms::AddSourceTerms(const Real time, const Real dt,
   if (UserSourceTerm != nullptr) {
     UserSourceTerm(pmb, time, dt, prim, prim_scalar, bcc, cons, cons_scalar);
   }
+
+  return;
+}
+
+//----------------------------------------------------------------------------------------
+//! \fn void HydroSourceTerms::AddHydroSourceTerms
+//  \brief Adds source terms to conserved variables
+
+void HydroSourceTerms::AddRadSourceTerms(const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old, const AthenaArray<Real> &cons_half,AthenaArray<Real> &cons, 
+  const AthenaArray<Real> &prim_old, const AthenaArray<Real> &prim_half,AthenaArray<Real> &prim,
+  const FaceField &bb_half,const FaceField &bb,
+  const AthenaArray<Real> &s_old, const AthenaArray<Real> &s_half,AthenaArray<Real> &s_scalar,
+  const AthenaArray<Real> &r_half, AthenaArray<Real> &r)
+{
+  MeshBlock *pmb = pmy_hydro_->pmy_block;
+
+  //  user-defined source terms
+  if (UserRadSourceTerm != nullptr)
+    UserRadSourceTerm(pmb, time,dt,flux,cons_old,cons_half,cons,prim_old,prim_half,prim,bb_half,bb,s_old, s_half,s_scalar,r_half,r);
+
 
   return;
 }

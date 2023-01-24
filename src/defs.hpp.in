@@ -42,6 +42,9 @@
 // include super-time-stepping? default=0 (false)
 #define STS_ENABLED @STS_ENABLED@
 
+// allocate u2 arrays? default=0 (false)
+#define ALLOCATE_U2 @ALLOCATE_U2@
+
 // include self gravity? default=0 (false)
 #define SELF_GRAVITY_ENABLED @SELF_GRAVITY_ENABLED@
 

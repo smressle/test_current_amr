@@ -934,17 +934,23 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     } else {
       AddTask(SRC_TERM,INT_HYD);
     }
+        if (MAGNETIC_FIELDS_ENABLED){
+
+    }
+    else{
+      AddTask(SRCTERM_RAD,SRCTERM);
+    }
     if (ORBITAL_ADVECTION) {
-      AddTask(SEND_HYDORB,SRC_TERM);
+      AddTask(SEND_HYDORB,SRCTERM_RAD);
       AddTask(RECV_HYDORB,NONE);
       AddTask(CALC_HYDORB,(SEND_HYDORB|RECV_HYDORB));
       AddTask(SEND_HYD,CALC_HYDORB);
       AddTask(RECV_HYD,NONE);
       AddTask(SETB_HYD,(RECV_HYD|CALC_HYDORB));
     } else {
-      AddTask(SEND_HYD,SRC_TERM);
+      AddTask(SEND_HYD,SRCTERM_RAD);
       AddTask(RECV_HYD,NONE);
-      AddTask(SETB_HYD,(RECV_HYD|SRC_TERM));
+      AddTask(SETB_HYD,(RECV_HYD|SRC_TERM|SRCTERM_RAD));
     }
 
     if (SHEAR_PERIODIC) {
@@ -971,9 +977,9 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(RECV_SCLR,NONE);
         AddTask(SETB_SCLR,(RECV_SCLR|CALC_HYDORB));
       } else {
-        AddTask(SEND_SCLR,SRC_TERM);
+        AddTask(SEND_SCLR,SRCTERM_RAD);
         AddTask(RECV_SCLR,NONE);
-        AddTask(SETB_SCLR,(RECV_SCLR|SRC_TERM));
+        AddTask(SETB_SCLR,(RECV_SCLR|SRCTERM_RAD));
       }
       if (SHEAR_PERIODIC) {
         AddTask(SEND_SCLRSH,SETB_SCLR);
@@ -994,6 +1000,10 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(INT_FLD,RECV_FLDFLX);
       }
 
+
+      if (NSCALARS>0) AddTask(SRCTERM_RAD,(INT_FLD|SRCTERM|INT_SCLR));
+      else AddTask(SRCTERM_RAD,(INT_FLD|SRCTERM));
+
       if (ORBITAL_ADVECTION) {
         AddTask(SEND_FLDORB,INT_FLD);
         AddTask(RECV_FLDORB,NONE);
@@ -1002,9 +1012,9 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(RECV_FLD,NONE);
         AddTask(SETB_FLD,(RECV_FLD|CALC_FLDORB));
       } else {
-        AddTask(SEND_FLD,INT_FLD);
+        AddTask(SEND_FLD,SRCTERM_RAD);
         AddTask(RECV_FLD,NONE);
-        AddTask(SETB_FLD,(RECV_FLD|INT_FLD));
+        AddTask(SETB_FLD,(RECV_FLD|SRCTERM_RAD));
       }
       if (SHEAR_PERIODIC) {
         AddTask(SEND_FLDSH,SETB_FLD);
@@ -1082,7 +1092,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     }
 
     // everything else
-    AddTask(PHY_BVAL,CONS2PRIM);
+    AddTask(PHY_BVAL,(CONS2PRIM|SRCTERM_RAD));
     if (!STS_ENABLED || pm->sts_integrator == "rkl1") {
       AddTask(USERWORK,PHY_BVAL);
       AddTask(NEW_DT,USERWORK);
@@ -1168,7 +1178,13 @@ void TimeIntegratorTaskList::AddTask(const TaskID& id, const TaskID& dep) {
         static_cast<TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::AddSourceTerms);
     task_list_[ntasks].lb_time = true;
-  } else if (id == SEND_HYD) {
+  } 
+  else if  (id ==SRCTERM_RAD){
+      task_list_[ntasks].TaskFunc=
+        static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
+        (&TimeIntegratorTaskList::RadSourceTerms);
+  } 
+  else if (id == SEND_HYD) {
     task_list_[ntasks].TaskFunc=
         static_cast<TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::SendHydro);
@@ -1387,8 +1403,12 @@ void TimeIntegratorTaskList::StartupTaskList(MeshBlock *pmb, int stage) {
     // Initialize storage registers
     Hydro *ph = pmb->phydro;
     ph->u1.ZeroClear();
-    if (integrator == "ssprk5_4")
+    if (integrator == "ssprk5_4" || ALLOCATE_U2)
       ph->u2 = ph->u;
+
+    if (ALLOCATE_U2){
+      ph->w2 = ph->w;
+    }
 
     if (MAGNETIC_FIELDS_ENABLED) { // MHD
       Field *pf = pmb->pfield;
@@ -1406,7 +1426,7 @@ void TimeIntegratorTaskList::StartupTaskList(MeshBlock *pmb, int stage) {
     if (NSCALARS > 0) {
       PassiveScalars *ps = pmb->pscalars;
       ps->s1.ZeroClear();
-      if (integrator == "ssprk5_4")
+      if (integrator == "ssprk5_4" || ALLOCATE_U2)
         ps->s2 = ps->s;
     }
   }
@@ -1676,7 +1696,74 @@ TaskStatus TimeIntegratorTaskList::AddSourceTerms(MeshBlock *pmb, int stage) {
   }
   return TaskStatus::fail;
 }
+TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
+{
+  Hydro *ph=pmb->phydro;
+  Field *pf=pmb->pfield;
+  PassiveScalars *ps = pmb->pscalars;
 
+
+  BoundaryValues *pbval=pmb->pbval;
+
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+  if (pbval->nblevel[1][1][0] != -1) is-=NGHOST;
+  if (pbval->nblevel[1][1][2] != -1) ie+=NGHOST;
+  if (pbval->nblevel[1][0][1] != -1) js-=NGHOST;
+  if (pbval->nblevel[1][2][1] != -1) je+=NGHOST;
+  if (pbval->nblevel[0][1][1] != -1) ks-=NGHOST;
+  if (pbval->nblevel[2][1][1] != -1) ke+=NGHOST;
+
+  // return if there are no source terms to be added
+  if (ph->hsrc.rad_sourceterms_defined == false) return TaskStatus::next;
+
+  // *** this must be changed for the RK3 integrator
+  if (stage <= nstages) {
+    // Time at beginning of stage for u()
+    Real t_start_stage = pmb->pmy_mesh->time + pmb->stage_abscissae[stage-1][0];
+    // Scaled coefficient for RHS update
+    Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
+
+
+    //w contains old primitives, w1 is a placeholder array
+    pmb->peos->ConservedToPrimitive(ph->u, ph->w, pf->b, ph->w1, pf->bcc,
+           pmb->pcoord, is,ie,js,je,ks,ke);
+
+    // if (NSCALARS > 0) {
+    //   pmb->peos->PassiveScalarConservedToPrimitive(ps->s, ph->u, ps->r, ps->r,
+    //                                                pmb->pcoord, is, ie, js, je, ks, ke);
+    // }
+
+    if (ALLOCATE_U2){
+      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+        ph->u2, ph->u1,ph->u,
+        ph->w2,ph->w,ph->w1,
+        pf->b1,pf->b,
+        ps->s2, ps->s1, ps->s,
+        ps->r, ps->r);
+    }
+    else{
+      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+        ph->u1, ph->u1,ph->u,
+        ph->w,ph->w,ph->w1,
+        pf->b1,pf->b,
+        ps->s1, ps->s1, ps->s,
+        ps->r, ps->r);
+    }
+
+
+
+    /*update conservative vars*/
+    pmb->peos->PrimitiveToConserved(ph->w1,pf->bcc, ph->u, pmb->pcoord,is,ie,js,je,ks,ke);
+    if (NSCALARS>0) pmb->peos->PassiveScalarPrimitiveToConserved(ps->r, ph->u, ps->s, pmb->pcoord,is, ie, js, je, ks, ke);
+
+     
+  } else {
+    return TaskStatus::fail;
+  }
+
+  return TaskStatus::next;
+}
 //----------------------------------------------------------------------------------------
 //! Functions to calculate hydro diffusion fluxes (stored in HydroDiffusion::visflx[],
 //! cndflx[], added at the end of Hydro::CalculateFluxes()

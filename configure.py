@@ -205,6 +205,12 @@ parser.add_argument('--hdf5_path',
                     default='',
                     help='path to HDF5 libraries')
 
+# -u2 argument
+parser.add_argument('-u2',
+                    action='store_true',
+                    default=False,
+                    help='enable u2 array allocation')
+
 # The main choices for --cxx flag, using "ctype[-suffix]" formatting, where "ctype" is the
 # major family/suite/group of compilers and "suffix" may represent variants of the
 # compiler version and/or predefined sets of compiler options. The C++ compiler front ends
@@ -427,6 +433,11 @@ if args['sts']:
     definitions['STS_ENABLED'] = '1'
 else:
     definitions['STS_ENABLED'] = '0'
+
+if args['u2']:
+    definitions['ALLOCATE_U2'] = '1'
+else:
+    definitions['ALLOCATE_U2'] = '0'
 
 # -s, -g, and -t arguments
 definitions['RELATIVISTIC_DYNAMICS'] = '1' if args['s'] or args['g'] else '0'
@@ -816,6 +827,7 @@ print('  General relativity:         ' + ('ON' if args['g'] else 'OFF'))
 print('  Frame transformations:      ' + ('ON' if args['t'] else 'OFF'))
 print('  Self-Gravity:               ' + self_grav_string)
 print('  Super-Time-Stepping:        ' + ('ON' if args['sts'] else 'OFF'))
+print('  u2 Allocation:              ' + ('ON' if args['u2'] else 'OFF'))
 print('  Debug flags:                ' + ('ON' if args['debug'] else 'OFF'))
 print('  Code coverage flags:        ' + ('ON' if args['coverage'] else 'OFF'))
 print('  Linker flags:               ' + makefile_options['LINKER_FLAGS'] + ' '

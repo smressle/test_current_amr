@@ -111,7 +111,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     MeshGenerator_{UniformMeshGeneratorX1, UniformMeshGeneratorX2,
                    UniformMeshGeneratorX3},
     BoundaryFunction_{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-    AMRFlag_{}, UserSourceTerm_{}, UserTimeStep_{}, ViscosityCoeff_{},
+    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{}, UserTimeStep_{}, ViscosityCoeff_{},
     ConductionCoeff_{}, FieldDiffusivity_{},
     OrbitalVelocity_{}, OrbitalVelocityDerivative_{nullptr, nullptr},
     MGGravityBoundaryFunction_{MGPeriodicInnerX1, MGPeriodicOuterX1, MGPeriodicInnerX2,
@@ -1239,6 +1239,15 @@ void Mesh::EnrollUserMeshGenerator(CoordinateDirection dir, MeshGenFunc my_mg) {
 
 void Mesh::EnrollUserExplicitSourceFunction(SrcTermFunc my_func) {
   UserSourceTerm_ = my_func;
+  return;
+}
+//----------------------------------------------------------------------------------------
+//! \fn void Mesh::EnrollUserRadExplicitSourceFunction(RadSrcTermFunc_t my_func)
+//  \brief Enroll a user-defined cooling function
+
+void Mesh::EnrollUserRadSourceFunction(RadSrcTermFunc_t my_func)
+{
+  UserRadSourceTerm_ = my_func;
   return;
 }
 
