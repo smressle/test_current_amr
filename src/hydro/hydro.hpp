@@ -42,7 +42,7 @@ class Hydro {
   // conserved and primitive variables
   AthenaArray<Real> u, w;        // time-integrator memory register #1
   AthenaArray<Real> u1, w1;      // time-integrator memory register #2
-  AthenaArray<Real> u2;          // time-integrator memory register #3
+  AthenaArray<Real> u2, w2;;          // time-integrator memory register #3
   AthenaArray<Real> u0, fl_div; // rkl2 STS memory registers;
   // for the HL3D2 solver
   AthenaArray<Real> dvn, dvt;
