@@ -1245,7 +1245,7 @@ void Mesh::EnrollUserExplicitSourceFunction(SrcTermFunc my_func) {
 //! \fn void Mesh::EnrollUserRadExplicitSourceFunction(RadSrcTermFunc_t my_func)
 //  \brief Enroll a user-defined cooling function
 
-void Mesh::EnrollUserRadSourceFunction(RadSrcTermFunc_t my_func)
+void Mesh::EnrollUserRadSourceFunction(RadSrcTermFunc my_func)
 {
   UserRadSourceTerm_ = my_func;
   return;
