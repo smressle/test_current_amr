@@ -1001,7 +1001,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
       }
 
 
-      if (NSCALARS>0) AddTask(SRCTERM_RAD,(INT_FLD|SRCTERM|INT_SCLR));
+      if (NSCALARS>0) AddTask(SRCTERM_RAD,(INT_FLD|SRC_TERM|INT_SCLR));
       else AddTask(SRCTERM_RAD,(INT_FLD|SRC_TERM));
 
       if (ORBITAL_ADVECTION) {
@@ -1720,8 +1720,9 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
   // *** this must be changed for the RK3 integrator
   if (stage <= nstages) {
     // Time at beginning of stage for u()
-    Real t_start_stage = pmb->pmy_mesh->time + pmb->stage_abscissae[stage-1][0];
-    // Scaled coefficient for RHS update
+    Real t_start_stage = pmb->pmy_mesh->time
+                           + stage_wghts[(stage-1)].sbeta*pmb->pmy_mesh->dt;    
+                           // Scaled coefficient for RHS update
     Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
 
 
