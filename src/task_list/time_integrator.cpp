@@ -938,7 +938,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
 
     }
     else{
-      AddTask(SRCTERM_RAD,SRCTERM);
+      AddTask(SRCTERM_RAD,SRC_TERM);
     }
     if (ORBITAL_ADVECTION) {
       AddTask(SEND_HYDORB,SRCTERM_RAD);
@@ -1002,7 +1002,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
 
 
       if (NSCALARS>0) AddTask(SRCTERM_RAD,(INT_FLD|SRCTERM|INT_SCLR));
-      else AddTask(SRCTERM_RAD,(INT_FLD|SRCTERM));
+      else AddTask(SRCTERM_RAD,(INT_FLD|SRC_TERM));
 
       if (ORBITAL_ADVECTION) {
         AddTask(SEND_FLDORB,INT_FLD);
