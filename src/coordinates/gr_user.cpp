@@ -403,12 +403,12 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   }
 
 
-  g.DeleteAthenaArray(NMETRIC);
-  g_inv.DeleteAthenaArray(NMETRIC);
-  dg_dx1.DeleteAthenaArray(NMETRIC);
-  dg_dx2.DeleteAthenaArray(NMETRIC);
-  dg_dx3.DeleteAthenaArray(NMETRIC);
-  dg_dt.DeleteAthenaArray(NMETRIC);
+  g.DeleteAthenaArray();
+  g_inv.DeleteAthenaArray();
+  dg_dx1.DeleteAthenaArray();
+  dg_dx2.DeleteAthenaArray();
+  dg_dx3.DeleteAthenaArray();
+  dg_dt.DeleteAthenaArray();
 }
 
 
