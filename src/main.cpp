@@ -482,6 +482,10 @@ int main(int argc, char *argv[]) {
     mbcnt += pmesh->nbtotal;
     pmesh->step_since_lb++;
 
+
+    /this is only done once per timestep, not stage.  Per stage would be better, probably slower
+    if (pmesh->ncycle % 10 == 0 ) pmesh->CalculateMetric(pinput);
+
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
 
     pmesh->NewTimeStep();

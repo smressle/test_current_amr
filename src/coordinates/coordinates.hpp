@@ -140,10 +140,9 @@ class Coordinates {
   Real GetSpin() const {return bh_spin_;}
 
   // ...to compute metric
-  void Metric(
-      Real x1, Real x2, Real x3, ParameterInput *pin, AthenaArray<Real> &g,
+  void Metric(Real time, Real x1, Real x2, Real x3, ParameterInput *pin, AthenaArray<Real> &g,
       AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1, AthenaArray<Real> &dg_dx2,
-      AthenaArray<Real> &dg_dx3);
+      AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
   virtual void CellMetric(const int k, const int j, const int il, const int iu,
                           AthenaArray<Real> &g, AthenaArray<Real> &gi) {}
   virtual void Face1Metric(const int k, const int j, const int il, const int iu,
@@ -186,6 +185,9 @@ class Coordinates {
                                int i, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {}
   virtual void LowerVectorCell(Real a0, Real a1, Real a2, Real a3, int k, int j, int i,
                                Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) {}
+
+
+  virtual void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
 
  protected:
   bool coarse_flag;  // true if this coordinate object is parent (coarse) mesh in AMR
@@ -745,6 +747,9 @@ class GRUser : public Coordinates {
                        Real *pa0, Real *pa1, Real *pa2, Real *pa3) final;
   void LowerVectorCell(Real a0, Real a1, Real a2, Real a3, int k, int j, int i,
                        Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) final;
+
+
+   void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
 };
 
 #endif // COORDINATES_COORDINATES_HPP_

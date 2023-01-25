@@ -2009,3 +2009,15 @@ void Mesh::OutputCycleDiagnostics() {
   }
   return;
 }
+
+//----------------------------------------------------------------------------------------
+// \!fn void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin)
+// \brief Apply MeshBlock::UserWorkBeforeOutput
+
+void Mesh::CalculateMetric(ParameterInput *pin) {
+  MeshBlock *pmb = pblock;
+  while (pmb != NULL)  {
+    pmb->pcoord->UpdateMetric(time,pmb,pin);
+    pmb=pmb->next;
+  }
+}

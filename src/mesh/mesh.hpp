@@ -267,6 +267,9 @@ class Mesh {
   void UserWorkAfterLoop(ParameterInput *pin);   // called in main loop
   void UserWorkInLoop(); // called in main after each cycle
 
+  void CalculateMetric(ParameterInput *pin); //for updating metric at each time
+
+
  private:
   // data
   int next_phys_id_; // next unused value for encoding final component of MPI tag bitfield

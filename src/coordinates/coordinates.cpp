@@ -767,7 +767,6 @@ bool Coordinates::IsPole(int j) {
   }
   return false;
 }
-
 //----------------------------------------------------------------------------------------
 // Function for implementing user-defined metric
 // Inputs:
@@ -777,10 +776,9 @@ bool Coordinates::IsPole(int j) {
 //   g,g_inv: arrays of metric covariant and contravariant components
 //   dg_dx1,dg_dx2,dg_dx3: arrays of spatial derivatives of covariant components
 
-void Coordinates::Metric(
-    Real x1, Real x2, Real x3, ParameterInput *pin,
+void Coordinates::Metric(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3) {
-  pmy_block->pmy_mesh->UserMetric_(x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3);
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt) {
+  pmy_block->pmy_mesh->UserMetric_(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
   return;
 }
