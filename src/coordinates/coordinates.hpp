@@ -749,7 +749,7 @@ class GRUser : public Coordinates {
                        Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) final;
 
 
-   void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
+   void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) final;
 };
 
 #endif // COORDINATES_COORDINATES_HPP_
