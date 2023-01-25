@@ -2015,9 +2015,7 @@ void Mesh::OutputCycleDiagnostics() {
 // \brief Apply MeshBlock::UserWorkBeforeOutput
 
 void Mesh::CalculateMetric(ParameterInput *pin) {
-  MeshBlock *pmb = pblock;
-  while (pmb != NULL)  {
-    pmb->pcoord->UpdateMetric(time,pmb,pin);
-    pmb=pmb->next;
-  }
+
+    for (int i=0; i<nblocal; ++i)
+    my_blocks(i)->pcoord->UpdateMetric(time,pmb,pin);
 }
