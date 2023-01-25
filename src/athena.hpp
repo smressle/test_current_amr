@@ -192,10 +192,9 @@ using RadSrcTermFunc = void (*)(MeshBlock *pmb, const Real time, const Real dt, 
   const AthenaArray<Real> &prim_scalar_half, AthenaArray<Real> &prim_scalar);
 using TimeStepFunc = Real (*)(MeshBlock *pmb);
 using HistoryOutputFunc = Real (*)(MeshBlock *pmb, int iout);
-using MetricFunc = void (*)(
-    Real x1, Real x2, Real x3, ParameterInput *pin,
-    AthenaArray<Real> &g, AthenaArray<Real> &g_inv,
-    AthenaArray<Real> &dg_dx1, AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3);
+using MetricFunc_t = void (*) (Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
+             AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+             AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
 using MGBoundaryFunc = void (*)(
     AthenaArray<Real> &dst,Real time, int nvar,
     int is, int ie, int js, int je, int ks, int ke, int ngh,
