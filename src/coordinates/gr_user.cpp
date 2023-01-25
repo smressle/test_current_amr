@@ -165,12 +165,14 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   }
 
   // Allocate scratch arrays
-  AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, transformation;
+  AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
   g.NewAthenaArray(NMETRIC);
   g_inv.NewAthenaArray(NMETRIC);
   dg_dx1.NewAthenaArray(NMETRIC);
   dg_dx2.NewAthenaArray(NMETRIC);
   dg_dx3.NewAthenaArray(NMETRIC);
+  dg_dt.NewAthenaArray(NMETRIC);
+
   if (!coarse_flag) {
     transformation.NewAthenaArray(2, NTRIANGULAR);
   }
@@ -399,6 +401,14 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
       }
     }
   }
+
+
+  g.DeleteAthenaArray(NMETRIC);
+  g_inv.DeleteAthenaArray(NMETRIC);
+  dg_dx1.DeleteAthenaArray(NMETRIC);
+  dg_dx2.DeleteAthenaArray(NMETRIC);
+  dg_dx3.DeleteAthenaArray(NMETRIC);
+  dg_dt.DeleteAthenaArray(NMETRIC);
 }
 
 
