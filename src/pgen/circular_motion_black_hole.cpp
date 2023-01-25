@@ -90,7 +90,7 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 // Global variables
 static Real m, a,aprime,q;          // black hole mass and spin
 static Real dfloor,pfloor;                         // density and pressure floors
-static Real r_inner_boundary,r_inner_boundary_2;
+static Real r_inner_boundary_2;
 
 static Real rh;
 static Real rh2;
@@ -966,7 +966,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
 
-          if (r < r_inner_boundary){
+          if (r < pmb->r_inner_boundary){
               
 
               //set uu assuming u is zero

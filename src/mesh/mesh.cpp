@@ -2017,5 +2017,5 @@ void Mesh::OutputCycleDiagnostics() {
 void Mesh::CalculateMetric(ParameterInput *pin) {
 
     for (int i=0; i<nblocal; ++i)
-    my_blocks(i)->pcoord->UpdateMetric(time,pmb,pin);
+    my_blocks(i)->pcoord->UpdateMetric(time,my_blocks(i),pin);
 }
