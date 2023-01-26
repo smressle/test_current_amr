@@ -69,6 +69,18 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_tt_.NewAthenaArray(nc1);
 }
 
+
+Real GetRadius(Real x1, Real x2, Real x3, Real a){
+   if (COORDINATE_SYSTEM=="gr_user"){
+      Real x = x1;
+      Real y = x2;
+      Real z = x3;
+      Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+      Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+      return r;
+  }
+  else return x1;
+}
 //----------------------------------------------------------------------------------------
 // Variable inverter
 // Inputs:
@@ -112,16 +124,18 @@ void EquationOfState::ConservedToPrimitive(
         // Set flag indicating conserved values need adjusting at end
         bool fixed = false;
 
+
+        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         // Calculate floors for density and pressure
         Real density_floor_local = density_floor_;
         if (rho_pow_ != 0.0) {
           density_floor_local =
-              std::max(density_floor_local, rho_min_ * std::pow(pco->x1v(i), rho_pow_));
+              std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         Real pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
-                                          pgas_min_ * std::pow(pco->x1v(i), pgas_pow_));
+                                          pgas_min_ * std::pow(r, pgas_pow_));
         }
 
         // Ensure conserved density is large enough
@@ -235,9 +249,10 @@ void EquationOfState::ConservedToPrimitive(
           pmag = 0.5 * (normal_bb_(0,i)/SQR(gamma) + SQR(b0/u0));
         }
         density_floor_local = density_floor_;
+         Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         if (rho_pow_ != 0.0) {
           density_floor_local =
-              std::max(density_floor_local, rho_min_ * std::pow(pco->x1v(i), rho_pow_));
+              std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         if (sigma_max_ > 0.0) {
           density_floor_local = std::max(density_floor_local, 2.0*pmag/sigma_max_);
@@ -245,7 +260,7 @@ void EquationOfState::ConservedToPrimitive(
         pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
-                                          pgas_min_ * std::pow(pco->x1v(i), pgas_pow_));
+                                          pgas_min_ * std::pow(r, pgas_pow_));
         }
         if (beta_min_ > 0.0) {
           pressure_floor_local = std::max(pressure_floor_local, beta_min_*pmag);
@@ -263,6 +278,8 @@ void EquationOfState::ConservedToPrimitive(
           fixed = true;
         }
         if (!success) {
+          fprintf(stderr,"Variable Inversion Failed!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
+            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           rho = density_floor_local;
           pgas = pressure_floor_local;
           uu1 = uu2 = uu3 = 0.0;
