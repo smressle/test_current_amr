@@ -167,7 +167,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_mm_(3,i) *= factor;
           normal_tt_(i) *= factor;
           fixed = true;
-          printf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
+          fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
             i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
 
