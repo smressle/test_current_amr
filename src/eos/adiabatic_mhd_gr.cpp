@@ -143,8 +143,8 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_dd_(i) < dd_min) {
           normal_dd_(i) = dd_min;
           fixed = true;
-          fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
 
         // Ensure conserved energy is large enough
@@ -153,8 +153,8 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_ee_(i) < ee_min) {
           normal_ee_(i) = ee_min;
           fixed = true;
-          fprintf(stderr,"Energy too low!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Energy too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
 
         // Ensure conserved momentum is not too large given energy
@@ -167,8 +167,8 @@ void EquationOfState::ConservedToPrimitive(
           normal_mm_(3,i) *= factor;
           normal_tt_(i) *= factor;
           fixed = true;
-          fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
 
         // Set primitives
@@ -198,8 +198,8 @@ void EquationOfState::ConservedToPrimitive(
         Real pgas_add = std::max(pressure_floor_local-prim(IPR,k,j,i),
                                                 static_cast<Real>(0.0));
         if (success && (rho_add > 0.0 || pgas_add > 0.0)) {
-          fprintf(stderr,"rho_add or pgas_add!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"rho_add or pgas_add!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           // Adjust conserved density and energy
           Real wgas_add = rho_add + gamma_adi/(gamma_adi-1.0) * pgas_add;
           normal_dd_(i) += rho_add * gamma;
@@ -238,8 +238,8 @@ void EquationOfState::ConservedToPrimitive(
           uu3 *= factor;
           fixed = true;
           velocity_ceiling = true;
-          fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
 
         // Recalculate density and pressure floors given new velocity
@@ -282,17 +282,17 @@ void EquationOfState::ConservedToPrimitive(
         if (rho < density_floor_local) {
           rho = density_floor_local;
           fixed = true;
-          fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
         if (pgas < pressure_floor_local) {
           pgas = pressure_floor_local;
           fixed = true;
-          fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
         if (!success) {
-          fprintf(stderr,"Variable Inversion Failed!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
+          fprintf(stderr,"Variable Inversion Failed!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
             i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           rho = density_floor_local;
           pgas = pressure_floor_local;
@@ -301,8 +301,8 @@ void EquationOfState::ConservedToPrimitive(
 
         // Ensure conserved variables match primitives
         if (fixed) {
-          fprintf(stderr,"Fixed in C2P!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Fixed in C2P!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           PrimitiveToConservedSingle(prim, gamma_adi, bb_cc, g_, g_inv_, k, j, i, cons,
                                      pco);
         }
