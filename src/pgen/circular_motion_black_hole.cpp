@@ -55,9 +55,13 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim);
-static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim );
-
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar);
+void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half, const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar);
 static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
                                          Real *ptheta, Real *pphi);
 static void GetCKSCoordinates(Real r, Real th, Real phi, Real *x, Real *y, Real *z);
@@ -189,16 +193,16 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   if (max_second_bh_refinement_level>0) max_second_bh_refinement_level = max_second_bh_refinement_level -1;
   if (max_smr_refinement_level>0) max_smr_refinement_level = max_smr_refinement_level - 1;
 
-  EnrollUserBoundaryFunction(INNER_X1, CustomInnerX1);
-  EnrollUserBoundaryFunction(OUTER_X1, CustomOuterX1);
-  EnrollUserBoundaryFunction(OUTER_X2, CustomOuterX2);
-  EnrollUserBoundaryFunction(INNER_X2, CustomInnerX2);
-  EnrollUserBoundaryFunction(OUTER_X3, CustomOuterX3);
-  EnrollUserBoundaryFunction(INNER_X3, CustomInnerX3);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
 
   EnrollUserMetric(Cartesian_GR);
 
-  EnrollUserRadSourceFunction(inner_boundary);
+  EnrollUserRadSourceFunction(inner_boundary_source_function);
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
@@ -948,12 +952,12 @@ if (any_at_current_level==1) return 0;
 
 /* Apply inner "absorbing" boundary conditions */
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar){
 
 
   Real r,th,ph;
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = pmb->sruser_meshblock_data[1];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
 
 
@@ -1028,13 +1032,18 @@ gi.DeleteAthenaArray();
 
 
 }
-static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim )
-{
+void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half,const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half,AthenaArray<Real> &prim_scalar){
+
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
 
-  apply_inner_boundary_condition(pmb,prim);
+  apply_inner_boundary_condition(pmb,prim,prim_scalar);
 
   return;
 }
