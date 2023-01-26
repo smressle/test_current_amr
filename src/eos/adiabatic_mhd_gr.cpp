@@ -249,9 +249,10 @@ void EquationOfState::ConservedToPrimitive(
           pmag = 0.5 * (normal_bb_(0,i)/SQR(gamma) + SQR(b0/u0));
         }
         density_floor_local = density_floor_;
+         Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         if (rho_pow_ != 0.0) {
           density_floor_local =
-              std::max(density_floor_local, rho_min_ * std::pow(pco->x1v(i), rho_pow_));
+              std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         if (sigma_max_ > 0.0) {
           density_floor_local = std::max(density_floor_local, 2.0*pmag/sigma_max_);
@@ -259,7 +260,7 @@ void EquationOfState::ConservedToPrimitive(
         pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
-                                          pgas_min_ * std::pow(pco->x1v(i), pgas_pow_));
+                                          pgas_min_ * std::pow(r, pgas_pow_));
         }
         if (beta_min_ > 0.0) {
           pressure_floor_local = std::max(pressure_floor_local, beta_min_*pmag);
