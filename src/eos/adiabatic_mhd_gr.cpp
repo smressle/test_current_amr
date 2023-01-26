@@ -287,6 +287,8 @@ void EquationOfState::ConservedToPrimitive(
 
         // Ensure conserved variables match primitives
         if (fixed) {
+          fprintf(stderr,"Fixed in C2P!!! \n ijk: %d %d %d \n xyz: %g %d %g \n",
+            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           PrimitiveToConservedSingle(prim, gamma_adi, bb_cc, g_, g_inv_, k, j, i, cons,
                                      pco);
         }
