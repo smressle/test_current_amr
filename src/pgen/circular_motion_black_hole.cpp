@@ -91,7 +91,7 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 static Real m, a,aprime,q;          // black hole mass and spin
 static Real dfloor,pfloor;                         // density and pressure floors
 static Real r_inner_boundary_2;
-
+static Real r_inner_boundary;
 static Real rh;
 static Real rh2;
 static Real r_bh2;
@@ -224,9 +224,11 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
     AllocateUserOutputVariables(N_user_vars);
   }
 
+
   AllocateRealUserMeshBlockDataField(2);
-  ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+1);
-  ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1);
+  ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie + NGHOST + 1);
+  ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie + NGHOST + 1);
+
 
 
     // Get mass of black hole
@@ -950,8 +952,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
 
   Real r,th,ph;
-  AthenaArray<Real> &g = ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->sruser_meshblock_data[1];
 
 
 
