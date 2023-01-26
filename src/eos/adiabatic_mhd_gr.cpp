@@ -125,7 +125,7 @@ void EquationOfState::ConservedToPrimitive(
         bool fixed = false;
 
 
-        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin())
+        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         // Calculate floors for density and pressure
         Real density_floor_local = density_floor_;
         if (rho_pow_ != 0.0) {
