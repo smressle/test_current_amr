@@ -1026,8 +1026,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 }}}
 
-g.DeleteAthenaArray();
-gi.DeleteAthenaArray();
+// g.DeleteAthenaArray();
+// gi.DeleteAthenaArray();
 
 
 
