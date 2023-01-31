@@ -483,7 +483,7 @@ bool ConservedToPrimitiveNormal(
     const AthenaArray<Real> &tt_vals, Real gamma_adi, Real pgas_old, int k, int j, int i,
     AthenaArray<Real> &prim, Real *p_gamma_lor, Real *p_pmag) {
   // Parameters
-  const int max_iterations = 15*2;
+  const int max_iterations = 15;
   const Real tol = 1.0e-12;
   // const Real tol = 1.0e-5;
   const Real pgas_uniform_min = 1.0e-12;
