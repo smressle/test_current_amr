@@ -702,10 +702,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
   if (MAGNETIC_FIELDS_ENABLED)
-  ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
   else 
-  ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
 
     // Calculate cell-centered magnetic field
@@ -723,10 +723,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
   if (MAGNETIC_FIELDS_ENABLED)
-  ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
   else 
-  ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
 
 
