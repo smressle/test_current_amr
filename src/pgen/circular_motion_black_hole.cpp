@@ -88,7 +88,7 @@ static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
     Real a31, Real a32, Real a33);
 static Real Determinant(Real a11, Real a12, Real a21, Real a22);
-bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
+bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
 
 // Global variables
