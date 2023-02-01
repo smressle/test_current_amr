@@ -702,55 +702,55 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
 
-/////// Repeat Cons to prim -> prim to cons ///
-  if (MAGNETIC_FIELDS_ENABLED)
-  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
-    phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
-  else 
-  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
-    phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
+// /////// Repeat Cons to prim -> prim to cons ///
+//   if (MAGNETIC_FIELDS_ENABLED)
+//   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+//     phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
+//   else 
+//   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+//     phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
 
 
-    // Calculate cell-centered magnetic field
-  if (MAGNETIC_FIELDS_ENABLED) {
-      pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
-        ku);
-  } 
+//     // Calculate cell-centered magnetic field
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//       pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+//         ku);
+//   } 
 
 
-  // Initialize conserved values
-  if (MAGNETIC_FIELDS_ENABLED) {
-    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-        kl, ku);
-  } else {
-    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-  }
+//   // Initialize conserved values
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+//         kl, ku);
+//   } else {
+//     peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+//   }
 
 
-  /////// One more time ///
+//   /////// One more time ///
 
 
-  if (MAGNETIC_FIELDS_ENABLED)
-  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
-    phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
-  else 
-  peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
-    phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
+//   if (MAGNETIC_FIELDS_ENABLED)
+//   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+//     phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
+//   else 
+//   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
+//     phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
 
 
-  // Calculate cell-centered magnetic field
-  if (MAGNETIC_FIELDS_ENABLED) {
-      pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
-        ku);
-  } 
+//   // Calculate cell-centered magnetic field
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//       pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+//         ku);
+//   } 
 
-  // Initialize conserved values
-  if (MAGNETIC_FIELDS_ENABLED) {
-    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-        kl, ku);
-  } else {
-    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-  }
+//   // Initialize conserved values
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+//         kl, ku);
+//   } else {
+//     peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+//   }
 
 
  if (!MAGNETIC_FIELDS_ENABLED) bb.DeleteAthenaArray();
