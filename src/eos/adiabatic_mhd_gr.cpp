@@ -292,8 +292,8 @@ void EquationOfState::ConservedToPrimitive(
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
         if (!success) {
-          fprintf(stderr,"Variable Inversion Failed!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
-            i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
+          // fprintf(stderr,"Variable Inversion Failed!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
+          //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           rho = density_floor_local;
           pgas = pressure_floor_local;
           uu1 = uu2 = uu3 = 0.0;
@@ -562,12 +562,12 @@ bool ConservedToPrimitiveNormal(
   // Step 5: Set primitives
   if (n == max_iterations) {
 
-    fprintf(stderr,"reached iteration limit \n");
+    // fprintf(stderr,"reached iteration limit \n");
     return false;
   }
   prim(IPR,k,j,i) = pgas[(n+1)%3];
   if (!std::isfinite(prim(IPR,k,j,i))) {
-    fprintf(stderr,"bad pressure: %g \n",prim(IPR,k,j,i));
+    // fprintf(stderr,"bad pressure: %g \n",prim(IPR,k,j,i));
     return false;
   }
   Real a = ee + prim(IPR,k,j,i) + 0.5*bb_sq;                      // (NH 5.7)
@@ -582,7 +582,7 @@ bool ConservedToPrimitiveNormal(
   Real gamma = std::sqrt(gamma_sq);                               // (NH 3.1)
   prim(IDN,k,j,i) = dd/gamma;                                     // (NH 4.5)
   if (!std::isfinite(prim(IDN,k,j,i))) {
-    fprintf(stderr,"bad density: %g \n",prim(IDN,k,j,i));
+    // fprintf(stderr,"bad density: %g \n",prim(IDN,k,j,i));
     return false;
   }
   Real ss = tt/ll;                          // (NH 4.8)
@@ -595,7 +595,7 @@ bool ConservedToPrimitiveNormal(
   if (!std::isfinite(prim(IVX,k,j,i))
       || !std::isfinite(prim(IVY,k,j,i))
       || !std::isfinite(prim(IVZ,k,j,i))) {
-    fprintf(stderr,"bad velocity: %g %g %g  \n",prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
+    // fprintf(stderr,"bad velocity: %g %g %g  \n",prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
     return false;
   }
   *p_gamma_lor = gamma;
