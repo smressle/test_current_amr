@@ -88,7 +88,7 @@ static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
     Real a31, Real a32, Real a33);
 static Real Determinant(Real a11, Real a12, Real a21, Real a22);
-
+bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 
 
 // Global variables
@@ -1699,7 +1699,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   bool invertible = gluInvertMatrix(g,g_inv);
 
   if (invertible==false) {
-    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n ijk: %d %d %d \n", x,y,z,i,j,k);
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
   }
 
 
