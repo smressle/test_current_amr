@@ -243,8 +243,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  // Omega_bh2 = 0.0; //
-  Omega_bh2 = v_bh2/r_bh2;
+  Omega_bh2 = 0.0; //
+  // Omega_bh2 = v_bh2/r_bh2;
 
 
   rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
@@ -701,6 +701,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
   }
 
+
+/////// Repeat Cons to prim -> prim to cons ///
   if (MAGNETIC_FIELDS_ENABLED)
   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, pfield->bcc, pcoord,il, iu, jl, ju, kl, ku);
@@ -708,11 +710,13 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
     phydro->w, bb, pcoord,il, iu, jl, ju, kl, ku);
 
+
     // Calculate cell-centered magnetic field
   if (MAGNETIC_FIELDS_ENABLED) {
       pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
         ku);
   } 
+
 
   // Initialize conserved values
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -721,6 +725,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   } else {
     peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
   }
+
+
+  /////// One more time ///
+
 
   if (MAGNETIC_FIELDS_ENABLED)
   peos->ConservedToPrimitive(phydro->u, phydro->w, pfield->b,
@@ -1625,8 +1633,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Omega_bh2 = v_bh2/r_bh2;
-  // Omega_bh2 = 0.0;
+  // Omega_bh2 = v_bh2/r_bh2;
+  Omega_bh2 = 0.0;
 
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
@@ -1688,19 +1696,24 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
 
+  bool invertible = gluInvertMatrix(g,g_inv);
+
+  if (invertible==false) {
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n ijk: %d %d %d \n", x,y,z,i,j,k);
+  }
 
 
   // // Set contravariant components
-  g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] - fprime * l_upperprime[0]*l_upperprime[0];
-  g_inv(I01) =        - f * l_upper[0]*l_upper[1] - fprime * l_upperprime[0]*l_upperprime[1];
-  g_inv(I02) =        - f * l_upper[0]*l_upper[2] - fprime * l_upperprime[0]*l_upperprime[2];
-  g_inv(I03) =        - f * l_upper[0]*l_upper[3] - fprime * l_upperprime[0]*l_upperprime[3];
-  g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] - fprime * l_upperprime[1]*l_upperprime[1];
-  g_inv(I12) =        - f * l_upper[1]*l_upper[2] - fprime * l_upperprime[1]*l_upperprime[2];
-  g_inv(I13) =        - f * l_upper[1]*l_upper[3] - fprime * l_upperprime[1]*l_upperprime[3];
-  g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] - fprime * l_upperprime[2]*l_upperprime[2];
-  g_inv(I23) =        - f * l_upper[2]*l_upper[3] - fprime * l_upperprime[2]*l_upperprime[3];
-  g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] - fprime * l_upperprime[3]*l_upperprime[3];
+  // g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] - fprime * l_upperprime[0]*l_upperprime[0];
+  // g_inv(I01) =        - f * l_upper[0]*l_upper[1] - fprime * l_upperprime[0]*l_upperprime[1];
+  // g_inv(I02) =        - f * l_upper[0]*l_upper[2] - fprime * l_upperprime[0]*l_upperprime[2];
+  // g_inv(I03) =        - f * l_upper[0]*l_upper[3] - fprime * l_upperprime[0]*l_upperprime[3];
+  // g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] - fprime * l_upperprime[1]*l_upperprime[1];
+  // g_inv(I12) =        - f * l_upper[1]*l_upper[2] - fprime * l_upperprime[1]*l_upperprime[2];
+  // g_inv(I13) =        - f * l_upper[1]*l_upper[3] - fprime * l_upperprime[1]*l_upperprime[3];
+  // g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] - fprime * l_upperprime[2]*l_upperprime[2];
+  // g_inv(I23) =        - f * l_upper[2]*l_upper[3] - fprime * l_upperprime[2]*l_upperprime[3];
+  // g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] - fprime * l_upperprime[3]*l_upperprime[3];
 
 
   Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
@@ -2380,4 +2393,98 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   }
 
   return;
+}
+
+bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
+{
+    Real det;
+    int i;
+
+    inv(I00) = m(I11)  * m(I22) * m(I33) - 
+             m(I11)  * m(I23) * m(I23) - 
+             m(I12)  * m(I12)  * m(I33) + 
+             m(I12)  * m(I13)  * m(I23) +
+             m(I13) * m(I12)  * m(I23) - 
+             m(I13) * m(I13)  * m(I22);
+
+    inv(I01) = -m(I01)  * m(I22) * m(I33) + 
+              m(I01)  * m(I23) * m(I23) + 
+              m(I02)  * m(I12)  * m(I33) - 
+              m(I02)  * m(I13)  * m(I23) - 
+              m(I03) * m(I12)  * m(I23) + 
+              m(I03) * m(I13)  * m(I22);
+
+
+    inv(I02) = m(I01)  * m(I12) * m(I33) - 
+             m(I01)  * m(I23) * m(I13) - 
+             m(I02)  * m(I11) * m(I33) + 
+             m(I02)  * m(I13) * m(I13) + 
+             m(I03) * m(I11) * m(I23) - 
+             m(I03) * m(I13) * m(I12);
+
+
+    inv(I03) = -m(I01)  * m(I12) * m(I23) + 
+               m(I01)  * m(I22) * m(I13) +
+               m(I02)  * m(I11) * m(I23) - 
+               m(I02)  * m(I12) * m(I13) - 
+               m(I03) * m(I11) * m(I22) + 
+               m(I03) * m(I12) * m(I12);
+
+
+    inv(I11) = m(I00)  * m(I22) * m(I33) - 
+             m(I00)  * m(I23) * m(I23) - 
+             m(I02)  * m(I02) * m(I33) + 
+             m(I02)  * m(I03) * m(I23) + 
+             m(I03) * m(I02) * m(I23) - 
+             m(I03) * m(I03) * m(I22);
+
+    inv(I12) = -m(I00)  * m(I12) * m(I33) + 
+              m(I00)  * m(I23) * m(I13) + 
+              m(I02)  * m(I01) * m(I33) - 
+              m(I02)  * m(I03) * m(I13) - 
+              m(I03) * m(I01) * m(I23) + 
+              m(I03) * m(I03) * m(I12);
+
+    inv(I13) = m(I00)  * m(I12) * m(I23) - 
+              m(I00)  * m(I22) * m(I13) - 
+              m(I02)  * m(I01) * m(I23) + 
+              m(I02)  * m(I02) * m(I13) + 
+              m(I03) * m(I01) * m(I22) - 
+              m(I03) * m(I02) * m(I12);
+
+    inv(I22) = m(I00)  * m(I11) * m(I33) - 
+              m(I00)  * m(I13) * m(I13) - 
+              m(I01)  * m(I01) * m(I33) + 
+              m(I01)  * m(I03) * m(I13) + 
+              m(I03) * m(I01) * m(I13) - 
+              m(I03) * m(I03) * m(I11);
+
+    inv(I23) = -m(I00)  * m(I11) * m(I23) + 
+               m(I00)  * m(I12) * m(I13) + 
+               m(I01)  * m(I01) * m(I23) - 
+               m(I01)  * m(I02) * m(I13) - 
+               m(I03) * m(I01) * m(I12) + 
+               m(I03) * m(I02) * m(I11);
+
+
+    inv(I33) = m(I00) * m(I11) * m(I22) - 
+              m(I00) * m(I12) * m(I12) - 
+              m(I01) * m(I01) * m(I22) + 
+              m(I01) * m(I02) * m(I12) + 
+              m(I02) * m(I01) * m(I12) - 
+              m(I02) * m(I02) * m(I11);
+
+    det = m(I00) * inv(I00) + m(I01) * inv(I01) + m(I02) * inv(I02) + m(I03) * inv(I03);
+    
+
+    if (det == 0)
+        return false;
+
+    det = 1.0 / det;
+
+    for (int n = 0; n < NMETRIC; ++n) {        
+      inv[n] = inv[n] * det;
+
+
+    return true;
 }
