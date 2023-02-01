@@ -2484,7 +2484,7 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 
     for (int n = 0; n < NMETRIC; ++n) {        
       inv(n) = inv(n) * det;
-
+    }
 
     return true;
 }
