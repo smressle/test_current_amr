@@ -1102,7 +1102,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
 
-          if (r < pmb->r_inner_boundary){
+          if (r < r_inner_boundary){
               
 
               //set uu assuming u is zero
@@ -1183,8 +1183,8 @@ static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, con
 void MeshBlock::UserWorkInLoop(void)
 {
   // Create aliases for metric
-  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
 
   // Go through all cells
