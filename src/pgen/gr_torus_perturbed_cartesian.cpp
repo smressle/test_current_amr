@@ -91,9 +91,9 @@ static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real
                                       Real phi);
 
 int RefinementCondition(MeshBlock *pmb);
-void Cartesian_GR(Real x1, Real x2, Real x3, ParameterInput *pin,
+void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3);
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
 
 static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
@@ -104,6 +104,7 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
+void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
