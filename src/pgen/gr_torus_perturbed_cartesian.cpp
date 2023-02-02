@@ -128,6 +128,13 @@ static Real r_bh2;
 static Real Omega_bh2;
 
 
+int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
+int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
+int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
+
+static Real SMALL = 1e-5;
+
+
 //----------------------------------------------------------------------------------------
 // Functions for calculating determinant
 // Inputs:
@@ -237,6 +244,21 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pert_amp = pin->GetOrAddReal("problem", "pert_amp", 0.0);
   pert_kr = pin->GetOrAddReal("problem", "pert_kr", 0.0);
   pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
+
+
+  max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
+
+  max_second_bh_refinement_level = pin->GetOrAddReal("problem","max_bh2_refinement",0);
+  max_smr_refinement_level = pin->GetOrAddReal("problem","max_smr_refinement",0);
+
+  if (max_second_bh_refinement_level>max_refinement_level) max_second_bh_refinement_level = max_refinement_level;
+  if (max_smr_refinement_level>max_refinement_level) max_smr_refinement_level = max_refinement_level;
+
+
+
+  if (max_refinement_level>0) max_refinement_level = max_refinement_level -1;
+  if (max_second_bh_refinement_level>0) max_second_bh_refinement_level = max_second_bh_refinement_level -1;
+  if (max_smr_refinement_level>0) max_smr_refinement_level = max_smr_refinement_level - 1;
 
   // // Enroll boundary functions
   EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
