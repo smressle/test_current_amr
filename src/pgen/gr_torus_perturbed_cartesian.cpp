@@ -97,6 +97,10 @@ static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a
 static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
+
+void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
+void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
+
 // Global variables
 static Real m, a;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
@@ -122,7 +126,7 @@ static Real dfloor,pfloor;                         // density and pressure floor
 static Real rh;                                    // horizon radius
 
 static Real aprime,q;          // black hole mass and spin
-static Real r_inner_boundary_2;
+static Real r_inner_boundary,r_inner_boundary_2;
 static Real rh2;
 static Real r_bh2;
 static Real Omega_bh2;
