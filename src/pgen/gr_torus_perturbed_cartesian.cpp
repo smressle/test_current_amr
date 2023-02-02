@@ -62,9 +62,13 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &bb, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim);
-static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim );
-
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar);
+void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half, const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar);
 
 static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
                                          Real *ptheta, Real *pphi);
@@ -275,7 +279,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     //Enroll metric
   EnrollUserMetric(Cartesian_GR);
 
-  EnrollUserRadSourceFunction(inner_boundary);
+  EnrollUserRadSourceFunction(inner_boundary_source_function);
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -1087,7 +1091,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 /* Apply inner "absorbing" boundary conditions */
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar){
 
 
   Real r,th,ph;
@@ -1165,13 +1169,18 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
 
 }
-static void inner_boundary(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim )
-{
+void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half,const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half,AthenaArray<Real> &prim_scalar){
+
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
 
-  apply_inner_boundary_condition(pmb,prim);
+  apply_inner_boundary_condition(pmb,prim,prim_scalar);
 
   return;
 }
@@ -1258,6 +1267,25 @@ void MeshBlock::UserWorkInLoop(void)
   return;
 }
 
+void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ){
+
+  if (COORDINATE_SYSTEM == "cartesian" || COORDINATE_SYSTEM == "gr_user"){
+    *DX = (box_size.x1max-box_size.x1min)/(1. * box_size.nx1);
+    *DY = (box_size.x2max-box_size.x2min)/(1. * box_size.nx2);
+    *DZ = (box_size.x3max-box_size.x3min)/(1. * box_size.nx3);
+  }
+  else if (COORDINATE_SYSTEM == "cylindrical"){
+    *DX = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
+    *DY = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
+    *DZ = (box_size.x3max-box_size.x3min)/(1. * box_size.nx3);
+
+  }
+  else if (COORDINATE_SYSTEM == "spherical_polar"){
+    *DX = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
+    *DY = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
+    *DZ = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
+  }
+}
 
 //----------------------------------------------------------------------------------------
 // Fixed boundary condition
