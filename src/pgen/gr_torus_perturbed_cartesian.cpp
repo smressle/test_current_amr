@@ -363,6 +363,7 @@ int RefinementCondition(MeshBlock *pmb)
 
   if (current_level >=max_refinement_level) return 0;
 
+  int any_in_refinement_region = 0;
   int any_at_current_level=0;
 
 
@@ -390,13 +391,14 @@ int RefinementCondition(MeshBlock *pmb)
             // }
             if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
               && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+              any_in_refinement_region=1;
               if (current_level < n_level){
 
                   return  1;
               }
+              if (current_level==n_level) any_at_current_level=1;
             }
 
-            if (current_level==n_level) any_at_current_level=1;
 
           
           }
@@ -429,15 +431,16 @@ int RefinementCondition(MeshBlock *pmb)
              //    }
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<box_radius && z > -box_radius ){
+              any_in_refinement_region = 1;
               if (current_level < n_level){
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
                   return  1;
               }
+              if (current_level==n_level) any_at_current_level=1;
             }
 
 
-            if (current_level==n_level) any_at_current_level=1;
 
           
           }
@@ -446,6 +449,7 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
+if (any_in_refinement_region==0) return -1;
 if (any_at_current_level==1) return 0;
   return -1;
 }

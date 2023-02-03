@@ -944,9 +944,11 @@ int RefinementCondition(MeshBlock *pmb)
 
                   return  1;
               }
+
+              if (current_level==n_level) any_at_current_level=1;
             }
 
-            if (current_level==n_level) any_at_current_level=1;
+          
 
           
           }
@@ -984,11 +986,12 @@ int RefinementCondition(MeshBlock *pmb)
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
                   return  1;
               }
+              if (current_level==n_level) any_at_current_level=1;
+
             }
 
 
-            if (current_level==n_level) any_at_current_level=1;
-
+          
           
           }
 
@@ -1624,7 +1627,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   //////////////Perturber Black Hole//////////////////
 
-  q = pin->GetOrAddReal("problem", "q", 1.0);
+  q = pin->GetOrAddReal("problem", "q", 0.1);
   aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
 
 
