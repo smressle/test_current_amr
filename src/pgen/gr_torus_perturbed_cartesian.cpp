@@ -135,6 +135,7 @@ static Real r_inner_boundary,r_inner_boundary_2;
 static Real rh2;
 static Real r_bh2;
 static Real Omega_bh2;
+static Real eccentricity, tau, mean_angular_motion,
 
 
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
@@ -189,6 +190,125 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
   return a11 * a22 - a12 * a21;
 }
 
+
+/*
+Solve Kepler's equation for a given star in the plane of the orbit and then rotate
+to the lab frame
+*/
+void update_star(Stars *star, int i_star, const Real t)
+{
+
+  Real mean_anomaly = mean_angular_motion * (t - tau);
+  Real a = std::pow(gm_/SQR(mean_angular_motion),1./3.);    //mean_angular_motion = np.sqrt(mu/(a*a*a));
+    Real b;
+    if (eccentricity <1){
+        b =a * sqrt(1. - SQR(eccentricity) );
+        mean_anomaly = fmod(mean_anomaly, 2*PI);
+        if (mean_anomaly >  PI) mean_anomaly = mean_anomaly- 2.0*PI;
+        if (mean_anomaly < -PI) mean_anomaly = mean_anomaly + 2.0*PI;
+    }
+    else{
+        b = a * sqrt(SQR(eccentricity) -1. );
+    }
+
+
+    //Construct the initial guess.
+    Real E;
+    if (eccentricity <1){
+      Real sgn = 1.0;
+      if (std::sin(mean_anomaly) < 0.0) sgn = -1.0;
+      E = mean_anomaly + sgn*(0.85)*eccentricity;
+     }
+    else{
+      Real sgn = 1.0;
+      if (std::sinh(-mean_anomaly) < 0.0) sgn = -1.0;
+      E = mean_anomaly;
+    }
+
+    //Solve kepler's equation iteratively to improve the solution E.
+    Real error = 1.0;
+    Real max_error = 1e-6;
+    int i_max = 100;
+    int i;
+
+    if (eccentricity <1){
+      for(i = 0; i < i_max; i++){
+        Real es = eccentricity*std::sin(E);
+        Real ec = eccentricity*std::cos(E);
+        Real f = E - es - mean_anomaly;
+        error = fabs(f);
+        if (error < max_error) break;
+        Real df = 1.0 - ec;
+        Real ddf = es;
+        Real dddf = ec;
+        Real d1 = -f/df;
+        Real d2 = -f/(df + d1*ddf/2.0);
+        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+        E = E + d3;
+      }
+    }
+    else{
+      for(i = 0; i < i_max; i++){
+        Real es = eccentricity*std::sinh(E);
+        Real ec = eccentricity*std::cosh(E);
+        Real f = E - es + mean_anomaly;
+        error = fabs(f);
+        if (error < max_error) break;
+        Real df = 1.0 - ec;
+        Real ddf = -es;
+        Real dddf = -ec;
+        Real d1 = -f/df;
+        Real d2 = -f/(df + d1*ddf/2.0);
+        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+        E = E + d3;
+      }
+    }
+
+     //Warn if solution did not converge.
+     if (error > max_error)
+       std::cout << "***Warning*** Orbit::keplers_eqn() failed to converge***\n";
+
+     Real x1_prime,x2_prime,v1_prime,v2_prime;
+    if (eccentricity<1){
+      x1_prime= a * (std::cos(E) - eccentricity) ;
+      x2_prime= b * std::sin(E) ;
+      
+      /* Time Derivative of E */
+      Real Edot = mean_angular_motion/ (1.-eccentricity * std::cos(E));
+      
+      v1_prime = - a * std::sin(E) * Edot;
+      v2_prime =   b * std::cos(E) * Edot;
+    }
+    else{
+      x1_prime = a * ( eccentricity - std::cosh(E) );
+      x2_prime = b * std::sinh(E);
+
+      /* Time Derivative of E */  
+      Real Edot = -mean_angular_motion/ (1. - eccentricity * std::cosh(E));
+
+      v1_prime = a * (-std::sinh(E)*Edot);
+      v2_prime = b * std::cosh(E) * Edot;
+    }
+
+    // Real x1,x2,x3;
+
+    // rotate_orbit(star,i_star, x1_prime, x2_prime,&x1,&x2,&x3 );
+    
+    // star[i_star].x1 = x1;
+    // star[i_star].x2 = x2;
+    // star[i_star].x3 = x3;
+    
+    // Real v1,v2,v3;
+    // rotate_orbit(star,i_star,v1_prime,v2_prime,&v1, &v2, &v3);
+    
+    
+    // star[i_star].v1 = v1;
+    // star[i_star].v2 = v2;
+    // star[i_star].v3 = v3;
+
+
+  
+}
 //----------------------------------------------------------------------------------------
 // Function for preparing Mesh
 // Inputs:
@@ -367,6 +487,9 @@ int RefinementCondition(MeshBlock *pmb)
   int any_at_current_level=0;
 
 
+  int max_level_required = 0;
+
+
   // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
 
@@ -391,6 +514,7 @@ int RefinementCondition(MeshBlock *pmb)
             // }
             if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
               && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+              if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
               if (current_level < n_level){
 
@@ -431,6 +555,7 @@ int RefinementCondition(MeshBlock *pmb)
              //    }
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<box_radius && z > -box_radius ){
+              if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
@@ -449,9 +574,12 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
-if (any_in_refinement_region==0) return -1;
-if (any_at_current_level==1) return 0;
-  return -1;
+if (current_level>max_level_required) return -1;
+else if (current_level==max_level_required) return 0;
+else return 1;
+//if (any_in_refinement_region==0) return -1;
+// if (any_at_current_level==1) return 0;
+  // return -1;
 }
 
 
