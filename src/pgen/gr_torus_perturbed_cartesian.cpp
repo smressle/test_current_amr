@@ -195,120 +195,120 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 Solve Kepler's equation for a given star in the plane of the orbit and then rotate
 to the lab frame
 */
-void update_star(Stars *star, int i_star, const Real t)
-{
+// void update_star(Stars *star, int i_star, const Real t)
+// {
 
-  Real mean_anomaly = mean_angular_motion * (t - tau);
-  Real a = std::pow(gm_/SQR(mean_angular_motion),1./3.);    //mean_angular_motion = np.sqrt(mu/(a*a*a));
-    Real b;
-    if (eccentricity <1){
-        b =a * sqrt(1. - SQR(eccentricity) );
-        mean_anomaly = fmod(mean_anomaly, 2*PI);
-        if (mean_anomaly >  PI) mean_anomaly = mean_anomaly- 2.0*PI;
-        if (mean_anomaly < -PI) mean_anomaly = mean_anomaly + 2.0*PI;
-    }
-    else{
-        b = a * sqrt(SQR(eccentricity) -1. );
-    }
+//   Real mean_anomaly = mean_angular_motion * (t - tau);
+//   Real a = std::pow(gm_/SQR(mean_angular_motion),1./3.);    //mean_angular_motion = np.sqrt(mu/(a*a*a));
+//     Real b;
+//     if (eccentricity <1){
+//         b =a * sqrt(1. - SQR(eccentricity) );
+//         mean_anomaly = fmod(mean_anomaly, 2*PI);
+//         if (mean_anomaly >  PI) mean_anomaly = mean_anomaly- 2.0*PI;
+//         if (mean_anomaly < -PI) mean_anomaly = mean_anomaly + 2.0*PI;
+//     }
+//     else{
+//         b = a * sqrt(SQR(eccentricity) -1. );
+//     }
 
 
-    //Construct the initial guess.
-    Real E;
-    if (eccentricity <1){
-      Real sgn = 1.0;
-      if (std::sin(mean_anomaly) < 0.0) sgn = -1.0;
-      E = mean_anomaly + sgn*(0.85)*eccentricity;
-     }
-    else{
-      Real sgn = 1.0;
-      if (std::sinh(-mean_anomaly) < 0.0) sgn = -1.0;
-      E = mean_anomaly;
-    }
+//     //Construct the initial guess.
+//     Real E;
+//     if (eccentricity <1){
+//       Real sgn = 1.0;
+//       if (std::sin(mean_anomaly) < 0.0) sgn = -1.0;
+//       E = mean_anomaly + sgn*(0.85)*eccentricity;
+//      }
+//     else{
+//       Real sgn = 1.0;
+//       if (std::sinh(-mean_anomaly) < 0.0) sgn = -1.0;
+//       E = mean_anomaly;
+//     }
 
-    //Solve kepler's equation iteratively to improve the solution E.
-    Real error = 1.0;
-    Real max_error = 1e-6;
-    int i_max = 100;
-    int i;
+//     //Solve kepler's equation iteratively to improve the solution E.
+//     Real error = 1.0;
+//     Real max_error = 1e-6;
+//     int i_max = 100;
+//     int i;
 
-    if (eccentricity <1){
-      for(i = 0; i < i_max; i++){
-        Real es = eccentricity*std::sin(E);
-        Real ec = eccentricity*std::cos(E);
-        Real f = E - es - mean_anomaly;
-        error = fabs(f);
-        if (error < max_error) break;
-        Real df = 1.0 - ec;
-        Real ddf = es;
-        Real dddf = ec;
-        Real d1 = -f/df;
-        Real d2 = -f/(df + d1*ddf/2.0);
-        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
-        E = E + d3;
-      }
-    }
-    else{
-      for(i = 0; i < i_max; i++){
-        Real es = eccentricity*std::sinh(E);
-        Real ec = eccentricity*std::cosh(E);
-        Real f = E - es + mean_anomaly;
-        error = fabs(f);
-        if (error < max_error) break;
-        Real df = 1.0 - ec;
-        Real ddf = -es;
-        Real dddf = -ec;
-        Real d1 = -f/df;
-        Real d2 = -f/(df + d1*ddf/2.0);
-        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
-        E = E + d3;
-      }
-    }
+//     if (eccentricity <1){
+//       for(i = 0; i < i_max; i++){
+//         Real es = eccentricity*std::sin(E);
+//         Real ec = eccentricity*std::cos(E);
+//         Real f = E - es - mean_anomaly;
+//         error = fabs(f);
+//         if (error < max_error) break;
+//         Real df = 1.0 - ec;
+//         Real ddf = es;
+//         Real dddf = ec;
+//         Real d1 = -f/df;
+//         Real d2 = -f/(df + d1*ddf/2.0);
+//         Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+//         E = E + d3;
+//       }
+//     }
+//     else{
+//       for(i = 0; i < i_max; i++){
+//         Real es = eccentricity*std::sinh(E);
+//         Real ec = eccentricity*std::cosh(E);
+//         Real f = E - es + mean_anomaly;
+//         error = fabs(f);
+//         if (error < max_error) break;
+//         Real df = 1.0 - ec;
+//         Real ddf = -es;
+//         Real dddf = -ec;
+//         Real d1 = -f/df;
+//         Real d2 = -f/(df + d1*ddf/2.0);
+//         Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+//         E = E + d3;
+//       }
+//     }
 
-     //Warn if solution did not converge.
-     if (error > max_error)
-       std::cout << "***Warning*** Orbit::keplers_eqn() failed to converge***\n";
+//      //Warn if solution did not converge.
+//      if (error > max_error)
+//        std::cout << "***Warning*** Orbit::keplers_eqn() failed to converge***\n";
 
-     Real x1_prime,x2_prime,v1_prime,v2_prime;
-    if (eccentricity<1){
-      x1_prime= a * (std::cos(E) - eccentricity) ;
-      x2_prime= b * std::sin(E) ;
+//      Real x1_prime,x2_prime,v1_prime,v2_prime;
+//     if (eccentricity<1){
+//       x1_prime= a * (std::cos(E) - eccentricity) ;
+//       x2_prime= b * std::sin(E) ;
       
-      /* Time Derivative of E */
-      Real Edot = mean_angular_motion/ (1.-eccentricity * std::cos(E));
+//       /* Time Derivative of E */
+//       Real Edot = mean_angular_motion/ (1.-eccentricity * std::cos(E));
       
-      v1_prime = - a * std::sin(E) * Edot;
-      v2_prime =   b * std::cos(E) * Edot;
-    }
-    else{
-      x1_prime = a * ( eccentricity - std::cosh(E) );
-      x2_prime = b * std::sinh(E);
+//       v1_prime = - a * std::sin(E) * Edot;
+//       v2_prime =   b * std::cos(E) * Edot;
+//     }
+//     else{
+//       x1_prime = a * ( eccentricity - std::cosh(E) );
+//       x2_prime = b * std::sinh(E);
 
-      /* Time Derivative of E */  
-      Real Edot = -mean_angular_motion/ (1. - eccentricity * std::cosh(E));
+//       /* Time Derivative of E */  
+//       Real Edot = -mean_angular_motion/ (1. - eccentricity * std::cosh(E));
 
-      v1_prime = a * (-std::sinh(E)*Edot);
-      v2_prime = b * std::cosh(E) * Edot;
-    }
+//       v1_prime = a * (-std::sinh(E)*Edot);
+//       v2_prime = b * std::cosh(E) * Edot;
+//     }
 
-    // Real x1,x2,x3;
+//     // Real x1,x2,x3;
 
-    // rotate_orbit(star,i_star, x1_prime, x2_prime,&x1,&x2,&x3 );
+//     // rotate_orbit(star,i_star, x1_prime, x2_prime,&x1,&x2,&x3 );
     
-    // star[i_star].x1 = x1;
-    // star[i_star].x2 = x2;
-    // star[i_star].x3 = x3;
+//     // star[i_star].x1 = x1;
+//     // star[i_star].x2 = x2;
+//     // star[i_star].x3 = x3;
     
-    // Real v1,v2,v3;
-    // rotate_orbit(star,i_star,v1_prime,v2_prime,&v1, &v2, &v3);
+//     // Real v1,v2,v3;
+//     // rotate_orbit(star,i_star,v1_prime,v2_prime,&v1, &v2, &v3);
     
     
-    // star[i_star].v1 = v1;
-    // star[i_star].v2 = v2;
-    // star[i_star].v3 = v3;
+//     // star[i_star].v1 = v1;
+//     // star[i_star].v2 = v2;
+//     // star[i_star].v3 = v3;
 
 
   
-}
+// }
 //----------------------------------------------------------------------------------------
 // Function for preparing Mesh
 // Inputs:
