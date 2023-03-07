@@ -580,7 +580,7 @@ if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
     pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
     Real xbh, ybh, zbh;
     get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-    fprintf("x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
+    fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
     pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
 }
 if (current_level>max_level_required) return -1;
