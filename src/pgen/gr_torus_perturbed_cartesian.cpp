@@ -135,7 +135,7 @@ static Real r_inner_boundary,r_inner_boundary_2;
 static Real rh2;
 static Real r_bh2;
 static Real Omega_bh2;
-static Real eccentricity, tau, mean_angular_motion,
+static Real eccentricity, tau, mean_angular_motion;
 
 
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
