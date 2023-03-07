@@ -575,8 +575,6 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
-(pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)
-
 if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
     pmb->block_size.x2min<0.0  &&  0.0< pmb->block_size.x2max &&
     pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
