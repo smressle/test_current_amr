@@ -555,6 +555,7 @@ int RefinementCondition(MeshBlock *pmb)
              //    }
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<box_radius && z > -box_radius ){
+
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
@@ -574,6 +575,16 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
+(pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)
+
+if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
+    pmb->block_size.x2min<0.0  &&  0.0< pmb->block_size.x2max &&
+    pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
+    Real xbh, ybh, zbh;
+    get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+    fprintf("x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+    pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
+}
 if (current_level>max_level_required) return -1;
 else if (current_level==max_level_required) return 0;
 else return 1;
@@ -719,21 +730,21 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
       Real det = std::sqrt(-Determinant(g_tmp));
       Real deti = std::sqrt(-Determinant(gi_tmp));
-      if (r>rh){
-        if (std::fabs(1.0 -det)>1e-4 || std::fabs(1.0-deti) >1e-4 ) 
-          fprintf(stderr, "Problem with determinant at r = %g th= %g phi = %g !! \n x y z: %g %g %g \ndet: %g deti: %g \n", 
-            r,theta,phi,pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),det,deti );
-                for (int mu =0; mu<=3; ++mu){
-          for (int nu = 0; nu<=3; ++nu){
+      // if (r>rh){
+      //   if (std::fabs(1.0 -det)>1e-4 || std::fabs(1.0-deti) >1e-4 ) 
+      //     fprintf(stderr, "Problem with determinant at r = %g th= %g phi = %g !! \n x y z: %g %g %g \ndet: %g deti: %g \n", 
+      //       r,theta,phi,pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),det,deti );
+      //           for (int mu =0; mu<=3; ++mu){
+      //     for (int nu = 0; nu<=3; ++nu){
 
-            if ( (mu==nu) && (std::fabs(g_raised[mu][nu] - 1.0)> 1e-4) ) 
-              fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g ", r,mu,nu,g_raised[mu][nu]);
-            else if ( ( mu != nu) && (std::fabs(g_raised[mu][nu])>1e-4) )
-              fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g\n", r,mu,nu, g_raised[mu,nu]);
+      //       if ( (mu==nu) && (std::fabs(g_raised[mu][nu] - 1.0)> 1e-4) ) 
+      //         fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g ", r,mu,nu,g_raised[mu][nu]);
+      //       else if ( ( mu != nu) && (std::fabs(g_raised[mu][nu])>1e-4) )
+      //         fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g\n", r,mu,nu, g_raised[mu,nu]);
 
-          }
-        }
-      }
+      //     }
+      //   }
+      // }
 
         // Determine if we are in the torus
         Real log_h;
