@@ -190,7 +190,104 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
   return a11 * a22 - a12 * a21;
 }
 
+/******************************************/
+/*        Rotation Functions              */
+/******************************************/
 
+
+void pre_compute_rotation_matrix(alpha,beta,gamma) {
+    
+    double X_rot[3][3];
+    double Z_rot[3][3];
+    double Z_rot2[3][3];
+    double tmp[3][3],rot[3][3];
+    double rotation_matrix[3][3];
+    int i,j,k;
+    
+    
+    Z_rot2[0][0] = std::cos(gamma);
+    Z_rot2[0][1] = -std::sin(gamma);
+    Z_rot2[0][2] = 0.;
+    Z_rot2[1][0] = std::sin(gamma);
+    Z_rot2[1][1] = std::cos(gamma);
+    Z_rot2[1][2] = 0.;
+    Z_rot2[2][0] = 0.;
+    Z_rot2[2][1] = 0.;
+    Z_rot2[2][2] = 1.;
+    
+    X_rot[0][0] = 1.;
+    X_rot[0][1] = 0.;
+    X_rot[0][2] = 0.;
+    X_rot[1][0] = 0.;
+    X_rot[1][1] = std::cos(beta);
+    X_rot[1][2] = -std::sin(beta);
+    X_rot[2][0] = 0.;
+    X_rot[2][1] = std::sin(beta);
+    X_rot[2][2] = std::cos(beta);
+    
+    Z_rot[0][0] = std::cos(alpha);
+    Z_rot[0][1] = -std::sin(alpha);
+    Z_rot[0][2] = 0.;
+    Z_rot[1][0] = std::sin(alpha);
+    Z_rot[1][1] = std::cos(alpha);
+    Z_rot[1][2] = 0.;
+    Z_rot[2][0] = 0.;
+    Z_rot[2][1] = 0.;
+    Z_rot[2][2] = 1.;
+    
+    
+    for (i=0; i<3; i++){
+        for (j=0; j<3; j++) {
+            rot[i][j] = 0.;
+            tmp[i][j] = 0.;
+        }
+    }
+    
+    for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) tmp[i][j] += X_rot[i][k] * Z_rot[k][j] ;
+    for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) rot[i][j] += Z_rot2[i][k] * tmp[k][j] ;
+    
+    
+    for (i=0; i<3; i++){
+        for (j=0; j<3; j++) {
+            rotation_matrix[i][j] = rot[i][j] ;
+        }
+    }
+
+
+    
+}
+void rotate_orbit(Stars *star, int i_star, const Real x1_prime, const Real x2_prime, Real * x1, Real * x2, Real * x3)
+{
+  Real alpha,beta,gamma;
+  alpha = star[i_star].alpha;
+  beta = star[i_star].beta;
+  gamma = star[i_star].gamma;
+
+  double X_rot[3][3];
+  double Z_rot[3][3];
+  double Z_rot2[3][3];
+  double tmp[3][3],rot[3][3];
+  double x_prime[3], x_result[3];
+  int i,j,k;
+
+  x_prime[0] = x1_prime;
+  x_prime[1] = x2_prime;
+  x_prime[2] = 0.;
+
+
+
+  for (i=0; i<3; i++) x_result[i] = 0.;
+
+  
+  for (i=0; i<3; i++) for (j=0; j<3; j++) x_result[i] += star[i_star].rotation_matrix[j][i]*x_prime[j] ;   /*Note this is inverse rotation so rot[j,i] instead of rot[i,j] */
+
+
+    *x1 = x_result[0];
+    *x2 = x_result[1];
+    *x3 = x_result[2];
+
+
+}
 /*
 Solve Kepler's equation for a given star in the plane of the orbit and then rotate
 to the lab frame
@@ -517,13 +614,13 @@ int RefinementCondition(MeshBlock *pmb)
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
+              if (current_level < n_level){
                 if (current_level==max_refinement_level){
                 Real xbh, ybh, zbh;
                 get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
                 fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required,box_radius);
+                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
                 }
-              if (current_level < n_level){
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -562,16 +659,17 @@ int RefinementCondition(MeshBlock *pmb)
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<box_radius && z > -box_radius ){
 
-              if (current_level==max_refinement_level){
-                Real xbh, ybh, zbh;
-                get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-                fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required,box_radius);
-                }
 
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
+                if (current_level==max_refinement_level){
+                Real xbh, ybh, zbh;
+                get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+                fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+                }
+
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
                   return  1;
