@@ -615,12 +615,12 @@ int RefinementCondition(MeshBlock *pmb)
               any_in_refinement_region=1;
 
               if (current_level < n_level){
-                if (current_level==max_refinement_level){
-                Real xbh, ybh, zbh;
-                get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-                fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-                }
+                // if (current_level==max_refinement_level){
+                // Real xbh, ybh, zbh;
+                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+                // }
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -663,12 +663,12 @@ int RefinementCondition(MeshBlock *pmb)
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
-                if (current_level==max_refinement_level){
-                Real xbh, ybh, zbh;
-                get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-                fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-                }
+                // if (current_level==max_refinement_level){
+                // Real xbh, ybh, zbh;
+                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+                // }
 
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
@@ -686,12 +686,12 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
-if (current_level==max_refinement_level){
-    Real xbh, ybh, zbh;
-    get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-    fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
-    pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
-}
+// if (current_level==max_refinement_level){
+//     Real xbh, ybh, zbh;
+//     get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+//     fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
+//     pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
+// }
 if (current_level>max_level_required) return -1;
 else if (current_level==max_level_required) return 0;
 else return 1;
