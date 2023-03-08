@@ -517,9 +517,7 @@ int RefinementCondition(MeshBlock *pmb)
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
-                if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
-                pmb->block_size.x2min<0.0  &&  0.0< pmb->block_size.x2max &&
-                pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
+                if (current_level==max_refinement_level){
                 Real xbh, ybh, zbh;
                 get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
                 fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
@@ -564,9 +562,7 @@ int RefinementCondition(MeshBlock *pmb)
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<box_radius && z > -box_radius ){
 
-              if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
-                pmb->block_size.x2min<0.0  &&  0.0< pmb->block_size.x2max &&
-                pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
+              if (current_level==max_refinement_level){
                 Real xbh, ybh, zbh;
                 get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
                 fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
@@ -592,9 +588,7 @@ int RefinementCondition(MeshBlock *pmb)
  }
 }
 
-if (pmb->block_size.x1min<0.0  &&  0.0< pmb->block_size.x1max &&
-    pmb->block_size.x2min<0.0  &&  0.0< pmb->block_size.x2max &&
-    pmb->block_size.x3min<r_bh2  &&  r_bh2 < pmb->block_size.x3max){
+if (current_level==max_refinement_level){
     Real xbh, ybh, zbh;
     get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
     fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
