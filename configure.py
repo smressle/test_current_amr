@@ -840,7 +840,7 @@ print('  Frame transformations:      ' + ('ON' if args['t'] else 'OFF'))
 print('  Self-Gravity:               ' + self_grav_string)
 print('  Super-Time-Stepping:        ' + ('ON' if args['sts'] else 'OFF'))
 print('  u2 Allocation:              ' + ('ON' if args['u2'] else 'OFF'))
-print('  Metric Evolution:              ' + ('OFF' if args['static_metric'] else 'ON'))
+print('  Metric Evolution:           ' + ('OFF' if args['static_metric'] else 'ON'))
 print('  Debug flags:                ' + ('ON' if args['debug'] else 'OFF'))
 print('  Code coverage flags:        ' + ('ON' if args['coverage'] else 'OFF'))
 print('  Linker flags:               ' + makefile_options['LINKER_FLAGS'] + ' '

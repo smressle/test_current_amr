@@ -54,6 +54,16 @@ void ShowConfig() {
   } else {
     std::cout<<"  Super-Time-Stepping:        OFF" << std::endl;
   }
+  if (ALLOCATE_U2) {
+    std::cout<<"  Allocate U2:                ON" << std::endl;
+  } else {
+    std::cout<<"  Allocate U2:                OFF" << std::endl;
+  }
+  if (METRIC_EVOLUTION) {
+    std::cout<<"  Evolve Metric:              ON" << std::endl;
+  } else {
+    std::cout<<"  Evolve Metric:              OFF" << std::endl;
+  }
   // configure.py output: +"Debug flags"
   // configure.py output: +"Code coverage flags"
   // configure.py output: +"Linker flags"
