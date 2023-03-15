@@ -45,6 +45,9 @@
 // allocate u2 arrays? default=0 (false)
 #define ALLOCATE_U2 @ALLOCATE_U2@
 
+// evolve metric in time? default=1 (true)
+#define METRIC_EVOLUTION @METRIC_EVOLUTION@
+
 // include self gravity? default=0 (false)
 #define SELF_GRAVITY_ENABLED @SELF_GRAVITY_ENABLED@
 

@@ -137,6 +137,8 @@ static Real r_bh2;
 static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
 
+// Real rotation_matrix[3][3];
+
 
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
@@ -144,6 +146,28 @@ int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR 
 
 static Real SMALL = 1e-5;
 
+
+/* A structure defining the properties of each of the source 'stars' */
+typedef struct secondary_bh_s{
+  Real q;     /* mass ratio */
+  Real spin;    /* dimensionless spin in units of ???s*/
+  Real x1;      /* position in X,Y,Z (in pc) */
+  Real x2;
+  Real x3;
+  Real v1;      /* velocity in X,Y,Z */
+  Real v2;
+  Real v3;
+  Real alpha;     /* euler angles for ZXZ rotation*/
+  Real beta;
+  Real gamma;
+  Real tau;
+  Real mean_angular_motion;
+  Real eccentricity;
+  Real rotation_matrix[3][3];
+  Real period;
+}secondary_bh;
+
+secondary_bh bh2;          /* The stars structure used throughout */
 
 //----------------------------------------------------------------------------------------
 // Functions for calculating determinant
@@ -195,217 +219,213 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 /******************************************/
 
 
-// void pre_compute_rotation_matrix(alpha,beta,gamma) {
+void pre_compute_rotation_matrix(const Real alpha,const Real beta,const Real gamma) {
     
-//     double X_rot[3][3];
-//     double Z_rot[3][3];
-//     double Z_rot2[3][3];
-//     double tmp[3][3],rot[3][3];
-//     double rotation_matrix[3][3];
-//     int i,j,k;
-    
-    
-//     Z_rot2[0][0] = std::cos(gamma);
-//     Z_rot2[0][1] = -std::sin(gamma);
-//     Z_rot2[0][2] = 0.;
-//     Z_rot2[1][0] = std::sin(gamma);
-//     Z_rot2[1][1] = std::cos(gamma);
-//     Z_rot2[1][2] = 0.;
-//     Z_rot2[2][0] = 0.;
-//     Z_rot2[2][1] = 0.;
-//     Z_rot2[2][2] = 1.;
-    
-//     X_rot[0][0] = 1.;
-//     X_rot[0][1] = 0.;
-//     X_rot[0][2] = 0.;
-//     X_rot[1][0] = 0.;
-//     X_rot[1][1] = std::cos(beta);
-//     X_rot[1][2] = -std::sin(beta);
-//     X_rot[2][0] = 0.;
-//     X_rot[2][1] = std::sin(beta);
-//     X_rot[2][2] = std::cos(beta);
-    
-//     Z_rot[0][0] = std::cos(alpha);
-//     Z_rot[0][1] = -std::sin(alpha);
-//     Z_rot[0][2] = 0.;
-//     Z_rot[1][0] = std::sin(alpha);
-//     Z_rot[1][1] = std::cos(alpha);
-//     Z_rot[1][2] = 0.;
-//     Z_rot[2][0] = 0.;
-//     Z_rot[2][1] = 0.;
-//     Z_rot[2][2] = 1.;
+    double X_rot[3][3];
+    double Z_rot[3][3];
+    double Z_rot2[3][3];
+    double tmp[3][3],rot[3][3];
+    int i,j,k;
     
     
-//     for (i=0; i<3; i++){
-//         for (j=0; j<3; j++) {
-//             rot[i][j] = 0.;
-//             tmp[i][j] = 0.;
-//         }
-//     }
+    Z_rot2[0][0] = std::cos(gamma);
+    Z_rot2[0][1] = -std::sin(gamma);
+    Z_rot2[0][2] = 0.;
+    Z_rot2[1][0] = std::sin(gamma);
+    Z_rot2[1][1] = std::cos(gamma);
+    Z_rot2[1][2] = 0.;
+    Z_rot2[2][0] = 0.;
+    Z_rot2[2][1] = 0.;
+    Z_rot2[2][2] = 1.;
     
-//     for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) tmp[i][j] += X_rot[i][k] * Z_rot[k][j] ;
-//     for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) rot[i][j] += Z_rot2[i][k] * tmp[k][j] ;
+    X_rot[0][0] = 1.;
+    X_rot[0][1] = 0.;
+    X_rot[0][2] = 0.;
+    X_rot[1][0] = 0.;
+    X_rot[1][1] = std::cos(beta);
+    X_rot[1][2] = -std::sin(beta);
+    X_rot[2][0] = 0.;
+    X_rot[2][1] = std::sin(beta);
+    X_rot[2][2] = std::cos(beta);
+    
+    Z_rot[0][0] = std::cos(alpha);
+    Z_rot[0][1] = -std::sin(alpha);
+    Z_rot[0][2] = 0.;
+    Z_rot[1][0] = std::sin(alpha);
+    Z_rot[1][1] = std::cos(alpha);
+    Z_rot[1][2] = 0.;
+    Z_rot[2][0] = 0.;
+    Z_rot[2][1] = 0.;
+    Z_rot[2][2] = 1.;
     
     
-//     for (i=0; i<3; i++){
-//         for (j=0; j<3; j++) {
-//             rotation_matrix[i][j] = rot[i][j] ;
-//         }
-//     }
+    for (i=0; i<3; i++){
+        for (j=0; j<3; j++) {
+            rot[i][j] = 0.;
+            tmp[i][j] = 0.;
+        }
+    }
+    
+    for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) tmp[i][j] += X_rot[i][k] * Z_rot[k][j] ;
+    for (i=0; i<3; i++) for (j=0; j<3; j++) for (k=0; k<3; k++) rot[i][j] += Z_rot2[i][k] * tmp[k][j] ;
+    
+    
+    for (i=0; i<3; i++){
+        for (j=0; j<3; j++) {
+            rotation_matrix[i][j] = rot[i][j] ;
+        }
+    }
 
 
     
-// }
-// void rotate_orbit(Stars *star, int i_star, const Real x1_prime, const Real x2_prime, Real * x1, Real * x2, Real * x3)
-// {
-//   Real alpha,beta,gamma;
-//   alpha = star[i_star].alpha;
-//   beta = star[i_star].beta;
-//   gamma = star[i_star].gamma;
+}
+void rotate_orbit(const Real alpha, const Real beta, const Real gamma, const Real x1_prime, const Real x2_prime, Real * x1, Real * x2, Real * x3)
+{
+  Real alpha,beta,gamma;
 
-//   double X_rot[3][3];
-//   double Z_rot[3][3];
-//   double Z_rot2[3][3];
-//   double tmp[3][3],rot[3][3];
-//   double x_prime[3], x_result[3];
-//   int i,j,k;
+  double X_rot[3][3];
+  double Z_rot[3][3];
+  double Z_rot2[3][3];
+  double tmp[3][3],rot[3][3];
+  double x_prime[3], x_result[3];
+  int i,j,k;
 
-//   x_prime[0] = x1_prime;
-//   x_prime[1] = x2_prime;
-//   x_prime[2] = 0.;
+  x_prime[0] = x1_prime;
+  x_prime[1] = x2_prime;
+  x_prime[2] = 0.;
 
 
 
-//   for (i=0; i<3; i++) x_result[i] = 0.;
+  for (i=0; i<3; i++) x_result[i] = 0.;
 
   
-//   for (i=0; i<3; i++) for (j=0; j<3; j++) x_result[i] += star[i_star].rotation_matrix[j][i]*x_prime[j] ;   /*Note this is inverse rotation so rot[j,i] instead of rot[i,j] */
+  for (i=0; i<3; i++) for (j=0; j<3; j++) x_result[i] += star[i_star].rotation_matrix[j][i]*x_prime[j] ;   /*Note this is inverse rotation so rot[j,i] instead of rot[i,j] */
 
 
-//     *x1 = x_result[0];
-//     *x2 = x_result[1];
-//     *x3 = x_result[2];
+    *x1 = x_result[0];
+    *x2 = x_result[1];
+    *x3 = x_result[2];
 
 
-// }
+}
 /*
 Solve Kepler's equation for a given star in the plane of the orbit and then rotate
 to the lab frame
 */
-// void update_star(Stars *star, int i_star, const Real t)
-// {
+void get_bh2_position_from_Kepler(const Real t)
+{
 
-//   Real mean_anomaly = mean_angular_motion * (t - tau);
-//   Real a = std::pow(gm_/SQR(mean_angular_motion),1./3.);    //mean_angular_motion = np.sqrt(mu/(a*a*a));
-//     Real b;
-//     if (eccentricity <1){
-//         b =a * sqrt(1. - SQR(eccentricity) );
-//         mean_anomaly = fmod(mean_anomaly, 2*PI);
-//         if (mean_anomaly >  PI) mean_anomaly = mean_anomaly- 2.0*PI;
-//         if (mean_anomaly < -PI) mean_anomaly = mean_anomaly + 2.0*PI;
-//     }
-//     else{
-//         b = a * sqrt(SQR(eccentricity) -1. );
-//     }
+  Real mean_anomaly = mean_angular_motion * (t - tau);
+  Real a = std::pow(gm_/SQR(mean_angular_motion),1./3.);    //mean_angular_motion = np.sqrt(mu/(a*a*a));
+    Real b;
+    if (eccentricity <1){
+        b =a * sqrt(1. - SQR(eccentricity) );
+        mean_anomaly = fmod(mean_anomaly, 2*PI);
+        if (mean_anomaly >  PI) mean_anomaly = mean_anomaly- 2.0*PI;
+        if (mean_anomaly < -PI) mean_anomaly = mean_anomaly + 2.0*PI;
+    }
+    else{
+        b = a * sqrt(SQR(eccentricity) -1. );
+    }
 
 
-//     //Construct the initial guess.
-//     Real E;
-//     if (eccentricity <1){
-//       Real sgn = 1.0;
-//       if (std::sin(mean_anomaly) < 0.0) sgn = -1.0;
-//       E = mean_anomaly + sgn*(0.85)*eccentricity;
-//      }
-//     else{
-//       Real sgn = 1.0;
-//       if (std::sinh(-mean_anomaly) < 0.0) sgn = -1.0;
-//       E = mean_anomaly;
-//     }
+    //Construct the initial guess.
+    Real E;
+    if (eccentricity <1){
+      Real sgn = 1.0;
+      if (std::sin(mean_anomaly) < 0.0) sgn = -1.0;
+      E = mean_anomaly + sgn*(0.85)*eccentricity;
+     }
+    else{
+      Real sgn = 1.0;
+      if (std::sinh(-mean_anomaly) < 0.0) sgn = -1.0;
+      E = mean_anomaly;
+    }
 
-//     //Solve kepler's equation iteratively to improve the solution E.
-//     Real error = 1.0;
-//     Real max_error = 1e-6;
-//     int i_max = 100;
-//     int i;
+    //Solve kepler's equation iteratively to improve the solution E.
+    Real error = 1.0;
+    Real max_error = 1e-6;
+    int i_max = 100;
+    int i;
 
-//     if (eccentricity <1){
-//       for(i = 0; i < i_max; i++){
-//         Real es = eccentricity*std::sin(E);
-//         Real ec = eccentricity*std::cos(E);
-//         Real f = E - es - mean_anomaly;
-//         error = fabs(f);
-//         if (error < max_error) break;
-//         Real df = 1.0 - ec;
-//         Real ddf = es;
-//         Real dddf = ec;
-//         Real d1 = -f/df;
-//         Real d2 = -f/(df + d1*ddf/2.0);
-//         Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
-//         E = E + d3;
-//       }
-//     }
-//     else{
-//       for(i = 0; i < i_max; i++){
-//         Real es = eccentricity*std::sinh(E);
-//         Real ec = eccentricity*std::cosh(E);
-//         Real f = E - es + mean_anomaly;
-//         error = fabs(f);
-//         if (error < max_error) break;
-//         Real df = 1.0 - ec;
-//         Real ddf = -es;
-//         Real dddf = -ec;
-//         Real d1 = -f/df;
-//         Real d2 = -f/(df + d1*ddf/2.0);
-//         Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
-//         E = E + d3;
-//       }
-//     }
+    if (eccentricity <1){
+      for(i = 0; i < i_max; i++){
+        Real es = eccentricity*std::sin(E);
+        Real ec = eccentricity*std::cos(E);
+        Real f = E - es - mean_anomaly;
+        error = fabs(f);
+        if (error < max_error) break;
+        Real df = 1.0 - ec;
+        Real ddf = es;
+        Real dddf = ec;
+        Real d1 = -f/df;
+        Real d2 = -f/(df + d1*ddf/2.0);
+        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+        E = E + d3;
+      }
+    }
+    else{
+      for(i = 0; i < i_max; i++){
+        Real es = eccentricity*std::sinh(E);
+        Real ec = eccentricity*std::cosh(E);
+        Real f = E - es + mean_anomaly;
+        error = fabs(f);
+        if (error < max_error) break;
+        Real df = 1.0 - ec;
+        Real ddf = -es;
+        Real dddf = -ec;
+        Real d1 = -f/df;
+        Real d2 = -f/(df + d1*ddf/2.0);
+        Real d3 = -f/(df + d2*ddf/2.0 + d2*d2*dddf/6.0);
+        E = E + d3;
+      }
+    }
 
-//      //Warn if solution did not converge.
-//      if (error > max_error)
-//        std::cout << "***Warning*** Orbit::keplers_eqn() failed to converge***\n";
+     //Warn if solution did not converge.
+     if (error > max_error)
+       std::cout << "***Warning*** Orbit::keplers_eqn() failed to converge***\n";
 
-//      Real x1_prime,x2_prime,v1_prime,v2_prime;
-//     if (eccentricity<1){
-//       x1_prime= a * (std::cos(E) - eccentricity) ;
-//       x2_prime= b * std::sin(E) ;
+     Real x1_prime,x2_prime,v1_prime,v2_prime;
+    if (eccentricity<1){
+      x1_prime= a * (std::cos(E) - eccentricity) ;
+      x2_prime= b * std::sin(E) ;
       
-//       /* Time Derivative of E */
-//       Real Edot = mean_angular_motion/ (1.-eccentricity * std::cos(E));
+      /* Time Derivative of E */
+      Real Edot = mean_angular_motion/ (1.-eccentricity * std::cos(E));
       
-//       v1_prime = - a * std::sin(E) * Edot;
-//       v2_prime =   b * std::cos(E) * Edot;
-//     }
-//     else{
-//       x1_prime = a * ( eccentricity - std::cosh(E) );
-//       x2_prime = b * std::sinh(E);
+      v1_prime = - a * std::sin(E) * Edot;
+      v2_prime =   b * std::cos(E) * Edot;
+    }
+    else{
+      x1_prime = a * ( eccentricity - std::cosh(E) );
+      x2_prime = b * std::sinh(E);
 
-//       /* Time Derivative of E */  
-//       Real Edot = -mean_angular_motion/ (1. - eccentricity * std::cosh(E));
+      /* Time Derivative of E */  
+      Real Edot = -mean_angular_motion/ (1. - eccentricity * std::cosh(E));
 
-//       v1_prime = a * (-std::sinh(E)*Edot);
-//       v2_prime = b * std::cosh(E) * Edot;
-//     }
+      v1_prime = a * (-std::sinh(E)*Edot);
+      v2_prime = b * std::cosh(E) * Edot;
+    }
 
-//     // Real x1,x2,x3;
+    // Real x1,x2,x3;
 
-//     // rotate_orbit(star,i_star, x1_prime, x2_prime,&x1,&x2,&x3 );
+    // rotate_orbit(star,i_star, x1_prime, x2_prime,&x1,&x2,&x3 );
     
-//     // star[i_star].x1 = x1;
-//     // star[i_star].x2 = x2;
-//     // star[i_star].x3 = x3;
+    // star[i_star].x1 = x1;
+    // star[i_star].x2 = x2;
+    // star[i_star].x3 = x3;
     
-//     // Real v1,v2,v3;
-//     // rotate_orbit(star,i_star,v1_prime,v2_prime,&v1, &v2, &v3);
+    // Real v1,v2,v3;
+    // rotate_orbit(star,i_star,v1_prime,v2_prime,&v1, &v2, &v3);
     
     
-//     // star[i_star].v1 = v1;
-//     // star[i_star].v2 = v2;
-//     // star[i_star].v3 = v3;
+    // star[i_star].v1 = v1;
+    // star[i_star].v2 = v2;
+    // star[i_star].v3 = v3;
 
 
   
-// }
+}
 //----------------------------------------------------------------------------------------
 // Function for preparing Mesh
 // Inputs:
@@ -2413,6 +2433,7 @@ void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,Athe
   Real zprime = z - z_bh2;
 
 
+//velocity of the second black hole.  For non-circular orbit need to compute velocities in cartesian coordinates
 
   Real dx_bh2_dt = 0.0;
   Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);

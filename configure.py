@@ -211,6 +211,12 @@ parser.add_argument('-u2',
                     default=False,
                     help='enable u2 array allocation')
 
+# -static_metric argument
+parser.add_argument('-static_metric',
+                    action='store_true',
+                    default=False,
+                    help='turn off metric evolution with time')
+
 # The main choices for --cxx flag, using "ctype[-suffix]" formatting, where "ctype" is the
 # major family/suite/group of compilers and "suffix" may represent variants of the
 # compiler version and/or predefined sets of compiler options. The C++ compiler front ends
@@ -438,6 +444,12 @@ if args['u2']:
     definitions['ALLOCATE_U2'] = '1'
 else:
     definitions['ALLOCATE_U2'] = '0'
+
+
+if args['static_metric']:
+    definitions['METRIC_EVOLUTION'] = '0'
+else:
+    definitions['METRIC_EVOLUTION'] = '1'
 
 # -s, -g, and -t arguments
 definitions['RELATIVISTIC_DYNAMICS'] = '1' if args['s'] or args['g'] else '0'
@@ -828,6 +840,7 @@ print('  Frame transformations:      ' + ('ON' if args['t'] else 'OFF'))
 print('  Self-Gravity:               ' + self_grav_string)
 print('  Super-Time-Stepping:        ' + ('ON' if args['sts'] else 'OFF'))
 print('  u2 Allocation:              ' + ('ON' if args['u2'] else 'OFF'))
+print('  Metric Evolution:              ' + ('OFF' if args['static_metric'] else 'ON'))
 print('  Debug flags:                ' + ('ON' if args['debug'] else 'OFF'))
 print('  Code coverage flags:        ' + ('ON' if args['coverage'] else 'OFF'))
 print('  Linker flags:               ' + makefile_options['LINKER_FLAGS'] + ' '

@@ -211,7 +211,8 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
             coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
             coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
             coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
-            coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+           if (METRIC_EVOLUTION) coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+           else coord_src_kji_(3,m,k,j,i) = 0.0;
 
           }
         }
@@ -1749,7 +1750,8 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
             coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
             coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
             coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
-            coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+            if (METRIC_EVOLUTION) coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+            else coord_src_kji_(3,m,k,j,i) = 0.0;
           }
         }
 
