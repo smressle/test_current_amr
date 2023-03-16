@@ -2835,12 +2835,15 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
   rsq_p_asq = SQR(rprime) + SQR(aprime);
 
-  Real dfprime_dx1 = q * SQR(fprime/q)*xprime/(2.0*std::pow(rprime,3)) * 
+  Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+
+
+  Real dfprime_dx1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
                       ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
   //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real dfprime_dx2 = q * SQR(fprime/q)*yprime/(2.0*std::pow(rprime,3)) * 
+  Real dfprime_dx2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
                       ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  Real dfprime_dx3 = q * SQR(fprime/q)*zprime/(2.0*std::pow(rprime,5)) * 
+  Real dfprime_dx3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
                       ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
   //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
   Real dl1prime_dx1 = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
