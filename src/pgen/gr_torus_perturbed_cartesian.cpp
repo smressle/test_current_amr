@@ -545,7 +545,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
-  t0 = pin->GetorAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 1e4);
 
 
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
