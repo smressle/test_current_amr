@@ -136,6 +136,7 @@ static Real rh2;
 static Real r_bh2;
 static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
+static Real t0; //time at which second BH is at polar axis
 
 // Real rotation_matrix[3][3];
 
@@ -543,6 +544,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   q = pin->GetOrAddReal("problem", "q", 0.1);
   aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+
+  t0 = pin->GetorAddReal("problem","t0", 1e4);
 
 
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
@@ -2267,8 +2270,8 @@ static void TransformAphi(Real a3_ks, Real x1,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 
   *xbh = 0.0;
-  *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-  *zbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
+  *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  *zbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
 
 }
