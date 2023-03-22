@@ -1542,7 +1542,7 @@ void MeshBlock::UserWorkInLoop(void)
 
   Real divb=0;
   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
-  FaceField &b = pmb->pfield->b;
+  FaceField &b = pfield->b;
 
   face1.NewAthenaArray((ie-is)+2*NGHOST+2);
   face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
