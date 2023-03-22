@@ -106,6 +106,7 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
+
 // Global variables
 static Real m, a;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
@@ -562,7 +563,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   rh2 = m2 * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 6;
+  int N_user_vars = 7;
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -1538,6 +1539,38 @@ void MeshBlock::UserWorkInLoop(void)
       }
     }
   }
+
+  Real divb=0;
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pmb->pfield->b;
+
+  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+        user_out_var(6,k,j,i)=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+      }
+    }
+  }
+
+  face1.DeleteAthenaArray();
+  face2p.DeleteAthenaArray();
+  face2m.DeleteAthenaArray();
+  face3p.DeleteAthenaArray();
+  face3m.DeleteAthenaArray();
+
   return;
 }
 
