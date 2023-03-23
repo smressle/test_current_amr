@@ -106,6 +106,8 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
+void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
+
 void PreserveDivbNewMetric(MeshBlock *pmb,ParameterInput *pin,FaceField &bb);
 
 
@@ -3700,11 +3702,6 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] ;
 
 
-
-  if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
-    fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
-    exit(0);
-  }
 
 
 
