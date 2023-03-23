@@ -1392,13 +1392,13 @@ for (int dir=0; dir<=2; ++dir){
   int iu = pmb->ie + NGHOST;
   int jl = pmb->js;
   int ju = pmb->je;
-  if (block_size.nx2 > 1) {
+  if (pmb->block_size.nx2 > 1) {
     jl -= (NGHOST);
     ju += (NGHOST);
   }
   int kl = pmb->ks;
   int ku = pmb->ke;
-  if (block_size.nx3 > 1) {
+  if (pmb->block_size.nx3 > 1) {
     kl -= (NGHOST);
     ku += (NGHOST);
   }
