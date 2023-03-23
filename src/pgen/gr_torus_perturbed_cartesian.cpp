@@ -583,6 +583,10 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
+  SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
+
+  if (SCALE_DIVERGENCE) fprintf(stderr,"Scaling divergence \n");
+
   if (MAGNETIC_FIELDS_ENABLED && SCALE_DIVERGENCE) PreserveDivbNewMetric(pmb,pin,pfiled->b);
 
 
@@ -1383,7 +1387,7 @@ for (int dir=0; dir<=2; ++dir){
   if (dir==2) dk = 1;
    for (int k=pmb->kl; k<=pmb->ku+dk; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=pmb->jl; j<=pmb->ju+du; ++j) {
+    for (int j=pmb->jl; j<=pmb->ju+dj; ++j) {
       if (dir==0) pmb->pcoord->Face1Metric(k, j, pmb->il, pmb->iu+di,g, gi);
       if (dir==1) pmb->pcoord->Face2Metric(k, j, pmb->il, pmb->iu+di,g, gi);
       if (dir==2) pmb->pcoord->Face3Metric(k, j, pmb->il, pmb->iu+di,g, gi);
