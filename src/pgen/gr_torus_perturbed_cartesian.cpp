@@ -106,7 +106,7 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
-void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,,ParameterInput *pin,FaceField &bb);
+void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,ParameterInput *pin,FaceField &bb);
 
 
 // Global variables
@@ -583,11 +583,11 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
-  SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
+  int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
   if (SCALE_DIVERGENCE) fprintf(stderr,"Scaling divergence \n");
 
-  if (MAGNETIC_FIELDS_ENABLED && SCALE_DIVERGENCE) PreserveDivbNewMetric(pmb,pin,pfiled->b);
+  if (MAGNETIC_FIELDS_ENABLED && SCALE_DIVERGENCE) PreserveDivbNewMetric(pcoord->pmy_block,pin,pfield->b);
 
 
   return;
@@ -1370,7 +1370,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   return;
 }
 
-void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,,ParameterInput *pin,FaceField &bb){
+void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,ParameterInput *pin,FaceField &bb){
 
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
