@@ -106,6 +106,8 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
+void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,,ParameterInput *pin,FaceField &bb);
+
 
 // Global variables
 static Real m, a;                                  // black hole parameters
@@ -578,9 +580,10 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 
 
-
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
+
+  if (MAGNETIC_FIELDS_ENABLED && SCALE_DIVERGENCE) PreserveDivbNewMetric(pmb,pin,pfiled->b);
 
 
   return;
@@ -1361,6 +1364,68 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Call user work function to set output variables
   UserWorkInLoop();
   return;
+}
+
+void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,,ParameterInput *pin,FaceField &bb){
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+
+
+for (int dir=0; dir<=2; ++dir){
+  int dk = 0;
+  int dj = 0;
+  int di = 0;
+
+  if (dir==0) di = 1;
+  if (dir==1) dj = 1;
+  if (dir==2) dk = 1;
+   for (int k=pmb->kl; k<=pmb->ku+dk; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=pmb->jl; j<=pmb->ju+du; ++j) {
+      if (dir==0) pmb->pcoord->Face1Metric(k, j, pmb->il, pmb->iu+di,g, gi);
+      if (dir==1) pmb->pcoord->Face2Metric(k, j, pmb->il, pmb->iu+di,g, gi);
+      if (dir==2) pmb->pcoord->Face3Metric(k, j, pmb->il, pmb->iu+di,g, gi);
+#pragma simd
+      for (int i=pmb->il; i<=pmb->iu+di; ++i) {
+
+        // Prepare scratch arrays
+        AthenaArray<Real> g_tmp,g_old;
+        g_tmp.NewAthenaArray(NMETRIC);
+        g_old.NewAthenaArray(NMETRIC);
+        g_tmp(I00) = g(I00,i);
+        g_tmp(I01) = g(I01,i);
+        g_tmp(I02) = g(I02,i);
+        g_tmp(I03) = g(I03,i);
+        g_tmp(I11) = g(I11,i);
+        g_tmp(I12) = g(I12,i);
+        g_tmp(I13) = g(I13,i);
+        g_tmp(I22) = g(I22,i);
+        g_tmp(I23) = g(I23,i);
+        g_tmp(I33) = g(I33,i);
+
+        Real det_new = Determinant(g_tmp);
+
+        if (dir==0) single_bh_metric(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), pin,g_old);
+        if (dir==1) single_bh_metric(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pin,g_old);
+        if (dir==2) single_bh_metric(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pin,g_old);
+
+
+        Real det_old = Determinant(g_old);
+
+        if (dir==0) bb.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1) bb.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2) bb.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+
+
+        g_tmp.DeleteAthenaArray();
+        g_old.DeleteAthenaArray();
+
+      }
+    }
+  }
+}
 }
 
 
@@ -3546,4 +3611,86 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
     }
 
     return true;
+}
+#define DEL 1e-7
+void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
+    AthenaArray<Real> &g)
+{
+  // Extract inputs
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
+
+  a = pin->GetReal("coord", "a");
+  Real a_spin =a;
+
+  if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
+  if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
+
+  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
+  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
+
+  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
+  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
+
+  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+    x= 0.1;
+    y = 0.1;
+    z = 0.1;
+  }
+
+  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+  r = std::sqrt(r/2.0);
+
+
+  //if (r<0.01) r = 0.01;
+
+
+  Real eta[4],l_lower[4],l_upper[4];
+
+  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
+  l_upper[0] = -1.0;
+  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
+  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
+  l_upper[3] = z/r;
+
+  l_lower[0] = 1.0;
+  l_lower[1] = l_upper[1];
+  l_lower[2] = l_upper[2];
+  l_lower[3] = l_upper[3];
+
+  eta[0] = -1.0;
+  eta[1] = 1.0;
+  eta[2] = 1.0;
+  eta[3] = 1.0;
+
+
+
+
+  // Set covariant components
+  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] ;
+  g(I01) =          f * l_lower[0]*l_lower[1] ;
+  g(I02) =          f * l_lower[0]*l_lower[2] ;
+  g(I03) =          f * l_lower[0]*l_lower[3] ;
+  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] ;
+  g(I12) =          f * l_lower[1]*l_lower[2] ;
+  g(I13) =          f * l_lower[1]*l_lower[3] ;
+  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] ;
+  g(I23) =          f * l_lower[2]*l_lower[3] ;
+  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] ;
+
+
+
+  if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
+    fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
+    exit(0);
+  }
+
+
+
+
+
+
+  return;
 }
