@@ -106,7 +106,7 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime,Real *yprime,
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh);
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
-void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,ParameterInput *pin,FaceField &bb);
+void PreserveDivbNewMetric(MeshBlock *pmb,ParameterInput *pin,FaceField &bb);
 
 
 // Global variables
@@ -1370,7 +1370,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   return;
 }
 
-void PreserveDivbNewMetric(MeshBlock *pmb,AthenaArray<Real>,ParameterInput *pin,FaceField &bb){
+void PreserveDivbNewMetric(MeshBlock *pmb,ParameterInput *pin,FaceField &bb){
 
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
@@ -1385,14 +1385,29 @@ for (int dir=0; dir<=2; ++dir){
   if (dir==0) di = 1;
   if (dir==1) dj = 1;
   if (dir==2) dk = 1;
-   for (int k=pmb->kl; k<=pmb->ku+dk; ++k) {
+
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= (NGHOST);
+    ju += (NGHOST);
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= (NGHOST);
+    ku += (NGHOST);
+  }
+   for (int k=kl; k<=ku+dk; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=pmb->jl; j<=pmb->ju+dj; ++j) {
-      if (dir==0) pmb->pcoord->Face1Metric(k, j, pmb->il, pmb->iu+di,g, gi);
-      if (dir==1) pmb->pcoord->Face2Metric(k, j, pmb->il, pmb->iu+di,g, gi);
-      if (dir==2) pmb->pcoord->Face3Metric(k, j, pmb->il, pmb->iu+di,g, gi);
+    for (int j=jl; j<=ju+dj; ++j) {
+      if (dir==0) pmb->pcoord->Face1Metric(k, j, il, iu+di,g, gi);
+      if (dir==1) pmb->pcoord->Face2Metric(k, j, il, iu+di,g, gi);
+      if (dir==2) pmb->pcoord->Face3Metric(k, j, il, iu+di,g, gi);
 #pragma simd
-      for (int i=pmb->il; i<=pmb->iu+di; ++i) {
+      for (int i=il; i<=iu+di; ++i) {
 
         // Prepare scratch arrays
         AthenaArray<Real> g_tmp,g_old;
