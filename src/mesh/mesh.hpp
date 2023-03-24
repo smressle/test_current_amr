@@ -166,6 +166,7 @@ class MeshBlock {
   //! defined in either the prob file or default_pgen.cpp in ../pgen/
   void ProblemGenerator(ParameterInput *pin);
   void InitUserMeshBlockData(ParameterInput *pin);
+  void PreserveDivbNewMetric(ParameterInput *pin);
 
   // functions and variables for automatic load balancing based on timing
   double cost_, lb_time_;

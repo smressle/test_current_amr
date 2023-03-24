@@ -338,6 +338,10 @@ MeshBlock::MeshBlock(int igid, int ilid, Mesh *pm, ParameterInput *pin,
     os += ruser_meshblock_data[n].GetSizeInBytes();
   }
 
+
+
+  if (MAGNETIC_FIELDS_ENABLED && GENERAL_RELATIVITY) PreserveDivbNewMetric(pin);
+
   return;
 }
 

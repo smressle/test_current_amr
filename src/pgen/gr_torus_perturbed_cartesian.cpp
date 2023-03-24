@@ -585,11 +585,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
-  int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
-
-  if (SCALE_DIVERGENCE) fprintf(stderr,"Scaling divergence \n");
-
-  if (MAGNETIC_FIELDS_ENABLED && SCALE_DIVERGENCE) PreserveDivbNewMetric(pcoord->pmy_block,pin,pfield->b);
+  int SCALE_DIVERGENCE = true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
   return;
@@ -1372,10 +1368,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   return;
 }
 
-void PreserveDivbNewMetric(MeshBlock *pmb,ParameterInput *pin,FaceField &bb){
+void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
-  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+ if (SCALE_DIVERGENCE) {
+  fprintf(stderr,"Scaling divergence \n");
+
+
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
 
 
@@ -1388,26 +1389,26 @@ for (int dir=0; dir<=2; ++dir){
   if (dir==1) dj = 1;
   if (dir==2) dk = 1;
 
-  int il = pmb->is - NGHOST;
-  int iu = pmb->ie + NGHOST;
-  int jl = pmb->js;
-  int ju = pmb->je;
-  if (pmb->block_size.nx2 > 1) {
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
     jl -= (NGHOST);
     ju += (NGHOST);
   }
-  int kl = pmb->ks;
-  int ku = pmb->ke;
-  if (pmb->block_size.nx3 > 1) {
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
     kl -= (NGHOST);
     ku += (NGHOST);
   }
    for (int k=kl; k<=ku+dk; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=jl; j<=ju+dj; ++j) {
-      if (dir==0) pmb->pcoord->Face1Metric(k, j, il, iu+di,g, gi);
-      if (dir==1) pmb->pcoord->Face2Metric(k, j, il, iu+di,g, gi);
-      if (dir==2) pmb->pcoord->Face3Metric(k, j, il, iu+di,g, gi);
+      if (dir==0) pcoord->Face1Metric(k, j, il, iu+di,g, gi);
+      if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
+      if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
 #pragma simd
       for (int i=il; i<=iu+di; ++i) {
 
@@ -1428,16 +1429,16 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_new = Determinant(g_tmp);
 
-        if (dir==0) single_bh_metric(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), pin,g_old);
-        if (dir==1) single_bh_metric(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pin,g_old);
-        if (dir==2) single_bh_metric(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pin,g_old);
+        if (dir==0) single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+        if (dir==1) single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
+        if (dir==2) single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
 
 
         Real det_old = Determinant(g_old);
 
-        if (dir==0) bb.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==1) bb.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==2) bb.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
 
 
         g_tmp.DeleteAthenaArray();
@@ -1447,6 +1448,30 @@ for (int dir=0; dir<=2; ++dir){
     }
   }
 }
+
+
+  // Calculate cell-centered magnetic field
+  AthenaArray<Real> bb;
+  if (MAGNETIC_FIELDS_ENABLED) {
+    pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+        ku);
+  } else {
+    bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+  }
+
+  // Initialize conserved values
+  if (MAGNETIC_FIELDS_ENABLED) {
+    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+        kl, ku);
+  } else {
+    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+    bb.DeleteAthenaArray();
+  }
+
+
+}
+
+return;
 }
 
 
