@@ -1376,17 +1376,6 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
   AthenaArray<Real> &g = ruser_meshblock_data[0];
   AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
-
-
-for (int dir=0; dir<=2; ++dir){
-  int dk = 0;
-  int dj = 0;
-  int di = 0;
-
-  if (dir==0) di = 1;
-  if (dir==1) dj = 1;
-  if (dir==2) dk = 1;
-
   int il = is - NGHOST;
   int iu = ie + NGHOST;
   int jl = js;
@@ -1401,6 +1390,16 @@ for (int dir=0; dir<=2; ++dir){
     kl -= (NGHOST);
     ku += (NGHOST);
   }
+
+for (int dir=0; dir<=2; ++dir){
+  int dk = 0;
+  int dj = 0;
+  int di = 0;
+
+  if (dir==0) di = 1;
+  if (dir==1) dj = 1;
+  if (dir==2) dk = 1;
+  
    for (int k=kl; k<=ku+dk; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=jl; j<=ju+dj; ++j) {
