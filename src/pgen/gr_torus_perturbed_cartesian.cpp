@@ -1399,7 +1399,7 @@ for (int dir=0; dir<=2; ++dir){
   if (dir==0) di = 1;
   if (dir==1) dj = 1;
   if (dir==2) dk = 1;
-  
+
    for (int k=kl; k<=ku+dk; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=jl; j<=ju+dj; ++j) {
@@ -1466,9 +1466,8 @@ for (int dir=0; dir<=2; ++dir){
   }
 
 
-}
-
 return;
+}
 
 
 
