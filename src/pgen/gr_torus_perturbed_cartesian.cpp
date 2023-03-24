@@ -585,8 +585,6 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
-  int SCALE_DIVERGENCE = true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
-
 
   return;
 }
@@ -1369,9 +1367,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
+  int SCALE_DIVERGENCE = true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
 
-
- if (SCALE_DIVERGENCE) {
+  if (!SCALE_DIVERGENCE) return;
   fprintf(stderr,"Scaling divergence \n");
 
 
@@ -1472,7 +1470,7 @@ for (int dir=0; dir<=2; ++dir){
 }
 
 return;
-}
+
 
 
 /* Apply inner "absorbing" boundary conditions */
