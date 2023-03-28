@@ -1367,7 +1367,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
+  int SCALE_DIVERGENCE = false; //true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
 
   if (!SCALE_DIVERGENCE) return;
   fprintf(stderr,"Scaling divergence \n");
@@ -3666,8 +3666,8 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   a = pin->GetReal("coord", "a");
   Real a_spin =a;
 
-  if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
-  if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
+  if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
+  if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
 
   // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
   // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
@@ -3676,7 +3676,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x= 0.1;
+    x = 0.1;
     y = 0.1;
     z = 0.1;
   }
