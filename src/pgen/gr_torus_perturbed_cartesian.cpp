@@ -2795,6 +2795,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     // Position of black hole
 
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+  t0 = pin->GetOrAddReal("problem","t0", 1e4);
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
   Omega_bh2 = v_bh2/r_bh2;
   // Omega_bh2 = 0.0;
@@ -2804,8 +2805,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
   Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-  Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
+  Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
 
 
 
