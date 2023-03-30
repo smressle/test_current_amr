@@ -21,6 +21,8 @@
 #include "../mesh/mesh.hpp"
 #include "../parameter_input.hpp"
 #include "coordinates.hpp"
+#include "../field/field.hpp"
+#include "../hydro/hydro.hpp"
 
 namespace {
 // Declarations
@@ -1765,7 +1767,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
         }
 
         if (not coarse_flag){
-          Real fac = sqrt_minus_det_old/std::sqrt(-det_new);
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
           for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
             pmb->phydro->u(n_cons,k,j,i) *=fac;
           }
