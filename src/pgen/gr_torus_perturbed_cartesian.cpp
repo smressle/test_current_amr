@@ -1447,23 +1447,64 @@ for (int dir=0; dir<=2; ++dir){
 }
 
 
-  // Calculate cell-centered magnetic field
-  AthenaArray<Real> bb;
-  if (MAGNETIC_FIELDS_ENABLED) {
-    pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
-        ku);
-  } else {
-    bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+   for (int k=kl; k<=ku; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=jl; j<=ju+dj; ++j) {
+      pcoord->CellMetric(k, j, il, iu,g, gi);
+#pragma simd
+      for (int i=il; i<=iu+di; ++i) {
+
+                // Prepare scratch arrays
+        AthenaArray<Real> g_tmp,g_old;
+        g_tmp.NewAthenaArray(NMETRIC);
+        g_old.NewAthenaArray(NMETRIC);
+        g_tmp(I00) = g(I00,i);
+        g_tmp(I01) = g(I01,i);
+        g_tmp(I02) = g(I02,i);
+        g_tmp(I03) = g(I03,i);
+        g_tmp(I11) = g(I11,i);
+        g_tmp(I12) = g(I12,i);
+        g_tmp(I13) = g(I13,i);
+        g_tmp(I22) = g(I22,i);
+        g_tmp(I23) = g(I23,i);
+        g_tmp(I33) = g(I33,i);
+
+        Real det_new = Determinant(g_tmp);
+
+        single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+
+        Real det_old = Determinant(g_old);
+
+         Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
+          }
+
+        g_tmp.DeleteAthenaArray();
+        g_old.DeleteAthenaArray();
+
+      }
+    }
   }
 
-  // Initialize conserved values
-  if (MAGNETIC_FIELDS_ENABLED) {
-    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-        kl, ku);
-  } else {
-    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-    bb.DeleteAthenaArray();
-  }
+
+  // // Calculate cell-centered magnetic field
+  // AthenaArray<Real> bb;
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+  //       ku);
+  // } else {
+  //   bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+  // }
+
+  // // Initialize conserved values
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+  //       kl, ku);
+  // } else {
+  //   peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+  //   bb.DeleteAthenaArray();
+  // }
 
 
 return;
