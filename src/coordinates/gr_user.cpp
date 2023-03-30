@@ -1728,6 +1728,9 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
         Real dx2 = dx2f(j);
         Real dx3 = dx3f(k);
 
+        Real sqrt_minus_det_old; 
+        if (not coarse_flag) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
+
         // Calculate metric coefficients
         Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
@@ -1760,6 +1763,13 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           metric_cell_kji_(0,n,k,j,i) = g(n);
           metric_cell_kji_(1,n,k,j,i) = g_inv(n);
         }
+
+        if (not coarse_flag){
+          Real fac = sqrt_minus_det_old/std::sqrt(-det_new);
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
+          }
+        }
       }
     }
   }
@@ -1776,6 +1786,8 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real x3 = x3v(k);
           Real dx2 = dx2f(j);
           Real dx3 = dx3f(k);
+
+          Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
 
           // Calculate metric coefficients
           Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1797,6 +1809,9 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
               trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
             }
           }
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          pmb->pfield->b.x1f(k,j,i) *= fac;
         }
       }
     }
@@ -1814,6 +1829,8 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real x3 = x3v(k);
           Real dx1 = dx1f(i);
           Real dx3 = dx3f(k);
+
+          Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
 
           // Calculate metric coefficients
           Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1835,6 +1852,10 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
               trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
             }
           }
+
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          pmb->pfield->b.x2f(k,j,i) *= fac;
         }
       }
     }
@@ -1852,6 +1873,8 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real x3 = x3f(k);
           Real dx1 = dx1f(i);
           Real dx2 = dx2f(j);
+
+          Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
 
           // Calculate metric coefficients
           Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1873,6 +1896,10 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
               trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
             }
           }
+
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          pmb->pfield->b.x3f(k,j,i) *= fac;
         }
       }
     }
