@@ -1740,6 +1740,11 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
         if (not coarse_flag) {
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
+          }
+
         }
 
         // Calculate widths
@@ -1766,12 +1771,6 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           metric_cell_kji_(1,n,k,j,i) = g_inv(n);
         }
 
-        if (not coarse_flag){
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
-            pmb->phydro->u(n_cons,k,j,i) *=fac;
-          }
-        }
       }
     }
   }
