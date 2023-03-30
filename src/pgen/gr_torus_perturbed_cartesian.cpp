@@ -1449,10 +1449,10 @@ for (int dir=0; dir<=2; ++dir){
 
    for (int k=kl; k<=ku; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=jl; j<=ju+dj; ++j) {
+    for (int j=jl; j<=ju; ++j) {
       pcoord->CellMetric(k, j, il, iu,g, gi);
 #pragma simd
-      for (int i=il; i<=iu+di; ++i) {
+      for (int i=il; i<=iu; ++i) {
 
                 // Prepare scratch arrays
         AthenaArray<Real> g_tmp,g_old;
@@ -1477,7 +1477,7 @@ for (int dir=0; dir<=2; ++dir){
 
          Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
           for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
-            pmb->phydro->u(n_cons,k,j,i) *=fac;
+            phydro->u(n_cons,k,j,i) *=fac;
           }
 
         g_tmp.DeleteAthenaArray();
