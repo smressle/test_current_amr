@@ -949,8 +949,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   g_tmp.DeleteAthenaArray();
   gi_tmp.DeleteAthenaArray();
 
+
+  AthenaArray<Real> &g_ = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
+
+
   // Initialize magnetic fields
   if (MAGNETIC_FIELDS_ENABLED) {
+
+
 
     // Determine limits of sample grid
     Real r_vals[8], theta_vals[8], phi_vals[8];
@@ -1218,7 +1225,20 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^1
       for (int k = kl; k <= ku; ++k) {
         for (int j = jl; j <= ju; ++j) {
+          pcoord->Face1Metric(k, j, il, iu+1,g_, gi_);
           for (int i = il; i <= iu+1; ++i) {
+
+
+            // Prepare scratch arrays
+            AthenaArray<Real> g_scratch,g_old;
+            g_scratch.NewAthenaArray(NMETRIC);
+
+            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
+ 
+            Real det = Determinant(g_scratch); 
+
+            g_scratch.DeleteAthenaArray();
+
             //d Az /dy
             Real tmp, Az_2,Az_1;
             TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k),
@@ -1236,7 +1256,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),
                 &tmp,&Ay_1,&tmp);
 
-            pfield->b.x1f(k,j,i) -= (Ay_2-Ay_1) / (pcoord->dx3f(k) );
+            pfield->b.x1f(k,j,i) -= 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx3f(k) );
 
             pfield->b.x1f(k,j,i) *= normalization;
 
@@ -1247,7 +1267,19 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^2
       for (int k = kl; k <= ku; ++k) {
         for (int j = jl; j <= ju+1; ++j) {
+          pcoord->Face2Metric(k, j, il, iu,g_, gi_);
           for (int i = il; i <= iu; ++i) {
+
+            // Prepare scratch arrays
+            AthenaArray<Real> g_scratch; 
+            g_scratch.NewAthenaArray(NMETRIC);
+
+            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
+ 
+            Real det = Determinant(g_scratch);
+
+            g_scratch.DeleteAthenaArray();
+
             //d Ax /dz
             Real tmp, Ax_2,Ax_1;
             TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1),
@@ -1265,7 +1297,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),
                 &tmp,&tmp,&Az_1);
 
-            pfield->b.x2f(k,j,i) -= (Az_2-Az_1) / (pcoord->dx1f(i) );
+            pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
 
             pfield->b.x2f(k,j,i) *= normalization;
                   
@@ -1276,7 +1308,18 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^3
       for (int k = kl; k <= ku+1; ++k) {
         for (int j = jl; j <= ju; ++j) {
+          pcoord->Face3Metric(k, j, il, iu+1,g_, gi_);
           for (int i = il; i <= iu; ++i) {
+
+            // Prepare scratch arrays
+            AthenaArray<Real> g_scratch;
+            g_scratch.NewAthenaArray(NMETRIC);
+
+            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
+ 
+            Real det = Determinant(g_scratch);
+
+            g_scratch.DeleteAthenaArray();
 
             //d Ay /dx
             Real tmp, Ay_2,Ay_1;
@@ -1295,7 +1338,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),
                 &Ax_1,&tmp,&tmp);
 
-            pfield->b.x3f(k,j,i) -= (Ax_2-Ax_1) / (pcoord->dx2f(j) );
+            pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
 
             pfield->b.x3f(k,j,i) *= normalization;
               

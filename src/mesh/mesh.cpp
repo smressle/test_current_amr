@@ -1383,8 +1383,12 @@ void Mesh::AllocateIntUserMeshDataField(int n) {
 //! \brief Apply MeshBlock::UserWorkBeforeOutput
 
 void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin) {
-  for (int i=0; i<nblocal; ++i)
+  for (int i=0; i<nblocal; ++i){
     my_blocks(i)->UserWorkBeforeOutput(pin);
+
+    if (METRIC_EVOLUTION) CalculateMetric(pin);
+  }
+
 }
 
 //----------------------------------------------------------------------------------------
