@@ -1230,7 +1230,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
             // Prepare scratch arrays
-            AthenaArray<Real> g_scratch,g_old;
+            AthenaArray<Real> g_scratch;
             g_scratch.NewAthenaArray(NMETRIC);
 
             for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
@@ -1247,7 +1247,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&tmp,&Az_1);
                   
 
-            pfield->b.x1f(k,j,i) = (Az_2-Az_1) / (pcoord->dx2f(j) );
+            pfield->b.x1f(k,j,i) = 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx2f(j) );
 
             //d Ay/dz
             Real  Ay_2,Ay_1;
@@ -1288,7 +1288,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &Ax_1,&tmp,&tmp);
                   
 
-            pfield->b.x2f(k,j,i) = (Ax_2-Ax_1) / (pcoord->dx3f(k) );
+            pfield->b.x2f(k,j,i) = 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx3f(k) );
 
             //d Az/dx
             Real Az_2,Az_1;
@@ -1329,7 +1329,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&Ay_1,&tmp);
                   
 
-            pfield->b.x3f(k,j,i) = (Ay_2-Ay_1) / (pcoord->dx1f(i) );
+            pfield->b.x3f(k,j,i) = 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx1f(i) );
 
             //d Ax/dy
             Real Ax_2,Ax_1;
