@@ -526,7 +526,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  llocateUserHistoryOutput(1);
+  AllocateUserHistoryOutput(1);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
