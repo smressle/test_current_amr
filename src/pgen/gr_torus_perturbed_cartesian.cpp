@@ -109,6 +109,7 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
 void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
 void PreserveDivbNewMetric(MeshBlock *pmb,ParameterInput *pin,FaceField &bb);
+Real DivergenceB(MeshBlock *pmb, int iout);
 
 
 // Global variables
@@ -524,6 +525,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserMetric(Cartesian_GR);
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
+
+  EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -1649,6 +1652,47 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
 
   return;
+}
+
+
+
+/* Store some useful variables like mdot and vr */
+
+Real DivergenceB(MeshBlock *pmb, int iout)
+{
+  Real divb=0;
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pmb->pfield->b;
+
+  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+        divb+=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+      }
+    }
+  }
+
+  face1.DeleteAthenaArray();
+  face2p.DeleteAthenaArray();
+  face2m.DeleteAthenaArray();
+  face3p.DeleteAthenaArray();
+  face3m.DeleteAthenaArray();
+
+  return divb;
 }
 //----------------------------------------------------------------------------------------
 // Function responsible for storing useful quantities for output
