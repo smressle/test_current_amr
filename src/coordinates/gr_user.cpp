@@ -1717,6 +1717,41 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
     transformation.NewAthenaArray(2, NTRIANGULAR);
   }
 
+
+  AthenaArray<Real> divb; 
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pmb->pfield->b;
+
+  if (not coarse_flag){
+
+      face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+      face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+      face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+      face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+      face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+      divb.NewAthenaArray((ke-ks)+1,(je-js)+1,(ie-is)+1);
+
+      for(int k=ks; k<=ke; k++) {
+        for(int j=js; j<=je; j++) {
+          pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+          pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+          pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+          pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+          pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+          for(int i=is; i<=ie; i++) {
+            divb(k,j,i)=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+                  +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+                  +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+          }
+        }
+      }
+
+}
+
+
+
   // Calculate cell-centered geometric quantities
   for (int k = kll; k <= kuu; ++k) {
     for (int j = jll; j <= juu; ++j) {
@@ -1741,7 +1776,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+          for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
             pmb->phydro->u(n_cons,k,j,i) *=fac;
           }
 
@@ -1906,6 +1941,9 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
     }
   }
 
+
+
+
   // Calculate x1-edge-centered geometric quantities
   if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
@@ -1975,6 +2013,32 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
     }
   }
 
+
+    Real divb_new =0.0;
+    if (not coarse_flag){
+      for(int k=ks; k<=ke; k++) {
+        for(int j=js; j<=je; j++) {
+          pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+          pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+          pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+          pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+          pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+          for(int i=is; i<=ie; i++) {
+            divb_new=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+                  +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+                  +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+
+            if (std::abs(divb_new) > 1e-10){
+              fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k,);
+              exit(0);
+            }
+
+          }
+        }
+      }
+
+}
+
   // Free scratch arrays
   g.DeleteAthenaArray();
   g_inv.DeleteAthenaArray();
@@ -1984,6 +2048,12 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
   dg_dt.DeleteAthenaArray();
   if (not coarse_flag) {
     transformation.DeleteAthenaArray();
+    divb.DeleteAthenaArray();
+    face1.DeleteAthenaArray();
+    face2p.DeleteAthenaArray();
+    face2m.DeleteAthenaArray();
+    face3p.DeleteAthenaArray();
+    face3m.DeleteAthenaArray();
   }
 }
 
