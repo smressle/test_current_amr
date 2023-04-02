@@ -2029,7 +2029,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
             if (std::abs(divb_new) > 1e-10){
-              fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k,);
+              fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k);
               exit(0);
             }
 
