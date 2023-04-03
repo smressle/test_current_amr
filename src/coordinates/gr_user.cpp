@@ -1731,7 +1731,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
       face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
       face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
-      divb.NewAthenaArray((ke-ks)+1,(je-js)+1,(ie-is)+1);
+      divb.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
 
       for(int k=ks; k<=ke; k++) {
         for(int j=js; j<=je; j++) {
