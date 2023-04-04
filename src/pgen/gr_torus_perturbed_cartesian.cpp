@@ -1561,7 +1561,7 @@ for (int dir=0; dir<=2; ++dir){
         }
       }
     }
-  }
+  
 
   face1.DeleteAthenaArray();
   face2p.DeleteAthenaArray();
