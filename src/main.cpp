@@ -487,7 +487,10 @@ int main(int argc, char *argv[]) {
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
 
     //this is only done once per timestep, not stage.  Per stage would be better, probably slower
-    if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) pmesh->CalculateMetric(pinput);
+    if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) {
+      pmesh->metric_time = pmesh->time;
+      pmesh->CalculateMetric(pinput);
+    }
 
     pmesh->NewTimeStep();
 

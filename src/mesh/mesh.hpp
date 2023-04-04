@@ -227,6 +227,7 @@ class Mesh {
   const bool shear_periodic;         // flag of shear periodic b.c.
   const FluidFormulation fluid_setup;
   Real start_time, time, tlim, dt, dt_hyperbolic, dt_parabolic, dt_user, cfl_number;
+  Real metric_time;
   int nlim, ncycle, ncycle_out, dt_diagnostics;
   std::string sts_integrator;
   Real sts_max_dt_ratio;

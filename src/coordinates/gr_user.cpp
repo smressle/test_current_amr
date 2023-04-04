@@ -48,7 +48,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   RegionSize& block_size = pmy_block->block_size;
 
 
-  Real t = pm->time;
+  Real metric_t = pm->metric_time;
 
   // set more indices
   int ill = il - ng;
@@ -192,7 +192,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         Real dx3 = dx3f(k);
 
         // Calculate metric coefficients
-        Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+        Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
         if (!coarse_flag) {
@@ -241,7 +241,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx3 = dx3f(k);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -278,7 +278,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx3 = dx3f(k);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -315,7 +315,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx2 = dx2f(j);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -351,7 +351,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx1 = dx1f(i);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -373,7 +373,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx2 = dx2f(j);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -395,7 +395,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
           Real dx3 = dx3f(k);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -1649,7 +1649,7 @@ void GRUser::FluxToGlobal3(
   return;
 }
 
-void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
+void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
 {
   // Set object names
   Mesh *pm = pmy_block->pmy_mesh;
@@ -1769,7 +1769,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
         if (not coarse_flag) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
 
         // Calculate metric coefficients
-        Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+        Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
         if (not coarse_flag) {
@@ -1826,7 +1826,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1869,7 +1869,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1913,7 +1913,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1957,7 +1957,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real dx1 = dx1f(i);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -1980,7 +1980,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real dx2 = dx2f(j);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -2003,7 +2003,7 @@ void GRUser::UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin)
           Real dx3 = dx3f(k);
 
           // Calculate metric coefficients
-          Metric(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
