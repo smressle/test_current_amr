@@ -1536,6 +1536,42 @@ for (int dir=0; dir<=2; ++dir){
   }
 
 
+  Real divb;
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pfield->b;
+
+  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+        divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+        if (std::abs(divb)>1e-13){
+          fprintf(stderr,"High divb in PreserveDivbNewMetric \n",divb);
+          exit(0);
+        }
+      }
+    }
+  }
+
+  face1.DeleteAthenaArray();
+  face2p.DeleteAthenaArray();
+  face2m.DeleteAthenaArray();
+  face3p.DeleteAthenaArray();
+  face3m.DeleteAthenaArray();
+
+
   // // Calculate cell-centered magnetic field
   // AthenaArray<Real> bb;
   // if (MAGNETIC_FIELDS_ENABLED) {
