@@ -483,7 +483,6 @@ int main(int argc, char *argv[]) {
     pmesh->step_since_lb++;
 
 
-
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
 
     //this is only done once per timestep, not stage.  Per stage would be better, probably slower
