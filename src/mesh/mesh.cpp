@@ -1395,9 +1395,6 @@ void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin) {
       CalculateMetric(pin);
     }
 
-
-
-  return;
 }
 
 //----------------------------------------------------------------------------------------
