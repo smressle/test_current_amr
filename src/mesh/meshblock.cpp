@@ -340,7 +340,7 @@ MeshBlock::MeshBlock(int igid, int ilid, Mesh *pm, ParameterInput *pin,
 
 
 
-  if (MAGNETIC_FIELDS_ENABLED && GENERAL_RELATIVITY) PreserveDivbNewMetric(pin);
+  if (MAGNETIC_FIELDS_ENABLED && GENERAL_RELATIVITY && METRIC_EVOLUTION) PreserveDivbNewMetric(pin);
 
   return;
 }
