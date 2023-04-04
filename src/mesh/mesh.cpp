@@ -662,7 +662,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   std::memcpy(&mesh_size, &(headerdata[hdos]), sizeof(RegionSize));
   hdos += sizeof(RegionSize);
   std::memcpy(&time, &(headerdata[hdos]), sizeof(Real));
-  // metric_time = time;
+  metric_time = time;
   hdos += sizeof(Real);
   std::memcpy(&dt, &(headerdata[hdos]), sizeof(Real));
   hdos += sizeof(Real);
@@ -1388,13 +1388,13 @@ void Mesh::AllocateIntUserMeshDataField(int n) {
 void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin) {
   for (int i=0; i<nblocal; ++i){
     my_blocks(i)->UserWorkBeforeOutput(pin);
+  }
 
     if (METRIC_EVOLUTION) {
       metric_time = time;
       CalculateMetric(pin);
     }
 
-  }
 
 
   return;
