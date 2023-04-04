@@ -1392,8 +1392,12 @@ void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin) {
     if (METRIC_EVOLUTION) {
       metric_time = time;
       CalculateMetric(pin);
+    }
+
   }
 
+
+  return;
 }
 
 //----------------------------------------------------------------------------------------
