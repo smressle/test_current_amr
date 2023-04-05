@@ -422,7 +422,7 @@ int main(int argc, char *argv[]) {
 
 
   if (MAGNETIC_FIELDS_ENABLED && METRIC_EVOLUTION && GENERAL_RELATIVITY && res_flag==1) {
-    pmesh->PreserveDivbAddingBH(pin);
+    pmesh->PreserveDivbAddingBH(pinput);
   }
 
   if (Globals::my_rank == 0) {
