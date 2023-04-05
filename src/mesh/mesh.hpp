@@ -271,6 +271,9 @@ class Mesh {
 
   void CalculateMetric(ParameterInput *pin); //for updating metric at each time
 
+  void PreserveDivbAddingBH(ParameterInput *pin); //for updating metric at each time
+
+
 
  private:
   // data

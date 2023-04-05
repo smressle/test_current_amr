@@ -2027,5 +2027,16 @@ void Mesh::OutputCycleDiagnostics() {
 void Mesh::CalculateMetric(ParameterInput *pin) {
 
     for (int i=0; i<nblocal; ++i)
-    my_blocks(i)->pcoord->UpdateMetric(time,my_blocks(i),pin);
+    my_blocks(i)->pcoord->UpdateMetric(metric_time,my_blocks(i),pin);
 }
+
+//----------------------------------------------------------------------------------------
+// \!fn void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin)
+// \brief Apply MeshBlock::UserWorkBeforeOutput
+
+void Mesh::PreserveDivbAddingBH(ParameterInput *pin) {
+
+  for (int i=0; i<nblocal; ++i)
+    my_blocks(i)->PreserveDivbNewMetric(pin);
+}
+

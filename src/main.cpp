@@ -420,6 +420,11 @@ int main(int argc, char *argv[]) {
   //=== Step 8. === START OF MAIN INTEGRATION LOOP =======================================
   // For performance, there is no error handler protecting this step (except outputs)
 
+
+  if (MAGNETIC_FIELDS_ENABLED && METRIC_EVOLUTION && GENERAL_RELATIVITY && res_flag==1) {
+    pmesh->PreserveDivbAddingBH(pin);
+  }
+
   if (Globals::my_rank == 0) {
     std::cout << "\nSetup complete, entering main loop...\n" << std::endl;
   }
