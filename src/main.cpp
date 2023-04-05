@@ -464,6 +464,7 @@ int main(int argc, char *argv[]) {
     if (pmesh->turb_flag > 1) pmesh->ptrbd->Driving(); // driven turbulence
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
+      pmesh->UserWorkInLoop();
       ptlist->DoTaskListOneStage(pmesh, stage);
       if (ptlist->CheckNextMainStage(stage)) {
         if (SELF_GRAVITY_ENABLED == 1) // fft (0: discrete kernel, 1: continuous kernel)
