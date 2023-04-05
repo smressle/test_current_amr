@@ -1843,7 +1843,7 @@ void MeshBlock::UserWorkInLoop(void)
   }
 
 
-  fprintf("Divbmax in Userwork: %g \n", divbmax);
+  fprintf(stderr,"Divbmax in Userwork: %g \n", divbmax);
 
   face1.DeleteAthenaArray();
   face2p.DeleteAthenaArray();
