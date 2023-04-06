@@ -2938,7 +2938,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 {
 
   if  (Globals::my_rank == 0) fprintf(stderr,"Metric time in pgen file (GLOBAL RANK): %g \n", t);
-  else fprintf(stderr,"Metric time in pgen file (RANK %d): %g \n", Globals:my_rank,t);
+  else fprintf(stderr,"Metric time in pgen file (RANK %d): %g \n", Globals::my_rank,t);
   // Extract inputs
   Real x = x1;
   Real y = x2;
