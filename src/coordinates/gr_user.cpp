@@ -2014,30 +2014,30 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   }
 
 
-//     Real divb_new =0.0;
-//     if (not coarse_flag){
-//       for(int k=ks; k<=ke; k++) {
-//         for(int j=js; j<=je; j++) {
-//           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
-//           pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-//           pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
-//           pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-//           pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
-//           for(int i=is; i<=ie; i++) {
-//             divb_new=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
-//                   +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
-//                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+    Real divb_new =0.0;
+    if (not coarse_flag){
+      for(int k=ks; k<=ke; k++) {
+        for(int j=js; j<=je; j++) {
+          pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+          pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+          pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+          pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+          pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+          for(int i=is; i<=ie; i++) {
+            divb_new=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+                  +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+                  +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
-//             if (std::abs(divb_new) > 1e-12){
-//               fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k);
-//               exit(0);
-//             }
+            if (std::abs(divb_new) > 1e-12){
+              fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k);
+              exit(0);
+            }
 
-//           }
-//         }
-//       }
+          }
+        }
+      }
 
-// }
+}
 
   // Free scratch arrays
   g.DeleteAthenaArray();
