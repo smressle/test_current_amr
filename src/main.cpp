@@ -445,8 +445,8 @@ int main(int argc, char *argv[]) {
     int nbdestroyed_init = pmesh->nbdel;
     if (Globals::my_rank == 0)
       pmesh->OutputCycleDiagnostics();
-    if (Globals::my_rank == 0)
-      fprintf(stderr,"Metric time: %g \n", pmesh->metric_time);
+    // if (Globals::my_rank == 0)
+    //   fprintf(stderr,"Metric time: %g \n", pmesh->metric_time);
 
     if (STS_ENABLED) {
       pmesh->sts_loc = TaskType::op_split_before;
