@@ -438,6 +438,8 @@ int main(int argc, char *argv[]) {
          (pmesh->nlim < 0 || pmesh->ncycle < pmesh->nlim)) {
     if (Globals::my_rank == 0)
       pmesh->OutputCycleDiagnostics();
+    if (Globals::my_rank == 0)
+      fprintf(stderr,"Metric time: %g \n", metric_time);
 
     if (STS_ENABLED) {
       pmesh->sts_loc = TaskType::op_split_before;

@@ -2936,6 +2936,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
+
+  if  (Globals::my_rank == 0) fprintf("Metric time in pgen file: %g \n", metric_time;)
   // Extract inputs
   Real x = x1;
   Real y = x2;
