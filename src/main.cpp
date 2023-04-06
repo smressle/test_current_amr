@@ -421,6 +421,10 @@ int main(int argc, char *argv[]) {
   // For performance, there is no error handler protecting this step (except outputs)
 
 
+    if (Globals::my_rank == 0)
+      fprintf(stderr,"Meshblocks dreated during initialization : %d Meshblocks Destroyed during initialization: %d\n", pmesh->nbnew,pmesh->nbdel);
+
+
   if (MAGNETIC_FIELDS_ENABLED && METRIC_EVOLUTION && GENERAL_RELATIVITY && res_flag==1) {
     pmesh->PreserveDivbAddingBH(pinput);
   }
@@ -436,6 +440,9 @@ int main(int argc, char *argv[]) {
 
   while ((pmesh->time < pmesh->tlim) &&
          (pmesh->nlim < 0 || pmesh->ncycle < pmesh->nlim)) {
+
+    int nbcreated_init = pmesh->nbnew;
+    int nbdestroyed_init = pmesh->nbdel;
     if (Globals::my_rank == 0)
       pmesh->OutputCycleDiagnostics();
     if (Globals::my_rank == 0)
@@ -492,6 +499,10 @@ int main(int argc, char *argv[]) {
 
 
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
+
+
+    if (Globals::my_rank == 0)
+      fprintf(stderr,"Meshblocks Created this time step: %d Meshblocks Destroyed this time step: %d\n", pmesh->nbnew - nbcreated_init,pmesh->nbdel- nbdestroyed_init);
 
     //this is only done once per timestep, not stage.  Per stage would be better, probably slower
     if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) {
