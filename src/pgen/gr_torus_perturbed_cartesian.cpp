@@ -605,8 +605,8 @@ int RefinementCondition(MeshBlock *pmb)
 
 
   Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
-  //Real bh2_focus_radius = 3.125*q;
-  Real bh2_focus_radius = 3.125*0.08;
+  Real bh2_focus_radius = 3.125*q;
+  //Real bh2_focus_radius = 3.125*0.08;
 
   int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
 
