@@ -780,6 +780,8 @@ void Coordinates::Metric(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt) {
 
+  if (t != pmy_block->pmy_mesh->metric_time) fprintf(stderr,"ERROR...Metric time not equal to called time in coordinates.cpp : %g %g \n",t,pmy_block->pmy_mesh->metric_time)
+
   if (METRIC_EVOLUTION) pmy_block->pmy_mesh->UserMetric_(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
   else pmy_block->pmy_mesh->UserMetric_(0.0,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
   return;
