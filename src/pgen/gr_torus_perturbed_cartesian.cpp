@@ -1441,28 +1441,28 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
   }
 
 
-  AthenaArray<Real> divb_old; 
-  divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
-  Real divbmax_old = 0;
-  for(int k=ks; k<=ke; k++) {
-    for(int j=js; j<=je; j++) {
-      for(int i=is; i<=ie; i++) {
-        Real face1m_ = pcoord->dx2f(j) * pcoord->dx3f(k);
-        Real face1p_ = pcoord->dx2f(j) * pcoord->dx3f(k);
-        Real face2m_ = pcoord->dx1f(i) * pcoord->dx3f(k);
-        Real face2p_ = pcoord->dx1f(i) * pcoord->dx3f(k);
-        Real face3m_ = pcoord->dx1f(i) * pcoord->dx2f(j);
-        Real face3p_ = pcoord->dx1f(i) * pcoord->dx2f(j);
+  // AthenaArray<Real> divb_old; 
+  // divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  // Real divbmax_old = 0;
+  // for(int k=ks; k<=ke; k++) {
+  //   for(int j=js; j<=je; j++) {
+  //     for(int i=is; i<=ie; i++) {
+  //       Real face1m_ = pcoord->dx2f(j) * pcoord->dx3f(k);
+  //       Real face1p_ = pcoord->dx2f(j) * pcoord->dx3f(k);
+  //       Real face2m_ = pcoord->dx1f(i) * pcoord->dx3f(k);
+  //       Real face2p_ = pcoord->dx1f(i) * pcoord->dx3f(k);
+  //       Real face3m_ = pcoord->dx1f(i) * pcoord->dx2f(j);
+  //       Real face3p_ = pcoord->dx1f(i) * pcoord->dx2f(j);
 
 
-        divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
-              +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
-              +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
-        if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
+  //       divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
+  //             +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
+  //             +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
+  //       if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
 
-        }
-      }
-    }
+  //       }
+  //     }
+  //   }
 
 
 for (int dir=0; dir<=2; ++dir){
@@ -1562,47 +1562,47 @@ for (int dir=0; dir<=2; ++dir){
   }
 
 
-  Real divb,divbmax;
-  divbmax=0;
-  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
-  FaceField &b = pfield->b;
+  // Real divb,divbmax;
+  // divbmax=0;
+  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  // FaceField &b = pfield->b;
 
-  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  // face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
-  for(int k=ks; k<=ke; k++) {
-    for(int j=js; j<=je; j++) {
-      pcoord->Face1Area(k,   j,   is, ie+1, face1);
-      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-      pcoord->Face2Area(k,   j,   is, ie,   face2m);
-      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-      pcoord->Face3Area(k,   j,   is, ie,   face3m);
-      for(int i=is; i<=ie; i++) {
-        divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
-              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
-              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
-        if (divbmax<std::abs(divb)) divbmax = std::abs(divb);
+  // for(int k=ks; k<=ke; k++) {
+  //   for(int j=js; j<=je; j++) {
+  //     pcoord->Face1Area(k,   j,   is, ie+1, face1);
+  //     pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+  //     pcoord->Face2Area(k,   j,   is, ie,   face2m);
+  //     pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+  //     pcoord->Face3Area(k,   j,   is, ie,   face3m);
+  //     for(int i=is; i<=ie; i++) {
+  //       divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+  //             +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+  //             +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+  //       if (divbmax<std::abs(divb)) divbmax = std::abs(divb);
 
-        fprintf(stderr,"PreserveDivbNewMetric ijk: %d %d %d \n divb divb_old: %g %g \n",i,j,k,divb,divb_old(k,j,i) );
+  //       fprintf(stderr,"PreserveDivbNewMetric ijk: %d %d %d \n divb divb_old: %g %g \n",i,j,k,divb,divb_old(k,j,i) );
 
-        }
-      }
-    }
+  //       }
+  //     }
+  //   }
 
-    //if (divbmax>1e-14) 
-    fprintf(stderr,"divbmax in PreserveDivbNewMetric vs. old:  %g %g \n",divbmax,divbmax_old);
+  //   //if (divbmax>1e-14) 
+  //   fprintf(stderr,"divbmax in PreserveDivbNewMetric vs. old:  %g %g \n",divbmax,divbmax_old);
   
 
-  face1.DeleteAthenaArray();
-  face2p.DeleteAthenaArray();
-  face2m.DeleteAthenaArray();
-  face3p.DeleteAthenaArray();
-  face3m.DeleteAthenaArray();
+  // face1.DeleteAthenaArray();
+  // face2p.DeleteAthenaArray();
+  // face2m.DeleteAthenaArray();
+  // face3p.DeleteAthenaArray();
+  // face3m.DeleteAthenaArray();
 
-  divb_old.DeleteAthenaArray();
+  // divb_old.DeleteAthenaArray();
 
   // // Calculate cell-centered magnetic field
   // AthenaArray<Real> bb;
