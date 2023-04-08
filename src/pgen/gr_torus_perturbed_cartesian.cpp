@@ -1490,9 +1490,9 @@ for (int dir=0; dir<=2; ++dir){
       if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
       if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
 
-      if (dir==0) pcoord->Face1Area(k,   j,   is, iu+di, face1);
-      if (dir==1) pcoord->Face2Area(k,   j,   is, iu+di,   face2m);
-      if (dir==2) pcoord->Face3Area(k,   j,   is, iu+di,   face3m);
+      if (dir==0) pcoord->Face1Area(k,   j,   il, iu+di, face1);
+      if (dir==1) pcoord->Face2Area(k,   j,   il, iu+di,   face2m);
+      if (dir==2) pcoord->Face3Area(k,   j,   il, iu+di,   face3m);
 // #pragma simd
       for (int i=il; i<=iu+di; ++i) {
 
