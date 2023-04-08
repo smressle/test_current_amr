@@ -1550,7 +1550,7 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
         single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
 
-        Real det_old = Determinant(g_old);
+        Real det_old = -1.0; //Determinant(g_old);
 
         pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
 
@@ -1576,7 +1576,7 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
         single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
 
-        Real det_old = Determinant(g_old);
+        Real det_old = -1.0; //Determinant(g_old);
 
         pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
 
@@ -1602,7 +1602,7 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
         single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
 
-        Real det_old = Determinant(g_old);
+        Real det_old = -1.0; //Determinant(g_old);
 
         pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
 
