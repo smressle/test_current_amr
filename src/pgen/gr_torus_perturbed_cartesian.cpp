@@ -1507,9 +1507,13 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_old = Determinant(g_old);
 
-        if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        // if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        // if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        // if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+
+        if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
 
 
         g_tmp.DeleteAthenaArray();
@@ -3872,7 +3876,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   Real z = x3;
 
   a = pin->GetReal("coord", "a");
-  Real a_spin =a;
+  Real a_spin = a;
 
   if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
   if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
@@ -3929,11 +3933,6 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I22) = eta[2] + f * l_lower[2]*l_lower[2] ;
   g(I23) =          f * l_lower[2]*l_lower[3] ;
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] ;
-
-
-
-
-
 
 
 
