@@ -1465,65 +1465,153 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
     }
 
 
-for (int dir=0; dir<=2; ++dir){
-  int dk = 0;
-  int dj = 0;
-  int di = 0;
 
-  if (dir==0) di = 1;
-  if (dir==1) dj = 1;
-  if (dir==2) dk = 1;
 
-   for (int k=kl; k<=ku+dk; ++k) {
+
+// for (int dir=0; dir<=2; ++dir){
+//   int dk = 0;
+//   int dj = 0;
+//   int di = 0;
+
+//   if (dir==0) di = 1;
+//   if (dir==1) dj = 1;
+//   if (dir==2) dk = 1;
+
+//    for (int k=kl; k<=ku+dk; ++k) {
+// #pragma omp parallel for schedule(static)
+//     for (int j=jl; j<=ju+dj; ++j) {
+//       if (dir==0) pcoord->Face1Metric(k, j, il, iu+di,g, gi);
+//       if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
+//       if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
+// // #pragma simd
+//       for (int i=il; i<=iu+di; ++i) {
+
+//         // Prepare scratch arrays
+//         AthenaArray<Real> g_tmp,g_old;
+//         g_tmp.NewAthenaArray(NMETRIC);
+//         g_old.NewAthenaArray(NMETRIC);
+//         g_tmp(I00) = g(I00,i);
+//         g_tmp(I01) = g(I01,i);
+//         g_tmp(I02) = g(I02,i);
+//         g_tmp(I03) = g(I03,i);
+//         g_tmp(I11) = g(I11,i);
+//         g_tmp(I12) = g(I12,i);
+//         g_tmp(I13) = g(I13,i);
+//         g_tmp(I22) = g(I22,i);
+//         g_tmp(I23) = g(I23,i);
+//         g_tmp(I33) = g(I33,i);
+
+//         Real det_new = Determinant(g_tmp);
+
+//         if (dir==0) single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+//         if (dir==1) single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
+//         if (dir==2) single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
+
+
+//         Real det_old = Determinant(g_old);
+
+//         if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+//         if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+//         if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+
+//         // if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
+//         // if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
+//         // if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
+
+
+//         g_tmp.DeleteAthenaArray();
+//         g_old.DeleteAthenaArray();
+
+//       }
+//     }
+//   }
+// }
+
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+
+  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+   for (int k=kl; k<=ku; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=jl; j<=ju+dj; ++j) {
-      if (dir==0) pcoord->Face1Metric(k, j, il, iu+di,g, gi);
-      if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
-      if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
-// #pragma simd
-      for (int i=il; i<=iu+di; ++i) {
+    for (int j=jl; j<=ju; ++j) {
+      pcoord->Face1Area(k,   j,   il, iu+1, face1);
+      for (int i=il; i<=iu+1; ++i) {
 
         // Prepare scratch arrays
-        AthenaArray<Real> g_tmp,g_old;
-        g_tmp.NewAthenaArray(NMETRIC);
+        AthenaArray<Real> g_old;
         g_old.NewAthenaArray(NMETRIC);
-        g_tmp(I00) = g(I00,i);
-        g_tmp(I01) = g(I01,i);
-        g_tmp(I02) = g(I02,i);
-        g_tmp(I03) = g(I03,i);
-        g_tmp(I11) = g(I11,i);
-        g_tmp(I12) = g(I12,i);
-        g_tmp(I13) = g(I13,i);
-        g_tmp(I22) = g(I22,i);
-        g_tmp(I23) = g(I23,i);
-        g_tmp(I33) = g(I33,i);
 
-        Real det_new = Determinant(g_tmp);
 
-        if (dir==0) single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
-        if (dir==1) single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
-        if (dir==2) single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
+        Real sqrt_minus_det_new = face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k));
 
+        single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
 
         Real det_old = Determinant(g_old);
 
-        if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-
-        // if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        // if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        // if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
 
 
-        g_tmp.DeleteAthenaArray();
         g_old.DeleteAthenaArray();
 
       }
     }
   }
-}
 
+    for (int k=kl; k<=ku; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=jl; j<=ju+1; ++j) {
+      pcoord->Face2Area(k,   j,   il, iu, face2m);
+      for (int i=il; i<=iu; ++i) {
+
+        // Prepare scratch arrays
+        AthenaArray<Real> g_old;
+        g_old.NewAthenaArray(NMETRIC);
+
+
+        Real sqrt_minus_det_new = face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k));
+
+        single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
+
+        Real det_old = Determinant(g_old);
+
+        pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
+
+
+        g_old.DeleteAthenaArray();
+
+      }
+    }
+  }
+
+    for (int k=kl; k<=ku+1; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=jl; j<=ju; ++j) {
+      pcoord->Face3Area(k,   j,   il, iu, face3m);
+      for (int i=il; i<=iu; ++i) {
+
+        // Prepare scratch arrays
+        AthenaArray<Real> g_old;
+        g_old.NewAthenaArray(NMETRIC);
+
+
+        Real sqrt_minus_det_new = face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j));
+
+        single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
+
+        Real det_old = Determinant(g_old);
+
+        pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
+
+
+        g_old.DeleteAthenaArray();
+
+      }
+    }
+  }
 
    for (int k=kl; k<=ku; ++k) {
 #pragma omp parallel for schedule(static)
@@ -1568,14 +1656,14 @@ for (int dir=0; dir<=2; ++dir){
 
   Real divb,divbmax;
   divbmax=0;
-  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
   FaceField &b = pfield->b;
 
-  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  // face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {
