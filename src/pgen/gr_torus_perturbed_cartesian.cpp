@@ -1490,11 +1490,9 @@ for (int dir=0; dir<=2; ++dir){
       if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
       if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
 
-      pcoord->Face1Area(k,   j,   is, ie+1, face1);
-      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-      pcoord->Face2Area(k,   j,   is, ie,   face2m);
-      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-      pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      if (dir==0) pcoord->Face1Area(k,   j,   is, iu+di, face1);
+      if (dir==1) pcoord->Face2Area(k,   j,   is, iu+di,   face2m);
+      if (dir==2) pcoord->Face3Area(k,   j,   is, iu+di,   face3m);
 // #pragma simd
       for (int i=il; i<=iu+di; ++i) {
 
@@ -1523,19 +1521,19 @@ for (int dir=0; dir<=2; ++dir){
         Real det_old = Determinant(g_old);
 
         if (dir==0){
-         // if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
+         if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
             fprintf(stderr,"determinants don't match DIR 0!! %g %g \n",std::sqrt(-det_new),face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-          //}
+          }
         }
         if (dir==1){
-          //if (std::sqrt(-det_new) != face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k))){
+          if (std::sqrt(-det_new) != face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k))){
             fprintf(stderr,"determinants don't match DIR 1!! %g %g \n",std::sqrt(-det_new),face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k)));
-          //}
+          }
         }
         if (dir==2){
-          //if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
+          if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
             fprintf(stderr,"determinants don't match DIR 2!! %g %g \n",std::sqrt(-det_new),face3m(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-          //}
+          }
         }
 
         if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
