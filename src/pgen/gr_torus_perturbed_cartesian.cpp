@@ -1456,8 +1456,8 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
 
         divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
-              +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
-              +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
+                        +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
+                        +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
         if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
 
         }
@@ -1480,7 +1480,7 @@ for (int dir=0; dir<=2; ++dir){
       if (dir==0) pcoord->Face1Metric(k, j, il, iu+di,g, gi);
       if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
       if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
-#pragma simd
+// #pragma simd
       for (int i=il; i<=iu+di; ++i) {
 
         // Prepare scratch arrays
@@ -1507,13 +1507,13 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_old = Determinant(g_old);
 
-        // if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        // if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
-        // if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
 
-        if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        // if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        // if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
+        // if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
 
 
         g_tmp.DeleteAthenaArray();
