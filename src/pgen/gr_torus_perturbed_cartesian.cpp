@@ -1533,7 +1533,7 @@ for (int dir=0; dir<=2; ++dir){
           }
         }
         if (dir==2){
-          if (std::sqrt(-det_new) != face3(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
+          if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
             fprintf(stderr,"determinants don't match DIR 2!! %g %g \n",std::sqrt(-det_new),face3m(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
           }
         }
