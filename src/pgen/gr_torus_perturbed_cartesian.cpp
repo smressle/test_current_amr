@@ -1490,7 +1490,7 @@ for (int dir=0; dir<=2; ++dir){
       if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
       if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
 
-      if (dir==0) pcoord->Face1Area(k,   j,   il, iu+di, face1);
+      if (dir==0) pcoord->Face1Area(k,   j,   il, iu, face1);
       if (dir==1) pcoord->Face2Area(k,   j,   il, iu+di,   face2m);
       if (dir==2) pcoord->Face3Area(k,   j,   il, iu+di,   face3m);
 // #pragma simd
@@ -1520,7 +1520,7 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_old = Determinant(g_old);
 
-        if (dir==0){
+        if (dir==0 and i<=iu){
          if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
             fprintf(stderr,"determinants don't match DIR 0!! %g %g \n",std::sqrt(-det_new),face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
           }
