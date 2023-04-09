@@ -1441,30 +1441,6 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
   }
 
 
-  AthenaArray<Real> divb_old; 
-  divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
-  Real divbmax_old = 0;
-  for(int k=ks; k<=ke; k++) {
-    for(int j=js; j<=je; j++) {
-      for(int i=is; i<=ie; i++) {
-        Real face1m_ = pcoord->dx2f(j) * pcoord->dx3f(k);
-        Real face1p_ = pcoord->dx2f(j) * pcoord->dx3f(k);
-        Real face2m_ = pcoord->dx1f(i) * pcoord->dx3f(k);
-        Real face2p_ = pcoord->dx1f(i) * pcoord->dx3f(k);
-        Real face3m_ = pcoord->dx1f(i) * pcoord->dx2f(j);
-        Real face3p_ = pcoord->dx1f(i) * pcoord->dx2f(j);
-
-
-        divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
-                        +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
-                        +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
-        if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
-
-        }
-      }
-    }
-
-
   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
 
   face1.NewAthenaArray((ie-is)+2*NGHOST+2);
@@ -1472,6 +1448,91 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
   face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
   face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
   face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+
+  AthenaArray<Real> divb_old, face1rat,face2rat,face3rat; 
+  face1rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face3rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+
+  AthenaArray<Real> face1rat_used,face2rat_used,face3rat_used; 
+  face1rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face3rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  Real divbmax_old = 0;
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+
+
+        AthenaArray<Real> g_old1p;
+        AthenaArray<Real> g_old1m;
+        AthenaArray<Real> g_old2p;
+        AthenaArray<Real> g_old2m;
+        AthenaArray<Real> g_old3p;
+        AthenaArray<Real> g_old3m;
+
+        g_old1p.NewAthenaArray(NMETRIC);
+        g_old2p.NewAthenaArray(NMETRIC);
+        g_old3p.NewAthenaArray(NMETRIC);
+        g_old1m.NewAthenaArray(NMETRIC);
+        g_old2m.NewAthenaArray(NMETRIC);
+        g_old3m.NewAthenaArray(NMETRIC);
+        
+
+        single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1m);
+        single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old2m);
+        single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old3m);
+
+        single_bh_metric(pcoord->x1f(i+1), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1p);
+        single_bh_metric(pcoord->x1v(i), pcoord->x2f(j+1), pcoord->x3v(k), pin,g_old2p);
+        single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k+1), pin,g_old3p);
+
+        Real det_old1m = Determinant(g_old1m);
+        Real det_old2m = Determinant(g_old2m);
+        Real det_old3m = Determinant(g_old3m);
+        Real det_old1p = Determinant(g_old1p);
+        Real det_old2p = Determinant(g_old2p);
+        Real det_old3p = Determinant(g_old3p);
+
+
+        Real face1m_ = std::sqrt(-det_old1m) * pcoord->dx2f(j) * pcoord->dx3f(k);
+        Real face1p_ = std::sqrt(-det_old1p) * pcoord->dx2f(j) * pcoord->dx3f(k);
+        Real face2m_ = std::sqrt(-det_old2m) * pcoord->dx1f(i) * pcoord->dx3f(k);
+        Real face2p_ = std::sqrt(-det_old2p) * pcoord->dx1f(i) * pcoord->dx3f(k);
+        Real face3m_ = std::sqrt(-det_old3m) * pcoord->dx1f(i) * pcoord->dx2f(j);
+        Real face3p_ = std::sqrt(-det_old3p) * pcoord->dx1f(i) * pcoord->dx2f(j);
+
+        face1rat(k,j,i) = face1m_/face1(i);
+        face2rat(k,j,i) = face2m_/face2m(i);
+        face3rat(k,j,i) = face3m_/face3m(i);
+
+
+
+
+
+        divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
+                        +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
+                        +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
+        if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
+
+        g_old1m.DeleteAthenaArray();
+        g_old1p.DeleteAthenaArray();
+        g_old2m.DeleteAthenaArray();
+        g_old2p.DeleteAthenaArray();
+        g_old3m.DeleteAthenaArray();
+        g_old3p.DeleteAthenaArray();
+
+        }
+      }
+    }
+
 
 
 for (int dir=0; dir<=2; ++dir){
@@ -1520,25 +1581,30 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_old = Determinant(g_old);
 
-        if (dir==0 and i<=iu){
-         if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
-            fprintf(stderr,"determinants don't match DIR 0!! %g %g \n",std::sqrt(-det_new),face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-          }
-        }
-        if (dir==1){
-          if (std::sqrt(-det_new) != face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k))){
-            fprintf(stderr,"determinants don't match DIR 1!! %g %g \n",std::sqrt(-det_new),face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k)));
-          }
-        }
-        if (dir==2){
-          if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
-            fprintf(stderr,"determinants don't match DIR 2!! %g %g \n",std::sqrt(-det_new),face3m(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-          }
-        }
+        // if (dir==0 and i<=iu){
+        //  if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
+        //     fprintf(stderr,"determinants don't match DIR 0!! %g %g \n",std::sqrt(-det_new),face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
+        //   }
+        // }
+        // if (dir==1){
+        //   if (std::sqrt(-det_new) != face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k))){
+        //     fprintf(stderr,"determinants don't match DIR 1!! %g %g \n",std::sqrt(-det_new),face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k)));
+        //   }
+        // }
+        // if (dir==2){
+        //   if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
+        //     fprintf(stderr,"determinants don't match DIR 2!! %g %g \n",std::sqrt(-det_new),face3m(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
+        //   }
+        // }
 
         if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
         if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
         if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+
+
+        if (dir==0 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face1rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face2rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face3rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
 
         // if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
         // if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
@@ -1704,14 +1770,17 @@ for (int dir=0; dir<=2; ++dir){
               +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
         if (divbmax<std::abs(divb)) divbmax = std::abs(divb);
 
-        fprintf(stderr,"PreserveDivbNewMetric ijk: %d %d %d \n divb divb_old: %g %g \n",i,j,k,divb,divb_old(k,j,i) );
+        fprintf(stderr,"PreserveDivbNewMetric ijk: %d %d %d \n divb divb_old: %g %g \n face1rat: %g face1rat_used: %g \n face2: %g %g \n face3: %g %g \n face1p: %g %g\n face2p: %g %g \n face3p: %g %g \n",
+          i,j,k,divb,divb_old(k,j,i),face1rat(k,j,i), face1rat_used(k,j,i), face2rat(k,j,i), face2rat_used(k,j,i),
+          face3rat(k,j,i),face3rat_used(k,j,i),face1rat(k,j,i+1),face1rat_used(k,j,i+1),
+          face2rat(k,j+1,i), face2rat_used(k,j+1,i), face3rat(k+1,j,i), face3rat_used(k+1,j,i));
 
         }
       }
     }
 
     //if (divbmax>1e-14) 
-    fprintf(stderr,"divbmax in PreserveDivbNewMetric vs. old:  %g %g \n",divbmax,divbmax_old);
+    //fprintf(stderr,"divbmax in PreserveDivbNewMetric vs. old:  %g %g \n",divbmax,divbmax_old);
   
 
   face1.DeleteAthenaArray();
@@ -1719,6 +1788,13 @@ for (int dir=0; dir<=2; ++dir){
   face2m.DeleteAthenaArray();
   face3p.DeleteAthenaArray();
   face3m.DeleteAthenaArray();
+
+  face1rat.DeleteAthenaArray();
+  face2rat.DeleteAthenaArray();
+  face3rat.DeleteAthenaArray();
+  face1rat_used.DeleteAthenaArray();
+  face2rat_used.DeleteAthenaArray();
+  face3rat_used.DeleteAthenaArray();
 
   divb_old.DeleteAthenaArray();
 
