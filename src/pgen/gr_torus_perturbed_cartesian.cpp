@@ -1451,14 +1451,14 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
 
   AthenaArray<Real> divb_old, face1rat,face2rat,face3rat; 
-  face1rat.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face2rat.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face3rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face1rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face2rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face3rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
 
   AthenaArray<Real> face1rat_used,face2rat_used,face3rat_used; 
-  face1rat.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face2rat.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face3rat.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face1rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face2rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face3rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
   divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
   Real divbmax_old = 0;
   for(int k=ks; k<=ke; k++) {
