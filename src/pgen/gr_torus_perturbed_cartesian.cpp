@@ -2813,10 +2813,14 @@ static void TransformAphi(Real a3_ks, Real x1,
 
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 
-  *xbh = 0.0;
-  *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
-  *zbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  // *xbh = 0.0;
+  // *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  // *zbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
+
+  *zbh = 0.0;
+  *xbh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  *ybh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
 }
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
@@ -2948,189 +2952,189 @@ void cks_inverse_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g_inv){
 
 
 }
-void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g){
-  Real q = pin->GetOrAddReal("problem", "q", 0.1);
-  Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+// void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g){
+//   Real q = pin->GetOrAddReal("problem", "q", 0.1);
+//   Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
 
 
- // Real t = 10000;
-    // Position of black hole
+//  // Real t = 10000;
+//     // Position of black hole
 
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
 
-  if (std::fabs(z)<SMALL) z= SMALL;
+//   if (std::fabs(z)<SMALL) z= SMALL;
 
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
+//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+//     x=  0.1;
+//     y = 0.1;
+//     z = 0.1;
+//   }
 
-  Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-  Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Real Omega_bh2 = v_bh2/r_bh2;
-  Real x_bh2 = 0.0;
-  Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-  Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
+//   Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+//   Real v_bh2 = 1.0/std::sqrt(r_bh2);
+//   Real Omega_bh2 = v_bh2/r_bh2;
+//   Real x_bh2 = 0.0;
+//   Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
+//   Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
 
-  Real xprime = x - x_bh2;
-  Real yprime = y - y_bh2;
-  Real zprime = z - z_bh2;
-
-
-//velocity of the second black hole.  For non-circular orbit need to compute velocities in cartesian coordinates
-
-  Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-  Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-  if (std::fabs(zprime)<SMALL) zprime= SMALL;
-  Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
-  Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
-  rprime = std::sqrt(rprime/2.0);
+//   Real xprime = x - x_bh2;
+//   Real yprime = y - y_bh2;
+//   Real zprime = z - z_bh2;
 
 
+// //velocity of the second black hole.  For non-circular orbit need to compute velocities in cartesian coordinates
 
-/// prevent metric from getting nan sqrt(-gdet)
-  Real thprime  = std::acos(zprime/rprime);
-  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-  Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
-  if (rprime<rhprime/2.0) {
-    rprime = rhprime/2.0;
-    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-    zprime = rprime * std::cos(thprime);
-  }
+//   Real dx_bh2_dt = 0.0;
+//   Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
+//   Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
+//   if (std::fabs(zprime)<SMALL) zprime= SMALL;
+//   Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
+//   Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
+//   rprime = std::sqrt(rprime/2.0);
 
 
 
-  //if (r<0.01) r = 0.01;
+// /// prevent metric from getting nan sqrt(-gdet)
+//   Real thprime  = std::acos(zprime/rprime);
+//   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
+//                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
 
-
-  Real l_lowerprime[4],l_upperprime[4];
-
-  Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-  l_upperprime[0] = -1.0;
-  l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[3] = zprime/rprime;
-
-  l_lowerprime[0] = 1.0;
-  l_lowerprime[1] = l_upperprime[1];
-  l_lowerprime[2] = l_upperprime[2];
-  l_lowerprime[3] = l_upperprime[3];
+//   Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
+//   if (rprime<rhprime/2.0) {
+//     rprime = rhprime/2.0;
+//     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
+//     yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
+//     zprime = rprime * std::cos(thprime);
+//   }
 
 
 
+//   //if (r<0.01) r = 0.01;
 
 
+//   Real l_lowerprime[4],l_upperprime[4];
 
-  // Set covariant components
-  delta_g(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
-  delta_g(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
-  delta_g(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
-  delta_g(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
-  delta_g(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
-  delta_g(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
-  delta_g(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
-  delta_g(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
-  delta_g(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
-  delta_g(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
+//   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+//   l_upperprime[0] = -1.0;
+//   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[3] = zprime/rprime;
 
-}
-void delta_cks_metric_inverse(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g_inv){
-  Real q = pin->GetOrAddReal("problem", "q", 0.1);
-  Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
-
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
-  if (std::fabs(z)<SMALL) z= SMALL;
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-
- // Real t = 10000;
-    // Position of black hole
-
-  Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-  Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Real Omega_bh2 = v_bh2/r_bh2;
-  Real x_bh2 = 0.0;
-  Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-  Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-
-  Real xprime = x - x_bh2;
-  Real yprime = y - y_bh2;
-  Real zprime = z - z_bh2;
-
-
-  Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-  Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-  if (std::fabs(zprime)<SMALL) zprime= SMALL;
-  Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
-  Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
-  rprime = std::sqrt(rprime/2.0);
-
-
-
-/// prevent metric from gettin nan sqrt(-gdet)
-  Real thprime  = std::acos(zprime/rprime);
-  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-  Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
-  if (rprime<rhprime/2.0) {
-    rprime = rhprime/2.0;
-    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-    zprime = rprime * std::cos(thprime);
-  }
-
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real l_lowerprime[4],l_upperprime[4];
-
-  Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-  l_upperprime[0] = -1.0;
-  l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[3] = zprime/rprime;
-
-  l_lowerprime[0] = 1.0;
-  l_lowerprime[1] = l_upperprime[1];
-  l_lowerprime[2] = l_upperprime[2];
-  l_lowerprime[3] = l_upperprime[3];
+//   l_lowerprime[0] = 1.0;
+//   l_lowerprime[1] = l_upperprime[1];
+//   l_lowerprime[2] = l_upperprime[2];
+//   l_lowerprime[3] = l_upperprime[3];
 
 
 
 
 
 
-  // Set covariant components
-  delta_g_inv(I00) = -fprime * l_upperprime[0]*l_upperprime[0];
-  delta_g_inv(I01) = -fprime * l_upperprime[0]*l_upperprime[1];
-  delta_g_inv(I02) = -fprime * l_upperprime[0]*l_upperprime[2];
-  delta_g_inv(I03) = -fprime * l_upperprime[0]*l_upperprime[3];
-  delta_g_inv(I11) = -fprime * l_upperprime[1]*l_upperprime[1];
-  delta_g_inv(I12) = -fprime * l_upperprime[1]*l_upperprime[2];
-  delta_g_inv(I13) = -fprime * l_upperprime[1]*l_upperprime[3];
-  delta_g_inv(I22) = -fprime * l_upperprime[2]*l_upperprime[2];
-  delta_g_inv(I23) = -fprime * l_upperprime[2]*l_upperprime[3];
-  delta_g_inv(I33) = -fprime * l_upperprime[3]*l_upperprime[3];
+//   // Set covariant components
+//   delta_g(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
+//   delta_g(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
+//   delta_g(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
+//   delta_g(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
+//   delta_g(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
+//   delta_g(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
+//   delta_g(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
+//   delta_g(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
+//   delta_g(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
+//   delta_g(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
 
-}
+// }
+// void delta_cks_metric_inverse(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g_inv){
+//   Real q = pin->GetOrAddReal("problem", "q", 0.1);
+//   Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
+
+//   if (std::fabs(z)<SMALL) z= SMALL;
+
+//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+//     x=  0.1;
+//     y = 0.1;
+//     z = 0.1;
+//   }
+
+//  // Real t = 10000;
+//     // Position of black hole
+
+//   Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+//   Real v_bh2 = 1.0/std::sqrt(r_bh2);
+//   Real Omega_bh2 = v_bh2/r_bh2;
+//   Real x_bh2 = 0.0;
+//   Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
+//   Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
+
+//   Real xprime = x - x_bh2;
+//   Real yprime = y - y_bh2;
+//   Real zprime = z - z_bh2;
+
+
+//   Real dx_bh2_dt = 0.0;
+//   Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
+//   Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
+//   if (std::fabs(zprime)<SMALL) zprime= SMALL;
+//   Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
+//   Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
+//   rprime = std::sqrt(rprime/2.0);
+
+
+
+// /// prevent metric from gettin nan sqrt(-gdet)
+//   Real thprime  = std::acos(zprime/rprime);
+//   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
+//                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
+
+//   Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
+//   if (rprime<rhprime/2.0) {
+//     rprime = rhprime/2.0;
+//     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
+//     yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
+//     zprime = rprime * std::cos(thprime);
+//   }
+
+
+
+//   //if (r<0.01) r = 0.01;
+
+
+//   Real l_lowerprime[4],l_upperprime[4];
+
+//   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+//   l_upperprime[0] = -1.0;
+//   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[3] = zprime/rprime;
+
+//   l_lowerprime[0] = 1.0;
+//   l_lowerprime[1] = l_upperprime[1];
+//   l_lowerprime[2] = l_upperprime[2];
+//   l_lowerprime[3] = l_upperprime[3];
+
+
+
+
+
+
+//   // Set covariant components
+//   delta_g_inv(I00) = -fprime * l_upperprime[0]*l_upperprime[0];
+//   delta_g_inv(I01) = -fprime * l_upperprime[0]*l_upperprime[1];
+//   delta_g_inv(I02) = -fprime * l_upperprime[0]*l_upperprime[2];
+//   delta_g_inv(I03) = -fprime * l_upperprime[0]*l_upperprime[3];
+//   delta_g_inv(I11) = -fprime * l_upperprime[1]*l_upperprime[1];
+//   delta_g_inv(I12) = -fprime * l_upperprime[1]*l_upperprime[2];
+//   delta_g_inv(I13) = -fprime * l_upperprime[1]*l_upperprime[3];
+//   delta_g_inv(I22) = -fprime * l_upperprime[2]*l_upperprime[2];
+//   delta_g_inv(I23) = -fprime * l_upperprime[2]*l_upperprime[3];
+//   delta_g_inv(I33) = -fprime * l_upperprime[3]*l_upperprime[3];
+
+// }
 
 
 #define DEL 1e-7
@@ -3211,9 +3215,13 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
-  Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
-  Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  // Real dx_bh2_dt = 0.0;
+  // Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  // Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+
+  Real dz_bh2_dt = 0.0;
+  Real dx_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  Real dy_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
 
 
 
