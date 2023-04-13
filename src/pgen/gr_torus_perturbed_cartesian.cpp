@@ -2818,9 +2818,14 @@ void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
   // *zbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
 
+  // *zbh = 0.0;
+  // *xbh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  // *ybh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+
+
   *zbh = 0.0;
-  *xbh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
-  *ybh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  *xbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
 
 }
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
@@ -3219,11 +3224,14 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   // Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
   // Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
 
+  // Real dz_bh2_dt = 0.0;
+  // Real dx_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  // Real dy_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+
+
   Real dz_bh2_dt = 0.0;
-  Real dx_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
-  Real dy_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
-
-
+  Real dx_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  Real dy_bh2_dt = 2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
 
 /// prevent metric from gettin nan sqrt(-gdet)
