@@ -3282,6 +3282,13 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime[2]*l_lowerprime[3];
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
+  Real det_test = Determinant(g);
+
+  if (std::isnan( std::sqrt(-det_test))) {
+    fprintf(stderr,"NAN determinant in metric!! Det: %g \n xyz: %g %g %g \n r: %g \n",det_test,x,y,z,r);
+    exit(0);
+  }
+
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
