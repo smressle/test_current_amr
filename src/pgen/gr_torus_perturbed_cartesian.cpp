@@ -3168,7 +3168,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x= 0.1;
+    x = 0.1;
     y = 0.1;
     z = 0.1;
   }
@@ -3176,6 +3176,20 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
   Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
   r = std::sqrt(r/2.0);
+
+
+/// prevent metric from gettin nan sqrt(-gdet)
+  Real th  = std::acos(z/r);
+  Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
+                              (a*y+r*x)/(SQR(r) + SQR(a) )  );
+  rh =  ( 1.0 + std::sqrt(1.0-SQR(a)) );
+  if (r<rh/2.0) {
+    rprime = rh/2.0;
+    xprime = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
+    yprime = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
+    zprime = r * std::cos(th);
+  }
+
 
 
   //if (r<0.01) r = 0.01;
@@ -3282,12 +3296,12 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime[2]*l_lowerprime[3];
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
-  Real det_test = Determinant(g);
+  // Real det_test = Determinant(g);
 
-  if (std::isnan( std::sqrt(-det_test))) {
-    fprintf(stderr,"NAN determinant in metric!! Det: %g \n xyz: %g %g %g \n r: %g \n",det_test,x,y,z,r);
-    exit(0);
-  }
+  // if (std::isnan( std::sqrt(-det_test))) {
+  //   fprintf(stderr,"NAN determinant in metric!! Det: %g \n xyz: %g %g %g \n r: %g \n",det_test,x,y,z,r);
+  //   exit(0);
+  // }
 
 
   bool invertible = gluInvertMatrix(g,g_inv);
