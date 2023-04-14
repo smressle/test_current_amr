@@ -3184,10 +3184,10 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
                               (a*y+r*x)/(SQR(r) + SQR(a) )  );
   rh =  ( 1.0 + std::sqrt(1.0-SQR(a)) );
   if (r<rh/2.0) {
-    rprime = rh/2.0;
-    xprime = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
-    yprime = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
-    zprime = r * std::cos(th);
+    r = rh/2.0;
+    x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
+    y = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
+    z = r * std::cos(th);
   }
 
 
