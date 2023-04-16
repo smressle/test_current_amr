@@ -2823,9 +2823,9 @@ void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
   // *ybh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
 
 
-  *zbh = 0.0;
-  *xbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
-  *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  // *zbh = 0.0;
+  // *xbh = r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  // *ybh = r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
 
 }
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
