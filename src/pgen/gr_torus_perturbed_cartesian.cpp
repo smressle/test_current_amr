@@ -568,7 +568,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
     // Get mass of black hole
   Real m2 = q;
 
-  rh2 =  ( m2 + std::sqrt(m2**2.0-SQR(aprime)) );
+  rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
   int N_user_vars = 7;
@@ -3253,7 +3253,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
 
-  Real rhprime = ( a + std::sqrt(a**2.0-SQR(aprime)) );
+  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
   if (rprime<rhprime/2.0) {
     rprime = rhprime/2.0;
     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
