@@ -3235,17 +3235,17 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
   Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
-  Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
 
   // Real dz_bh2_dt = 0.0;
-  // Real dx_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
-  // Real dy_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
+  // Real dx_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  // Real dy_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
 
 
   // Real dz_bh2_dt = 0.0;
-  // Real dx_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * (t-t0));
-  // Real dy_bh2_dt = Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * (t-t0));
+  // Real dx_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  // Real dy_bh2_dt = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
 
 
 /// prevent metric from gettin nan sqrt(-gdet)
