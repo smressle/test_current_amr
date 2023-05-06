@@ -336,6 +336,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   q = pin->GetOrAddReal("problem", "q", 0.1);
   aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
 
+  v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
+
 
 
   rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
@@ -2296,7 +2298,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   a = pin->GetReal("coord", "a");
   Real a_spin =a;
-  m = m = pcoord->GetMass();
+  m = pin->GetReal("coord", "m");
 
   if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
   if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
@@ -2360,13 +2362,10 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   q = pin->GetOrAddReal("problem", "q", 1.0);
   aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
 
+  v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
 
  // Real t = 10000;
     // Position of black hole
-
-  v_bh2 = 0.05
-  Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Omega_bh2 = v_bh2/r_bh2;
   // Omega_bh2 = 0.0;
 
   Real xprime,yprime,zprime,rprime,Rprime;
