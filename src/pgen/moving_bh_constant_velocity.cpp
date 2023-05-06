@@ -335,14 +335,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   a = pcoord->GetSpin();
   q = pin->GetOrAddReal("problem", "q", 0.1);
   aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
-  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
 
 
-  Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  // Omega_bh2 = 0.0; //
-  Omega_bh2 = v_bh2/r_bh2;
 
   rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
   r_inner_boundary = rh/2.0;
@@ -596,7 +590,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
 
-  Real B_const = 0.0
+  Real B_const = 0.0;
 
   // Initialize magnetic fields
   if (MAGNETIC_FIELDS_ENABLED) {
