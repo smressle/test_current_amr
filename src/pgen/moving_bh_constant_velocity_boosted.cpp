@@ -2324,8 +2324,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   Real eta[4];
 
-
-
   eta[0] = -1.0;
   eta[1] = 1.0;
   eta[2] = 1.0;
