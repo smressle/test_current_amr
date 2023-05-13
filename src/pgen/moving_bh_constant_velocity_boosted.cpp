@@ -543,29 +543,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
-  //initialize random numbers
-  std::mt19937_64 generator;
-  std::uniform_real_distribution<Real> uniform(-0.02, std::nextafter(0.02, std::numeric_limits<Real>::max()));
-
 
   // Get ratio of specific heats
   gamma_adi = peos->GetGamma();
 
-  // Reset whichever of l,r_peak is not specified
-  if (r_peak >= 0.0) {
-    l = CalculateLFromRPeak(r_peak);
-  } else {
-    r_peak = CalculateRPeakFromL(l);
-  }
-
-  // Prepare global constants describing primitives
-  log_h_edge = LogHAux(r_edge, 1.0);
-  log_h_peak = LogHAux(r_peak, 1.0) - log_h_edge;
-  pgas_over_rho_peak = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h_peak)-1.0);
-  rho_peak = std::pow(pgas_over_rho_peak/k_adi, 1.0/(gamma_adi-1.0)) / rho_max;
 
   // Prepare scratch arrays
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, iu+1);
+  gi.NewAthenaArray(NMETRIC, iu+1);
   // Initialize primitive values
   for (int k = kl; k <= ku; ++k) {
     for (int j = jl; j <= ju; ++j) {
@@ -588,6 +574,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
   // Free scratch arrays
+  g.DeleteAthenaArray();
+  gi.DeleteAthenaArray();
 
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];

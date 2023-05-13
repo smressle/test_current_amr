@@ -566,6 +566,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
   // Prepare scratch arrays
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, iu+1);
+  gi.NewAthenaArray(NMETRIC, iu+1);
   // Initialize primitive values
   for (int k = kl; k <= ku; ++k) {
     for (int j = jl; j <= ju; ++j) {
@@ -574,6 +576,18 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real rho = 1.0;
         Real pgas = 0.1;
+
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) + 2.0*v_bh2*g(I03);
+        Real ut = std::sqrt(-1.0/denom);
+
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = v_bh2 * ut;
+
+        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        Real uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
         Real uu1 = 0.0;
         Real uu2 = 0.0;
         Real uu3 = 0.0;
@@ -588,6 +602,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
   // Free scratch arrays
+  g.DeleteAthenaArray();
+  gi.DeleteAthenaArray();
 
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
