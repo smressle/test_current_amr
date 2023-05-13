@@ -2430,51 +2430,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   }
 
 
-  // // Set contravariant components
-  // g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] - fprime * l_upperprime[0]*l_upperprime[0];
-  // g_inv(I01) =        - f * l_upper[0]*l_upper[1] - fprime * l_upperprime[0]*l_upperprime[1];
-  // g_inv(I02) =        - f * l_upper[0]*l_upper[2] - fprime * l_upperprime[0]*l_upperprime[2];
-  // g_inv(I03) =        - f * l_upper[0]*l_upper[3] - fprime * l_upperprime[0]*l_upperprime[3];
-  // g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] - fprime * l_upperprime[1]*l_upperprime[1];
-  // g_inv(I12) =        - f * l_upper[1]*l_upper[2] - fprime * l_upperprime[1]*l_upperprime[2];
-  // g_inv(I13) =        - f * l_upper[1]*l_upper[3] - fprime * l_upperprime[1]*l_upperprime[3];
-  // g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] - fprime * l_upperprime[2]*l_upperprime[2];
-  // g_inv(I23) =        - f * l_upper[2]*l_upper[3] - fprime * l_upperprime[2]*l_upperprime[3];
-  // g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] - fprime * l_upperprime[3]*l_upperprime[3];
-
-
-  Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
-  Real rsq_p_asq = SQR(r) + SQR(a);
-
-  Real df_dx1 = SQR(f)*x/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real df_dx2 = SQR(f)*y/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  Real df_dx3 = SQR(f)*z/(2.0*std::pow(r,5)) * ( ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(a*r)) ;
-  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  Real dl1_dx1 = x*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  Real dl1_dx2 = y*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ a_spin/( rsq_p_asq );
-  Real dl1_dx3 = z/r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  Real dl2_dx1 = x*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - a_spin/( rsq_p_asq );
-  Real dl2_dx2 = y*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  Real dl2_dx3 = z/r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( (rsq_p_asq) * ( sqrt_term ) );
-  Real dl3_dx1 = - x*z/(r) /( sqrt_term );
-  Real dl3_dx2 = - y*z/(r) /( sqrt_term );
-  Real dl3_dx3 = - SQR(z)/(SQR(r)*r) * ( rsq_p_asq )/( sqrt_term ) + 1.0/r;
-
-  Real dl0_dx1 = 0.0;
-  Real dl0_dx2 = 0.0;
-  Real dl0_dx3 = 0.0;
-
-  if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
-    fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
-    exit(0);
-  }
-
-
-
-
-
   //expressioons for a = 0
 
   // f = 2.0/R;
@@ -2539,8 +2494,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 /////Secondary Black hole/////
 
-  sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
-  rsq_p_asq = SQR(rprime) + SQR(aprime);
+  Real sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
+  Real rsq_p_asq = SQR(rprime) + SQR(aprime);
 
   Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
 
