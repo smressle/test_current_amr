@@ -559,7 +559,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       for (int i = il; i <= iu; ++i) {
 
         Real rho = 1.0;
-        Real pgas = 0.1;
+        Real pgas = 1e-3;
         Real uu1 = 0.0;
         Real uu2 = 0.0;
         Real uu3 = 0.0;

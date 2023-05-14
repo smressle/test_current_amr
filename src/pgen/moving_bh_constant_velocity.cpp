@@ -575,7 +575,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       for (int i = il; i <= iu; ++i) {
 
         Real rho = 1.0;
-        Real pgas = 0.1;
+        Real pgas = 1e-3;;
 
         Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) + 2.0*v_bh2*g(I03);
         Real ut = std::sqrt(-1.0/denom);
