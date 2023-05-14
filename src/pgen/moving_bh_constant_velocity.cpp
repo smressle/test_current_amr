@@ -582,7 +582,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real ux = 0.0;
         Real uy = 0.0;
-        Real uz = v_bh2 * ut;
+        Real uz = -v_bh2 * ut;
 
         Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
         Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
