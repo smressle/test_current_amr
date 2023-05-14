@@ -1723,7 +1723,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
   FaceField &b = pmb->pfield->b;
 
-  if (not coarse_flag){
+  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
 
       face1.NewAthenaArray((ie-is)+2*NGHOST+2);
       face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
@@ -1811,7 +1811,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   }
 
   // Calculate x1-face-centered geometric quantities
-  if (not coarse_flag) {
+  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -1854,7 +1854,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   }
 
   // Calculate x2-face-centered geometric quantities
-  if (not coarse_flag) {
+  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -1898,7 +1898,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   }
 
   // Calculate x3-face-centered geometric quantities
-  if (not coarse_flag) {
+  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -2015,7 +2015,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
 
 
     Real divb_new =0.0;
-    if (not coarse_flag){
+    if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
       for(int k=ks; k<=ke; k++) {
         for(int j=js; j<=je; j++) {
           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
@@ -2048,12 +2048,14 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   dg_dt.DeleteAthenaArray();
   if (not coarse_flag) {
     transformation.DeleteAthenaArray();
-    divb.DeleteAthenaArray();
-    face1.DeleteAthenaArray();
-    face2p.DeleteAthenaArray();
-    face2m.DeleteAthenaArray();
-    face3p.DeleteAthenaArray();
-    face3m.DeleteAthenaArray();
+    if (MAGNETIC_FIELDS_ENABLED){
+      divb.DeleteAthenaArray();
+      face1.DeleteAthenaArray();
+      face2p.DeleteAthenaArray();
+      face2m.DeleteAthenaArray();
+      face3p.DeleteAthenaArray();
+      face3m.DeleteAthenaArray();
+    }
   }
 }
 
