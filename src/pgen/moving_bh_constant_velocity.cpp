@@ -582,21 +582,32 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real r,th,ph;
         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,&th, &ph);
 
-        if (r<rh) denom = g(I00,i);
+        //if (r<rh) denom = g(I00,i);
 
 
-        if (denom>0){
-          fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
-        }
-        Real ut = std::sqrt(-1.0/denom);
 
-        Real ux = 0.0;
-        Real uy = 0.0;
-        Real uz = -v_bh2 * ut;
+        // if (denom>0){
+        //   fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
+        // }
 
-        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-        Real uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+        Real ut,ux,uy,uz,uu1,uu2,uu3;
+
+        if (r>rh){
+            ut = std::sqrt(-1.0/denom);
+
+            ux = 0.0;
+            uy = 0.0;
+            uz = -v_bh2 * ut;
+
+            uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+            uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+            uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+         }
+         else{
+          uu1 = 0.0;
+          uu2 = 0.0;
+          uu3 = 0.0;
+         }
 
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
         phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas;
