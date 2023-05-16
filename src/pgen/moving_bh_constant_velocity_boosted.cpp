@@ -2553,12 +2553,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
                      - v_bh2 * (dfprime_dx1 * l_lowerprime[3]*l_lowerprime[3] 
                      +          fprime * dl3prime_dx1*l_lowerprime[3]
                      +          fprime * l_lowerprime[3]*dl3prime_dx1);  
-
-  // g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] - 2.0*v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3]  
-  //                 + SQR(v_bh2)*fprime*l_lowerprime[3]*l_lowerprime[3]  ;
-  // g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] - v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
-  // g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2] - v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
-  // g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3] - v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] ;
   dgprime_dx1(I11) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx1;
   dgprime_dx1(I12) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx1;
   dgprime_dx1(I13) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx1;
@@ -2567,18 +2561,35 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   dgprime_dx1(I33) = dfprime_dx1*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx1;
 
   // Set y-derivatives of covariant components
+  // dgprime_dx2(I00) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx2 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx2;
+  // dgprime_dx2(I01) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx2;
+  // dgprime_dx2(I02) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx2;
+  // dgprime_dx2(I03) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx2;  
   dgprime_dx2(I00) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx2 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx2
-                     + v_bh2 * dfprime_dx2 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx2*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx2;
+                     - 2.0 * v_bh2 * (dfprime_dx2 * l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2*l_lowerprime[3]
+                     +                fprime * l_lowerprime[0]*dl3prime_dx2) 
+                     +  SQR(v_bh2) * (dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx2*l_lowerprime[3] 
+                     +                fprime * l_lowerprime[3]*dl3prime_dx2);
   dgprime_dx2(I01) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx2
-                     + v_bh2 * dfprime_dx2 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx2*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx2;
+                     - v_bh2 * (dfprime_dx2 * l_lowerprime[1]*l_lowerprime[3] 
+                     +          fprime * dl1prime_dx2*l_lowerprime[3]
+                     +          fprime * l_lowerprime[1]*dl3prime_dx2);
   dgprime_dx2(I02) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx2
-                     + v_bh2 * dfprime_dx2 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx2*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx2;
+                     - v_bh2 * (dfprime_dx2 * l_lowerprime[2]*l_lowerprime[3] 
+                     +          fprime * dl2prime_dx2*l_lowerprime[3]
+                     +          fprime * l_lowerprime[2]*dl3prime_dx2);
   dgprime_dx2(I03) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx2
-                     + v_bh2 * dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx2*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx2;  
+                     - v_bh2 * (dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] 
+                     +          fprime * dl3prime_dx2*l_lowerprime[3]
+                     +          fprime * l_lowerprime[3]*dl3prime_dx2);  
   dgprime_dx2(I11) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx2;
   dgprime_dx2(I12) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx2;
   dgprime_dx2(I13) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx2;
@@ -2587,18 +2598,36 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   dgprime_dx2(I33) = dfprime_dx2*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx2;
 
   // Set z-derivatives of covariant components
+  // dgprime_dx3(I00) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx3 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx3
+  //                    + v_bh2 * dfprime_dx3 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx3;
+  // dgprime_dx3(I01) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx3
+  //                     + v_bh2 * dfprime_dx3 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx3;
+  // dgprime_dx3(I02) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx3
+  //                      + v_bh2 * dfprime_dx3 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx3;;
+  // dgprime_dx3(I03) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx3
+  //                    + v_bh2 * dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx3; ;
+
   dgprime_dx3(I00) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx3 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx3
-                     + v_bh2 * dfprime_dx3 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx3*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx3;
+                     - 2.0 * v_bh2 * (dfprime_dx3 * l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3*l_lowerprime[3]
+                     +                fprime * l_lowerprime[0]*dl3prime_dx3) 
+                     +  SQR(v_bh2) * (dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx3*l_lowerprime[3] 
+                     +                fprime * l_lowerprime[3]*dl3prime_dx3);
   dgprime_dx3(I01) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx3
-                      + v_bh2 * dfprime_dx3 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx3*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx3;
+                     - v_bh2 * (dfprime_dx3 * l_lowerprime[1]*l_lowerprime[3] 
+                     +          fprime * dl1prime_dx3*l_lowerprime[3]
+                     +          fprime * l_lowerprime[1]*dl3prime_dx3);
   dgprime_dx3(I02) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx3
-                       + v_bh2 * dfprime_dx3 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx3*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx3;;
+                     - v_bh2 * (dfprime_dx3 * l_lowerprime[2]*l_lowerprime[3] 
+                     +          fprime * dl2prime_dx3*l_lowerprime[3]
+                     +          fprime * l_lowerprime[2]*dl3prime_dx3);
   dgprime_dx3(I03) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx3
-                     + v_bh2 * dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx3*l_lowerprime[3]
-                     + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx3; ;
+                     - v_bh2 * (dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] 
+                     +          fprime * dl3prime_dx3*l_lowerprime[3]
+                     +          fprime * l_lowerprime[3]*dl3prime_dx3);  
   dgprime_dx3(I11) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx3;
   dgprime_dx3(I12) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx3;
   dgprime_dx3(I13) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx3;
