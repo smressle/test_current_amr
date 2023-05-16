@@ -2312,14 +2312,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real th  = std::acos(z/r);
   Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
                               (a*y+r*x)/(SQR(r) + SQR(a) )  );
-  rh =  ( 1.0 + std::sqrt(1.0-SQR(a)) );
-  if (r<rh/2.0) {
-    r = rh/2.0;
-    x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
-    y = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
-    z = r * std::cos(th);
-  }
-
 
 
   Real eta[4];

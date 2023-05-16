@@ -577,7 +577,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real rho = 1.0;
         Real pgas = 1e-3;;
 
-        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) + 2.0*v_bh2*g(I03);
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03);
 
         Real r,th,ph;
         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,&th, &ph);
@@ -592,7 +592,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real ut,ux,uy,uz,uu1,uu2,uu3;
 
-        if (r>rh){
+        if (r>5.0){
             ut = std::sqrt(-1.0/denom);
 
             ux = 0.0;
