@@ -567,7 +567,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real xprime,yprime,zprime,rprime,Rprime;
 
-        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
         if (rprime<=5.0){
           rho = 0.0;
