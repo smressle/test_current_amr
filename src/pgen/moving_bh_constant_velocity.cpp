@@ -607,6 +607,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           uu1 = 0.0;
           uu2 = 0.0;
           uu3 = 0.0;
+          rho = 0.0;
+          pgas = 0.0;
          }
 
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
