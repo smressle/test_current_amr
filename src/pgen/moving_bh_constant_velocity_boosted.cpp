@@ -2392,10 +2392,15 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
   // Set covariant components
-  g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] + v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3];
-  g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] + v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
-  g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2] + v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
-  g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] + v_bh2;
+  // g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] + v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3];
+  // g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] + v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
+  // g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2] + v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
+  // g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] + v_bh2;
+  g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] - 2.0*v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3]  
+                  + SQR(v_bh2)*fprime*l_lowerprime[3]*l_lowerprime[3] + SQR(v_bh2) ;
+  g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] - v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
+  g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2] - v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
+  g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3] - v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] - v_bh2;
   g(I11) = eta[1] + fprime * l_lowerprime[1]*l_lowerprime[1];
   g(I12) =          fprime * l_lowerprime[1]*l_lowerprime[2];
   g(I13) =          fprime * l_lowerprime[1]*l_lowerprime[3];
