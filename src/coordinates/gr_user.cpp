@@ -1811,7 +1811,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
   }
 
   // Calculate x1-face-centered geometric quantities
-  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -1847,14 +1847,14 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
           }
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          pmb->pfield->b.x1f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
         }
       }
     }
   }
 
   // Calculate x2-face-centered geometric quantities
-  if (not coarse_flag && MAGNETIC_FIELDS_ENABLED) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -1891,7 +1891,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
 
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          pmb->pfield->b.x2f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
         }
       }
     }
@@ -1935,7 +1935,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
 
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          pmb->pfield->b.x3f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
         }
       }
     }
