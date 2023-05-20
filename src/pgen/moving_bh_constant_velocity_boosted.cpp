@@ -2298,32 +2298,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real a_spin =a;
   m = pin->GetReal("coord", "m");
 
-  if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
-  if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
-
-  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
-  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
-
-  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
-  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x = 0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-/// prevent metric from getting nan sqrt(-gdet)
-  Real th  = std::acos(z/r);
-  Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
-                              (a*y+r*x)/(SQR(r) + SQR(a) )  );
-
-
   Real eta[4];
 
   eta[0] = -1.0;
@@ -2340,9 +2314,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
 
- // Real t = 10000;
-    // Position of black hole
-  // Omega_bh2 = 0.0;
 
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
