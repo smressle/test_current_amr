@@ -559,7 +559,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
   // Omega_bh2 = 0.0; //
-  Omega_bh2 = v_bh2/r_bh2;
+  Omega_bh2 = v_bh2/r_bh2 * 10;
 
   rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
   r_inner_boundary = rh/2.0;
@@ -3227,7 +3227,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
   t0 = pin->GetOrAddReal("problem","t0", 1e4);
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Omega_bh2 = v_bh2/r_bh2;
+  Omega_bh2 = v_bh2/r_bh2 * 10;
   // Omega_bh2 = 0.0;
 
   Real xprime,yprime,zprime,rprime,Rprime;
