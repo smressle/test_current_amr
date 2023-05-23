@@ -2178,6 +2178,13 @@ TaskStatus TimeIntegratorTaskList::CheckRefinement(MeshBlock *pmb, int stage) {
   return TaskStatus::success;
 }
 
+// TaskStatus TimeIntegratorTaskList::EvolveMetric(MeshBlock *pmb, int stage) {
+//   if (stage != nstages && !GENERAL_RELATIVITY) return TaskStatus::success; // only do on last stage
+
+//   if (METRIC_EVOLUTION && pmb->pmy_mesh->ncycle % 10 ==0 && mb->pmy_mesh->ncycle>0) pmb->pmy_mesh->pmesh->CalculateMetric(pinput);
+//   return TaskStatus::success;
+// }
+
 
 TaskStatus TimeIntegratorTaskList::CalculateScalarFlux(MeshBlock *pmb, int stage) {
   PassiveScalars *ps = pmb->pscalars;
