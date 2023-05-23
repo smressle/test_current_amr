@@ -2143,27 +2143,28 @@ namespace {
 //   returned value: determinant
 
 Real Determinant(const AthenaArray<Real> &g) {
-  const Real &a11 = g(I00);
-  const Real &a12 = g(I01);
-  const Real &a13 = g(I02);
-  const Real &a14 = g(I03);
-  const Real &a21 = g(I01);
-  const Real &a22 = g(I11);
-  const Real &a23 = g(I12);
-  const Real &a24 = g(I13);
-  const Real &a31 = g(I02);
-  const Real &a32 = g(I12);
-  const Real &a33 = g(I22);
-  const Real &a34 = g(I23);
-  const Real &a41 = g(I03);
-  const Real &a42 = g(I13);
-  const Real &a43 = g(I23);
-  const Real &a44 = g(I33);
-  Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
-             - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
-             + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
-             - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
-  return det;
+  return -1.0;
+  // const Real &a11 = g(I00);
+  // const Real &a12 = g(I01);
+  // const Real &a13 = g(I02);
+  // const Real &a14 = g(I03);
+  // const Real &a21 = g(I01);
+  // const Real &a22 = g(I11);
+  // const Real &a23 = g(I12);
+  // const Real &a24 = g(I13);
+  // const Real &a31 = g(I02);
+  // const Real &a32 = g(I12);
+  // const Real &a33 = g(I22);
+  // const Real &a34 = g(I23);
+  // const Real &a41 = g(I03);
+  // const Real &a42 = g(I13);
+  // const Real &a43 = g(I23);
+  // const Real &a44 = g(I33);
+  // Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
+  //            - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
+  //            + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
+  //            - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
+  // return det;
 }
 
 Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
