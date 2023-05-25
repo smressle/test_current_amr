@@ -3296,6 +3296,19 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime[2]*l_lowerprime[3];
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
+
+  // Add Boost terms by transforming from primed frame to central BH frame (for second part of metric only)
+
+  // g(I00) += -2.0 * ( dx_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[1] 
+  //                  + dy_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[2] 
+  //                  + dz_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[3])
+  //           + SQR(dx_bh2_dt) * fprime * l_lowerprime[1]*l_lowerprime[1]
+  //           + SQR(dy_bh2_dt) * fprime * l_lowerprime[2]*l_lowerprime[2] 
+  //           + SQR(dz_bh2_dt) * fprime * l_lowerprime[3]*l_lowerprime[3];
+  // g(I01) += - dx_bh2_dt * fprime * l_lowerprime[1]*l_lowerprime[1];
+  // g(I02) += - dy_bh2_dt * fprime * l_lowerprime[2]*l_lowerprime[2];
+  // g(I03) += - dz_bh2_dt * fprime * l_lowerprime[3]*l_lowerprime[3];
+
   // Real det_test = Determinant(g);
 
   // if (std::isnan( std::sqrt(-det_test))) {
