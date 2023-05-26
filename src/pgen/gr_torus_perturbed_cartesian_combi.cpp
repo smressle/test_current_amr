@@ -4183,3 +4183,319 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 
   return;
 }
+
+
+void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
+{
+
+   Real x = x1;
+  Real y = x2;
+  Real z = x3;
+
+  Real xi1x,xi1y,xi1z,xi2x,xi2y,xi2z;
+  xi1x = 0.0;
+  xi2y = 0.0;
+  xi2z = 0.0;
+  get_bh_position(t,&xi2x,&xi2y,&xi2z);
+
+  m = pin->GetReal("coord","m");
+  a = pin->GetReal("coord", "a");
+  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  Real v_bh2 = 1.0/std::sqrt(r_bh2);
+  Omega_bh2 = v_bh2/r_bh2;
+  // Omega_bh2 = 0.0;
+
+
+  Real dx_bh2_dt = 0.0;
+  Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+
+  Real v1x = 0.0;
+  Real v1y = 0.0;
+  Real v1z = 0.0;
+  Real v2x = dx_bh2_dt;
+  Real v2y = dy_bh2_dt; 
+  Real v2z = dz_bh2_dt;
+
+  // if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
+  // if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
+
+  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
+  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
+
+  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
+  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
+
+  // if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+  //   x = 0.1;
+  //   y = 0.1;
+  //   z = 0.1;
+  // }
+
+
+
+  q = pin->GetOrAddReal("problem", "q", 1.0);
+  // aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+
+  Real m1 = m;
+  Real m2 = m * q;
+  Real a1 = a;
+  Real a2 = m2 * pin->GetOrAddReal("problem", "a_bh2", 0.0);
+  Real a1 = m1 * a;
+
+double result[10];
+double oo1 = v1 * v1;
+double oo2 = oo1 * -1;
+double oo3 = 1 + oo2;
+double oo4 = sqrt(oo3);
+double oo5 = oo4 * oo1;
+double oo6 = -1 + oo4;
+double oo7 = v1x * v1x;
+double oo8 = v1y * v1y;
+double oo9 = oo7 + oo8;
+double oo10 = oo6 * (oo9 * -1);
+double oo11 = oo10 + oo5;
+double oo12 = pow(oo11, -1);
+double oo13 = x * -1;
+double oo14 = oo13 + xi1x;
+double oo15 = y * -1;
+double oo16 = oo15 + xi1y;
+double oo17 = v2 * v2;
+double oo18 = oo17 * -1;
+double oo19 = 1 + oo18;
+double oo20 = sqrt(oo19);
+double oo21 = oo20 * oo17;
+double oo22 = -1 + oo20;
+double oo23 = v2x * v2x;
+double oo24 = v2y * v2y;
+double oo25 = oo23 + oo24;
+double oo26 = oo22 * (oo25 * -1);
+double oo27 = oo21 + oo26;
+double oo28 = pow(oo27, -1);
+double oo29 = oo13 + xi2x;
+double oo30 = oo15 + xi2y;
+double oo31 = xi1x * -1;
+double oo32 = oo31 + x;
+double oo33 = xi2x * -1;
+double oo34 = oo33 + x;
+double oo35 = pow(oo1, -1);
+double oo36 = pow(oo4, -1);
+double oo37 = xi1y * -1;
+double oo38 = pow(oo17, -1);
+double oo39 = pow(oo20, -1);
+double oo40 = xi2y * -1;
+double x0BH1 = (t + oo12 * ((v1x * oo14 + v1y * oo16) * oo1)) * oo4;
+double x0BH2 = (t + oo28 * ((v2x * oo29 + v2y * oo30) * oo17)) * oo20;
+double x1BH1 = (oo32 * (oo4 * oo1) - v1y * ((v1x * oo16 + v1y * oo32) * oo6)) * oo12;
+double x1BH2 = (oo20 * (oo34 * oo17) - v2y * ((v2x * oo30 + v2y * oo34) * oo22)) * oo28;
+double x2BH1 = (oo37 + (y + (-1 + oo36) * (v1x * ((v1y * oo14 + (oo37 + y) * v1x) * oo35)))) * pow(1 - oo36 * (oo6 * (oo9 * oo35)), -1);
+double x2BH2 = (oo40 + (y + (-1 + oo39) * (v2x * ((v2y * oo29 + (oo40 + y) * v2x) * oo38)))) * pow(1 - oo25 * (oo38 * (oo39 * oo22)), -1);
+double x3BH1 = z;
+double x3BH2 = z;
+
+
+double o1 = 1.4142135623730951;
+double o2 = pow(o1, -1);
+double o3 = v1 * v1;
+double o4 = o3 * -1;
+double o5 = 1 + o4;
+double o6 = (o5 * o5) * o5;
+double o7 = sqrt(o5);
+double o8 = o7 * o3;
+double o9 = -1 + o7;
+double o10 = v1x * v1x;
+double o11 = v1y * v1y;
+double o12 = o10 + o11;
+double o13 = o12 * (o9 * -1);
+double o14 = o13 + o8;
+double o15 = o14 * o14;
+double o16 = pow(o3, -1);
+double o17 = pow(o7, -1);
+double o18 = o16 * (o17 * (o9 * o12));
+double o19 = -1 + o18;
+double o20 = ((o19 * o19) * o19) * o19;
+double o21 = pow(o20, -1);
+double o22 = o9 * (v1 * o12);
+double o23 = (((v1 * v1) * v1) * v1) * v1;
+double o24 = o10 + (o11 + o7);
+double o25 = o24 * o23;
+double o26 = (v1 * v1) * v1;
+double o27 = o9 * o10;
+double o28 = o9 * o11;
+double o29 = o10 + (o11 + (o27 + (o28 + o7)));
+double o30 = o26 * (o29 * -1);
+double o31 = o22 + (o25 + o30);
+double o32 = a1 * a1;
+double o33 = o32 * -1;
+double o34 = x1BH1 * x1BH1;
+double o35 = x2BH1 * x2BH1;
+double o36 = x3BH1 * x3BH1;
+double o37 = o33 + (o34 + (o35 + o36));
+double o38 = o37 * (R0 * -1);
+double o39 = o38 + R1;
+double o40 = pow(E, o39);
+double o41 = 1 + o40;
+double o42 = log(o41);
+double o43 = o32 * (o36 * 4);
+double o44 = o33 + (o34 + (o35 + (o36 + o42)));
+double o45 = o44 * o44;
+double o46 = o43 + o45;
+double o47 = sqrt(o46);
+double o48 = o33 + (o34 + (o35 + (o36 + (o42 + o47))));
+double o49 = pow(o48, 1.5);
+double o50 = o36 * o32;
+double o51 = o48 * o48;
+double o52 = o51 * 0.25;
+double o53 = o50 + o52;
+double o54 = pow(o53, -1);
+double o55 = -1 + o3;
+double o56 = x2BH1 * a1;
+double o57 = sqrt(o48);
+double o58 = o57 * (x1BH1 * o2);
+double o59 = o56 + o58;
+double o60 = o59 * o59;
+double o61 = o48 * 0.5;
+double o62 = o32 + o61;
+double o63 = o62 * o62;
+double o64 = pow(o63, -1);
+double o65 = pow(o5, 1.5);
+double o66 = o55 * o55;
+double o67 = pow(o66, -1);
+double o68 = o12 * (o16 * (o17 * (o9 * -1)));
+double o69 = 1 + o68;
+double o70 = a1 * (x1BH1 * -1);
+double o71 = o57 * (x2BH1 * o2);
+double o72 = o70 + o71;
+double o73 = o69 * o69;
+double o74 = o72 * o72;
+double o75 = pow(o62, -1);
+double o76 = pow(o23, -1);
+double o77 = pow(o65, -1);
+double o78 = v2 * v2;
+double o79 = o78 * -1;
+double o80 = 1 + o79;
+double o81 = (o80 * o80) * o80;
+double o82 = sqrt(o80);
+double o83 = o82 * o78;
+double o84 = -1 + o82;
+double o85 = v2x * v2x;
+double o86 = v2y * v2y;
+double o87 = o85 + o86;
+double o88 = o84 * (o87 * -1);
+double o89 = o83 + o88;
+double o90 = o89 * o89;
+double o91 = pow(o78, -1);
+double o92 = pow(o82, -1);
+double o93 = o87 * (o91 * (o92 * o84));
+double o94 = -1 + o93;
+double o95 = ((o94 * o94) * o94) * o94;
+double o96 = pow(o95, -1);
+double o97 = o87 * (v2 * o84);
+double o98 = (((v2 * v2) * v2) * v2) * v2;
+double o99 = o82 + (o85 + o86);
+double o100 = o99 * o98;
+double o101 = (v2 * v2) * v2;
+double o102 = o85 * o84;
+double o103 = o86 * o84;
+double o104 = o102 + (o103 + (o82 + (o85 + o86)));
+double o105 = o101 * (o104 * -1);
+double o106 = o100 + (o105 + o97);
+double o107 = a2 * a2;
+double o108 = o107 * -1;
+double o109 = x1BH2 * x1BH2;
+double o110 = x2BH2 * x2BH2;
+double o111 = x3BH2 * x3BH2;
+double o112 = o108 + (o109 + (o110 + o111));
+double o113 = o112 * (R0 * -1);
+double o114 = o113 + R1;
+double o115 = pow(E, o114);
+double o116 = 1 + o115;
+double o117 = log(o116);
+double o118 = o107 * (o111 * 4);
+double o119 = o108 + (o109 + (o110 + (o111 + o117)));
+double o120 = o119 * o119;
+double o121 = o118 + o120;
+double o122 = sqrt(o121);
+double o123 = o108 + (o109 + (o110 + (o111 + (o117 + o122))));
+double o124 = pow(o123, 1.5);
+double o125 = o111 * o107;
+double o126 = o123 * o123;
+double o127 = o126 * 0.25;
+double o128 = o125 + o127;
+double o129 = pow(o128, -1);
+double o130 = -1 + o78;
+double o131 = x2BH2 * a2;
+double o132 = sqrt(o123);
+double o133 = o2 * (x1BH2 * o132);
+double o134 = o131 + o133;
+double o135 = o134 * o134;
+double o136 = o123 * 0.5;
+double o137 = o107 + o136;
+double o138 = o137 * o137;
+double o139 = pow(o138, -1);
+double o140 = pow(o80, 1.5);
+double o141 = o130 * o130;
+double o142 = pow(o141, -1);
+double o143 = o84 * (o87 * (o91 * (o92 * -1)));
+double o144 = 1 + o143;
+double o145 = a2 * (x1BH2 * -1);
+double o146 = o2 * (x2BH2 * o132);
+double o147 = o145 + o146;
+double o148 = o144 * o144;
+double o149 = o147 * o147;
+double o150 = pow(o137, -1);
+double o151 = pow(o98, -1);
+double o152 = pow(o140, -1);
+double o153 = pow(o69, -1);
+double o154 = o19 * o19;
+double o155 = pow(o154, -1);
+double o156 = -1 + o17;
+double o157 = o156 * (o16 * o11);
+double o158 = 1 + o157;
+double o159 = pow(o14, -1);
+double o160 = pow(o144, -1);
+double o161 = o94 * o94;
+double o162 = pow(o161, -1);
+double o163 = -1 + o92;
+double o164 = o86 * (o91 * o163);
+double o165 = 1 + o164;
+double o166 = pow(o89, -1);
+double o167 = pow(o73, -1);
+double o168 = o9 * o9;
+double o169 = pow(o15, -1);
+double o170 = pow(o148, -1);
+double o171 = o84 * o84;
+double o172 = pow(o90, -1);
+double o173 = o156 * (o16 * o10);
+double o174 = 1 + o173;
+double o175 = o85 * (o91 * o163);
+double o176 = 1 + o175;
+result[0] = -1 + (m1 * (o11 * (o2 * (o21 * (o49 * (o54 * (o64 * (o73 * o74))))))) + (m2 * (o124 * (o129 * (o139 * (o148 * (o149 * (o2 * (o86 * o96))))))) + (m1 * (o15 * (o2 * (o21 * (pow(o31, 2) * (o49 * (o54 * (pow(o6, -1) * pow(v1, -10)))))))) + (m1 * (o10 * (o15 * (o2 * (o21 * (o49 * (o54 * (pow(o55, -4) * (o6 * (o60 * (o64 * pow(v1, -4))))))))))) + (m1 * (o1 * (o15 * (o21 * (o31 * (o49 * (o54 * (o59 * (o67 * (o75 * (pow(v1, -7) * v1x)))))))))) + (m1 * (o1 * (o14 * (o21 * (o31 * (o49 * (o54 * (o69 * (o72 * (o75 * (o76 * (o77 * v1y))))))))))) + (m1 * (o1 * (o14 * (o16 * (o21 * (o49 * (o54 * (o59 * (o64 * (o65 * (o67 * (o69 * (o72 * (v1x * v1y))))))))))))) + (m2 * (pow(o106, 2) * (o124 * (o129 * (o2 * (pow(o81, -1) * (o90 * (o96 * pow(v2, -10)))))))) + (m2 * (o124 * (o129 * (pow(o130, -4) * (o135 * (o139 * (o2 * (o81 * (o85 * (o90 * (o96 * pow(v2, -4))))))))))) + (m2 * (o1 * (o106 * (o124 * (o129 * (o134 * (o142 * (o150 * (o90 * (o96 * (pow(v2, -7) * v2x)))))))))) + (m2 * (o1 * (o106 * (o124 * (o129 * (o144 * (o147 * (o150 * (o151 * (o152 * (o89 * (o96 * v2y))))))))))) + m2 * (o1 * (o124 * (o129 * (o134 * (o139 * (o140 * (o142 * (o144 * (o147 * (o89 * (o91 * (o96 * (v2x * v2y))))))))))))))))))))))));
+result[1] = m1 * (o10 * (o14 * (o153 * (o155 * (o16 * (o2 * (o49 * (o54 * (o59 * (o65 * (o67 * o75))))))))))) + (-1 * (m1 * (o14 * (o153 * (o155 * (o158 * (o2 * (o31 * (o49 * (o54 * (o59 * (o75 * (o76 * o77)))))))))))) + (-1 * (m2 * (o106 * (o124 * (o129 * (o134 * (o150 * (o151 * (o152 * (o160 * (o162 * (o165 * (o2 * o89)))))))))))) + (m2 * (o124 * (o129 * (o134 * (o140 * (o142 * (o150 * (o160 * (o162 * (o2 * (o85 * (o89 * o91))))))))))) + (-1 * (m1 * (o14 * (o153 * (o155 * (o158 * (o16 * (o2 * (o49 * (o54 * (o60 * (o64 * (o65 * (o67 * v1x))))))))))))) + (m1 * (o14 * (o153 * (o155 * (o2 * (o31 * (o49 * (o54 * (o76 * (o77 * v1x))))))))) + (-1 * (m1 * (o11 * (o155 * (o159 * (o2 * (o49 * (o54 * (o64 * (o69 * (o74 * (o9 * v1x))))))))))) + (-1 * (m1 * (o155 * (o158 * (o2 * (o49 * (o54 * (o59 * (o64 * (o72 * v1y))))))))) + (-1 * (m1 * (o10 * (o155 * (o16 * (o2 * (o49 * (o54 * (o59 * (o64 * (o65 * (o67 * (o72 * (o9 * v1y))))))))))))) + (m1 * (o155 * (o2 * (o49 * (o54 * (o72 * (o75 * (v1x * v1y))))))) + (-1 * (m1 * (o155 * (o2 * (o31 * (o49 * (o54 * (o72 * (o75 * (o76 * (o77 * (o9 * (v1x * v1y)))))))))))) + (-1 * (m2 * (o124 * (o129 * (o139 * (o144 * (o149 * (o162 * (o166 * (o2 * (o84 * (o86 * v2x))))))))))) + (m2 * (o106 * (o124 * (o129 * (o151 * (o152 * (o160 * (o162 * (o2 * (o89 * v2x))))))))) + (-1 * (m2 * (o124 * (o129 * (o135 * (o139 * (o140 * (o142 * (o160 * (o162 * (o165 * (o2 * (o89 * (o91 * v2x))))))))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o139 * (o147 * (o162 * (o165 * (o2 * v2y))))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o139 * (o140 * (o142 * (o147 * (o162 * (o2 * (o84 * (o85 * (o91 * v2y))))))))))))) + (m2 * (o124 * (o129 * (o147 * (o150 * (o162 * (o2 * (v2x * v2y))))))) + -1 * (m2 * (o106 * (o124 * (o129 * (o147 * (o150 * (o151 * (o152 * (o162 * (o2 * (o84 * (v2x * v2y))))))))))))))))))))))))))));
+result[2] = 1 + (m2 * (o124 * (o129 * (o135 * (o139 * (pow(o165, 2) * (o170 * o2)))))) + (m1 * (o10 * (o167 * (o2 * (o49 * o54)))) + (m1 * (pow(o158, 2) * (o167 * (o2 * (o49 * (o54 * (o60 * o64)))))) + (m1 * (o10 * (o11 * (o168 * (o169 * (o2 * (o49 * (o54 * (o64 * o74)))))))) + (m2 * (o124 * (o129 * (o170 * (o2 * o85)))) + (m2 * (o124 * (o129 * (o139 * (o149 * (o171 * (o172 * (o2 * (o85 * o86)))))))) + (-1 * (m1 * (o1 * (o158 * (o167 * (o49 * (o54 * (o59 * (o75 * v1x)))))))) + (-1 * (m1 * (o1 * (o10 * (o153 * (o159 * (o49 * (o54 * (o72 * (o75 * (o9 * v1y)))))))))) + (m1 * (o1 * (o153 * (o158 * (o159 * (o49 * (o54 * (o59 * (o64 * (o72 * (o9 * (v1x * v1y))))))))))) + (-1 * (m2 * (o1 * (o124 * (o129 * (o134 * (o150 * (o165 * (o170 * v2x)))))))) + (-1 * (m2 * (o1 * (o124 * (o129 * (o147 * (o150 * (o160 * (o166 * (o84 * (o85 * v2y)))))))))) + m2 * (o1 * (o124 * (o129 * (o134 * (o139 * (o147 * (o160 * (o165 * (o166 * (o84 * (v2x * v2y))))))))))))))))))))));
+result[3] = m1 * (o11 * (o155 * (o2 * (o49 * (o54 * (o72 * o75)))))) + (-1 * (m1 * (o14 * (o153 * (o155 * (o174 * (o2 * (o31 * (o49 * (o54 * (o72 * (o75 * (o76 * o77)))))))))))) + (m2 * (o124 * (o129 * (o147 * (o150 * (o162 * (o2 * o86)))))) + (-1 * (m2 * (o106 * (o124 * (o129 * (o147 * (o150 * (o151 * (o152 * (o160 * (o162 * (o176 * (o2 * o89)))))))))))) + (-1 * (m1 * (o14 * (o153 * (o155 * (o16 * (o174 * (o2 * (o49 * (o54 * (o59 * (o64 * (o65 * (o67 * (o72 * v1x)))))))))))))) + (-1 * (m1 * (o11 * (o155 * (o159 * (o2 * (o49 * (o54 * (o59 * (o64 * (o69 * (o72 * (o9 * v1x)))))))))))) + (-1 * (m1 * (o155 * (o174 * (o2 * (o49 * (o54 * (o64 * (o74 * v1y)))))))) + (m1 * (o14 * (o153 * (o155 * (o2 * (o31 * (o49 * (o54 * (o76 * (o77 * v1y))))))))) + (-1 * (m1 * (o10 * (o155 * (o16 * (o2 * (o49 * (o54 * (o60 * (o64 * (o65 * (o67 * (o9 * v1y)))))))))))) + (m1 * (o14 * (o153 * (o155 * (o16 * (o2 * (o49 * (o54 * (o59 * (o65 * (o67 * (o75 * (v1x * v1y)))))))))))) + (-1 * (m1 * (o155 * (o2 * (o31 * (o49 * (o54 * (o59 * (o75 * (o76 * (o77 * (o9 * (v1x * v1y)))))))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o139 * (o144 * (o147 * (o162 * (o166 * (o2 * (o84 * (o86 * v2x)))))))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o139 * (o140 * (o142 * (o147 * (o160 * (o162 * (o176 * (o2 * (o89 * (o91 * v2x)))))))))))))) + (-1 * (m2 * (o124 * (o129 * (o139 * (o149 * (o162 * (o176 * (o2 * v2y)))))))) + (m2 * (o106 * (o124 * (o129 * (o151 * (o152 * (o160 * (o162 * (o2 * (o89 * v2y))))))))) + (-1 * (m2 * (o124 * (o129 * (o135 * (o139 * (o140 * (o142 * (o162 * (o2 * (o84 * (o85 * (o91 * v2y)))))))))))) + (-1 * (m2 * (o106 * (o124 * (o129 * (o134 * (o150 * (o151 * (o152 * (o162 * (o2 * (o84 * (v2x * v2y)))))))))))) + m2 * (o124 * (o129 * (o134 * (o140 * (o142 * (o150 * (o160 * (o162 * (o2 * (o89 * (o91 * (v2x * v2y))))))))))))))))))))))))))));
+result[4] = m2 * (o124 * (o129 * (o134 * (o139 * (o147 * (o165 * (o170 * (o176 * o2)))))))) + (m1 * (o10 * (o11 * (o168 * (o169 * (o2 * (o49 * (o54 * (o59 * (o64 * o72))))))))) + (m1 * (o158 * (o167 * (o174 * (o2 * (o49 * (o54 * (o59 * (o64 * o72)))))))) + (m2 * (o124 * (o129 * (o134 * (o139 * (o147 * (o171 * (o172 * (o2 * (o85 * o86))))))))) + (-1 * (m1 * (o167 * (o174 * (o2 * (o49 * (o54 * (o72 * (o75 * v1x)))))))) + (-1 * (m1 * (o11 * (o153 * (o159 * (o2 * (o49 * (o54 * (o72 * (o75 * (o9 * v1x)))))))))) + (-1 * (m1 * (o158 * (o167 * (o2 * (o49 * (o54 * (o59 * (o75 * v1y)))))))) + (-1 * (m1 * (o10 * (o153 * (o159 * (o2 * (o49 * (o54 * (o59 * (o75 * (o9 * v1y)))))))))) + (m1 * (o167 * (o2 * (o49 * (o54 * (v1x * v1y))))) + (m1 * (o153 * (o158 * (o159 * (o2 * (o49 * (o54 * (o60 * (o64 * (o9 * (v1x * v1y)))))))))) + (m1 * (o153 * (o159 * (o174 * (o2 * (o49 * (o54 * (o64 * (o74 * (o9 * (v1x * v1y)))))))))) + (-1 * (m2 * (o124 * (o129 * (o147 * (o150 * (o170 * (o176 * (o2 * v2x)))))))) + (-1 * (m2 * (o124 * (o129 * (o147 * (o150 * (o160 * (o166 * (o2 * (o84 * (o86 * v2x)))))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o150 * (o165 * (o170 * (o2 * v2y)))))))) + (-1 * (m2 * (o124 * (o129 * (o134 * (o150 * (o160 * (o166 * (o2 * (o84 * (o85 * v2y)))))))))) + (m2 * (o124 * (o129 * (o170 * (o2 * (v2x * v2y))))) + (m2 * (o124 * (o129 * (o135 * (o139 * (o160 * (o165 * (o166 * (o2 * (o84 * (v2x * v2y)))))))))) + m2 * (o124 * (o129 * (o139 * (o149 * (o160 * (o166 * (o176 * (o2 * (o84 * (v2x * v2y))))))))))))))))))))))))));
+result[5] = 1 + (m2 * (o124 * (o129 * (o139 * (o149 * (o170 * (pow(o176, 2) * o2)))))) + (m1 * (o11 * (o167 * (o2 * (o49 * o54)))) + (m1 * (o10 * (o11 * (o168 * (o169 * (o2 * (o49 * (o54 * (o60 * o64)))))))) + (m1 * (o167 * (pow(o174, 2) * (o2 * (o49 * (o54 * (o64 * o74)))))) + (m2 * (o124 * (o129 * (o170 * (o2 * o86)))) + (m2 * (o124 * (o129 * (o135 * (o139 * (o171 * (o172 * (o2 * (o85 * o86)))))))) + (-1 * (m1 * (o1 * (o11 * (o153 * (o159 * (o49 * (o54 * (o59 * (o75 * (o9 * v1x)))))))))) + (-1 * (m1 * (o1 * (o167 * (o174 * (o49 * (o54 * (o72 * (o75 * v1y)))))))) + (m1 * (o1 * (o153 * (o159 * (o174 * (o49 * (o54 * (o59 * (o64 * (o72 * (o9 * (v1x * v1y))))))))))) + (-1 * (m2 * (o1 * (o124 * (o129 * (o134 * (o150 * (o160 * (o166 * (o84 * (o86 * v2x)))))))))) + (-1 * (m2 * (o1 * (o124 * (o129 * (o147 * (o150 * (o170 * (o176 * v2y)))))))) + m2 * (o1 * (o124 * (o129 * (o134 * (o139 * (o147 * (o160 * (o166 * (o176 * (o84 * (v2x * v2y))))))))))))))))))))));
+result[6] = -1 * (m1 * (o14 * (o155 * (o31 * (o48 * (o54 * (o76 * (o77 * x3BH1)))))))) + (-1 * (m1 * (o14 * (o155 * (o16 * (o48 * (o54 * (o59 * (o65 * (o67 * (o75 * (v1x * x3BH1))))))))))) + (-1 * (m1 * (o155 * (o48 * (o54 * (o69 * (o72 * (o75 * (v1y * x3BH1)))))))) + (-1 * (m2 * (o106 * (o123 * (o129 * (o151 * (o152 * (o162 * (o89 * x3BH2)))))))) + (-1 * (m2 * (o123 * (o129 * (o134 * (o140 * (o142 * (o150 * (o162 * (o89 * (o91 * (v2x * x3BH2))))))))))) + -1 * (m2 * (o123 * (o129 * (o144 * (o147 * (o150 * (o162 * (v2y * x3BH2))))))))))));
+result[7] = m1 * (o153 * (o158 * (o48 * (o54 * (o59 * (o75 * x3BH1)))))) + (-1 * (m1 * (o153 * (o48 * (o54 * (v1x * x3BH1))))) + (m1 * (o159 * (o48 * (o54 * (o72 * (o75 * (o9 * (v1x * (v1y * x3BH1)))))))) + (m2 * (o123 * (o129 * (o134 * (o150 * (o160 * (o165 * x3BH2)))))) + (-1 * (m2 * (o123 * (o129 * (o160 * (v2x * x3BH2))))) + m2 * (o123 * (o129 * (o147 * (o150 * (o166 * (o84 * (v2x * (v2y * x3BH2))))))))))));
+result[8] = m1 * (o153 * (o174 * (o48 * (o54 * (o72 * (o75 * x3BH1)))))) + (-1 * (m1 * (o153 * (o48 * (o54 * (v1y * x3BH1))))) + (m1 * (o159 * (o48 * (o54 * (o59 * (o75 * (o9 * (v1x * (v1y * x3BH1)))))))) + (m2 * (o123 * (o129 * (o147 * (o150 * (o160 * (o176 * x3BH2)))))) + (-1 * (m2 * (o123 * (o129 * (o160 * (v2y * x3BH2))))) + m2 * (o123 * (o129 * (o134 * (o150 * (o166 * (o84 * (v2x * (v2y * x3BH2))))))))))));
+result[9] = 1 + (m2 * (o1 * (o111 * (o129 * o132))) + m1 * (o1 * (o36 * (o54 * o57))));
+
+
+  // TT = 0, XX = 1, YY = 2, ZZ = 3
+  gcov[TT][TT] =                result[0];
+  gcov[XX][TT] = gcov[TT][XX] = result[1];
+  gcov[XX][XX] =                result[2];
+  gcov[YY][TT] = gcov[TT][YY] = result[3];
+  gcov[YY][XX] = gcov[XX][YY] = result[4];
+  gcov[YY][YY] =                result[5];
+  gcov[ZZ][TT] = gcov[TT][ZZ] = result[6];
+  gcov[ZZ][XX] = gcov[XX][ZZ] = result[7];
+  gcov[ZZ][YY] = gcov[YY][ZZ] = result[8];
+  gcov[ZZ][ZZ] =                result[9];
+
+
+
+return  ;
+}
