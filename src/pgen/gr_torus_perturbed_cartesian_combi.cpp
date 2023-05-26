@@ -4121,6 +4121,9 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   Real z = x3;
 
   a = pin->GetReal("coord", "a");
+  m = pin->GetReal("coord","m");
+
+  a = m * a;
   Real a_spin = a;
 
   if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
@@ -4148,7 +4151,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 
   Real eta[4],l_lower[4],l_upper[4];
 
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
+  Real f = 2.0 * m *  SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
   l_upper[0] = -1.0;
   l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
   l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
@@ -4188,7 +4191,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
 {
 
-   Real x = x1;
+  Real x = x1;
   Real y = x2;
   Real z = x3;
 
@@ -4218,6 +4221,60 @@ void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
   Real v2y = dy_bh2_dt; 
   Real v2z = dz_bh2_dt;
 
+  AthenaArray<Real> g_single_bh;
+  g_single_bh.NewAthenaArray(NMETRIC);
+        
+
+  single_bh_metric(x,y,z, pin,g_single_bh);
+
+  //u^mu u^nu g_mu nu = -1
+  //divide by u^t 
+  //g_tt + 2 g_it v^i + g_ij v^i v^j
+
+  Real v1sq = 0.0;
+  Real v2sq = 0.0;
+  Real denom1  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v1x + 2.0*g_single_bh(I02)*v1y + 2.0*g_single_bh(I03)*v1z 
+                 + g_single_bh(I11)*v1x*v1x + 2.0*g_single_bh(I12)*v1x*v1y + 2.0*g_single_bh(I13)*v1x*v1z
+                 + g_single_bh(I22)*v1y*v1y + 2.0*g_single_bh(I23)*v1y*v1z
+                 + g_single_bh(I33)*v1z*v1z;
+  Real denom2  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v2x + 2.0*g_single_bh(I02)*v2y + 2.0*g_single_bh(I03)*v2z 
+                 + g_single_bh(I11)*v2x*v2x + 2.0*g_single_bh(I12)*v2x*v2y + 2.0*g_single_bh(I13)*v12*v2z
+                 + g_single_bh(I22)*v2y*v2y + 2.0*g_single_bh(I23)*v2y*v2z
+                 + g_single_bh(I33)*v2z*v2z;
+
+
+  //  gamma^2 = -alpha^2/denom
+  //  alpha^2 = - 1/g^00
+  //  1/gamma^2 = denom * g^00
+
+
+
+  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+  r = std::sqrt(r/2.0);
+
+
+  //if (r<0.01) r = 0.01;
+
+
+  Real eta[4],l_lower[4],l_upper[4];
+
+  Real f = 2.0 * m1 *  SQR(r)*r / (SQR(SQR(r)) + SQR(a1)*SQR(z));
+
+  gcon_tt_single_bh = -1.0 - f;
+
+  Real one_over_gamma_sq1 = denom1 * gcon_tt_single_bh;
+  Real one_over_gamma_sq2 = denom2 * gcon_tt_single_bh;
+
+  vsq1 = 1.0 - one_over_gamma_sq1;
+  vsq2 = 1.0 - one_over_gamma_sq2;
+
+  
+  Real v1 = std::sqrt(v1sq);
+  Real v2 = std::sqrt(v2sq);
+
+
+  g_single_bh.DeleteAthenaArray();
   // if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
   // if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
 
