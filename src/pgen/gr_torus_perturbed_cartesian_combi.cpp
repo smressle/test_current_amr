@@ -2845,475 +2845,23 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime
 
 }
 
-
-
-void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
-    // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
-  Real a_spin = a; //-a;
-
-  if (std::fabs(z)<SMALL) z= SMALL;
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-
-  // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0];
-  g(I01) = f * l_lower[0]*l_lower[1];
-  g(I02) = f * l_lower[0]*l_lower[2];
-  g(I03) = f * l_lower[0]*l_lower[3];
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1];
-  g(I12) = f * l_lower[1]*l_lower[2];
-  g(I13) = f * l_lower[1]*l_lower[3];
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2];
-  g(I23) = f * l_lower[2]*l_lower[3];
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3];
-
-
-}
-
-void cks_inverse_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g_inv){
-    // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
-  Real a_spin = a; //-a;
-
-  if (std::fabs(z)<SMALL) z= SMALL;
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-    // // Set contravariant components
-  g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] ;
-  g_inv(I01) =        - f * l_upper[0]*l_upper[1] ;
-  g_inv(I02) =        - f * l_upper[0]*l_upper[2] ;
-  g_inv(I03) =        - f * l_upper[0]*l_upper[3] ;
-  g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] ;
-  g_inv(I12) =        - f * l_upper[1]*l_upper[2] ;
-  g_inv(I13) =        - f * l_upper[1]*l_upper[3] ;
-  g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] ;
-  g_inv(I23) =        - f * l_upper[2]*l_upper[3] ;
-  g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] ;
-
-
-}
-// void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g){
-//   Real q = pin->GetOrAddReal("problem", "q", 0.1);
-//   Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
-
-
-//  // Real t = 10000;
-//     // Position of black hole
-
-//   Real x = x1;
-//   Real y = x2;
-//   Real z = x3;
-
-//   if (std::fabs(z)<SMALL) z= SMALL;
-
-//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-//     x=  0.1;
-//     y = 0.1;
-//     z = 0.1;
-//   }
-
-//   Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-//   Real v_bh2 = 1.0/std::sqrt(r_bh2);
-//   Real Omega_bh2 = v_bh2/r_bh2;
-//   Real x_bh2 = 0.0;
-//   Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-//   Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-
-//   Real xprime = x - x_bh2;
-//   Real yprime = y - y_bh2;
-//   Real zprime = z - z_bh2;
-
-
-// //velocity of the second black hole.  For non-circular orbit need to compute velocities in cartesian coordinates
-
-//   Real dx_bh2_dt = 0.0;
-//   Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-//   Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-//   if (std::fabs(zprime)<SMALL) zprime= SMALL;
-//   Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
-//   Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
-//   rprime = std::sqrt(rprime/2.0);
-
-
-
-// /// prevent metric from getting nan sqrt(-gdet)
-//   Real thprime  = std::acos(zprime/rprime);
-//   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-//                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-//   Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
-//   if (rprime<rhprime/2.0) {
-//     rprime = rhprime/2.0;
-//     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-//     yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-//     zprime = rprime * std::cos(thprime);
-//   }
-
-
-
-//   //if (r<0.01) r = 0.01;
-
-
-//   Real l_lowerprime[4],l_upperprime[4];
-
-//   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-//   l_upperprime[0] = -1.0;
-//   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-//   l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-//   l_upperprime[3] = zprime/rprime;
-
-//   l_lowerprime[0] = 1.0;
-//   l_lowerprime[1] = l_upperprime[1];
-//   l_lowerprime[2] = l_upperprime[2];
-//   l_lowerprime[3] = l_upperprime[3];
-
-
-
-
-
-
-//   // Set covariant components
-//   delta_g(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
-//   delta_g(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
-//   delta_g(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
-//   delta_g(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
-//   delta_g(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
-//   delta_g(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
-//   delta_g(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
-//   delta_g(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
-//   delta_g(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
-//   delta_g(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
-
-// }
-// void delta_cks_metric_inverse(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g_inv){
-//   Real q = pin->GetOrAddReal("problem", "q", 0.1);
-//   Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
-
-//   Real x = x1;
-//   Real y = x2;
-//   Real z = x3;
-
-//   if (std::fabs(z)<SMALL) z= SMALL;
-
-//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-//     x=  0.1;
-//     y = 0.1;
-//     z = 0.1;
-//   }
-
-//  // Real t = 10000;
-//     // Position of black hole
-
-//   Real r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-//   Real v_bh2 = 1.0/std::sqrt(r_bh2);
-//   Real Omega_bh2 = v_bh2/r_bh2;
-//   Real x_bh2 = 0.0;
-//   Real y_bh2 = r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-//   Real z_bh2 = r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-
-//   Real xprime = x - x_bh2;
-//   Real yprime = y - y_bh2;
-//   Real zprime = z - z_bh2;
-
-
-//   Real dx_bh2_dt = 0.0;
-//   Real dy_bh2_dt =  2.0*PI*Omega_bh2 * r_bh2 * std::cos(2.0*PI*Omega_bh2 * t);
-//   Real dz_bh2_dt = -2.0*PI*Omega_bh2 * r_bh2 * std::sin(2.0*PI*Omega_bh2 * t);
-//   if (std::fabs(zprime)<SMALL) zprime= SMALL;
-//   Real Rprime = std::sqrt(SQR(xprime) + SQR(yprime) + SQR(zprime));
-//   Real rprime = SQR(Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(zprime) );
-//   rprime = std::sqrt(rprime/2.0);
-
-
-
-// /// prevent metric from gettin nan sqrt(-gdet)
-//   Real thprime  = std::acos(zprime/rprime);
-//   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-//                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-//   Real rhprime = q * ( 1.0 + std::sqrt(1.0-SQR(aprime)) );
-//   if (rprime<rhprime/2.0) {
-//     rprime = rhprime/2.0;
-//     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-//     yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-//     zprime = rprime * std::cos(thprime);
-//   }
-
-
-
-//   //if (r<0.01) r = 0.01;
-
-
-//   Real l_lowerprime[4],l_upperprime[4];
-
-//   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-//   l_upperprime[0] = -1.0;
-//   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-//   l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-//   l_upperprime[3] = zprime/rprime;
-
-//   l_lowerprime[0] = 1.0;
-//   l_lowerprime[1] = l_upperprime[1];
-//   l_lowerprime[2] = l_upperprime[2];
-//   l_lowerprime[3] = l_upperprime[3];
-
-
-
-
-
-
-//   // Set covariant components
-//   delta_g_inv(I00) = -fprime * l_upperprime[0]*l_upperprime[0];
-//   delta_g_inv(I01) = -fprime * l_upperprime[0]*l_upperprime[1];
-//   delta_g_inv(I02) = -fprime * l_upperprime[0]*l_upperprime[2];
-//   delta_g_inv(I03) = -fprime * l_upperprime[0]*l_upperprime[3];
-//   delta_g_inv(I11) = -fprime * l_upperprime[1]*l_upperprime[1];
-//   delta_g_inv(I12) = -fprime * l_upperprime[1]*l_upperprime[2];
-//   delta_g_inv(I13) = -fprime * l_upperprime[1]*l_upperprime[3];
-//   delta_g_inv(I22) = -fprime * l_upperprime[2]*l_upperprime[2];
-//   delta_g_inv(I23) = -fprime * l_upperprime[2]*l_upperprime[3];
-//   delta_g_inv(I33) = -fprime * l_upperprime[3]*l_upperprime[3];
-
-// }
-
-
 #define DEL 1e-7
 void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
 
-  // if  (Globals::my_rank == 0) fprintf(stderr,"Metric time in pgen file (GLOBAL RANK): %g \n", t);
-  // else fprintf(stderr,"Metric time in pgen file (RANK %d): %g \n", Globals::my_rank,t);
-  // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
   a = pin->GetReal("coord", "a");
-  Real a_spin =a;
-
-  if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
-  if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
-
-  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
-  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
-
-  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
-  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x = 0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-
+  m = pin->GetReal("coord","m");
   Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+  Real r = SQR(R) - SQR(a*m) + std::sqrt( SQR( SQR(R) - SQR(a*m) ) + 4.0*SQR(a*m)*SQR(z) );
   r = std::sqrt(r/2.0);
 
-
-/// prevent metric from gettin nan sqrt(-gdet)
-  Real th  = std::acos(z/r);
-  Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
-                              (a*y+r*x)/(SQR(r) + SQR(a) )  );
-  rh =  ( 1.0 + std::sqrt(1.0-SQR(a)) );
-  if (r<rh/2.0) {
-    r = rh/2.0;
-    x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
-    y = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
-    z = r * std::cos(th);
-  }
+  if (r<=DEL) r = DEL;
 
 
 
-  //if (r<0.01) r = 0.01;
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-
-
-
-  //////////////Perturber Black Hole//////////////////
-
-  q = pin->GetOrAddReal("problem", "q", 1.0);
-  aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
-
-
- // Real t = 10000;
-    // Position of black hole
-
-  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
-  Real v_bh2 = 1.0/std::sqrt(r_bh2);
-  Omega_bh2 = v_bh2/r_bh2;
-  // Omega_bh2 = 0.0;
-
-  Real xprime,yprime,zprime,rprime,Rprime;
-  get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
-
-
-  Real dx_bh2_dt = 0.0;
-  Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
-  Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
-
-  // Real dz_bh2_dt = 0.0;
-  // Real dx_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
-  // Real dy_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
-
-
-  // Real dz_bh2_dt = 0.0;
-  // Real dx_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
-  // Real dy_bh2_dt = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
-
-
-/// prevent metric from gettin nan sqrt(-gdet)
-  Real thprime  = std::acos(zprime/rprime);
-  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
-  if (rprime < rhprime*0.8) {
-    rprime = rhprime*0.8;
-    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-    zprime = rprime * std::cos(thprime);
-  }
-
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real l_lowerprime[4],l_upperprime[4];
-
-  Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-  l_upperprime[0] = -1.0;
-  l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[3] = zprime/rprime;
-
-  l_lowerprime[0] = 1.0;
-  l_lowerprime[1] = l_upperprime[1];
-  l_lowerprime[2] = l_upperprime[2];
-  l_lowerprime[3] = l_upperprime[3];
-
-
-
-
-
-
-  // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] + fprime * l_lowerprime[0]*l_lowerprime[0];
-  g(I01) =          f * l_lower[0]*l_lower[1] + fprime * l_lowerprime[0]*l_lowerprime[1];
-  g(I02) =          f * l_lower[0]*l_lower[2] + fprime * l_lowerprime[0]*l_lowerprime[2];
-  g(I03) =          f * l_lower[0]*l_lower[3] + fprime * l_lowerprime[0]*l_lowerprime[3];
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] + fprime * l_lowerprime[1]*l_lowerprime[1];
-  g(I12) =          f * l_lower[1]*l_lower[2] + fprime * l_lowerprime[1]*l_lowerprime[2];
-  g(I13) =          f * l_lower[1]*l_lower[3] + fprime * l_lowerprime[1]*l_lowerprime[3];
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] + fprime * l_lowerprime[2]*l_lowerprime[2];
-  g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime[2]*l_lowerprime[3];
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
-
-  // Real det_test = Determinant(g);
-
-  // if (std::isnan( std::sqrt(-det_test))) {
-  //   fprintf(stderr,"NAN determinant in metric!! Det: %g \n xyz: %g %g %g \n r: %g \n",det_test,x,y,z,r);
-  //   exit(0);
-  // }
-
-    // Add Boost terms by transforming from primed frame to central BH frame (for second part of metric only)
-
-  // g(I00) += -2.0 * ( dx_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[1] 
-  //                  + dy_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[2] 
-  //                  + dz_bh2_dt * fprime * l_lowerprime[0]*l_lowerprime[3])
-  //           + SQR(dx_bh2_dt) * fprime * l_lowerprime[1]*l_lowerprime[1]
-  //           + SQR(dy_bh2_dt) * fprime * l_lowerprime[2]*l_lowerprime[2] 
-  //           + SQR(dz_bh2_dt) * fprime * l_lowerprime[3]*l_lowerprime[3];
-  // g(I01) += - dx_bh2_dt * fprime * l_lowerprime[1]*l_lowerprime[1];
-  // g(I02) += - dy_bh2_dt * fprime * l_lowerprime[2]*l_lowerprime[2];
-  // g(I03) += - dz_bh2_dt * fprime * l_lowerprime[3]*l_lowerprime[3];
+  dyn_superposed_pn_gcov_func(t,x1,x2,x3,g,pin)
 
 
   bool invertible = gluInvertMatrix(g,g_inv);
@@ -3323,349 +2871,64 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   }
 
 
-  // // Set contravariant components
-  // g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] - fprime * l_upperprime[0]*l_upperprime[0];
-  // g_inv(I01) =        - f * l_upper[0]*l_upper[1] - fprime * l_upperprime[0]*l_upperprime[1];
-  // g_inv(I02) =        - f * l_upper[0]*l_upper[2] - fprime * l_upperprime[0]*l_upperprime[2];
-  // g_inv(I03) =        - f * l_upper[0]*l_upper[3] - fprime * l_upperprime[0]*l_upperprime[3];
-  // g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] - fprime * l_upperprime[1]*l_upperprime[1];
-  // g_inv(I12) =        - f * l_upper[1]*l_upper[2] - fprime * l_upperprime[1]*l_upperprime[2];
-  // g_inv(I13) =        - f * l_upper[1]*l_upper[3] - fprime * l_upperprime[1]*l_upperprime[3];
-  // g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] - fprime * l_upperprime[2]*l_upperprime[2];
-  // g_inv(I23) =        - f * l_upper[2]*l_upper[3] - fprime * l_upperprime[2]*l_upperprime[3];
-  // g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] - fprime * l_upperprime[3]*l_upperprime[3];
+  AthenaArray<Real> gp,gm;
 
 
-  Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
-  Real rsq_p_asq = SQR(r) + SQR(a);
+  gp.NewAthenaArray(NMETRIC);
+  gm.NewAthenaArray(NMETRIC);
 
-  Real df_dx1 = SQR(f)*x/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real df_dx2 = SQR(f)*y/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  Real df_dx3 = SQR(f)*z/(2.0*std::pow(r,5)) * ( ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(a*r)) ;
-  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  Real dl1_dx1 = x*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  Real dl1_dx2 = y*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ a_spin/( rsq_p_asq );
-  Real dl1_dx3 = z/r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  Real dl2_dx1 = x*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - a_spin/( rsq_p_asq );
-  Real dl2_dx2 = y*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  Real dl2_dx3 = z/r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( (rsq_p_asq) * ( sqrt_term ) );
-  Real dl3_dx1 = - x*z/(r) /( sqrt_term );
-  Real dl3_dx2 = - y*z/(r) /( sqrt_term );
-  Real dl3_dx3 = - SQR(z)/(SQR(r)*r) * ( rsq_p_asq )/( sqrt_term ) + 1.0/r;
 
-  Real dl0_dx1 = 0.0;
-  Real dl0_dx2 = 0.0;
-  Real dl0_dx3 = 0.0;
+  Real x1p = x1 + DEL * r;
+  Real x1m = x1 - DEL * r;
 
-  if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
-    fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
-    exit(0);
+  dyn_superposed_pn_gcov_func(t,x1p,x2,x3,gp,pin);
+  dyn_superposed_pn_gcov_func(t,x1m,x2,x3,gm,pin);
+
+    // // Set x-derivatives of covariant components
+  for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
   }
 
+  Real x2p = x2 + DEL * r;
+  Real x2m = x2 - DEL * r;
+
+  dyn_superposed_pn_gcov_func(t,x1,x2p,x3,gp,pin);
+  dyn_superposed_pn_gcov_func(t,x1,x2m,x3,gm,pin);
 
 
-
-
-  //expressioons for a = 0
-
-  // f = 2.0/R;
-  // l_lower[1] = x/R;
-  // l_lower[2] = y/R;
-  // l_lower[3] = z/R;
-  // df_dx1 = -2.0 * x/SQR(R)/R;
-  // df_dx2 = -2.0 * y/SQR(R)/R;
-  // df_dx3 = -2.0 * z/SQR(R)/R;
-
-  // dl1_dx1 = -SQR(x)/SQR(R)/R + 1.0/R;
-  // dl1_dx2 = -x*y/SQR(R)/R; 
-  // dl1_dx3 = -x*z/SQR(R)/R;
-
-  // dl2_dx1 = -x*y/SQR(R)/R;
-  // dl2_dx2 = -SQR(y)/SQR(R)/R + 1.0/R;
-  // dl2_dx3 = -y*z/SQR(R)/R;
-
-  // dl3_dx1 = -x*z/SQR(R)/R;
-  // dl3_dx2 = -y*z/SQR(R)/R;
-  // dl3_dx3 = -SQR(z)/SQR(R)/R;
-
-
-
-  // // Set x-derivatives of covariant components
-  dg_dx1(I00) = df_dx1*l_lower[0]*l_lower[0] + f * dl0_dx1 * l_lower[0] + f * l_lower[0] * dl0_dx1;
-  dg_dx1(I01) = df_dx1*l_lower[0]*l_lower[1] + f * dl0_dx1 * l_lower[1] + f * l_lower[0] * dl1_dx1;
-  dg_dx1(I02) = df_dx1*l_lower[0]*l_lower[2] + f * dl0_dx1 * l_lower[2] + f * l_lower[0] * dl2_dx1;
-  dg_dx1(I03) = df_dx1*l_lower[0]*l_lower[3] + f * dl0_dx1 * l_lower[3] + f * l_lower[0] * dl3_dx1;
-  dg_dx1(I11) = df_dx1*l_lower[1]*l_lower[1] + f * dl1_dx1 * l_lower[1] + f * l_lower[1] * dl1_dx1;
-  dg_dx1(I12) = df_dx1*l_lower[1]*l_lower[2] + f * dl1_dx1 * l_lower[2] + f * l_lower[1] * dl2_dx1;
-  dg_dx1(I13) = df_dx1*l_lower[1]*l_lower[3] + f * dl1_dx1 * l_lower[3] + f * l_lower[1] * dl3_dx1;
-  dg_dx1(I22) = df_dx1*l_lower[2]*l_lower[2] + f * dl2_dx1 * l_lower[2] + f * l_lower[2] * dl2_dx1;
-  dg_dx1(I23) = df_dx1*l_lower[2]*l_lower[3] + f * dl2_dx1 * l_lower[3] + f * l_lower[2] * dl3_dx1;
-  dg_dx1(I33) = df_dx1*l_lower[3]*l_lower[3] + f * dl3_dx1 * l_lower[3] + f * l_lower[3] * dl3_dx1;
-
-  // Set y-derivatives of covariant components
-  dg_dx2(I00) = df_dx2*l_lower[0]*l_lower[0] + f * dl0_dx2 * l_lower[0] + f * l_lower[0] * dl0_dx2;
-  dg_dx2(I01) = df_dx2*l_lower[0]*l_lower[1] + f * dl0_dx2 * l_lower[1] + f * l_lower[0] * dl1_dx2;
-  dg_dx2(I02) = df_dx2*l_lower[0]*l_lower[2] + f * dl0_dx2 * l_lower[2] + f * l_lower[0] * dl2_dx2;
-  dg_dx2(I03) = df_dx2*l_lower[0]*l_lower[3] + f * dl0_dx2 * l_lower[3] + f * l_lower[0] * dl3_dx2;
-  dg_dx2(I11) = df_dx2*l_lower[1]*l_lower[1] + f * dl1_dx2 * l_lower[1] + f * l_lower[1] * dl1_dx2;
-  dg_dx2(I12) = df_dx2*l_lower[1]*l_lower[2] + f * dl1_dx2 * l_lower[2] + f * l_lower[1] * dl2_dx2;
-  dg_dx2(I13) = df_dx2*l_lower[1]*l_lower[3] + f * dl1_dx2 * l_lower[3] + f * l_lower[1] * dl3_dx2;
-  dg_dx2(I22) = df_dx2*l_lower[2]*l_lower[2] + f * dl2_dx2 * l_lower[2] + f * l_lower[2] * dl2_dx2;
-  dg_dx2(I23) = df_dx2*l_lower[2]*l_lower[3] + f * dl2_dx2 * l_lower[3] + f * l_lower[2] * dl3_dx2;
-  dg_dx2(I33) = df_dx2*l_lower[3]*l_lower[3] + f * dl3_dx2 * l_lower[3] + f * l_lower[3] * dl3_dx2;
-
-  // Set z-derivatives of covariant components
-  dg_dx3(I00) = df_dx3*l_lower[0]*l_lower[0] + f * dl0_dx3 * l_lower[0] + f * l_lower[0] * dl0_dx3;
-  dg_dx3(I01) = df_dx3*l_lower[0]*l_lower[1] + f * dl0_dx3 * l_lower[1] + f * l_lower[0] * dl1_dx3;
-  dg_dx3(I02) = df_dx3*l_lower[0]*l_lower[2] + f * dl0_dx3 * l_lower[2] + f * l_lower[0] * dl2_dx3;
-  dg_dx3(I03) = df_dx3*l_lower[0]*l_lower[3] + f * dl0_dx3 * l_lower[3] + f * l_lower[0] * dl3_dx3;
-  dg_dx3(I11) = df_dx3*l_lower[1]*l_lower[1] + f * dl1_dx3 * l_lower[1] + f * l_lower[1] * dl1_dx3;
-  dg_dx3(I12) = df_dx3*l_lower[1]*l_lower[2] + f * dl1_dx3 * l_lower[2] + f * l_lower[1] * dl2_dx3;
-  dg_dx3(I13) = df_dx3*l_lower[1]*l_lower[3] + f * dl1_dx3 * l_lower[3] + f * l_lower[1] * dl3_dx3;
-  dg_dx3(I22) = df_dx3*l_lower[2]*l_lower[2] + f * dl2_dx3 * l_lower[2] + f * l_lower[2] * dl2_dx3;
-  dg_dx3(I23) = df_dx3*l_lower[2]*l_lower[3] + f * dl2_dx3 * l_lower[3] + f * l_lower[2] * dl3_dx3;
-  dg_dx3(I33) = df_dx3*l_lower[3]*l_lower[3] + f * dl3_dx3 * l_lower[3] + f * l_lower[3] * dl3_dx3;
-
-
-
-/////Secondary Black hole/////
-
-  sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
-  rsq_p_asq = SQR(rprime) + SQR(aprime);
-
-  Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-
-
-  Real dfprime_dx1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
-                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real dfprime_dx2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
-                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  Real dfprime_dx3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
-                      ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
-  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  Real dl1prime_dx1 = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
-  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  Real dl1prime_dx2 = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
-  Real dl1prime_dx3 = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  Real dl2prime_dx1 = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
-  Real dl2prime_dx2 = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
-  Real dl2prime_dx3 = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
-  Real dl3prime_dx1 = - xprime*zprime/(rprime) /( sqrt_term );
-  Real dl3prime_dx2 = - yprime*zprime/(rprime) /( sqrt_term );
-  Real dl3prime_dx3 = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
-
-  Real dl0prime_dx1 = 0.0;
-  Real dl0prime_dx2 = 0.0;
-  Real dl0prime_dx3 = 0.0;
-
-  AthenaArray<Real> dgprime_dx1, dgprime_dx2, dgprime_dx3;
-
-  dgprime_dx1.NewAthenaArray(NMETRIC);
-  dgprime_dx2.NewAthenaArray(NMETRIC);
-  dgprime_dx3.NewAthenaArray(NMETRIC);
-
-  // // Set x-derivatives of covariant components
-  dgprime_dx1(I00) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx1 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx1;
-  dgprime_dx1(I01) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx1;
-  dgprime_dx1(I02) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx1;
-  dgprime_dx1(I03) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx1;
-  dgprime_dx1(I11) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx1;
-  dgprime_dx1(I12) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx1;
-  dgprime_dx1(I13) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx1;
-  dgprime_dx1(I22) = dfprime_dx1*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx1;
-  dgprime_dx1(I23) = dfprime_dx1*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx1;
-  dgprime_dx1(I33) = dfprime_dx1*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx1;
-
-  // Set y-derivatives of covariant components
-  dgprime_dx2(I00) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx2 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx2;
-  dgprime_dx2(I01) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx2;
-  dgprime_dx2(I02) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx2;
-  dgprime_dx2(I03) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx2;
-  dgprime_dx2(I11) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx2;
-  dgprime_dx2(I12) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx2;
-  dgprime_dx2(I13) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx2;
-  dgprime_dx2(I22) = dfprime_dx2*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx2;
-  dgprime_dx2(I23) = dfprime_dx2*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx2;
-  dgprime_dx2(I33) = dfprime_dx2*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx2;
-
-  // Set z-derivatives of covariant components
-  dgprime_dx3(I00) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx3 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx3;
-  dgprime_dx3(I01) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx3;
-  dgprime_dx3(I02) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx3;
-  dgprime_dx3(I03) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx3;
-  dgprime_dx3(I11) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx3;
-  dgprime_dx3(I12) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx3;
-  dgprime_dx3(I13) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx3;
-  dgprime_dx3(I22) = dfprime_dx3*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx3;
-  dgprime_dx3(I23) = dfprime_dx3*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx3;
-  dgprime_dx3(I33) = dfprime_dx3*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx3;
-
-
-
-
-
-  // // Set x-derivatives of covariant components
-  dg_dx1(I00) += dgprime_dx1(I00);
-  dg_dx1(I01) += dgprime_dx1(I01);
-  dg_dx1(I02) += dgprime_dx1(I02);
-  dg_dx1(I03) += dgprime_dx1(I03);
-  dg_dx1(I11) += dgprime_dx1(I11);
-  dg_dx1(I12) += dgprime_dx1(I12);
-  dg_dx1(I13) += dgprime_dx1(I13);
-  dg_dx1(I22) += dgprime_dx1(I22);
-  dg_dx1(I23) += dgprime_dx1(I23);
-  dg_dx1(I33) += dgprime_dx1(I33);
-
-  // Set y-derivatives of covariant components
-  dg_dx2(I00) += dgprime_dx2(I00);
-  dg_dx2(I01) += dgprime_dx2(I01);
-  dg_dx2(I02) += dgprime_dx2(I02);
-  dg_dx2(I03) += dgprime_dx2(I03);
-  dg_dx2(I11) += dgprime_dx2(I11);
-  dg_dx2(I12) += dgprime_dx2(I12);
-  dg_dx2(I13) += dgprime_dx2(I13);
-  dg_dx2(I22) += dgprime_dx2(I22);
-  dg_dx2(I23) += dgprime_dx2(I23);
-  dg_dx2(I33) += dgprime_dx2(I33);
-
-  // Set z-derivatives of covariant components
-  dg_dx3(I00) += dgprime_dx3(I00);
-  dg_dx3(I01) += dgprime_dx3(I01);
-  dg_dx3(I02) += dgprime_dx3(I02);
-  dg_dx3(I03) += dgprime_dx3(I03);
-  dg_dx3(I11) += dgprime_dx3(I11);
-  dg_dx3(I12) += dgprime_dx3(I12);
-  dg_dx3(I13) += dgprime_dx3(I13);
-  dg_dx3(I22) += dgprime_dx3(I22);
-  dg_dx3(I23) += dgprime_dx3(I23);
-  dg_dx3(I33) += dgprime_dx3(I33);
-
-
-
-
-
-  // Set t-derivatives of covariant components
-  dg_dt(I00) = -1.0 * (dx_bh2_dt * dgprime_dx1(I00) + dy_bh2_dt * dgprime_dx2(I00) + dz_bh2_dt * dgprime_dx3(I00) );
-  dg_dt(I01) = -1.0 * (dx_bh2_dt * dgprime_dx1(I01) + dy_bh2_dt * dgprime_dx2(I01) + dz_bh2_dt * dgprime_dx3(I01) );;
-  dg_dt(I02) = -1.0 * (dx_bh2_dt * dgprime_dx1(I02) + dy_bh2_dt * dgprime_dx2(I02) + dz_bh2_dt * dgprime_dx3(I02) );;
-  dg_dt(I03) = -1.0 * (dx_bh2_dt * dgprime_dx1(I03) + dy_bh2_dt * dgprime_dx2(I03) + dz_bh2_dt * dgprime_dx3(I03) );;
-  dg_dt(I11) = -1.0 * (dx_bh2_dt * dgprime_dx1(I11) + dy_bh2_dt * dgprime_dx2(I11) + dz_bh2_dt * dgprime_dx3(I11) );;
-  dg_dt(I12) = -1.0 * (dx_bh2_dt * dgprime_dx1(I12) + dy_bh2_dt * dgprime_dx2(I12) + dz_bh2_dt * dgprime_dx3(I12) );;
-  dg_dt(I13) = -1.0 * (dx_bh2_dt * dgprime_dx1(I13) + dy_bh2_dt * dgprime_dx2(I13) + dz_bh2_dt * dgprime_dx3(I13) );;
-  dg_dt(I22) = -1.0 * (dx_bh2_dt * dgprime_dx1(I22) + dy_bh2_dt * dgprime_dx2(I22) + dz_bh2_dt * dgprime_dx3(I22) );;
-  dg_dt(I23) = -1.0 * (dx_bh2_dt * dgprime_dx1(I23) + dy_bh2_dt * dgprime_dx2(I23) + dz_bh2_dt * dgprime_dx3(I23) );;
-  dg_dt(I33) = -1.0 * (dx_bh2_dt * dgprime_dx1(I33) + dy_bh2_dt * dgprime_dx2(I33) + dz_bh2_dt * dgprime_dx3(I33) );;
-
-
-  dgprime_dx1.DeleteAthenaArray();
-  dgprime_dx2.DeleteAthenaArray();
-  dgprime_dx3.DeleteAthenaArray();
-
-
-  // AthenaArray<Real> gp,gm;
-  // AthenaArray<Real> delta_gp,delta_gm;
-
-
-
-  // gp.NewAthenaArray(NMETRIC);
-  // gm.NewAthenaArray(NMETRIC);
-  // delta_gp.NewAthenaArray(NMETRIC);
-  // delta_gm.NewAthenaArray(NMETRIC);
-
-
-
-  // cks_metric(x1,x2,x3,g);
-  // delta_cks_metric(pin,t,x1,x2,x3,delta_gp);
-
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    g(n) += delta_gp(n);
-  // }
-
-
-  // cks_inverse_metric(x1,x2,x3,g_inv);
-  // delta_cks_metric_inverse(pin,t,x1,x2,x3,delta_gp);
-
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    g_inv(n) += delta_gp(n);
-  // }
-
-  // Real x1p = x1 + DEL * r;
-  // Real x1m = x1 - DEL * r;
-
-  // cks_metric(x1p,x2,x3,gp);
-  // cks_metric(x1m,x2,x3,gm);
-  // delta_cks_metric(pin,t,x1p,x2,x3,delta_gp);
-  // delta_cks_metric(pin,t,x1m,x2,x3,delta_gm);
-
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    gp(n) += delta_gp(n);
-  //    gm(n) += delta_gm(n);
-  // }
-
-  //   // // Set x-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
-  // }
-
-  // Real x2p = x2 + DEL * r;
-  // Real x2m = x2 - DEL * r;
-
-  // cks_metric(x1,x2p,x3,gp);
-  // cks_metric(x1,x2m,x3,gm);
-  // delta_cks_metric(pin,t,x1,x2p,x3,delta_gp);
-  // delta_cks_metric(pin,t,x1,x2m,x3,delta_gm);
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    gp(n) += delta_gp(n);
-  //    gm(n) += delta_gm(n);
-  // }
-
-  //   // // Set y-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
-  // }
+    // // Set y-derivatives of covariant components
+  for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+  }
   
-  // Real x3p = x3 + DEL * r;
-  // Real x3m = x3 - DEL * r;
+  Real x3p = x3 + DEL * r;
+  Real x3m = x3 - DEL * r;
 
-  // cks_metric(x1,x2,x3p,gp);
-  // cks_metric(x1,x2,x3m,gm);
-  // delta_cks_metric(pin,t,x1,x2,x3p,delta_gp);
-  // delta_cks_metric(pin,t,x1,x2,x3m,delta_gm);
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    gp(n) += delta_gp(n);
-  //    gm(n) += delta_gm(n);
-  // }
+  dyn_superposed_pn_gcov_func(t,x1,x2,x3p,gp,pin);
+  dyn_superposed_pn_gcov_func(t,x1,x2,x3m,gm,pin);
 
-  //   // // Set z-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
-  // }
 
-  // Real tp = t + DEL ;
-  // Real tm = t - DEL ;
 
-  // cks_metric(x1,x2,x3,gp);
-  // cks_metric(x1,x2,x3,gm);
-  // delta_cks_metric(pin,tp,x1,x2,x3,delta_gp);
-  // delta_cks_metric(pin,tm,x1,x2,x3,delta_gm);
+    // // Set z-derivatives of covariant components
+  for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+  }
 
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    gp(n) += delta_gp(n);
-  //    gm(n) += delta_gm(n);
-  // }
+  Real tp = t + DEL ;
+  Real tm = t - DEL ;
 
-  //   // // Set t-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
-  // }
+  dyn_superposed_pn_gcov_func(tp,x1,x2,x3,gp,pin);
+  dyn_superposed_pn_gcov_func(tm,x1,x2,x3,gm,pin);
 
-  // gp.DeleteAthenaArray();
-  // gm.DeleteAthenaArray();
-  // delta_gm.DeleteAthenaArray();
-  // delta_gp.DeleteAthenaArray();
+
+    // // Set t-derivatives of covariant components
+  for (int n = 0; n < NMETRIC; ++n) {
+     dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+  }
+
+  gp.DeleteAthenaArray();
+  gm.DeleteAthenaArray();
+
   return;
 }
 
@@ -4188,7 +3451,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 
-void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
+void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &g_, ParameterInput *pin)
 {
 
   Real x = x1;
@@ -4221,26 +3484,26 @@ void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
   Real v2y = dy_bh2_dt; 
   Real v2z = dz_bh2_dt;
 
-  AthenaArray<Real> g_single_bh;
-  g_single_bh.NewAthenaArray(NMETRIC);
+  // AthenaArray<Real> g_single_bh;
+  // g_single_bh.NewAthenaArray(NMETRIC);
         
 
-  single_bh_metric(x,y,z, pin,g_single_bh);
+  // single_bh_metric(x,y,z, pin,g_single_bh);
 
   //u^mu u^nu g_mu nu = -1
   //divide by u^t 
   //g_tt + 2 g_it v^i + g_ij v^i v^j
 
-  Real v1sq = 0.0;
-  Real v2sq = 0.0;
-  Real denom1  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v1x + 2.0*g_single_bh(I02)*v1y + 2.0*g_single_bh(I03)*v1z 
-                 + g_single_bh(I11)*v1x*v1x + 2.0*g_single_bh(I12)*v1x*v1y + 2.0*g_single_bh(I13)*v1x*v1z
-                 + g_single_bh(I22)*v1y*v1y + 2.0*g_single_bh(I23)*v1y*v1z
-                 + g_single_bh(I33)*v1z*v1z;
-  Real denom2  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v2x + 2.0*g_single_bh(I02)*v2y + 2.0*g_single_bh(I03)*v2z 
-                 + g_single_bh(I11)*v2x*v2x + 2.0*g_single_bh(I12)*v2x*v2y + 2.0*g_single_bh(I13)*v12*v2z
-                 + g_single_bh(I22)*v2y*v2y + 2.0*g_single_bh(I23)*v2y*v2z
-                 + g_single_bh(I33)*v2z*v2z;
+  // Real v1sq = 0.0;
+  // Real v2sq = 0.0;
+  // Real denom1  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v1x + 2.0*g_single_bh(I02)*v1y + 2.0*g_single_bh(I03)*v1z 
+  //                + g_single_bh(I11)*v1x*v1x + 2.0*g_single_bh(I12)*v1x*v1y + 2.0*g_single_bh(I13)*v1x*v1z
+  //                + g_single_bh(I22)*v1y*v1y + 2.0*g_single_bh(I23)*v1y*v1z
+  //                + g_single_bh(I33)*v1z*v1z;
+  // Real denom2  = g_single_bh(I00) + 2.0*g_single_bh(I01)*v2x + 2.0*g_single_bh(I02)*v2y + 2.0*g_single_bh(I03)*v2z 
+  //                + g_single_bh(I11)*v2x*v2x + 2.0*g_single_bh(I12)*v2x*v2y + 2.0*g_single_bh(I13)*v12*v2z
+  //                + g_single_bh(I22)*v2y*v2y + 2.0*g_single_bh(I23)*v2y*v2z
+  //                + g_single_bh(I33)*v2z*v2z;
 
 
   //  gamma^2 = -alpha^2/denom
@@ -4249,32 +3512,32 @@ void dyn_superposed_pn_gcov_func(double *xx, double gcov[][NDIM])
 
 
 
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
+  // Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+  // Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+  // r = std::sqrt(r/2.0);
 
 
-  //if (r<0.01) r = 0.01;
+  // //if (r<0.01) r = 0.01;
 
 
-  Real eta[4],l_lower[4],l_upper[4];
+  // Real eta[4],l_lower[4],l_upper[4];
 
-  Real f = 2.0 * m1 *  SQR(r)*r / (SQR(SQR(r)) + SQR(a1)*SQR(z));
+  // Real f = 2.0 * m1 *  SQR(r)*r / (SQR(SQR(r)) + SQR(a1)*SQR(z));
 
-  gcon_tt_single_bh = -1.0 - f;
+  // gcon_tt_single_bh = -1.0 - f;
 
-  Real one_over_gamma_sq1 = denom1 * gcon_tt_single_bh;
-  Real one_over_gamma_sq2 = denom2 * gcon_tt_single_bh;
+  // Real one_over_gamma_sq1 = denom1 * gcon_tt_single_bh;
+  // Real one_over_gamma_sq2 = denom2 * gcon_tt_single_bh;
 
-  vsq1 = 1.0 - one_over_gamma_sq1;
-  vsq2 = 1.0 - one_over_gamma_sq2;
+  // vsq1 = 1.0 - one_over_gamma_sq1;
+  // vsq2 = 1.0 - one_over_gamma_sq2;
 
   
-  Real v1 = std::sqrt(v1sq);
-  Real v2 = std::sqrt(v2sq);
+  Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
+  Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
 
-  g_single_bh.DeleteAthenaArray();
+  // g_single_bh.DeleteAthenaArray();
   // if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
   // if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
 
@@ -4541,16 +3804,16 @@ result[9] = 1 + (m2 * (o1 * (o111 * (o129 * o132))) + m1 * (o1 * (o36 * (o54 * o
 
 
   // TT = 0, XX = 1, YY = 2, ZZ = 3
-  gcov[TT][TT] =                result[0];
-  gcov[XX][TT] = gcov[TT][XX] = result[1];
-  gcov[XX][XX] =                result[2];
-  gcov[YY][TT] = gcov[TT][YY] = result[3];
-  gcov[YY][XX] = gcov[XX][YY] = result[4];
-  gcov[YY][YY] =                result[5];
-  gcov[ZZ][TT] = gcov[TT][ZZ] = result[6];
-  gcov[ZZ][XX] = gcov[XX][ZZ] = result[7];
-  gcov[ZZ][YY] = gcov[YY][ZZ] = result[8];
-  gcov[ZZ][ZZ] =                result[9];
+  g_(I00) = result[0];
+  g_(I01) = result[1];
+  g_(I11) = result[2];
+  g_(I02) = result[3];
+  g_(I12) = result[4];
+  g_(I22) = result[5];
+  g_(I03) = result[6];
+  g_(I13) = result[7];
+  g_(I23) = result[8];
+  g_(I33) + result[9];
 
 
 
