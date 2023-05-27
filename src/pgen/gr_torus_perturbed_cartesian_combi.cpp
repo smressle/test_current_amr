@@ -3461,6 +3461,7 @@ void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<
 
 
 // (Log[1 + Exp[-R0 *r + R1]] + r) where r is the BL radius (r=0 is singularity)
+  Real E= 2.71828
   Real R0 = 5.0;
   Real R1 = 1.0; // Smaller means buried more inside the horizon
   Real x = x1;
