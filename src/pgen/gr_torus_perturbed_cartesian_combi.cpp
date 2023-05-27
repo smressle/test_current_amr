@@ -3459,6 +3459,10 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &g_, ParameterInput *pin)
 {
 
+
+// (Log[1 + Exp[-R0 *r + R1]] + r) where r is the BL radius (r=0 is singularity)
+  Real R0 = 5.0;
+  Real R1 = 1.0; // Smaller means buried more inside the horizon
   Real x = x1;
   Real y = x2;
   Real z = x3;
@@ -3565,9 +3569,8 @@ void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<
 
   Real m1 = m;
   Real m2 = m * q;
-  Real a1 = a;
-  Real a2 = m2 * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   Real a1 = m1 * a;
+  Real a2 = m2 * pin->GetOrAddReal("problem", "a_bh2", 0.0);
 
 double result[10];
 double oo1 = v1 * v1;
