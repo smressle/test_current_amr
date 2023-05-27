@@ -109,6 +109,7 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
 void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
+void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &g_, ParameterInput *pin);
 
 
 // Global variables
@@ -2853,6 +2854,10 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   a = pin->GetReal("coord", "a");
   m = pin->GetReal("coord","m");
+
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
   Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
   Real r = SQR(R) - SQR(a*m) + std::sqrt( SQR( SQR(R) - SQR(a*m) ) + 4.0*SQR(a*m)*SQR(z) );
   r = std::sqrt(r/2.0);
@@ -2861,7 +2866,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
 
-  dyn_superposed_pn_gcov_func(t,x1,x2,x3,g,pin)
+  dyn_superposed_pn_gcov_func(t,x1,x2,x3,g,pin);
 
 
   bool invertible = gluInvertMatrix(g,g_inv);
