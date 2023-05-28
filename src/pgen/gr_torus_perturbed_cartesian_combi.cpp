@@ -3470,8 +3470,8 @@ void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<
 
   Real xi1x,xi1y,xi1z,xi2x,xi2y,xi2z;
   xi1x = 0.0;
-  xi2y = 0.0;
-  xi2z = 0.0;
+  xi1y = 0.0;
+  xi1z = 0.0;
   get_bh_position(t,&xi2x,&xi2y,&xi2z);
 
   m = pin->GetReal("coord","m");
