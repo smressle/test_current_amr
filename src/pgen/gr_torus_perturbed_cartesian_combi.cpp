@@ -3487,7 +3487,7 @@ void dyn_superposed_pn_gcov_func(Real t, Real x1, Real x2, Real x3, AthenaArray<
   Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
   Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
 
-  Real v1x = 0.0;
+  Real v1x = 0.0000001;
   Real v1y = 0.0;
   Real v1z = 0.0;
   Real v2x = dx_bh2_dt;
