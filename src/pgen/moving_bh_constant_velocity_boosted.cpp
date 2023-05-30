@@ -2114,7 +2114,7 @@ void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,Athe
   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
 
-  Real rhprime = ( q + std::sqrt(q**2.0-SQR(aprime)) );
+  Real rhprime = ( q + std::sqrt(q*q-SQR(aprime)) );
   if (rprime<rhprime/2.0) {
     rprime = rhprime/2.0;
     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
@@ -2664,8 +2664,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   //    g_inv(n) += delta_gp(n);
   // }
 
-  Real x1p = x1 + DEL * r;
-  Real x1m = x1 - DEL * r;
+  Real x1p = x1 + DEL * rprime;
+  Real x1m = x1 - DEL * rprime;
 
   cks_metric(x1p,x2,x3,gp);
   cks_metric(x1m,x2,x3,gm);
@@ -2682,8 +2682,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
      dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
   }
 
-  Real x2p = x2 + DEL * r;
-  Real x2m = x2 - DEL * r;
+  Real x2p = x2 + DEL * rprime;
+  Real x2m = x2 - DEL * rprime;
 
   cks_metric(x1,x2p,x3,gp);
   cks_metric(x1,x2m,x3,gm);
@@ -2699,8 +2699,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
      dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
   }
   
-  Real x3p = x3 + DEL * r;
-  Real x3m = x3 - DEL * r;
+  Real x3p = x3 + DEL * rprime;
+  Real x3m = x3 - DEL * rprime;
 
   cks_metric(x1,x2,x3p,gp);
   cks_metric(x1,x2,x3m,gm);
