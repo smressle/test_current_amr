@@ -2649,20 +2649,20 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
 
-  cks_metric(x1,x2,x3,g);
-  delta_cks_metric(pin,t,x1,x2,x3,delta_gp);
+  // cks_metric(x1,x2,x3,g);
+  // delta_cks_metric(pin,t,x1,x2,x3,delta_gp);
 
-  for (int n = 0; n < NMETRIC; ++n) {
-     g(n) += delta_gp(n);
-  }
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    g(n) += delta_gp(n);
+  // }
 
 
-  cks_inverse_metric(x1,x2,x3,g_inv);
-  delta_cks_metric_inverse(pin,t,x1,x2,x3,delta_gp);
+  // cks_inverse_metric(x1,x2,x3,g_inv);
+  // delta_cks_metric_inverse(pin,t,x1,x2,x3,delta_gp);
 
-  for (int n = 0; n < NMETRIC; ++n) {
-     g_inv(n) += delta_gp(n);
-  }
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    g_inv(n) += delta_gp(n);
+  // }
 
   Real x1p = x1 + DEL * r;
   Real x1m = x1 - DEL * r;
