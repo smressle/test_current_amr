@@ -296,12 +296,19 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   if (max_smr_refinement_level>0) max_smr_refinement_level = max_smr_refinement_level - 1;
 
   // // Enroll boundary functions
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
+
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, FixedBoundary);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, FixedBoundary);
 
     //Enroll metric
   EnrollUserMetric(Cartesian_GR);
