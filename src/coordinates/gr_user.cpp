@@ -2039,6 +2039,14 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
 
 }
 
+
+  // Update Primitives
+  if (not coarse_flag) {
+    pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
+                                    pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
+                                    ill, iuu, jll, juu, kll, kuu);
+  }
+
   // Free scratch arrays
   g.DeleteAthenaArray();
   g_inv.DeleteAthenaArray();
