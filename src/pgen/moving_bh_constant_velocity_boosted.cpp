@@ -109,6 +109,7 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
 void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
+void UpdateMetricFunction(Real metric_t, MeshBlock *pmb);
 
 
 // Global variables
@@ -314,6 +315,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserMetric(Cartesian_GR);
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
+
+  EnrollUserMetricUpdateFunction(MetricUpdateFunc);
 
   AllocateUserHistoryOutput(1);
 
@@ -3264,7 +3267,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 
-void UpdateMetric(Real metric_t, MeshBlock *pmb)
+void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
 {
   // Set object names
   Mesh *pm = pmb>pmy_mesh;
@@ -3467,7 +3470,7 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
   }
 
   // Calculate x3-face-centered geometric quantities
-  if (not coarse_flag ) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -3479,34 +3482,27 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
           Real dx2 = dx2f(j);
 
-          Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
-
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
-          coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
+          pco->coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
 
-          if (not coarse_flag){
-              // Set metric coefficients
-              for (int n = 0; n < NMETRIC; ++n) {
-                metric_face3_kji_(0,n,k,j,i) = g(n);
-                metric_face3_kji_(1,n,k,j,i) = g_inv(n);
-              }
-
-              // Calculate frame transformation
-              CalculateTransformation(g, g_inv, 3, transformation);
-              for (int n = 0; n < 2; ++n) {
-                for (int m = 0; m < NTRIANGULAR; ++m) {
-                  trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
-                }
-              }
+          // Set metric coefficients
+          for (int n = 0; n < NMETRIC; ++n) {
+            pco->metric_face3_kji_(0,n,k,j,i) = g(n);
+            pco->metric_face3_kji_(1,n,k,j,i) = g_inv(n);
           }
 
+          // Calculate frame transformation
+          pco->CalculateTransformation(g, g_inv, 3, transformation);
+          for (int n = 0; n < 2; ++n) {
+            for (int m = 0; m < NTRIANGULAR; ++m) {
+              pco->trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+            }
+          }
 
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
         }
       }
     }
@@ -3532,7 +3528,7 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
 
           // Calculate lengths
           Real det = Determinant(g);
-          coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
+          pco->coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
         }
       }
     }
@@ -3555,7 +3551,7 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
 
           // Calculate lengths
           Real det = Determinant(g);
-          coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
+          pco->coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
         }
       }
     }
@@ -3578,7 +3574,7 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
 
           // Calculate lengths
           Real det = Determinant(g);
-          coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
+          pco->coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
         }
       }
     }
@@ -3586,13 +3582,6 @@ void UpdateMetric(Real metric_t, MeshBlock *pmb)
 
 
 
-
-  // Update Primitives
-  if (METRIC_EVOLUTION) {
-    pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
-                                    pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
-                                    ill, iuu, jll, juu, kll, kuu);
-  }
 
   // Free scratch arrays
   g.DeleteAthenaArray();

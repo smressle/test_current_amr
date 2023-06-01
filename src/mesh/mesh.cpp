@@ -1270,7 +1270,7 @@ void Mesh::EnrollUserTimeStepFunction(TimeStepFunc my_func) {
 //! \fn void Mesh::EnrollUserMetricUpdate(MetricUpdateFunc my_func)
 //! \brief Enroll a user-defined metric update function 
 
-void Mesh::EnrollUserMetricFunction(MetricUpdateFunc my_func) {
+void Mesh::EnrollUserMetricUpdateFunction(MetricUpdateFunc my_func) {
   UserUpdateMetric_= my_func;
   return;
 }
