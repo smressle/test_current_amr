@@ -818,11 +818,11 @@ void Coordinates::MetricWithoutPin(Real t, Real x1, Real x2, Real x3,
 //! \fn void Coordinates::UpdateUserMetric
 //  \brief Updates Metric 
 
-void Coordinates::UpdateUserMetric(const Real metric_t, MeshBlock *pmb)
-{
-  //  user-defined source terms
-  if (UserUpdateMetric != nullptr)
-    UserUpdateMetric(metric_t,pmb);
+// void Coordinates::UpdateUserMetric(const Real metric_t, MeshBlock *pmb)
+// {
+//   //  user-defined source terms
+//   if (UserUpdateMetric != nullptr)
+//     UserUpdateMetric(metric_t,pmb);
 
-  return;
-}
+//   return;
+// }

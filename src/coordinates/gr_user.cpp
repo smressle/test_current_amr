@@ -1666,7 +1666,7 @@ void GRUser::FluxToGlobal3(
   return;
 }
 
-void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
+void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 {
   // Set object names
   Mesh *pm = pmy_block->pmy_mesh;
@@ -1783,19 +1783,19 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
         Real dx3 = dx3f(k);
 
         Real sqrt_minus_det_old; 
-        if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
+        // if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
 
         // Calculate metric coefficients
         MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
-        if (not coarse_flag or METRIC_EVOLUTION) {
+        if (not coarse_flag ) {
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
-            pmb->phydro->u(n_cons,k,j,i) *=fac;
-          }
+          // Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          // for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
+          //   pmb->phydro->u(n_cons,k,j,i) *=fac;
+          // }
 
         }
 
@@ -1828,7 +1828,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
   }
 
   // Calculate x1-face-centered geometric quantities
-  if (not coarse_flag or METRIC_EVOLUTION) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -1840,7 +1840,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real dx2 = dx2f(j);
           Real dx3 = dx3f(k);
 
-          Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
+          // Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
 
           // Calculate metric coefficients
           MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1849,31 +1849,29 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real det = Determinant(g);
           coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
 
-          if (not coarse_flag){
-              // Set metric coefficients
-              for (int n = 0; n < NMETRIC; ++n) {
-                metric_face1_kji_(0,n,k,j,i) = g(n);
-                metric_face1_kji_(1,n,k,j,i) = g_inv(n);
-              }
-
-              // Calculate frame transformation
-              CalculateTransformation(g, g_inv, 1, transformation);
-              for (int n = 0; n < 2; ++n) {
-                for (int m = 0; m < NTRIANGULAR; ++m) {
-                  trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
-                }
-              }
+          // Set metric coefficients
+          for (int n = 0; n < NMETRIC; ++n) {
+            metric_face1_kji_(0,n,k,j,i) = g(n);
+            metric_face1_kji_(1,n,k,j,i) = g_inv(n);
           }
 
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
+          // Calculate frame transformation
+          CalculateTransformation(g, g_inv, 1, transformation);
+          for (int n = 0; n < 2; ++n) {
+            for (int m = 0; m < NTRIANGULAR; ++m) {
+              trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
+            }
+          }
+
+        //   Real fac = sqrt_minus_det_old/std::sqrt(-det);
+        //   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
         }
       }
     }
   }
 
   // Calculate x2-face-centered geometric quantities
-  if (not coarse_flag or METRIC_EVOLUTION) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -1885,7 +1883,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
           Real dx3 = dx3f(k);
 
-          Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
+          // Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
 
           // Calculate metric coefficients
           MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1894,25 +1892,23 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real det = Determinant(g);
           coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
 
-          if (not coarse_flag){
-              // Set metric coefficients
-              for (int n = 0; n < NMETRIC; ++n) {
-                metric_face2_kji_(0,n,k,j,i) = g(n);
-                metric_face2_kji_(1,n,k,j,i) = g_inv(n);
-              }
+          // Set metric coefficients
+          for (int n = 0; n < NMETRIC; ++n) {
+            metric_face2_kji_(0,n,k,j,i) = g(n);
+            metric_face2_kji_(1,n,k,j,i) = g_inv(n);
+          }
 
-              // Calculate frame transformation
-              CalculateTransformation(g, g_inv, 2, transformation);
-              for (int n = 0; n < 2; ++n) {
-                for (int m = 0; m < NTRIANGULAR; ++m) {
-                  trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
-                }
-              }
+          // Calculate frame transformation
+          CalculateTransformation(g, g_inv, 2, transformation);
+          for (int n = 0; n < 2; ++n) {
+            for (int m = 0; m < NTRIANGULAR; ++m) {
+              trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
+            }
           }
 
 
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
+        //   Real fac = sqrt_minus_det_old/std::sqrt(-det);
+        //   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
         }
       }
     }
@@ -1931,7 +1927,7 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
           Real dx2 = dx2f(j);
 
-          Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
+          // Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
 
           // Calculate metric coefficients
           MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1940,25 +1936,23 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
           Real det = Determinant(g);
           coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
 
-          if (not coarse_flag){
-              // Set metric coefficients
-              for (int n = 0; n < NMETRIC; ++n) {
-                metric_face3_kji_(0,n,k,j,i) = g(n);
-                metric_face3_kji_(1,n,k,j,i) = g_inv(n);
-              }
+          // Set metric coefficients
+          for (int n = 0; n < NMETRIC; ++n) {
+            metric_face3_kji_(0,n,k,j,i) = g(n);
+            metric_face3_kji_(1,n,k,j,i) = g_inv(n);
+          }
 
-              // Calculate frame transformation
-              CalculateTransformation(g, g_inv, 3, transformation);
-              for (int n = 0; n < 2; ++n) {
-                for (int m = 0; m < NTRIANGULAR; ++m) {
-                  trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
-                }
-              }
+          // Calculate frame transformation
+          CalculateTransformation(g, g_inv, 3, transformation);
+          for (int n = 0; n < 2; ++n) {
+            for (int m = 0; m < NTRIANGULAR; ++m) {
+              trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+            }
           }
 
 
-          Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
+          // Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
         }
       }
     }
@@ -2064,11 +2058,11 @@ void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
 
 
   // Update Primitives
-  if (METRIC_EVOLUTION) {
-    pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
-                                    pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
-                                    ill, iuu, jll, juu, kll, kuu);
-  }
+  // if (METRIC_EVOLUTION) {
+  //   pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
+  //                                   pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
+  //                                   ill, iuu, jll, juu, kll, kuu);
+  // }
 
   // Free scratch arrays
   g.DeleteAthenaArray();
