@@ -28,8 +28,6 @@ Coordinates::Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag) :
   RegionSize& mesh_size  = pmy_block->pmy_mesh->mesh_size;
   RegionSize& block_size = pmy_block->block_size;
 
-
-  user_metric_update_defined = false;
   // Set indices
   if (coarse_flag) {
     il = pmb->cis; jl = pmb->cjs; kl = pmb->cks;
@@ -322,8 +320,10 @@ Coordinates::Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag) :
   }
 
 
-    UserUpdateMetric = pmb->pmy_mesh->UserUpdateMetric_;
+  user_metric_update_defined = false;
+  UserUpdateMetric = pmb->pmy_mesh->UserUpdateMetric_;
   if(UserUpdateMetric != nullptr) user_metric_update_defined= true;
+
 }
 
 

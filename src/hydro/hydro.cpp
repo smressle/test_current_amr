@@ -151,6 +151,7 @@ Hydro::Hydro(MeshBlock *pmb, ParameterInput *pin) :
   }
 
   UserTimeStep_ = pmb->pmy_mesh->UserTimeStep_;
+
 }
 
 //----------------------------------------------------------------------------------------

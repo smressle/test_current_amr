@@ -113,6 +113,7 @@ HydroSourceTerms::HydroSourceTerms(Hydro *phyd, ParameterInput *pin) {
   UserRadSourceTerm = phyd->pmy_block->pmy_mesh->UserRadSourceTerm_;
   if(UserRadSourceTerm != nullptr) rad_sourceterms_defined = true;
 
+
 }
 
 //----------------------------------------------------------------------------------------
