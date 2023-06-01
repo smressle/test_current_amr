@@ -191,7 +191,7 @@ class Coordinates {
 
   // virtual void UpdateUserMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
 
-  void Coordinates::UpdateUserMetric(const Real metric_t, MeshBlock *pmb);
+  void UpdateUserMetric(const Real metric_t, MeshBlock *pmb);
 
   MetricUpdateFunc UserUpdateMetric;
 
