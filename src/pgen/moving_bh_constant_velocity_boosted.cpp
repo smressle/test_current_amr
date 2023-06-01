@@ -316,7 +316,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  EnrollUserMetricUpdateFunction(UpdateMetricFunction);
+  EnrollUserMetricWithoutPin(Cartesian_GR_Without_Pin);
 
   AllocateUserHistoryOutput(1);
 

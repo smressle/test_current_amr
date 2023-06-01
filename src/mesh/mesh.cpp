@@ -1316,6 +1316,16 @@ void Mesh::EnrollUserMetric(MetricFunc my_func) {
 }
 
 //----------------------------------------------------------------------------------------
+//! \fn void Mesh::EnrollUserMetric(MetricFunc my_func)
+//! \brief Enroll a user-defined metric for arbitrary GR coordinates
+
+void Mesh::EnrollUserMetricWithoutPin(MetricFunc my_func) {
+  UserMetricWithoutPin_ = my_func;
+  return;
+}
+
+
+//----------------------------------------------------------------------------------------
 //! \fn void Mesh::EnrollViscosityCoefficient(ViscosityCoeff my_func)
 //! \brief Enroll a user-defined magnetic field diffusivity function
 

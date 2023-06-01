@@ -145,6 +145,9 @@ class Coordinates {
   void Metric(Real time, Real x1, Real x2, Real x3, ParameterInput *pin, AthenaArray<Real> &g,
       AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1, AthenaArray<Real> &dg_dx2,
       AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+  void MetricWithoutPin(Real time, Real x1, Real x2, Real x3, AthenaArray<Real> &g,
+      AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1, AthenaArray<Real> &dg_dx2,
+      AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
   virtual void CellMetric(const int k, const int j, const int il, const int iu,
                           AthenaArray<Real> &g, AthenaArray<Real> &gi) {}
   virtual void Face1Metric(const int k, const int j, const int il, const int iu,
