@@ -1666,429 +1666,429 @@ void GRUser::FluxToGlobal3(
   return;
 }
 
-// void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb, ParameterInput *pin)
-// {
-//   // Set object names
-//   Mesh *pm = pmy_block->pmy_mesh;
-//   RegionSize& block_size = pmy_block->block_size;
+void GRUser::UpdateMetric(Real metric_t, MeshBlock *pmb)
+{
+  // Set object names
+  Mesh *pm = pmy_block->pmy_mesh;
+  RegionSize& block_size = pmy_block->block_size;
 
-//   // Set indices
-//   int il, iu, jl, ju, kl, ku, ng;
-//   if (coarse_flag) {
-//     il = pmb->cis;
-//     iu = pmb->cie;
-//     jl = pmb->cjs;
-//     ju = pmb->cje;
-//     kl = pmb->cks;
-//     ku = pmb->cke;
-//     ng = pmb->cnghost;
-//   } else {
-//     il = pmb->is;
-//     iu = pmb->ie;
-//     jl = pmb->js;
-//     ju = pmb->je;
-//     kl = pmb->ks;
-//     ku = pmb->ke;
-//     ng = NGHOST;
-//   }
-//   int ill = il - ng;
-//   int iuu = iu + ng;
-//   int jll, juu;
-//   if (block_size.nx2 > 1) {
-//     jll = jl - ng;
-//     juu = ju + ng;
-//   } else {
-//     jll = jl;
-//     juu = ju;
-//   }
-//   int kll, kuu;
-//   if (block_size.nx3 > 1) {
-//     kll = kl - ng;
-//     kuu = ku + ng;
-//   } else {
-//     kll = kl;
-//     kuu = ku;
-//   }
+  // Set indices
+  int il, iu, jl, ju, kl, ku, ng;
+  if (coarse_flag) {
+    il = pmb->cis;
+    iu = pmb->cie;
+    jl = pmb->cjs;
+    ju = pmb->cje;
+    kl = pmb->cks;
+    ku = pmb->cke;
+    ng = pmb->cnghost;
+  } else {
+    il = pmb->is;
+    iu = pmb->ie;
+    jl = pmb->js;
+    ju = pmb->je;
+    kl = pmb->ks;
+    ku = pmb->ke;
+    ng = NGHOST;
+  }
+  int ill = il - ng;
+  int iuu = iu + ng;
+  int jll, juu;
+  if (block_size.nx2 > 1) {
+    jll = jl - ng;
+    juu = ju + ng;
+  } else {
+    jll = jl;
+    juu = ju;
+  }
+  int kll, kuu;
+  if (block_size.nx3 > 1) {
+    kll = kl - ng;
+    kuu = ku + ng;
+  } else {
+    kll = kl;
+    kuu = ku;
+  }
 
-//   // Allocate arrays for volume-centered coordinates and positions of cells
-//   int ncells1 = (iu-il+1) + 2*ng;
-//   int ncells2 = 1, ncells3 = 1;
-//   if (block_size.nx2 > 1) ncells2 = (ju-jl+1) + 2*ng;
-//   if (block_size.nx3 > 1) ncells3 = (ku-kl+1) + 2*ng;
+  // Allocate arrays for volume-centered coordinates and positions of cells
+  int ncells1 = (iu-il+1) + 2*ng;
+  int ncells2 = 1, ncells3 = 1;
+  if (block_size.nx2 > 1) ncells2 = (ju-jl+1) + 2*ng;
+  if (block_size.nx3 > 1) ncells3 = (ku-kl+1) + 2*ng;
 
  
-//   const Real &m = bh_mass_;
-//   const Real &a = bh_spin_;
+  const Real &m = bh_mass_;
+  const Real &a = bh_spin_;
 
 
 
-//   // Allocate scratch arrays
-//   AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
-//   g.NewAthenaArray(NMETRIC);
-//   g_inv.NewAthenaArray(NMETRIC);
-//   dg_dx1.NewAthenaArray(NMETRIC);
-//   dg_dx2.NewAthenaArray(NMETRIC);
-//   dg_dx3.NewAthenaArray(NMETRIC);
-//   dg_dt.NewAthenaArray(NMETRIC);
-//   if (not coarse_flag) {
-//     transformation.NewAthenaArray(2, NTRIANGULAR);
-//   }
+  // Allocate scratch arrays
+  AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
+  g.NewAthenaArray(NMETRIC);
+  g_inv.NewAthenaArray(NMETRIC);
+  dg_dx1.NewAthenaArray(NMETRIC);
+  dg_dx2.NewAthenaArray(NMETRIC);
+  dg_dx3.NewAthenaArray(NMETRIC);
+  dg_dt.NewAthenaArray(NMETRIC);
+  if (not coarse_flag) {
+    transformation.NewAthenaArray(2, NTRIANGULAR);
+  }
 
 
-//   // AthenaArray<Real> divb; 
-//   int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
-//   // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
-//   FaceField &b = pmb->pfield->b;
+  // AthenaArray<Real> divb; 
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pmb->pfield->b;
 
-// //   if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
+//   if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
 
-// //       face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-// //       face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-// //       face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-// //       face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-// //       face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+//       face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+//       face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+//       face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+//       face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+//       face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
-// //       divb.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+//       divb.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
 
-// //       for(int k=ks; k<=ke; k++) {
-// //         for(int j=js; j<=je; j++) {
-// //           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
-// //           pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-// //           pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
-// //           pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-// //           pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
-// //           for(int i=is; i<=ie; i++) {
-// //             divb(k,j,i)=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
-// //                   +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
-// //                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
-// //           }
-// //         }
-// //       }
-
-// // }
-
-
-
-//   // Calculate cell-centered geometric quantities
-//   for (int k = kll; k <= kuu; ++k) {
-//     for (int j = jll; j <= juu; ++j) {
-//       for (int i = ill; i <= iuu; ++i) {
-
-//         // Get position and separations
-//         Real x1 = x1v(i);
-//         Real x2 = x2v(j);
-//         Real x3 = x3v(k);
-//         Real dx1 = dx1f(i);
-//         Real dx2 = dx2f(j);
-//         Real dx3 = dx3f(k);
-
-//         Real sqrt_minus_det_old; 
-//         if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
-
-//         // Calculate metric coefficients
-//         Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//         // Calculate volumes
-//         if (not coarse_flag or METRIC_EVOLUTION) {
-//           Real det = Determinant(g);
-//           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
-//           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-//           for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
-//             pmb->phydro->u(n_cons,k,j,i) *=fac;
-//           }
-
-//         }
-
-//         // Calculate widths
-//         if (not coarse_flag) {
-//           coord_width1_kji_(k,j,i) = std::sqrt(g(I11)) * dx1;
-//           coord_width2_kji_(k,j,i) = std::sqrt(g(I22)) * dx2;
-//           coord_width3_kji_(k,j,i) = std::sqrt(g(I33)) * dx3;
-//         }
-
-//         // Store metric derivatives
-//         if (not coarse_flag) {
-//           for (int m = 0; m < NMETRIC; ++m) {
-//             coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
-//             coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
-//             coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
-//             if (METRIC_EVOLUTION) coord_src_kji_(3,m,k,j,i) = dg_dt(m);
-//             else coord_src_kji_(3,m,k,j,i) = 0.0;
+//       for(int k=ks; k<=ke; k++) {
+//         for(int j=js; j<=je; j++) {
+//           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+//           pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+//           pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+//           pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+//           pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+//           for(int i=is; i<=ie; i++) {
+//             divb(k,j,i)=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+//                   +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+//                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 //           }
 //         }
-
-//         // Set metric coefficients
-//         for (int n = 0; n < NMETRIC; ++n) {
-//           metric_cell_kji_(0,n,k,j,i) = g(n);
-//           metric_cell_kji_(1,n,k,j,i) = g_inv(n);
-//         }
-
 //       }
-//     }
-//   }
 
-//   // Calculate x1-face-centered geometric quantities
-//   if (not coarse_flag or METRIC_EVOLUTION) {
-//     for (int k = kll; k <= kuu; ++k) {
-//       for (int j = jll; j <= juu; ++j) {
-//         for (int i = ill; i <= iuu+1; ++i) {
-
-//           // Get position and separations
-//           Real x1 = x1f(i);
-//           Real x2 = x2v(j);
-//           Real x3 = x3v(k);
-//           Real dx2 = dx2f(j);
-//           Real dx3 = dx3f(k);
-
-//           Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate areas
-//           Real det = Determinant(g);
-//           coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
-
-//           if (not coarse_flag){
-//               // Set metric coefficients
-//               for (int n = 0; n < NMETRIC; ++n) {
-//                 metric_face1_kji_(0,n,k,j,i) = g(n);
-//                 metric_face1_kji_(1,n,k,j,i) = g_inv(n);
-//               }
-
-//               // Calculate frame transformation
-//               CalculateTransformation(g, g_inv, 1, transformation);
-//               for (int n = 0; n < 2; ++n) {
-//                 for (int m = 0; m < NTRIANGULAR; ++m) {
-//                   trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
-//                 }
-//               }
-//           }
-
-//           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-//           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
-//         }
-//       }
-//     }
-//   }
-
-//   // Calculate x2-face-centered geometric quantities
-//   if (not coarse_flag or METRIC_EVOLUTION) {
-//     for (int k = kll; k <= kuu; ++k) {
-//       for (int j = jll; j <= juu+1; ++j) {
-//         for (int i = ill; i <= iuu; ++i) {
-
-//           // Get position and separations
-//           Real x1 = x1v(i);
-//           Real x2 = x2f(j);
-//           Real x3 = x3v(k);
-//           Real dx1 = dx1f(i);
-//           Real dx3 = dx3f(k);
-
-//           Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate areas
-//           Real det = Determinant(g);
-//           coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
-
-//           if (not coarse_flag){
-//               // Set metric coefficients
-//               for (int n = 0; n < NMETRIC; ++n) {
-//                 metric_face2_kji_(0,n,k,j,i) = g(n);
-//                 metric_face2_kji_(1,n,k,j,i) = g_inv(n);
-//               }
-
-//               // Calculate frame transformation
-//               CalculateTransformation(g, g_inv, 2, transformation);
-//               for (int n = 0; n < 2; ++n) {
-//                 for (int m = 0; m < NTRIANGULAR; ++m) {
-//                   trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
-//                 }
-//               }
-//           }
-
-
-//           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-//           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
-//         }
-//       }
-//     }
-//   }
-
-//   // Calculate x3-face-centered geometric quantities
-//   if (not coarse_flag or METRIC_EVOLUTION) {
-//     for (int k = kll; k <= kuu+1; ++k) {
-//       for (int j = jll; j <= juu; ++j) {
-//         for (int i = ill; i <= iuu; ++i) {
-
-//           // Get position and separations
-//           Real x1 = x1v(i);
-//           Real x2 = x2v(j);
-//           Real x3 = x3f(k);
-//           Real dx1 = dx1f(i);
-//           Real dx2 = dx2f(j);
-
-//           Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate areas
-//           Real det = Determinant(g);
-//           coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
-
-//           if (not coarse_flag){
-//               // Set metric coefficients
-//               for (int n = 0; n < NMETRIC; ++n) {
-//                 metric_face3_kji_(0,n,k,j,i) = g(n);
-//                 metric_face3_kji_(1,n,k,j,i) = g_inv(n);
-//               }
-
-//               // Calculate frame transformation
-//               CalculateTransformation(g, g_inv, 3, transformation);
-//               for (int n = 0; n < 2; ++n) {
-//                 for (int m = 0; m < NTRIANGULAR; ++m) {
-//                   trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
-//                 }
-//               }
-//           }
-
-
-//           Real fac = sqrt_minus_det_old/std::sqrt(-det);
-//           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
-//         }
-//       }
-//     }
-//   }
-
-
-
-
-//   // Calculate x1-edge-centered geometric quantities
-//   if (not coarse_flag) {
-//     for (int k = kll; k <= kuu+1; ++k) {
-//       for (int j = jll; j <= juu+1; ++j) {
-//         for (int i = ill; i <= iuu; ++i) {
-
-//           // Get position and separation
-//           Real x1 = x1v(i);
-//           Real x2 = x2f(j);
-//           Real x3 = x3f(k);
-//           Real dx1 = dx1f(i);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate lengths
-//           Real det = Determinant(g);
-//           coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
-//         }
-//       }
-//     }
-//   }
-
-//   // Calculate x2-edge-centered geometric quantities
-//   if (not coarse_flag) {
-//     for (int k = kll; k <= kuu+1; ++k) {
-//       for (int j = jll; j <= juu; ++j) {
-//         for (int i = ill; i <= iuu+1; ++i) {
-
-//           // Get position and separation
-//           Real x1 = x1f(i);
-//           Real x2 = x2v(j);
-//           Real x3 = x3f(k);
-//           Real dx2 = dx2f(j);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate lengths
-//           Real det = Determinant(g);
-//           coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
-//         }
-//       }
-//     }
-//   }
-
-//   // Calculate x3-edge-centered geometric quantities
-//   if (not coarse_flag) {
-//     for (int k = kll; k <= kuu; ++k) {
-//       for (int j = jll; j <= juu+1; ++j) {
-//         for (int i = ill; i <= iuu+1; ++i) {
-
-//           // Get position and separation
-//           Real x1 = x1f(i);
-//           Real x2 = x2f(j);
-//           Real x3 = x3v(k);
-//           Real dx3 = dx3f(k);
-
-//           // Calculate metric coefficients
-//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-//           // Calculate lengths
-//           Real det = Determinant(g);
-//           coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
-//         }
-//       }
-//     }
-//   }
-
-
-// //     Real divb_new =0.0;
-// //     if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
-// //       for(int k=ks; k<=ke; k++) {
-// //         for(int j=js; j<=je; j++) {
-// //           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
-// //           pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-// //           pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
-// //           pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-// //           pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
-// //           for(int i=is; i<=ie; i++) {
-// //             divb_new=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
-// //                   +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
-// //                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
-
-// //             // if (std::abs(divb_new) > 1e-12){
-// //             //   fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k);
-// //             //   exit(0);
-// //             // }
-
-// //           }
-// //         }
-// //       }
-
-// // }
-
-
-//   // Update Primitives
-//   if (METRIC_EVOLUTION) {
-//     pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
-//                                     pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
-//                                     ill, iuu, jll, juu, kll, kuu);
-//   }
-
-//   // Free scratch arrays
-//   g.DeleteAthenaArray();
-//   g_inv.DeleteAthenaArray();
-//   dg_dx1.DeleteAthenaArray();
-//   dg_dx2.DeleteAthenaArray();
-//   dg_dx3.DeleteAthenaArray();
-//   dg_dt.DeleteAthenaArray();
-//   if (not coarse_flag) {
-//     transformation.DeleteAthenaArray();
-//     if (MAGNETIC_FIELDS_ENABLED){
-//       // divb.DeleteAthenaArray();
-//       // face1.DeleteAthenaArray();
-//       // face2p.DeleteAthenaArray();
-//       // face2m.DeleteAthenaArray();
-//       // face3p.DeleteAthenaArray();
-//       // face3m.DeleteAthenaArray();
-//     }
-//   }
 // }
+
+
+
+  // Calculate cell-centered geometric quantities
+  for (int k = kll; k <= kuu; ++k) {
+    for (int j = jll; j <= juu; ++j) {
+      for (int i = ill; i <= iuu; ++i) {
+
+        // Get position and separations
+        Real x1 = x1v(i);
+        Real x2 = x2v(j);
+        Real x3 = x3v(k);
+        Real dx1 = dx1f(i);
+        Real dx2 = dx2f(j);
+        Real dx3 = dx3f(k);
+
+        Real sqrt_minus_det_old; 
+        if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
+
+        // Calculate metric coefficients
+        MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+        // Calculate volumes
+        if (not coarse_flag or METRIC_EVOLUTION) {
+          Real det = Determinant(g);
+          coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
+          }
+
+        }
+
+        // Calculate widths
+        if (not coarse_flag) {
+          coord_width1_kji_(k,j,i) = std::sqrt(g(I11)) * dx1;
+          coord_width2_kji_(k,j,i) = std::sqrt(g(I22)) * dx2;
+          coord_width3_kji_(k,j,i) = std::sqrt(g(I33)) * dx3;
+        }
+
+        // Store metric derivatives
+        if (not coarse_flag) {
+          for (int m = 0; m < NMETRIC; ++m) {
+            coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
+            coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
+            coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
+            if (METRIC_EVOLUTION) coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+            else coord_src_kji_(3,m,k,j,i) = 0.0;
+          }
+        }
+
+        // Set metric coefficients
+        for (int n = 0; n < NMETRIC; ++n) {
+          metric_cell_kji_(0,n,k,j,i) = g(n);
+          metric_cell_kji_(1,n,k,j,i) = g_inv(n);
+        }
+
+      }
+    }
+  }
+
+  // Calculate x1-face-centered geometric quantities
+  if (not coarse_flag or METRIC_EVOLUTION) {
+    for (int k = kll; k <= kuu; ++k) {
+      for (int j = jll; j <= juu; ++j) {
+        for (int i = ill; i <= iuu+1; ++i) {
+
+          // Get position and separations
+          Real x1 = x1f(i);
+          Real x2 = x2v(j);
+          Real x3 = x3v(k);
+          Real dx2 = dx2f(j);
+          Real dx3 = dx3f(k);
+
+          Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate areas
+          Real det = Determinant(g);
+          coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
+
+          if (not coarse_flag){
+              // Set metric coefficients
+              for (int n = 0; n < NMETRIC; ++n) {
+                metric_face1_kji_(0,n,k,j,i) = g(n);
+                metric_face1_kji_(1,n,k,j,i) = g_inv(n);
+              }
+
+              // Calculate frame transformation
+              CalculateTransformation(g, g_inv, 1, transformation);
+              for (int n = 0; n < 2; ++n) {
+                for (int m = 0; m < NTRIANGULAR; ++m) {
+                  trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
+                }
+              }
+          }
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
+        }
+      }
+    }
+  }
+
+  // Calculate x2-face-centered geometric quantities
+  if (not coarse_flag or METRIC_EVOLUTION) {
+    for (int k = kll; k <= kuu; ++k) {
+      for (int j = jll; j <= juu+1; ++j) {
+        for (int i = ill; i <= iuu; ++i) {
+
+          // Get position and separations
+          Real x1 = x1v(i);
+          Real x2 = x2f(j);
+          Real x3 = x3v(k);
+          Real dx1 = dx1f(i);
+          Real dx3 = dx3f(k);
+
+          Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate areas
+          Real det = Determinant(g);
+          coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
+
+          if (not coarse_flag){
+              // Set metric coefficients
+              for (int n = 0; n < NMETRIC; ++n) {
+                metric_face2_kji_(0,n,k,j,i) = g(n);
+                metric_face2_kji_(1,n,k,j,i) = g_inv(n);
+              }
+
+              // Calculate frame transformation
+              CalculateTransformation(g, g_inv, 2, transformation);
+              for (int n = 0; n < 2; ++n) {
+                for (int m = 0; m < NTRIANGULAR; ++m) {
+                  trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
+                }
+              }
+          }
+
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
+        }
+      }
+    }
+  }
+
+  // Calculate x3-face-centered geometric quantities
+  if (not coarse_flag or METRIC_EVOLUTION) {
+    for (int k = kll; k <= kuu+1; ++k) {
+      for (int j = jll; j <= juu; ++j) {
+        for (int i = ill; i <= iuu; ++i) {
+
+          // Get position and separations
+          Real x1 = x1v(i);
+          Real x2 = x2v(j);
+          Real x3 = x3f(k);
+          Real dx1 = dx1f(i);
+          Real dx2 = dx2f(j);
+
+          Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate areas
+          Real det = Determinant(g);
+          coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
+
+          if (not coarse_flag){
+              // Set metric coefficients
+              for (int n = 0; n < NMETRIC; ++n) {
+                metric_face3_kji_(0,n,k,j,i) = g(n);
+                metric_face3_kji_(1,n,k,j,i) = g_inv(n);
+              }
+
+              // Calculate frame transformation
+              CalculateTransformation(g, g_inv, 3, transformation);
+              for (int n = 0; n < 2; ++n) {
+                for (int m = 0; m < NTRIANGULAR; ++m) {
+                  trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+                }
+              }
+          }
+
+
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
+        }
+      }
+    }
+  }
+
+
+
+
+  // Calculate x1-edge-centered geometric quantities
+  if (not coarse_flag) {
+    for (int k = kll; k <= kuu+1; ++k) {
+      for (int j = jll; j <= juu+1; ++j) {
+        for (int i = ill; i <= iuu; ++i) {
+
+          // Get position and separation
+          Real x1 = x1v(i);
+          Real x2 = x2f(j);
+          Real x3 = x3f(k);
+          Real dx1 = dx1f(i);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate lengths
+          Real det = Determinant(g);
+          coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
+        }
+      }
+    }
+  }
+
+  // Calculate x2-edge-centered geometric quantities
+  if (not coarse_flag) {
+    for (int k = kll; k <= kuu+1; ++k) {
+      for (int j = jll; j <= juu; ++j) {
+        for (int i = ill; i <= iuu+1; ++i) {
+
+          // Get position and separation
+          Real x1 = x1f(i);
+          Real x2 = x2v(j);
+          Real x3 = x3f(k);
+          Real dx2 = dx2f(j);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate lengths
+          Real det = Determinant(g);
+          coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
+        }
+      }
+    }
+  }
+
+  // Calculate x3-edge-centered geometric quantities
+  if (not coarse_flag) {
+    for (int k = kll; k <= kuu; ++k) {
+      for (int j = jll; j <= juu+1; ++j) {
+        for (int i = ill; i <= iuu+1; ++i) {
+
+          // Get position and separation
+          Real x1 = x1f(i);
+          Real x2 = x2f(j);
+          Real x3 = x3v(k);
+          Real dx3 = dx3f(k);
+
+          // Calculate metric coefficients
+          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+          // Calculate lengths
+          Real det = Determinant(g);
+          coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
+        }
+      }
+    }
+  }
+
+
+//     Real divb_new =0.0;
+//     if (not coarse_flag && MAGNETIC_FIELDS_ENABLED){
+//       for(int k=ks; k<=ke; k++) {
+//         for(int j=js; j<=je; j++) {
+//           pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+//           pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+//           pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+//           pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+//           pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+//           for(int i=is; i<=ie; i++) {
+//             divb_new=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+//                   +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+//                   +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+
+//             // if (std::abs(divb_new) > 1e-12){
+//             //   fprintf(stderr,"divb high!! new: %g old: %g \n ijk: %d %d %d \n", divb_new,divb(k,j,i) ,i,j,k);
+//             //   exit(0);
+//             // }
+
+//           }
+//         }
+//       }
+
+// }
+
+
+  // Update Primitives
+  if (METRIC_EVOLUTION) {
+    pmb->peos->ConservedToPrimitive(pmb->phydro->u, pmb->phydro->w, pmb->pfield->b,
+                                    pmb->phydro->w1, pmb->pfield->bcc, pmb->pcoord,
+                                    ill, iuu, jll, juu, kll, kuu);
+  }
+
+  // Free scratch arrays
+  g.DeleteAthenaArray();
+  g_inv.DeleteAthenaArray();
+  dg_dx1.DeleteAthenaArray();
+  dg_dx2.DeleteAthenaArray();
+  dg_dx3.DeleteAthenaArray();
+  dg_dt.DeleteAthenaArray();
+  if (not coarse_flag) {
+    transformation.DeleteAthenaArray();
+    if (MAGNETIC_FIELDS_ENABLED){
+      // divb.DeleteAthenaArray();
+      // face1.DeleteAthenaArray();
+      // face2p.DeleteAthenaArray();
+      // face2m.DeleteAthenaArray();
+      // face3p.DeleteAthenaArray();
+      // face3m.DeleteAthenaArray();
+    }
+  }
+}
 
 
 //----------------------------------------------------------------------------------------
