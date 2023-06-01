@@ -934,12 +934,14 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     } else {
       AddTask(SRC_TERM,INT_HYD);
     }
-        if (MAGNETIC_FIELDS_ENABLED){
+    if (MAGNETIC_FIELDS_ENABLED){
 
     }
     else{
       AddTask(SRCTERM_RAD,SRC_TERM);
     }
+
+    AddTask(UPDATE_METRIC,SRCTERM_RAD);
     if (ORBITAL_ADVECTION) {
       AddTask(SEND_HYDORB,SRCTERM_RAD);
       AddTask(RECV_HYDORB,NONE);
@@ -948,9 +950,9 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
       AddTask(RECV_HYD,NONE);
       AddTask(SETB_HYD,(RECV_HYD|CALC_HYDORB));
     } else {
-      AddTask(SEND_HYD,SRCTERM_RAD);
+      AddTask(SEND_HYD,(SRCTERM_RAD|UPDATE_METRIC));
       AddTask(RECV_HYD,NONE);
-      AddTask(SETB_HYD,(RECV_HYD|SRC_TERM|SRCTERM_RAD));
+      AddTask(SETB_HYD,(RECV_HYD|SRC_TERM|SRCTERM_RAD|UPDATE_METRIC));
     }
 
     if (SHEAR_PERIODIC) {
@@ -977,9 +979,9 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(RECV_SCLR,NONE);
         AddTask(SETB_SCLR,(RECV_SCLR|CALC_HYDORB));
       } else {
-        AddTask(SEND_SCLR,SRCTERM_RAD);
+        AddTask(SEND_SCLR,(SRCTERM_RAD|UPDATE_METRIC));
         AddTask(RECV_SCLR,NONE);
-        AddTask(SETB_SCLR,(RECV_SCLR|SRCTERM_RAD));
+        AddTask(SETB_SCLR,(RECV_SCLR|SRCTERM_RAD|UPDATE_METRIC));
       }
       if (SHEAR_PERIODIC) {
         AddTask(SEND_SCLRSH,SETB_SCLR);
@@ -1004,6 +1006,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
       if (NSCALARS>0) AddTask(SRCTERM_RAD,(INT_FLD|SRC_TERM|INT_SCLR));
       else AddTask(SRCTERM_RAD,(INT_FLD|SRC_TERM));
 
+
       if (ORBITAL_ADVECTION) {
         AddTask(SEND_FLDORB,INT_FLD);
         AddTask(RECV_FLDORB,NONE);
@@ -1012,9 +1015,9 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
         AddTask(RECV_FLD,NONE);
         AddTask(SETB_FLD,(RECV_FLD|CALC_FLDORB));
       } else {
-        AddTask(SEND_FLD,SRCTERM_RAD);
+        AddTask(SEND_FLD,(SRCTERM_RAD|UPDATE_METRIC));
         AddTask(RECV_FLD,NONE);
-        AddTask(SETB_FLD,(RECV_FLD|SRCTERM_RAD));
+        AddTask(SETB_FLD,(RECV_FLD|SRCTERM_RAD|UPDATE_METRIC));
       }
       if (SHEAR_PERIODIC) {
         AddTask(SEND_FLDSH,SETB_FLD);
@@ -1092,7 +1095,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     }
 
     // everything else
-    AddTask(PHY_BVAL,(CONS2PRIM|SRCTERM_RAD));
+    AddTask(PHY_BVAL,(CONS2PRIM|SRCTERM_RAD|UPDATE_METRIC));
     if (!STS_ENABLED || pm->sts_integrator == "rkl1") {
       AddTask(USERWORK,PHY_BVAL);
       AddTask(NEW_DT,USERWORK);
@@ -1183,6 +1186,11 @@ void TimeIntegratorTaskList::AddTask(const TaskID& id, const TaskID& dep) {
       task_list_[ntasks].TaskFunc=
         static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::RadSourceTerms);
+  } 
+  else if  (id ==UPDATE_METRIC){
+      task_list_[ntasks].TaskFunc=
+        static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
+        (&TimeIntegratorTaskList::UpdateMetric);
   } 
   else if (id == SEND_HYD) {
     task_list_[ntasks].TaskFunc=
@@ -1759,6 +1767,24 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
     if (NSCALARS>0) pmb->peos->PassiveScalarPrimitiveToConserved(ps->r, ph->u, ps->s, pmb->pcoord,is, ie, js, je, ks, ke);
 
      
+  } else {
+    return TaskStatus::fail;
+  }
+
+  return TaskStatus::next;
+}
+
+TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
+{
+
+  // return if there are no source terms to be added
+  if (pcoord.user_metric_update_defined == false) return TaskStatus::next;
+
+  // *** this must be changed for the RK3 integrator
+  if (stage <= nstages) {
+
+    if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(pmb->pmy_mesh->metric_time,pmb);
+
   } else {
     return TaskStatus::fail;
   }

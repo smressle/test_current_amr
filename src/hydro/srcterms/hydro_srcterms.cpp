@@ -30,6 +30,7 @@
 HydroSourceTerms::HydroSourceTerms(Hydro *phyd, ParameterInput *pin) {
   pmy_hydro_ = phyd;
   hydro_sourceterms_defined = false;
+  rad_sourceterms_defined = false;
 
   // read point mass or constant acceleration parameters from input block
 

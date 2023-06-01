@@ -112,7 +112,8 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     MeshGenerator_{UniformMeshGeneratorX1, UniformMeshGeneratorX2,
                    UniformMeshGeneratorX3},
     BoundaryFunction_{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{}, UserTimeStep_{}, ViscosityCoeff_{},
+    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{}, UserTimeStep_{}, 
+    UserUpdateMetric_{},ViscosityCoeff_{},
     ConductionCoeff_{}, FieldDiffusivity_{},
     OrbitalVelocity_{}, OrbitalVelocityDerivative_{nullptr, nullptr},
     MGGravityBoundaryFunction_{MGPeriodicInnerX1, MGPeriodicOuterX1, MGPeriodicInnerX2,
@@ -1260,6 +1261,16 @@ void Mesh::EnrollUserRadSourceFunction(RadSrcTermFunc my_func)
 
 void Mesh::EnrollUserTimeStepFunction(TimeStepFunc my_func) {
   UserTimeStep_ = my_func;
+  return;
+}
+
+
+//----------------------------------------------------------------------------------------
+//! \fn void Mesh::EnrollUserMetricUpdate(MetricUpdateFunc my_func)
+//! \brief Enroll a user-defined metric update function 
+
+void Mesh::EnrollUserMetricFunction(MetricUpdateFunc my_func) {
+  UserUpdateMetric_= my_func;
   return;
 }
 

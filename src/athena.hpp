@@ -191,6 +191,7 @@ using RadSrcTermFunc = void (*)(MeshBlock *pmb, const Real time, const Real dt, 
   const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
   const AthenaArray<Real> &prim_scalar_half, AthenaArray<Real> &prim_scalar);
 using TimeStepFunc = Real (*)(MeshBlock *pmb);
+using MetricUpdateFunc = void (*)(const Real metric_t, MeshBlock *pmb);
 using HistoryOutputFunc = Real (*)(MeshBlock *pmb, int iout);
 using MetricFunc = void (*) (Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
              AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,

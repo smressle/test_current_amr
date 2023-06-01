@@ -37,6 +37,8 @@ class Coordinates {
   Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag = false);
   virtual ~Coordinates() = default;
 
+  bool user_metric_update_defined;
+
   // data
   MeshBlock *pmy_block;  // ptr to MeshBlock containing this Coordinates
   AthenaArray<Real> dx1f, dx2f, dx3f, x1f, x2f, x3f;    // face   spacing and positions
@@ -187,7 +189,9 @@ class Coordinates {
                                Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) {}
 
 
-  virtual void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
+  virtual void UpdateUserMetric(Real t, MeshBlock *pmb, ParameterInput *pin) {}
+
+  MetricUpdateFunc UserUpdateMetric;
 
  protected:
   bool coarse_flag;  // true if this coordinate object is parent (coarse) mesh in AMR

@@ -28,6 +28,8 @@ Coordinates::Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag) :
   RegionSize& mesh_size  = pmy_block->pmy_mesh->mesh_size;
   RegionSize& block_size = pmy_block->block_size;
 
+
+  user_metric_update_defined = false;
   // Set indices
   if (coarse_flag) {
     il = pmb->cis; jl = pmb->cjs; kl = pmb->cks;
@@ -318,6 +320,10 @@ Coordinates::Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag) :
     x3f(kl  ) = block_size.x3min;
     x3f(ku+1) = block_size.x3max;
   }
+
+
+    UserUpdateMetric = pmb->pmy_mesh->UserUpdateMetric_;
+  if(UserUpdateMetric != nullptr) user_metric_update_defined= true;
 }
 
 
@@ -784,5 +790,20 @@ void Coordinates::Metric(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   if (METRIC_EVOLUTION) pmy_block->pmy_mesh->UserMetric_(t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
   else pmy_block->pmy_mesh->UserMetric_(0.0,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+  return;
+}
+
+
+
+//----------------------------------------------------------------------------------------
+//! \fn void Coordinates::UpdateUserMetric
+//  \brief Updates Metric 
+
+void Coordinates::UpdateUserMetric(const Real metric_t, MeshBlock *pmb)
+{
+  //  user-defined source terms
+  if (UserUpdateMetric != nullptr)
+    UserUpdateMetric(metric_t,pmb);
+
   return;
 }
