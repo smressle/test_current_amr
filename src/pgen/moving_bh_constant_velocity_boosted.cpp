@@ -316,7 +316,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  EnrollUserMetricUpdateFunction(MetricUpdateFunc);
+  EnrollUserMetricUpdateFunction(UpdateMetricFunction);
 
   AllocateUserHistoryOutput(1);
 
@@ -3344,15 +3344,12 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
       for (int i = ill; i <= iuu; ++i) {
 
         // Get position and separations
-        Real x1 = x1v(i);
-        Real x2 = x2v(j);
-        Real x3 = x3v(k);
-        Real dx1 = dx1f(i);
-        Real dx2 = dx2f(j);
-        Real dx3 = dx3f(k);
-
-        Real sqrt_minus_det_old; 
-        if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
+        Real x1 = pco->x1v(i);
+        Real x2 = pco->x2v(j);
+        Real x3 = pco->x3v(k);
+        Real dx1 = pco->dx1f(i);
+        Real dx2 = pco->dx2f(j);
+        Real dx3 = pco->dx3f(k);
 
         // Calculate metric coefficients
         Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3399,11 +3396,11 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu+1; ++i) {
 
           // Get position and separations
-          Real x1 = x1f(i);
-          Real x2 = x2v(j);
-          Real x3 = x3v(k);
-          Real dx2 = dx2f(j);
-          Real dx3 = dx3f(k);
+          Real x1 = pco->x1f(i);
+          Real x2 = pco->x2v(j);
+          Real x3 = pco->x3v(k);
+          Real dx2 = pco->dx2f(j);
+          Real dx3 = pco->dx3f(k);
 
           // Calculate metric coefficients
           pco->Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3437,11 +3434,11 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu; ++i) {
 
           // Get position and separations
-          Real x1 = x1v(i);
-          Real x2 = x2f(j);
-          Real x3 = x3v(k);
-          Real dx1 = dx1f(i);
-          Real dx3 = dx3f(k);
+          Real x1 = pco->x1v(i);
+          Real x2 = pco->x2f(j);
+          Real x3 = pco->x3v(k);
+          Real dx1 = pco->dx1f(i);
+          Real dx3 = pco->dx3f(k);
 
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3476,11 +3473,11 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu; ++i) {
 
           // Get position and separations
-          Real x1 = x1v(i);
-          Real x2 = x2v(j);
-          Real x3 = x3f(k);
-          Real dx1 = dx1f(i);
-          Real dx2 = dx2f(j);
+          Real x1 = pco->x1v(i);
+          Real x2 = pco->x2v(j);
+          Real x3 = pco->x3f(k);
+          Real dx1 = pco->dx1f(i);
+          Real dx2 = pco->dx2f(j);
 
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3518,10 +3515,10 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu; ++i) {
 
           // Get position and separation
-          Real x1 = x1v(i);
-          Real x2 = x2f(j);
-          Real x3 = x3f(k);
-          Real dx1 = dx1f(i);
+          Real x1 = pco->x1v(i);
+          Real x2 = pco->x2f(j);
+          Real x3 = pco->x3f(k);
+          Real dx1 = pco->dx1f(i);
 
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3541,10 +3538,10 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu+1; ++i) {
 
           // Get position and separation
-          Real x1 = x1f(i);
-          Real x2 = x2v(j);
-          Real x3 = x3f(k);
-          Real dx2 = dx2f(j);
+          Real x1 = pco->x1f(i);
+          Real x2 = pco->x2v(j);
+          Real x3 = pco->x3f(k);
+          Real dx2 = pco->dx2f(j);
 
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -3564,10 +3561,10 @@ void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
         for (int i = ill; i <= iuu+1; ++i) {
 
           // Get position and separation
-          Real x1 = x1f(i);
-          Real x2 = x2f(j);
-          Real x3 = x3v(k);
-          Real dx3 = dx3f(k);
+          Real x1 = pco->x1f(i);
+          Real x2 = pco->x2f(j);
+          Real x3 = pco->x3v(k);
+          Real dx3 = pco->dx3f(k);
 
           // Calculate metric coefficients
           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
