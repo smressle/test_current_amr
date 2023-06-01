@@ -1401,10 +1401,10 @@ void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin) {
     my_blocks(i)->UserWorkBeforeOutput(pin);
   }
 
-    if (METRIC_EVOLUTION) {
-      metric_time = time;
-      CalculateMetric(pin);
-    }
+    // if (METRIC_EVOLUTION) {
+    //   metric_time = time;
+    //   CalculateMetric(pin);
+    // }
 
 }
 
@@ -2035,11 +2035,11 @@ void Mesh::OutputCycleDiagnostics() {
 // \!fn void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin)
 // \brief Apply MeshBlock::UserWorkBeforeOutput
 
-void Mesh::CalculateMetric(ParameterInput *pin) {
+// void Mesh::CalculateMetric(ParameterInput *pin) {
 
-    for (int i=0; i<nblocal; ++i)
-    my_blocks(i)->pcoord->UpdateMetric(metric_time,my_blocks(i),pin);
-}
+//     for (int i=0; i<nblocal; ++i)
+//     my_blocks(i)->pcoord->UpdateMetric(metric_time,my_blocks(i),pin);
+// }
 
 //----------------------------------------------------------------------------------------
 // \!fn void Mesh::ApplyUserWorkBeforeOutput(ParameterInput *pin)

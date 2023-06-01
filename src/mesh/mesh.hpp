@@ -269,7 +269,7 @@ class Mesh {
   void UserWorkAfterLoop(ParameterInput *pin);   // called in main loop
   void UserWorkInLoop(); // called in main after each cycle
 
-  void CalculateMetric(ParameterInput *pin); //for updating metric at each time
+  // void CalculateMetric(ParameterInput *pin); //for updating metric at each time
 
   void PreserveDivbAddingBH(ParameterInput *pin); //for updating metric at each time
 
