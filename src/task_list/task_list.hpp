@@ -292,7 +292,7 @@ const TaskID RECV_FLDFLX(11);
 const TaskID SRC_TERM(14);
 // const TaskID SRCTERM_FLD(15);
 const TaskID SRCTERM_RAD(16);
-const TaskID UPDATE_METRIC(17)
+const TaskID UPDATE_METRIC(17);
 // const TaskID SRCTERM_CHM(17);
 
 const TaskID INT_HYD(18);
