@@ -758,7 +758,7 @@ class GRUser : public Coordinates {
                        Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) final;
 
 
-   void UpdateUserMetric(Real t, MeshBlock *pmb, ParameterInput *pin) final ;
+   void UpdateUserMetric(Real t, MeshBlock *pmb) final ;
    // void UpdateMetric(Real t, MeshBlock *pmb, ParameterInput *pin) final;
 };
 
