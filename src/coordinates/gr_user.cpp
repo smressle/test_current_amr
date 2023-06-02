@@ -1786,7 +1786,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         // if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
 
         // Calculate metric coefficients
-        MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+        MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
         if (not coarse_flag ) {
@@ -1843,7 +1843,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           // Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1886,7 +1886,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           // Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1930,7 +1930,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           // Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate areas
           Real det = Determinant(g);
@@ -1974,7 +1974,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -1997,7 +1997,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx2 = dx2f(j);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
@@ -2020,7 +2020,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx3 = dx3f(k);
 
           // Calculate metric coefficients
-          MetricWithouPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+          MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
           // Calculate lengths
           Real det = Determinant(g);
