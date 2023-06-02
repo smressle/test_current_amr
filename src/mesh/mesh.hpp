@@ -379,7 +379,7 @@ class Mesh {
   void EnrollUserRadSourceFunction(RadSrcTermFunc my_func);
 
   void EnrollUserTimeStepFunction(TimeStepFunc my_func);
-  void EnrollUserMetricUpdateFunction(MetricUpdateFunc my_func);
+  // void EnrollUserMetricUpdateFunction(MetricUpdateFunc my_func);
   void AllocateUserHistoryOutput(int n);
   void EnrollUserHistoryOutput(int i, HistoryOutputFunc my_func, const char *name,
                                UserHistoryOperation op=UserHistoryOperation::sum);

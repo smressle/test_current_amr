@@ -94,6 +94,9 @@ int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+void  Cartesian_GR_Without_Pin(Real t, Real x1, Real x2, Real x3,
+    AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
 
 static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
@@ -3267,327 +3270,810 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 
-void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
+// void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
+// {
+//   // Set object names
+//   Mesh *pm = pmb>pmy_mesh;
+//   RegionSize& block_size = pmb->block_size;
+//   Coordinates *pco = pmb->pcoord; 
+
+//   // Set indices
+//   int il, iu, jl, ju, kl, ku, ng;
+//   if (pco->coarse_flag) {
+//     il = pmb->cis;
+//     iu = pmb->cie;
+//     jl = pmb->cjs;
+//     ju = pmb->cje;
+//     kl = pmb->cks;
+//     ku = pmb->cke;
+//     ng = pmb->cnghost;
+//   } else {
+//     il = pmb->is;
+//     iu = pmb->ie;
+//     jl = pmb->js;
+//     ju = pmb->je;
+//     kl = pmb->ks;
+//     ku = pmb->ke;
+//     ng = NGHOST;
+//   }
+//   int ill = il - ng;
+//   int iuu = iu + ng;
+//   int jll, juu;
+//   if (block_size.nx2 > 1) {
+//     jll = jl - ng;
+//     juu = ju + ng;
+//   } else {
+//     jll = jl;
+//     juu = ju;
+//   }
+//   int kll, kuu;
+//   if (block_size.nx3 > 1) {
+//     kll = kl - ng;
+//     kuu = ku + ng;
+//   } else {
+//     kll = kl;
+//     kuu = ku;
+//   }
+
+//   // Allocate arrays for volume-centered coordinates and positions of cells
+//   int ncells1 = (iu-il+1) + 2*ng;
+//   int ncells2 = 1, ncells3 = 1;
+//   if (block_size.nx2 > 1) ncells2 = (ju-jl+1) + 2*ng;
+//   if (block_size.nx3 > 1) ncells3 = (ku-kl+1) + 2*ng;
+
+
+//   // Allocate scratch arrays
+//   AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
+//   g.NewAthenaArray(NMETRIC);
+//   g_inv.NewAthenaArray(NMETRIC);
+//   dg_dx1.NewAthenaArray(NMETRIC);
+//   dg_dx2.NewAthenaArray(NMETRIC);
+//   dg_dx3.NewAthenaArray(NMETRIC);
+//   dg_dt.NewAthenaArray(NMETRIC);
+//   if (not coarse_flag) {
+//     transformation.NewAthenaArray(2, NTRIANGULAR);
+//   }
+
+
+//   // AthenaArray<Real> divb; 
+//   int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+//   // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+//   FaceField &b = pmb->pfield->b;
+
+
+//   // Calculate cell-centered geometric quantities
+//   for (int k = kll; k <= kuu; ++k) {
+//     for (int j = jll; j <= juu; ++j) {
+//       for (int i = ill; i <= iuu; ++i) {
+
+//         // Get position and separations
+//         Real x1 = pco->x1v(i);
+//         Real x2 = pco->x2v(j);
+//         Real x3 = pco->x3v(k);
+//         Real dx1 = pco->dx1f(i);
+//         Real dx2 = pco->dx2f(j);
+//         Real dx3 = pco->dx3f(k);
+
+//         // Calculate metric coefficients
+//         Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//         // Calculate volumes
+//         if (not coarse_flag or METRIC_EVOLUTION) {
+//           Real det = Determinant(g);
+//           pco->coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
+
+//         }
+
+//         // Calculate widths
+//         if (not coarse_flag) {
+//           pco->coord_width1_kji_(k,j,i) = std::sqrt(g(I11)) * dx1;
+//           pco->coord_width2_kji_(k,j,i) = std::sqrt(g(I22)) * dx2;
+//           pco->coord_width3_kji_(k,j,i) = std::sqrt(g(I33)) * dx3;
+//         }
+
+//         // Store metric derivatives
+//         if (not coarse_flag) {
+//           for (int m = 0; m < NMETRIC; ++m) {
+//             pco->coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
+//             pco->coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
+//             pco->coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
+//             if (METRIC_EVOLUTION) pco->coord_src_kji_(3,m,k,j,i) = dg_dt(m);
+//             else pco->coord_src_kji_(3,m,k,j,i) = 0.0;
+//           }
+//         }
+
+//         // Set metric coefficients
+//         for (int n = 0; n < NMETRIC; ++n) {
+//           pco->metric_cell_kji_(0,n,k,j,i) = g(n);
+//           pco->metric_cell_kji_(1,n,k,j,i) = g_inv(n);
+//         }
+
+//       }
+//     }
+//   }
+
+//   // Calculate x1-face-centered geometric quantities
+//   if (not coarse_flag ) {
+//     for (int k = kll; k <= kuu; ++k) {
+//       for (int j = jll; j <= juu; ++j) {
+//         for (int i = ill; i <= iuu+1; ++i) {
+
+//           // Get position and separations
+//           Real x1 = pco->x1f(i);
+//           Real x2 = pco->x2v(j);
+//           Real x3 = pco->x3v(k);
+//           Real dx2 = pco->dx2f(j);
+//           Real dx3 = pco->dx3f(k);
+
+//           // Calculate metric coefficients
+//           pco->Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate areas
+//           Real det = Determinant(g);
+//           pco->coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
+
+//           // Set metric coefficients
+//           for (int n = 0; n < NMETRIC; ++n) {
+//             pco->metric_face1_kji_(0,n,k,j,i) = g(n);
+//             pco->metric_face1_kji_(1,n,k,j,i) = g_inv(n);
+//           }
+
+//           // Calculate frame transformation
+//           pco->CalculateTransformation(g, g_inv, 1, transformation);
+//           for (int n = 0; n < 2; ++n) {
+//             for (int m = 0; m < NTRIANGULAR; ++m) {
+//               pco->trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+
+//   // Calculate x2-face-centered geometric quantities
+//   if (not coarse_flag) {
+//     for (int k = kll; k <= kuu; ++k) {
+//       for (int j = jll; j <= juu+1; ++j) {
+//         for (int i = ill; i <= iuu; ++i) {
+
+//           // Get position and separations
+//           Real x1 = pco->x1v(i);
+//           Real x2 = pco->x2f(j);
+//           Real x3 = pco->x3v(k);
+//           Real dx1 = pco->dx1f(i);
+//           Real dx3 = pco->dx3f(k);
+
+//           // Calculate metric coefficients
+//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate areas
+//           Real det = Determinant(g);
+//           pco->coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
+
+//           // Set metric coefficients
+//           for (int n = 0; n < NMETRIC; ++n) {
+//             pco->metric_face2_kji_(0,n,k,j,i) = g(n);
+//             pco->metric_face2_kji_(1,n,k,j,i) = g_inv(n);
+//           }
+
+//           // Calculate frame transformation
+//           pco->CalculateTransformation(g, g_inv, 2, transformation);
+//           for (int n = 0; n < 2; ++n) {
+//             for (int m = 0; m < NTRIANGULAR; ++m) {
+//               pco->trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
+//             }
+//           }
+
+//         }
+//       }
+//     }
+//   }
+
+//   // Calculate x3-face-centered geometric quantities
+//   if (not coarse_flag) {
+//     for (int k = kll; k <= kuu+1; ++k) {
+//       for (int j = jll; j <= juu; ++j) {
+//         for (int i = ill; i <= iuu; ++i) {
+
+//           // Get position and separations
+//           Real x1 = pco->x1v(i);
+//           Real x2 = pco->x2v(j);
+//           Real x3 = pco->x3f(k);
+//           Real dx1 = pco->dx1f(i);
+//           Real dx2 = pco->dx2f(j);
+
+//           // Calculate metric coefficients
+//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate areas
+//           Real det = Determinant(g);
+//           pco->coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
+
+//           // Set metric coefficients
+//           for (int n = 0; n < NMETRIC; ++n) {
+//             pco->metric_face3_kji_(0,n,k,j,i) = g(n);
+//             pco->metric_face3_kji_(1,n,k,j,i) = g_inv(n);
+//           }
+
+//           // Calculate frame transformation
+//           pco->CalculateTransformation(g, g_inv, 3, transformation);
+//           for (int n = 0; n < 2; ++n) {
+//             for (int m = 0; m < NTRIANGULAR; ++m) {
+//               pco->trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+//             }
+//           }
+
+//         }
+//       }
+//     }
+//   }
+
+
+
+
+//   // Calculate x1-edge-centered geometric quantities
+//   if (not coarse_flag) {
+//     for (int k = kll; k <= kuu+1; ++k) {
+//       for (int j = jll; j <= juu+1; ++j) {
+//         for (int i = ill; i <= iuu; ++i) {
+
+//           // Get position and separation
+//           Real x1 = pco->x1v(i);
+//           Real x2 = pco->x2f(j);
+//           Real x3 = pco->x3f(k);
+//           Real dx1 = pco->dx1f(i);
+
+//           // Calculate metric coefficients
+//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate lengths
+//           Real det = Determinant(g);
+//           pco->coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
+//         }
+//       }
+//     }
+//   }
+
+//   // Calculate x2-edge-centered geometric quantities
+//   if (not coarse_flag) {
+//     for (int k = kll; k <= kuu+1; ++k) {
+//       for (int j = jll; j <= juu; ++j) {
+//         for (int i = ill; i <= iuu+1; ++i) {
+
+//           // Get position and separation
+//           Real x1 = pco->x1f(i);
+//           Real x2 = pco->x2v(j);
+//           Real x3 = pco->x3f(k);
+//           Real dx2 = pco->dx2f(j);
+
+//           // Calculate metric coefficients
+//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate lengths
+//           Real det = Determinant(g);
+//           pco->coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
+//         }
+//       }
+//     }
+//   }
+
+//   // Calculate x3-edge-centered geometric quantities
+//   if (not coarse_flag) {
+//     for (int k = kll; k <= kuu; ++k) {
+//       for (int j = jll; j <= juu+1; ++j) {
+//         for (int i = ill; i <= iuu+1; ++i) {
+
+//           // Get position and separation
+//           Real x1 = pco->x1f(i);
+//           Real x2 = pco->x2f(j);
+//           Real x3 = pco->x3v(k);
+//           Real dx3 = pco->dx3f(k);
+
+//           // Calculate metric coefficients
+//           Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+
+//           // Calculate lengths
+//           Real det = Determinant(g);
+//           pco->coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
+//         }
+//       }
+//     }
+//   }
+
+
+
+
+//   // Free scratch arrays
+//   g.DeleteAthenaArray();
+//   g_inv.DeleteAthenaArray();
+//   dg_dx1.DeleteAthenaArray();
+//   dg_dx2.DeleteAthenaArray();
+//   dg_dx3.DeleteAthenaArray();
+//   dg_dt.DeleteAthenaArray();
+//   if (not coarse_flag) {
+//     transformation.DeleteAthenaArray();
+// }
+
+#define DEL 1e-7
+void Cartesian_GR_Without_Pin(Real t, Real x1, Real x2, Real x3,
+    AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
-  // Set object names
-  Mesh *pm = pmb>pmy_mesh;
-  RegionSize& block_size = pmb->block_size;
-  Coordinates *pco = pmb->pcoord; 
 
-  // Set indices
-  int il, iu, jl, ju, kl, ku, ng;
-  if (pco->coarse_flag) {
-    il = pmb->cis;
-    iu = pmb->cie;
-    jl = pmb->cjs;
-    ju = pmb->cje;
-    kl = pmb->cks;
-    ku = pmb->cke;
-    ng = pmb->cnghost;
-  } else {
-    il = pmb->is;
-    iu = pmb->ie;
-    jl = pmb->js;
-    ju = pmb->je;
-    kl = pmb->ks;
-    ku = pmb->ke;
-    ng = NGHOST;
-  }
-  int ill = il - ng;
-  int iuu = iu + ng;
-  int jll, juu;
-  if (block_size.nx2 > 1) {
-    jll = jl - ng;
-    juu = ju + ng;
-  } else {
-    jll = jl;
-    juu = ju;
-  }
-  int kll, kuu;
-  if (block_size.nx3 > 1) {
-    kll = kl - ng;
-    kuu = ku + ng;
-  } else {
-    kll = kl;
-    kuu = ku;
-  }
+  // if  (Globals::my_rank == 0) fprintf(stderr,"Metric time in pgen file (GLOBAL RANK): %g \n", t);
+  // else fprintf(stderr,"Metric time in pgen file (RANK %d): %g \n", Globals::my_rank,t);
+  // Extract inputs
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
 
-  // Allocate arrays for volume-centered coordinates and positions of cells
-  int ncells1 = (iu-il+1) + 2*ng;
-  int ncells2 = 1, ncells3 = 1;
-  if (block_size.nx2 > 1) ncells2 = (ju-jl+1) + 2*ng;
-  if (block_size.nx3 > 1) ncells3 = (ku-kl+1) + 2*ng;
+  Real a_spin =a;
+
+  Real eta[4];
+
+  eta[0] = -1.0;
+  eta[1] = 1.0;
+  eta[2] = 1.0;
+  eta[3] = 1.0;
 
 
-  // Allocate scratch arrays
-  AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
-  g.NewAthenaArray(NMETRIC);
-  g_inv.NewAthenaArray(NMETRIC);
-  dg_dx1.NewAthenaArray(NMETRIC);
-  dg_dx2.NewAthenaArray(NMETRIC);
-  dg_dx3.NewAthenaArray(NMETRIC);
-  dg_dt.NewAthenaArray(NMETRIC);
-  if (not coarse_flag) {
-    transformation.NewAthenaArray(2, NTRIANGULAR);
-  }
+
+  //////////////Perturber Black Hole//////////////////
 
 
-  // AthenaArray<Real> divb; 
-  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
-  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
-  FaceField &b = pmb->pfield->b;
+  Real xprime,yprime,zprime,rprime,Rprime;
+  get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
-  // Calculate cell-centered geometric quantities
-  for (int k = kll; k <= kuu; ++k) {
-    for (int j = jll; j <= juu; ++j) {
-      for (int i = ill; i <= iuu; ++i) {
+  Real dx_bh2_dt = 0.0;
+  Real dy_bh2_dt = 0.0;
+  Real dz_bh2_dt = v_bh2;
 
-        // Get position and separations
-        Real x1 = pco->x1v(i);
-        Real x2 = pco->x2v(j);
-        Real x3 = pco->x3v(k);
-        Real dx1 = pco->dx1f(i);
-        Real dx2 = pco->dx2f(j);
-        Real dx3 = pco->dx3f(k);
 
-        // Calculate metric coefficients
-        Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
-        // Calculate volumes
-        if (not coarse_flag or METRIC_EVOLUTION) {
-          Real det = Determinant(g);
-          pco->coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
 
-        }
+/// prevent metric from getting nan sqrt(-gdet)
+  Real thprime  = std::acos(zprime/rprime);
+  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
+                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
 
-        // Calculate widths
-        if (not coarse_flag) {
-          pco->coord_width1_kji_(k,j,i) = std::sqrt(g(I11)) * dx1;
-          pco->coord_width2_kji_(k,j,i) = std::sqrt(g(I22)) * dx2;
-          pco->coord_width3_kji_(k,j,i) = std::sqrt(g(I33)) * dx3;
-        }
-
-        // Store metric derivatives
-        if (not coarse_flag) {
-          for (int m = 0; m < NMETRIC; ++m) {
-            pco->coord_src_kji_(0,m,k,j,i) = dg_dx1(m);
-            pco->coord_src_kji_(1,m,k,j,i) = dg_dx2(m);
-            pco->coord_src_kji_(2,m,k,j,i) = dg_dx3(m);
-            if (METRIC_EVOLUTION) pco->coord_src_kji_(3,m,k,j,i) = dg_dt(m);
-            else pco->coord_src_kji_(3,m,k,j,i) = 0.0;
-          }
-        }
-
-        // Set metric coefficients
-        for (int n = 0; n < NMETRIC; ++n) {
-          pco->metric_cell_kji_(0,n,k,j,i) = g(n);
-          pco->metric_cell_kji_(1,n,k,j,i) = g_inv(n);
-        }
-
-      }
-    }
-  }
-
-  // Calculate x1-face-centered geometric quantities
-  if (not coarse_flag ) {
-    for (int k = kll; k <= kuu; ++k) {
-      for (int j = jll; j <= juu; ++j) {
-        for (int i = ill; i <= iuu+1; ++i) {
-
-          // Get position and separations
-          Real x1 = pco->x1f(i);
-          Real x2 = pco->x2v(j);
-          Real x3 = pco->x3v(k);
-          Real dx2 = pco->dx2f(j);
-          Real dx3 = pco->dx3f(k);
-
-          // Calculate metric coefficients
-          pco->Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-          // Calculate areas
-          Real det = Determinant(g);
-          pco->coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
-
-          // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            pco->metric_face1_kji_(0,n,k,j,i) = g(n);
-            pco->metric_face1_kji_(1,n,k,j,i) = g_inv(n);
-          }
-
-          // Calculate frame transformation
-          pco->CalculateTransformation(g, g_inv, 1, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              pco->trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Calculate x2-face-centered geometric quantities
-  if (not coarse_flag) {
-    for (int k = kll; k <= kuu; ++k) {
-      for (int j = jll; j <= juu+1; ++j) {
-        for (int i = ill; i <= iuu; ++i) {
-
-          // Get position and separations
-          Real x1 = pco->x1v(i);
-          Real x2 = pco->x2f(j);
-          Real x3 = pco->x3v(k);
-          Real dx1 = pco->dx1f(i);
-          Real dx3 = pco->dx3f(k);
-
-          // Calculate metric coefficients
-          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-          // Calculate areas
-          Real det = Determinant(g);
-          pco->coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
-
-          // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            pco->metric_face2_kji_(0,n,k,j,i) = g(n);
-            pco->metric_face2_kji_(1,n,k,j,i) = g_inv(n);
-          }
-
-          // Calculate frame transformation
-          pco->CalculateTransformation(g, g_inv, 2, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              pco->trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
-            }
-          }
-
-        }
-      }
-    }
-  }
-
-  // Calculate x3-face-centered geometric quantities
-  if (not coarse_flag) {
-    for (int k = kll; k <= kuu+1; ++k) {
-      for (int j = jll; j <= juu; ++j) {
-        for (int i = ill; i <= iuu; ++i) {
-
-          // Get position and separations
-          Real x1 = pco->x1v(i);
-          Real x2 = pco->x2v(j);
-          Real x3 = pco->x3f(k);
-          Real dx1 = pco->dx1f(i);
-          Real dx2 = pco->dx2f(j);
-
-          // Calculate metric coefficients
-          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
-
-          // Calculate areas
-          Real det = Determinant(g);
-          pco->coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
-
-          // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            pco->metric_face3_kji_(0,n,k,j,i) = g(n);
-            pco->metric_face3_kji_(1,n,k,j,i) = g_inv(n);
-          }
-
-          // Calculate frame transformation
-          pco->CalculateTransformation(g, g_inv, 3, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              pco->trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
-            }
-          }
-
-        }
-      }
-    }
+  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
+  if (rprime < rhprime*0.8) {
+    rprime = rhprime*0.8;
+    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
+    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
+    zprime = rprime * std::cos(thprime);
   }
 
 
 
+  //if (r<0.01) r = 0.01;
 
-  // Calculate x1-edge-centered geometric quantities
-  if (not coarse_flag) {
-    for (int k = kll; k <= kuu+1; ++k) {
-      for (int j = jll; j <= juu+1; ++j) {
-        for (int i = ill; i <= iuu; ++i) {
 
-          // Get position and separation
-          Real x1 = pco->x1v(i);
-          Real x2 = pco->x2f(j);
-          Real x3 = pco->x3f(k);
-          Real dx1 = pco->dx1f(i);
+  Real l_lowerprime[4],l_upperprime[4];
 
-          // Calculate metric coefficients
-          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+  Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+  l_upperprime[0] = -1.0;
+  l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
+  l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
+  l_upperprime[3] = zprime/rprime;
 
-          // Calculate lengths
-          Real det = Determinant(g);
-          pco->coord_len1_kji_(k,j,i) = std::sqrt(-det) * dx1;
-        }
-      }
-    }
-  }
+  l_lowerprime[0] = 1.0;
+  l_lowerprime[1] = l_upperprime[1];
+  l_lowerprime[2] = l_upperprime[2];
+  l_lowerprime[3] = l_upperprime[3];
 
-  // Calculate x2-edge-centered geometric quantities
-  if (not coarse_flag) {
-    for (int k = kll; k <= kuu+1; ++k) {
-      for (int j = jll; j <= juu; ++j) {
-        for (int i = ill; i <= iuu+1; ++i) {
 
-          // Get position and separation
-          Real x1 = pco->x1f(i);
-          Real x2 = pco->x2v(j);
-          Real x3 = pco->x3f(k);
-          Real dx2 = pco->dx2f(j);
 
-          // Calculate metric coefficients
-          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
-          // Calculate lengths
-          Real det = Determinant(g);
-          pco->coord_len2_kji_(k,j,i) = std::sqrt(-det) * dx2;
-        }
-      }
-    }
-  }
 
-  // Calculate x3-edge-centered geometric quantities
-  if (not coarse_flag) {
-    for (int k = kll; k <= kuu; ++k) {
-      for (int j = jll; j <= juu+1; ++j) {
-        for (int i = ill; i <= iuu+1; ++i) {
 
-          // Get position and separation
-          Real x1 = pco->x1f(i);
-          Real x2 = pco->x2f(j);
-          Real x3 = pco->x3v(k);
-          Real dx3 = pco->dx3f(k);
+  // Set covariant components
+  // g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] + v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3];
+  // g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] + v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
+  // g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2] + v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
+  // g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] + v_bh2;
+  g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0]; // - 2.0*v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3]  
+                  //+ SQR(v_bh2)*fprime*l_lowerprime[3]*l_lowerprime[3] + SQR(v_bh2) ;
+  g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1]; // - v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
+  g(I02) =          fprime * l_lowerprime[0]*l_lowerprime[2]; // - v_bh2 * fprime * l_lowerprime[2]*l_lowerprime[3];
+  g(I03) =          fprime * l_lowerprime[0]*l_lowerprime[3]; // - v_bh2 * fprime * l_lowerprime[3]*l_lowerprime[3] - v_bh2;
+  g(I11) = eta[1] + fprime * l_lowerprime[1]*l_lowerprime[1];
+  g(I12) =          fprime * l_lowerprime[1]*l_lowerprime[2];
+  g(I13) =          fprime * l_lowerprime[1]*l_lowerprime[3];
+  g(I22) = eta[2] + fprime * l_lowerprime[2]*l_lowerprime[2];
+  g(I23) =          fprime * l_lowerprime[2]*l_lowerprime[3];
+  g(I33) = eta[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
-          // Calculate metric coefficients
-          Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
+  // Real det_test = Determinant(g);
 
-          // Calculate lengths
-          Real det = Determinant(g);
-          pco->coord_len3_kji_(k,j,i) = std::sqrt(-det) * dx3;
-        }
-      }
-    }
+  // if (std::isnan( std::sqrt(-det_test))) {
+  //   fprintf(stderr,"NAN determinant in metric!! Det: %g \n xyz: %g %g %g \n r: %g \n",det_test,x,y,z,r);
+  //   exit(0);
+  // }
+
+
+  bool invertible = gluInvertMatrix(g,g_inv);
+
+  if (invertible==false) {
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
   }
 
 
+  //expressioons for a = 0
+
+  // f = 2.0/R;
+  // l_lower[1] = x/R;
+  // l_lower[2] = y/R;
+  // l_lower[3] = z/R;
+  // df_dx1 = -2.0 * x/SQR(R)/R;
+  // df_dx2 = -2.0 * y/SQR(R)/R;
+  // df_dx3 = -2.0 * z/SQR(R)/R;
+
+  // dl1_dx1 = -SQR(x)/SQR(R)/R + 1.0/R;
+  // dl1_dx2 = -x*y/SQR(R)/R; 
+  // dl1_dx3 = -x*z/SQR(R)/R;
+
+  // dl2_dx1 = -x*y/SQR(R)/R;
+  // dl2_dx2 = -SQR(y)/SQR(R)/R + 1.0/R;
+  // dl2_dx3 = -y*z/SQR(R)/R;
+
+  // dl3_dx1 = -x*z/SQR(R)/R;
+  // dl3_dx2 = -y*z/SQR(R)/R;
+  // dl3_dx3 = -SQR(z)/SQR(R)/R;
 
 
-  // Free scratch arrays
-  g.DeleteAthenaArray();
-  g_inv.DeleteAthenaArray();
-  dg_dx1.DeleteAthenaArray();
-  dg_dx2.DeleteAthenaArray();
-  dg_dx3.DeleteAthenaArray();
-  dg_dt.DeleteAthenaArray();
-  if (not coarse_flag) {
-    transformation.DeleteAthenaArray();
+
+  // // Set x-derivatives of covariant components
+  dg_dx1(I00) = 0.0;
+  dg_dx1(I01) = 0.0;
+  dg_dx1(I02) = 0.0;
+  dg_dx1(I03) = 0.0;
+  dg_dx1(I11) = 0.0;
+  dg_dx1(I12) = 0.0;
+  dg_dx1(I13) = 0.0;
+  dg_dx1(I22) = 0.0;
+  dg_dx1(I23) = 0.0;
+  dg_dx1(I33) = 0.0;
+
+  // Set y-derivatives of covariant components
+  dg_dx2(I00) = 0.0;
+  dg_dx2(I01) = 0.0;
+  dg_dx2(I02) = 0.0;
+  dg_dx2(I03) = 0.0;
+  dg_dx2(I11) = 0.0;
+  dg_dx2(I12) = 0.0;
+  dg_dx2(I13) = 0.0;
+  dg_dx2(I22) = 0.0;
+  dg_dx2(I23) = 0.0;
+  dg_dx2(I33) = 0.0;
+
+  // Set z-derivatives of covariant components
+  dg_dx3(I00) = 0.0;
+  dg_dx3(I01) = 0.0;
+  dg_dx3(I02) = 0.0;
+  dg_dx3(I03) = 0.0;
+  dg_dx3(I11) = 0.0;
+  dg_dx3(I12) = 0.0;
+  dg_dx3(I13) = 0.0;
+  dg_dx3(I22) = 0.0;
+  dg_dx3(I23) = 0.0;
+  dg_dx3(I33) = 0.0;
+
+
+
+/////Secondary Black hole/////
+
+  Real sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
+  Real rsq_p_asq = SQR(rprime) + SQR(aprime);
+
+  Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+
+
+  Real dfprime_dx1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
+                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
+  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
+  Real dfprime_dx2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
+                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
+  Real dfprime_dx3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
+                      ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
+  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
+  Real dl1prime_dx1 = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
+  Real dl1prime_dx2 = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
+  Real dl1prime_dx3 = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
+  Real dl2prime_dx1 = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
+  Real dl2prime_dx2 = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+  Real dl2prime_dx3 = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
+  Real dl3prime_dx1 = - xprime*zprime/(rprime) /( sqrt_term );
+  Real dl3prime_dx2 = - yprime*zprime/(rprime) /( sqrt_term );
+  Real dl3prime_dx3 = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
+
+  Real dl0prime_dx1 = 0.0;
+  Real dl0prime_dx2 = 0.0;
+  Real dl0prime_dx3 = 0.0;
+
+  AthenaArray<Real> dgprime_dx1, dgprime_dx2, dgprime_dx3;
+
+  dgprime_dx1.NewAthenaArray(NMETRIC);
+  dgprime_dx2.NewAthenaArray(NMETRIC);
+  dgprime_dx3.NewAthenaArray(NMETRIC);
+
+  // // Set x-derivatives of covariant components
+  // dgprime_dx1(I00) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx1 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx1
+  //                    + v_bh2 * dfprime_dx1 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx1*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx1;
+  // dgprime_dx1(I01) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx1;
+  //                    + v_bh2 * dfprime_dx1 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx1*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx1;
+  // dgprime_dx1(I02) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx1
+  //                    + v_bh2 * dfprime_dx1 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx1*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx1;
+  // dgprime_dx1(I03) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx1
+  //                    + v_bh2 * dfprime_dx1 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx1*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx1;  
+
+  dgprime_dx1(I00) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx1 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx1;
+                    // - 2.0 * v_bh2 * (dfprime_dx1 * l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx1*l_lowerprime[3]
+                    // +                fprime * l_lowerprime[0]*dl3prime_dx1) 
+                    // +  SQR(v_bh2) * (dfprime_dx1 * l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx1*l_lowerprime[3] 
+                    // +                fprime * l_lowerprime[3]*dl3prime_dx1);
+  dgprime_dx1(I01) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx1;
+                    // - v_bh2 * (dfprime_dx1 * l_lowerprime[1]*l_lowerprime[3] 
+                    // +          fprime * dl1prime_dx1*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[1]*dl3prime_dx1);
+  dgprime_dx1(I02) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx1;
+                    // - v_bh2 * (dfprime_dx1 * l_lowerprime[2]*l_lowerprime[3] 
+                    // +          fprime * dl2prime_dx1*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[2]*dl3prime_dx1);
+  dgprime_dx1(I03) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx1;
+                    // - v_bh2 * (dfprime_dx1 * l_lowerprime[3]*l_lowerprime[3] 
+                    // +          fprime * dl3prime_dx1*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[3]*dl3prime_dx1);  
+  dgprime_dx1(I11) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx1 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx1;
+  dgprime_dx1(I12) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx1;
+  dgprime_dx1(I13) = dfprime_dx1*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx1;
+  dgprime_dx1(I22) = dfprime_dx1*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx1 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx1;
+  dgprime_dx1(I23) = dfprime_dx1*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx1;
+  dgprime_dx1(I33) = dfprime_dx1*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx1 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx1;
+
+  // Set y-derivatives of covariant components
+  // dgprime_dx2(I00) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx2 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx2;
+  // dgprime_dx2(I01) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx2;
+  // dgprime_dx2(I02) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx2;
+  // dgprime_dx2(I03) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx2
+  //                    + v_bh2 * dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx2*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx2;  
+  dgprime_dx2(I00) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx2 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx2;
+                    // - 2.0 * v_bh2 * (dfprime_dx2 * l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2*l_lowerprime[3]
+                    // +                fprime * l_lowerprime[0]*dl3prime_dx2) 
+                    // +  SQR(v_bh2) * (dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx2*l_lowerprime[3] 
+                    // +                fprime * l_lowerprime[3]*dl3prime_dx2);
+  dgprime_dx2(I01) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx2;
+                    // - v_bh2 * (dfprime_dx2 * l_lowerprime[1]*l_lowerprime[3] 
+                    // +          fprime * dl1prime_dx2*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[1]*dl3prime_dx2);
+  dgprime_dx2(I02) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx2;
+                    // - v_bh2 * (dfprime_dx2 * l_lowerprime[2]*l_lowerprime[3] 
+                    // +          fprime * dl2prime_dx2*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[2]*dl3prime_dx2);
+  dgprime_dx2(I03) = dfprime_dx2*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx2;
+                    // - v_bh2 * (dfprime_dx2 * l_lowerprime[3]*l_lowerprime[3] 
+                    // +          fprime * dl3prime_dx2*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[3]*dl3prime_dx2);  
+  dgprime_dx2(I11) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx2 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx2;
+  dgprime_dx2(I12) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx2;
+  dgprime_dx2(I13) = dfprime_dx2*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx2;
+  dgprime_dx2(I22) = dfprime_dx2*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx2 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx2;
+  dgprime_dx2(I23) = dfprime_dx2*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx2;
+  dgprime_dx2(I33) = dfprime_dx2*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx2 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx2;
+
+  // Set z-derivatives of covariant components
+  // dgprime_dx3(I00) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx3 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx3
+  //                    + v_bh2 * dfprime_dx3 * l_lowerprime[0]*l_lowerprime[3] + v_bh2 * fprime * dl0prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[0]*dl3prime_dx3;
+  // dgprime_dx3(I01) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx3
+  //                     + v_bh2 * dfprime_dx3 * l_lowerprime[1]*l_lowerprime[3] + v_bh2 * fprime * dl1prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[1]*dl3prime_dx3;
+  // dgprime_dx3(I02) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx3
+  //                      + v_bh2 * dfprime_dx3 * l_lowerprime[2]*l_lowerprime[3] + v_bh2 * fprime * dl2prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[2]*dl3prime_dx3;;
+  // dgprime_dx3(I03) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx3
+  //                    + v_bh2 * dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] + v_bh2 * fprime * dl3prime_dx3*l_lowerprime[3]
+  //                    + v_bh2 * fprime * l_lowerprime[3]*dl3prime_dx3; ;
+
+  dgprime_dx3(I00) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx3 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx3;
+                    // - 2.0 * v_bh2 * (dfprime_dx3 * l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3*l_lowerprime[3]
+                    // +                fprime * l_lowerprime[0]*dl3prime_dx3) 
+                    // +  SQR(v_bh2) * (dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx3*l_lowerprime[3] 
+                    // +                fprime * l_lowerprime[3]*dl3prime_dx3);
+  dgprime_dx3(I01) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[1] + fprime * dl0prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dx3;
+                    // - v_bh2 * (dfprime_dx3 * l_lowerprime[1]*l_lowerprime[3] 
+                    // +          fprime * dl1prime_dx3*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[1]*dl3prime_dx3);
+  dgprime_dx3(I02) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[2] + fprime * dl0prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dx3;
+                    // - v_bh2 * (dfprime_dx3 * l_lowerprime[2]*l_lowerprime[3] 
+                    // +          fprime * dl2prime_dx3*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[2]*dl3prime_dx3);
+  dgprime_dx3(I03) = dfprime_dx3*l_lowerprime[0]*l_lowerprime[3] + fprime * dl0prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dx3;
+                    // - v_bh2 * (dfprime_dx3 * l_lowerprime[3]*l_lowerprime[3] 
+                    // +          fprime * dl3prime_dx3*l_lowerprime[3]
+                    // +          fprime * l_lowerprime[3]*dl3prime_dx3);  
+  dgprime_dx3(I11) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[1] + fprime * dl1prime_dx3 * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dx3;
+  dgprime_dx3(I12) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[2] + fprime * dl1prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dx3;
+  dgprime_dx3(I13) = dfprime_dx3*l_lowerprime[1]*l_lowerprime[3] + fprime * dl1prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dx3;
+  dgprime_dx3(I22) = dfprime_dx3*l_lowerprime[2]*l_lowerprime[2] + fprime * dl2prime_dx3 * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dx3;
+  dgprime_dx3(I23) = dfprime_dx3*l_lowerprime[2]*l_lowerprime[3] + fprime * dl2prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dx3;
+  dgprime_dx3(I33) = dfprime_dx3*l_lowerprime[3]*l_lowerprime[3] + fprime * dl3prime_dx3 * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dx3;
+
+
+
+
+
+  // // Set x-derivatives of covariant components
+  dg_dx1(I00) += dgprime_dx1(I00);
+  dg_dx1(I01) += dgprime_dx1(I01);
+  dg_dx1(I02) += dgprime_dx1(I02);
+  dg_dx1(I03) += dgprime_dx1(I03);
+  dg_dx1(I11) += dgprime_dx1(I11);
+  dg_dx1(I12) += dgprime_dx1(I12);
+  dg_dx1(I13) += dgprime_dx1(I13);
+  dg_dx1(I22) += dgprime_dx1(I22);
+  dg_dx1(I23) += dgprime_dx1(I23);
+  dg_dx1(I33) += dgprime_dx1(I33);
+
+  // Set y-derivatives of covariant components
+  dg_dx2(I00) += dgprime_dx2(I00);
+  dg_dx2(I01) += dgprime_dx2(I01);
+  dg_dx2(I02) += dgprime_dx2(I02);
+  dg_dx2(I03) += dgprime_dx2(I03);
+  dg_dx2(I11) += dgprime_dx2(I11);
+  dg_dx2(I12) += dgprime_dx2(I12);
+  dg_dx2(I13) += dgprime_dx2(I13);
+  dg_dx2(I22) += dgprime_dx2(I22);
+  dg_dx2(I23) += dgprime_dx2(I23);
+  dg_dx2(I33) += dgprime_dx2(I33);
+
+  // Set z-derivatives of covariant components
+  dg_dx3(I00) += dgprime_dx3(I00);
+  dg_dx3(I01) += dgprime_dx3(I01);
+  dg_dx3(I02) += dgprime_dx3(I02);
+  dg_dx3(I03) += dgprime_dx3(I03);
+  dg_dx3(I11) += dgprime_dx3(I11);
+  dg_dx3(I12) += dgprime_dx3(I12);
+  dg_dx3(I13) += dgprime_dx3(I13);
+  dg_dx3(I22) += dgprime_dx3(I22);
+  dg_dx3(I23) += dgprime_dx3(I23);
+  dg_dx3(I33) += dgprime_dx3(I33);
+
+
+
+
+
+  // Set t-derivatives of covariant components
+  dg_dt(I00) = -1.0 * (dx_bh2_dt * dgprime_dx1(I00) + dy_bh2_dt * dgprime_dx2(I00) + dz_bh2_dt * dgprime_dx3(I00) );
+  dg_dt(I01) = -1.0 * (dx_bh2_dt * dgprime_dx1(I01) + dy_bh2_dt * dgprime_dx2(I01) + dz_bh2_dt * dgprime_dx3(I01) );
+  dg_dt(I02) = -1.0 * (dx_bh2_dt * dgprime_dx1(I02) + dy_bh2_dt * dgprime_dx2(I02) + dz_bh2_dt * dgprime_dx3(I02) );
+  dg_dt(I03) = -1.0 * (dx_bh2_dt * dgprime_dx1(I03) + dy_bh2_dt * dgprime_dx2(I03) + dz_bh2_dt * dgprime_dx3(I03) );
+  dg_dt(I11) = -1.0 * (dx_bh2_dt * dgprime_dx1(I11) + dy_bh2_dt * dgprime_dx2(I11) + dz_bh2_dt * dgprime_dx3(I11) );
+  dg_dt(I12) = -1.0 * (dx_bh2_dt * dgprime_dx1(I12) + dy_bh2_dt * dgprime_dx2(I12) + dz_bh2_dt * dgprime_dx3(I12) );
+  dg_dt(I13) = -1.0 * (dx_bh2_dt * dgprime_dx1(I13) + dy_bh2_dt * dgprime_dx2(I13) + dz_bh2_dt * dgprime_dx3(I13) );
+  dg_dt(I22) = -1.0 * (dx_bh2_dt * dgprime_dx1(I22) + dy_bh2_dt * dgprime_dx2(I22) + dz_bh2_dt * dgprime_dx3(I22) );
+  dg_dt(I23) = -1.0 * (dx_bh2_dt * dgprime_dx1(I23) + dy_bh2_dt * dgprime_dx2(I23) + dz_bh2_dt * dgprime_dx3(I23) );
+  dg_dt(I33) = -1.0 * (dx_bh2_dt * dgprime_dx1(I33) + dy_bh2_dt * dgprime_dx2(I33) + dz_bh2_dt * dgprime_dx3(I33) );
+
+
+  dgprime_dx1.DeleteAthenaArray();
+  dgprime_dx2.DeleteAthenaArray();
+  dgprime_dx3.DeleteAthenaArray();
+
+
+  // AthenaArray<Real> gp,gm;
+  // AthenaArray<Real> delta_gp,delta_gm;
+
+
+
+  // gp.NewAthenaArray(NMETRIC);
+  // gm.NewAthenaArray(NMETRIC);
+  // delta_gp.NewAthenaArray(NMETRIC);
+  // delta_gm.NewAthenaArray(NMETRIC);
+
+
+
+  // cks_metric(x1,x2,x3,g);
+  // delta_cks_metric(pin,t,x1,x2,x3,delta_gp);
+
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    g(n) += delta_gp(n);
+  // }
+
+
+  // cks_inverse_metric(x1,x2,x3,g_inv);
+  // delta_cks_metric_inverse(pin,t,x1,x2,x3,delta_gp);
+
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    g_inv(n) += delta_gp(n);
+  // }
+
+  // Real x1p = x1 + DEL * rprime;
+  // Real x1m = x1 - DEL * rprime;
+
+  // cks_metric(x1p,x2,x3,gp);
+  // cks_metric(x1m,x2,x3,gm);
+  // delta_cks_metric(pin,t,x1p,x2,x3,delta_gp);
+  // delta_cks_metric(pin,t,x1m,x2,x3,delta_gm);
+
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    gp(n) += delta_gp(n);
+  //    gm(n) += delta_gm(n);
+  // }
+
+  //   // // Set x-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
+  // }
+
+  // Real x2p = x2 + DEL * rprime;
+  // Real x2m = x2 - DEL * rprime;
+
+  // cks_metric(x1,x2p,x3,gp);
+  // cks_metric(x1,x2m,x3,gm);
+  // delta_cks_metric(pin,t,x1,x2p,x3,delta_gp);
+  // delta_cks_metric(pin,t,x1,x2m,x3,delta_gm);
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    gp(n) += delta_gp(n);
+  //    gm(n) += delta_gm(n);
+  // }
+
+  //   // // Set y-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+  // }
+  
+  // Real x3p = x3 + DEL * rprime;
+  // Real x3m = x3 - DEL * rprime;
+
+  // cks_metric(x1,x2,x3p,gp);
+  // cks_metric(x1,x2,x3m,gm);
+  // delta_cks_metric(pin,t,x1,x2,x3p,delta_gp);
+  // delta_cks_metric(pin,t,x1,x2,x3m,delta_gm);
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    gp(n) += delta_gp(n);
+  //    gm(n) += delta_gm(n);
+  // }
+
+  //   // // Set z-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+  // }
+
+  // Real tp = t + DEL ;
+  // Real tm = t - DEL ;
+
+  // cks_metric(x1,x2,x3,gp);
+  // cks_metric(x1,x2,x3,gm);
+  // delta_cks_metric(pin,tp,x1,x2,x3,delta_gp);
+  // delta_cks_metric(pin,tm,x1,x2,x3,delta_gm);
+
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    gp(n) += delta_gp(n);
+  //    gm(n) += delta_gm(n);
+  // }
+
+  //   // // Set t-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+  // }
+
+  // gp.DeleteAthenaArray();
+  // gm.DeleteAthenaArray();
+  // delta_gm.DeleteAthenaArray();
+  // delta_gp.DeleteAthenaArray();
+  return;
 }
-
