@@ -501,8 +501,14 @@ int main(int argc, char *argv[]) {
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
 
 
-    if (Globals::my_rank == 0)
-      fprintf(stderr,"Meshblocks Created this time step: %d Meshblocks Destroyed this time step: %d\n", pmesh->nbnew - nbcreated_init,pmesh->nbdel- nbdestroyed_init);
+    if (Globals::my_rank == 0){
+      if (pmesh->nbnew - nbcreated_init>0){
+        fprintf(stderr,"Meshblocks Created this time step: %d n", pmesh->nbnew - nbcreated_init);
+      }
+      if (pmesh->nbdel- nbdestroyed_init>0){
+      fprintf(stderr,"Meshblocks Destroyed this time step: %d\n", pmesh->nbdel- nbdestroyed_init);
+      }
+   }
 
     //this is only done once per timestep, not stage.  Per stage would be better, probably slower
     // if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) {

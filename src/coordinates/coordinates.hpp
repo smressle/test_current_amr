@@ -196,7 +196,7 @@ class Coordinates {
 
   // void UpdateUserMetric(const Real metric_t, MeshBlock *pmb);
 
-  MetricUpdateFunc UserUpdateMetric;
+  // MetricUpdateFunc UserUpdateMetric;
 
  protected:
   bool coarse_flag;  // true if this coordinate object is parent (coarse) mesh in AMR
