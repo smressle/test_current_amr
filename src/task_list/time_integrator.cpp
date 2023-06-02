@@ -1783,12 +1783,12 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
   // *** this must be changed for the RK3 integrator
   if (stage <= nstages) {
 
-    // Time at beginning of stage for u()
-    Real t_start_stage = pmb->pmy_mesh->time
-                           + stage_wghts[(stage-1)].sbeta*pmb->pmy_mesh->dt;    
+    // Time at end of stage for u()
+    Real t_end_stage = pmb->pmy_mesh->time
+                       + stage_wghts[(stage-1)].ebeta*pmb->pmy_mesh->dt;  
                            // Scaled coefficient for RHS update
     // if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(pmb->pmy_mesh->metric_time,pmb);
-   if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(t_start_stage,pmb);
+   if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(t_end_stage,pmb);
 
 
   } else {
