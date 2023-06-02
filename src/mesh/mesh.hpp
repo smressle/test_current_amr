@@ -321,7 +321,7 @@ class Mesh {
   AMRFlagFunc AMRFlag_;
   SrcTermFunc UserSourceTerm_;
   RadSrcTermFunc UserRadSourceTerm_;
-  MetricUpdateFunc UserUpdateMetric_;
+  // MetricUpdateFunc UserUpdateMetric_;
   TimeStepFunc UserTimeStep_;
   HistoryOutputFunc *user_history_func_;
   MetricFunc UserMetric_;

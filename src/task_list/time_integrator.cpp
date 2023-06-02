@@ -1777,8 +1777,8 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
 TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
 {
 
-  // return if there are no source terms to be added
-  if (pmb->pcoord->user_metric_update_defined == false) return TaskStatus::next;
+  // return if there is no user_metric_update defined
+  // if (pmb->pcoord->user_metric_update_defined == false) return TaskStatus::next;
 
   // *** this must be changed for the RK3 integrator
   if (stage <= nstages) {

@@ -37,7 +37,7 @@ class Coordinates {
   Coordinates(MeshBlock *pmb, ParameterInput *pin, bool flag = false);
   virtual ~Coordinates() = default;
 
-  bool user_metric_update_defined;
+  // bool user_metric_update_defined;
 
   // data
   MeshBlock *pmy_block;  // ptr to MeshBlock containing this Coordinates
