@@ -48,7 +48,8 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   RegionSize& block_size = pmy_block->block_size;
 
 
-  Real metric_t = pm->metric_time;
+  // Real metric_t = pm->metric_time;
+  Real metric_t = pm->time;
 
   // set more indices
   int ill = il - ng;
