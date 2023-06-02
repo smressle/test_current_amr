@@ -384,6 +384,7 @@ class Mesh {
   void EnrollUserHistoryOutput(int i, HistoryOutputFunc my_func, const char *name,
                                UserHistoryOperation op=UserHistoryOperation::sum);
   void EnrollUserMetric(MetricFunc my_func);
+  void EnrollUserMetricWithoutPin(MetricFuncWithoutPin my_func);
   void EnrollViscosityCoefficient(ViscosityCoeffFunc my_func);
   void EnrollConductionCoefficient(ConductionCoeffFunc my_func);
   void EnrollFieldDiffusivity(FieldDiffusionCoeffFunc my_func);
