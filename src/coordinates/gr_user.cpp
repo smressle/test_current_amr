@@ -738,9 +738,9 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
                       + coord_src_kji_(2,I33,k,j,i) * tt[I33]);
 
         s_E -= 0.5 * (coord_src_kji_(3,I00,k,j,i) * tt[I00]
-            + coord_src_kji_(3,I11,k,j,i) * tt[I11]
-            + coord_src_kji_(3,I22,k,j,i) * tt[I22]
-            + coord_src_kji_(3,I33,k,j,i) * tt[I33]);
+                      + coord_src_kji_(3,I11,k,j,i) * tt[I11]
+                      + coord_src_kji_(3,I22,k,j,i) * tt[I22]
+                      + coord_src_kji_(3,I33,k,j,i) * tt[I33]);
 
         // Extract conserved quantities
         Real &m_1 = cons(IM1,k,j,i);
@@ -1784,7 +1784,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         Real dx3 = dx3f(k);
 
         Real sqrt_minus_det_old; 
-        // if (not coarse_flag or METRIC_EVOLUTION) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
+        if (not coarse_flag) sqrt_minus_det_old = coord_vol_kji_(k,j,i)/ (dx1 * dx2 * dx3);
 
         // Calculate metric coefficients
         MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1793,10 +1793,10 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         if (not coarse_flag ) {
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
-          // Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          // for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
-          //   pmb->phydro->u(n_cons,k,j,i) *=fac;
-          // }
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
+          }
 
         }
 
@@ -1841,7 +1841,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx2 = dx2f(j);
           Real dx3 = dx3f(k);
 
-          // Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
+          Real sqrt_minus_det_old = coord_area1_kji_(k,j,i)/ (dx2 * dx3);
 
           // Calculate metric coefficients
           MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1864,8 +1864,8 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
             }
           }
 
-        //   Real fac = sqrt_minus_det_old/std::sqrt(-det);
-        //   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
         }
       }
     }
@@ -1884,7 +1884,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
           Real dx3 = dx3f(k);
 
-          // Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
+          Real sqrt_minus_det_old = coord_area2_kji_(k,j,i)/ (dx1 * dx3);
 
           // Calculate metric coefficients
           MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1908,8 +1908,8 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           }
 
 
-        //   Real fac = sqrt_minus_det_old/std::sqrt(-det);
-        //   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
         }
       }
     }
@@ -1928,7 +1928,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real dx1 = dx1f(i);
           Real dx2 = dx2f(j);
 
-          // Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
+          Real sqrt_minus_det_old = coord_area3_kji_(k,j,i)/ (dx1 * dx2);
 
           // Calculate metric coefficients
           MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
@@ -1952,8 +1952,8 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           }
 
 
-          // Real fac = sqrt_minus_det_old/std::sqrt(-det);
-          // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
+          Real fac = sqrt_minus_det_old/std::sqrt(-det);
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
         }
       }
     }
