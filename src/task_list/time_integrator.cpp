@@ -1781,7 +1781,10 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
   // if (pmb->pcoord->user_metric_update_defined == false) return TaskStatus::next;
 
   // *** this must be changed for the RK3 integrator
+
+  if (stage != nstages) return TaskStatus::success; // only do on last stage
   if (stage <= nstages) {
+  // if (stage==nstages){
 
     // Time at end of stage for u()
     Real t_end_stage = pmb->pmy_mesh->time
