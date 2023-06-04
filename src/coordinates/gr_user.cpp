@@ -1916,7 +1916,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   }
 
   // Calculate x3-face-centered geometric quantities
-  if (not coarse_flag or METRIC_EVOLUTION) {
+  if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu; ++i) {
