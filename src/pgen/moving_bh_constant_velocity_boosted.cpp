@@ -321,7 +321,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  AllocateUserHistoryOutput(1);
+  if (MAGNETIC_FIELDS_ENABLED) AllocateUserHistoryOutput(1);
 
   if (MAGNETIC_FIELDS_ENABLED) EnrollUserHistoryOutput(0, DivergenceB, "divB");
 

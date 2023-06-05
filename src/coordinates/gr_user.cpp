@@ -170,12 +170,12 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
 
   //Need these for scaling conserved variables and field
   //when sqrt(-g) changes
-  if (coarse_flag && METRIC_EVOLUTION){
-    coord_vol_kji_.NewAthenaArray(nc3, nc2, nc1);
-    coord_area1_kji_.NewAthenaArray(nc3, nc2, nc1+1);
-    coord_area2_kji_.NewAthenaArray(nc3, nc2+1, nc1);
-    coord_area3_kji_.NewAthenaArray(nc3+1, nc2, nc1);
-  }
+  // if (coarse_flag && METRIC_EVOLUTION){
+  //   coord_vol_kji_.NewAthenaArray(nc3, nc2, nc1);
+  //   coord_area1_kji_.NewAthenaArray(nc3, nc2, nc1+1);
+  //   coord_area2_kji_.NewAthenaArray(nc3, nc2+1, nc1);
+  //   coord_area3_kji_.NewAthenaArray(nc3+1, nc2, nc1);
+  // }
 
   // Allocate scratch arrays
   AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
