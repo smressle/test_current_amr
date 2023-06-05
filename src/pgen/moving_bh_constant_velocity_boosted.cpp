@@ -1080,6 +1080,26 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
+  AthenaArray<Real> &x1flux = flux[X1DIR];
+  AthenaArray<Real> &x2flux = flux[X2DIR];
+  AthenaArray<Real> &x3flux = flux[X3DIR];
+
+     for (int k=pmb->ks; k<=pmb->ke; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=pmb->js; j<=pmb->je; ++j) {
+      for (int i=pmb->is; i<=pmb->ie; ++i) {
+
+        user_out_var(0,k,j,i) = x3flux(IDN,k,j,i);
+        user_out_var(1,k,j,i) = x3flux(IDN,k+1,j,i);
+
+        user_out_var(2,k,j,i) = x3flux(IPR,k,j,i);
+        user_out_var(3,k,j,i) = x3flux(IPR,k+1,j,i);
+
+
+      }
+    }
+  }
+
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
 
@@ -1156,7 +1176,7 @@ void MeshBlock::UserWorkInLoop(void)
                  + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                  + g(I33,i)*uu3*uu3;
         Real gamma = std::sqrt(1.0 + tmp);
-        user_out_var(0,k,j,i) = gamma;
+        // user_out_var(0,k,j,i) = gamma;
 
         // Calculate 4-velocity
         Real alpha = std::sqrt(-1.0/gi(I00,i));
@@ -1166,10 +1186,10 @@ void MeshBlock::UserWorkInLoop(void)
         Real u3 = uu3 - alpha * gamma * gi(I03,i);
         Real u_0, u_1, u_2, u_3;
 
-        user_out_var(1,k,j,i) = u0;
-        user_out_var(2,k,j,i) = u1;
-        user_out_var(3,k,j,i) = u2;
-        user_out_var(4,k,j,i) = u3;
+        // user_out_var(1,k,j,i) = u0;
+        // user_out_var(2,k,j,i) = u1;
+        // user_out_var(3,k,j,i) = u2;
+        // user_out_var(4,k,j,i) = u3;
         if (not MAGNETIC_FIELDS_ENABLED) {
           continue;
         }
