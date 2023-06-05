@@ -206,7 +206,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
-        if (!coarse_flag or METRIC_EVOLUTION) {
+        if (!coarse_flag) {
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
         }
@@ -240,7 +240,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   }
 
   // Calculate x1-face-centered geometric quantities
-  if (!coarse_flag or METRIC_EVOLUTION) {
+  if (!coarse_flag ) {
     for (int k=kll; k<=kuu; ++k) {
       for (int j=jll; j<=juu; ++j) {
         for (int i=ill; i<=iuu+1; ++i) {
@@ -279,7 +279,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   }
 
   // Calculate x2-face-centered geometric quantities
-  if (!coarse_flag or METRIC_EVOLUTION) {
+  if (!coarse_flag) {
     for (int k=kll; k<=kuu; ++k) {
       for (int j=jll; j<=juu+1; ++j) {
         for (int i=ill; i<=iuu; ++i) {
@@ -318,7 +318,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   }
 
   // Calculate x3-face-centered geometric quantities
-  if (!coarse_flag or METRIC_EVOLUTION) {
+  if (!coarse_flag) {
     for (int k=kll; k<=kuu+1; ++k) {
       for (int j=jll; j<=juu; ++j) {
         for (int i=ill; i<=iuu; ++i) {
