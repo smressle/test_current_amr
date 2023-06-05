@@ -1080,20 +1080,16 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
-  AthenaArray<Real> &x1flux = flux[X1DIR];
-  AthenaArray<Real> &x2flux = flux[X2DIR];
-  AthenaArray<Real> &x3flux = flux[X3DIR];
-
      for (int k=pmb->ks; k<=pmb->ke; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=pmb->js; j<=pmb->je; ++j) {
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-        user_out_var(0,k,j,i) = x3flux(IDN,k,j,i);
-        user_out_var(1,k,j,i) = x3flux(IDN,k+1,j,i);
+        pmb->user_out_var(0,k,j,i) = flux[X3DIR](IDN,k,j,i);
+        pmb->user_out_var(1,k,j,i) = flux[X3DIR](IDN,k+1,j,i);
 
-        user_out_var(2,k,j,i) = x3flux(IPR,k,j,i);
-        user_out_var(3,k,j,i) = x3flux(IPR,k+1,j,i);
+        pmb->user_out_var(2,k,j,i) = flux[X3DIR](IPR,k,j,i);
+        pmb->user_out_var(3,k,j,i) = flux[X3DIR](IPR,k+1,j,i);
 
 
       }
