@@ -1673,25 +1673,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   Mesh *pm = pmy_block->pmy_mesh;
   RegionSize& block_size = pmy_block->block_size;
 
-  // Set indices
-  int il, iu, jl, ju, kl, ku, ng;
-  if (coarse_flag) {
-    il = pmb->cis;
-    iu = pmb->cie;
-    jl = pmb->cjs;
-    ju = pmb->cje;
-    kl = pmb->cks;
-    ku = pmb->cke;
-    ng = pmb->cnghost;
-  } else {
-    il = pmb->is;
-    iu = pmb->ie;
-    jl = pmb->js;
-    ju = pmb->je;
-    kl = pmb->ks;
-    ku = pmb->ke;
-    ng = NGHOST;
-  }
+  // set more indices
   int ill = il - ng;
   int iuu = iu + ng;
   int jll, juu;
@@ -1710,7 +1692,6 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
     kll = kl;
     kuu = ku;
   }
-
   // Allocate arrays for volume-centered coordinates and positions of cells
   int ncells1 = (iu-il+1) + 2*ng;
   int ncells2 = 1, ncells3 = 1;
