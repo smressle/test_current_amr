@@ -80,31 +80,31 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
             dflx(n,i) += (x3area_p1(i)*x3flux(n,k+1,j,i) - x3area(i)*x3flux(n,k,j,i));
 
 
-            if ( (std::abs(pmb->block_size.x3min+75.0)< 1e-1) &&  (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
-              && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
+            // if ( (std::abs(pmb->block_size.x3min+75.0)< 1e-1) &&  (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
+            //   && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
 
-              if (i==is && j==js && k==ks && n==IPR){
-                fprintf(stderr, "coarser grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n Pressure: %g %g %g \n w1: %g %g %g \n",
-                  pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
-                  x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i),
-                  w(IPR,k,j,i),w(IPR,k-1,j,i),w(IPR,k-2,j,i),
-                  w1(IPR,k,j,i),w1(IPR,k-1,j,i),w1(IPR,k-2,j,i));
-              }
+            //   if (i==is && j==js && k==ks && n==IPR){
+            //     fprintf(stderr, "coarser grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n Pressure: %g %g %g \n w1: %g %g %g \n",
+            //       pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
+            //       x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i),
+            //       w(IPR,k,j,i),w(IPR,k-1,j,i),w(IPR,k-2,j,i),
+            //       w1(IPR,k,j,i),w1(IPR,k-1,j,i),w1(IPR,k-2,j,i));
+            //   }
 
-            }
+            // }
 
-            if ( (std::abs(pmb->block_size.x3max+75.0) < 1e-1) && (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
-              && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
+            // if ( (std::abs(pmb->block_size.x3max+75.0) < 1e-1) && (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
+            //   && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
 
-              if (i==is && j==js && k==ke && n==IPR){
-                fprintf(stderr, "finer grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n Pressure: %g %g %g \n w1: %g %g %g \n",
-                  pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
-                  x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i) ,
-                  w(IPR,k,j,i),w(IPR,k+1,j,i),w(IPR,k+2,j,i),
-                  w1(IPR,k,j,i),w1(IPR,k+1,j,i),w1(IPR,k+2,j,i));
-              }
+            //   if (i==is && j==js && k==ke && n==IPR){
+            //     fprintf(stderr, "finer grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n Pressure: %g %g %g \n w1: %g %g %g \n",
+            //       pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
+            //       x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i) ,
+            //       w(IPR,k,j,i),w(IPR,k+1,j,i),w(IPR,k+2,j,i),
+            //       w1(IPR,k,j,i),w1(IPR,k+1,j,i),w1(IPR,k+2,j,i));
+            //   }
 
-            }
+            // }
 
 
           }
