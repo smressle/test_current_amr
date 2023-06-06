@@ -80,8 +80,8 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
             dflx(n,i) += (x3area_p1(i)*x3flux(n,k+1,j,i) - x3area(i)*x3flux(n,k,j,i));
 
 
-            if ( (std::abs(pmb->block_size.x3min-76.875)< 1e-1) &&  (std::abs(pmb->block_size.x2min+6.25)< 1e-1) 
-              && (std::abs(pmb->block_size.x1min+6.25)< 1e-1)  ){
+            if ( (std::abs(pmb->block_size.x3min+75.0)< 1e-1) &&  (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
+              && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
 
               if (i==is && j==js && k==ks && n==IPR){
                 fprintf(stderr, "coarser grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n Pressure: %g %g %g \n w1: %g %g %g \n",
@@ -93,7 +93,7 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
 
             }
 
-            if ( (std::abs(pmb->block_size.x3max-76.875) < 1e-1) && (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
+            if ( (std::abs(pmb->block_size.x3max+75.0) < 1e-1) && (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
               && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
 
               if (i==is && j==js && k==ke && n==IPR){
