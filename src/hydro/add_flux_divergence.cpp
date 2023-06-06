@@ -78,6 +78,31 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
 #pragma omp simd
           for (int i=is; i<=ie; ++i) {
             dflx(n,i) += (x3area_p1(i)*x3flux(n,k+1,j,i) - x3area(i)*x3flux(n,k,j,i));
+
+
+            if ( (std::abs(pmb->block_size.x3min-76.875)< 1e-1) && (std::abs(pmb->block_size.x2min+6.25)< 1e-1) 
+              && (std::abs(pmb->block_size.x1min+6.25)< 1e-1)  ){
+
+              if (i==is && j==js && k==ks && n==IPR){
+                fprintf(stderr, "coarser grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n",
+                  pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
+                  x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i), );
+              }
+
+            }
+
+            if ( (std::abs(pmb->block_size.x3max-76.875) < 1e-1) (std::abs(pmb->block_size.x2min+3.125)< 1e-1) 
+              && (std::abs(pmb->block_size.x1min+3.125)< 1e-1)  ){
+
+              if (i==is && j==js && k==ke && n==IPR){
+                fprintf(stderr, "finer grid at xyz: %g %g %g \n x3 pressure flux: %g %g \n area: %g %g \n",
+                  pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),
+                  x3flux(n,k+1,j,i),x3flux(n,k,j,i),x3area_p1(i),x3area(i), );
+              }
+
+            }
+
+
           }
         }
       }
