@@ -79,6 +79,8 @@ class MeshRefinement {
   // for switching first entry in pvars_cc_ to/from: (w, coarse_prim); (u, coarse_cons_)
   void SetHydroRefinement(HydroBoundaryQuantity hydro_type);
 
+  void UpdateCoarseMetric(Real t, MeshBlock *pmb);
+
  private:
   // data
   MeshBlock *pmy_block_;

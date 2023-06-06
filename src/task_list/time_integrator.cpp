@@ -1792,7 +1792,7 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
                            // Scaled coefficient for RHS update
     // if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(pmb->pmy_mesh->metric_time,pmb);
    if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(t_end_stage,pmb);
-   if (METRIC_EVOLUTION) pmb->pmr->pcoarsec->UpdateUserMetric(t_end_stage,pmb);
+   if (METRIC_EVOLUTION) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb);
 
 
   } else {
