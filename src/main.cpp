@@ -481,9 +481,8 @@ int main(int argc, char *argv[]) {
     while (ptype != nullptr) {
 
       if (ptype->output_params.file_type == "rst"){
-        if (wtflag || (ptype->output_params.dt > 0.0 && pm->time+pmesh->dt >= ptype->output_params.next_time) 
-                   || (ptype->output_params.dcycle > 0 && (pm->ncycle+1)%ptype->output_params.dcycle == 0)  ){
-
+        if ((ptype->output_params.dt > 0.0 && pmesh->time+pmesh->dt >= ptype->output_params.next_time) 
+                   || (ptype->output_params.dcycle > 0 && (pmesh->ncycle+1)%ptype->output_params.dcycle == 0)  ){
 
                 pmesh->update_metric_this_timestep = true;
           }
@@ -494,19 +493,6 @@ int main(int argc, char *argv[]) {
 
       ptype = ptype->pnext_type;
     }
-
-    if (((pm->time == pm->start_time) // output initial conditions, unless next_time set
-         && (ptype->output_params.next_time <= pm->start_time ))
-      || (ptype->output_params.dt > 0.0 && pm->time >= ptype->output_params.next_time)
-      || (ptype->output_params.dcycle > 0 && pm->ncycle%ptype->output_params.dcycle == 0)
-      || (pm->time >= pm->tlim)
-      || (wtflag && ptype->output_params.file_type == "rst")) {
-
-      ptype->WriteOutputFile(pm, pin, wtflag);
-    }
-    ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
-  }
-}
 
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
