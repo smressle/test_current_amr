@@ -101,6 +101,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     muj(), nuj(), muj_tilde(), gammaj_tilde(),
     nbnew(), nbdel(),
     step_since_lb(), gflag(), turb_flag(), amr_updated(multilevel),
+    update_metric_this_timestep(false),
     // private members:
     next_phys_id_(), num_mesh_threads_(pin->GetOrAddInteger("mesh", "num_threads", 1)),
     gids_(), gide_(),
@@ -597,6 +598,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     muj(), nuj(), muj_tilde(), gammaj_tilde(),
     nbnew(), nbdel(),
     step_since_lb(), gflag(), turb_flag(), amr_updated(multilevel),
+    update_metric_this_timestep(false),
     // private members:
     next_phys_id_(), num_mesh_threads_(pin->GetOrAddInteger("mesh", "num_threads", 1)),
     gids_(), gide_(),

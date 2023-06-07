@@ -472,8 +472,45 @@ int main(int argc, char *argv[]) {
 
     if (pmesh->turb_flag > 1) pmesh->ptrbd->Driving(); // driven turbulence
 
+    if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) {
+        pmesh->update_metric_this_timestep = true;
+    }
+
+
+    OutputType* ptype = pouts->pfirst_type_;
+    while (ptype != nullptr) {
+
+      if (ptype->output_params.file_type == "rst"){
+        if (wtflag || (ptype->output_params.dt > 0.0 && pm->time+pmesh->dt >= ptype->output_params.next_time) 
+                   || (ptype->output_params.dcycle > 0 && (pm->ncycle+1)%ptype->output_params.dcycle == 0)  ){
+
+
+                pmesh->update_metric_this_timestep = true;
+          }
+
+
+      }
+
+
+      ptype = ptype->pnext_type;
+    }
+
+    if (((pm->time == pm->start_time) // output initial conditions, unless next_time set
+         && (ptype->output_params.next_time <= pm->start_time ))
+      || (ptype->output_params.dt > 0.0 && pm->time >= ptype->output_params.next_time)
+      || (ptype->output_params.dcycle > 0 && pm->ncycle%ptype->output_params.dcycle == 0)
+      || (pm->time >= pm->tlim)
+      || (wtflag && ptype->output_params.file_type == "rst")) {
+
+      ptype->WriteOutputFile(pm, pin, wtflag);
+    }
+    ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
+  }
+}
+
+
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
-      pmesh->UserWorkInLoop(); //DELETE THIS...ONLY FOR DIAGNOSTICS
+      // pmesh->UserWorkInLoop(); //DELETE THIS...ONLY FOR DIAGNOSTICS
       ptlist->DoTaskListOneStage(pmesh, stage);
       if (ptlist->CheckNextMainStage(stage)) {
         if (SELF_GRAVITY_ENABLED == 1) // fft (0: discrete kernel, 1: continuous kernel)
@@ -488,6 +525,11 @@ int main(int argc, char *argv[]) {
       // take super-timestep
       for (int stage=1; stage<=pststlist->nstages; ++stage)
         pststlist->DoTaskListOneStage(pmesh, stage);
+    }
+
+    if (update_metric_this_timestep){
+      pmesh->metric_time = pmesh->time;
+      update_metric_this_timestep = false;
     }
 
     pmesh->UserWorkInLoop();

@@ -239,6 +239,7 @@ class Mesh {
   int gflag;
   int turb_flag; // turbulence flag
   bool amr_updated;
+  bool update_metric_this_timestep;
   EosTable *peos_table;
 
   AthenaArray<MeshBlock*> my_blocks;
