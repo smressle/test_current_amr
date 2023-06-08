@@ -1084,3 +1084,24 @@ bool OutputType::ContainVariable(const std::string &haystack, const std::string 
     return true;
   return false;
 }
+
+bool OutputType::output_rst_next_timestep(Mesh *pm){
+
+    OutputType* ptype = pfirst_type_;
+    while (ptype != nullptr) {
+      if (ptype->output_params.file_type == "rst"){
+        if ((ptype->output_params.dt > 0.0 && pmesh->time+pm->dt >= ptype->output_params.next_time) 
+                   || (ptype->output_params.dcycle > 0 && (pm->ncycle+1)%ptype->output_params.dcycle == 0)  ){
+
+            return true;
+          }
+
+
+      }
+
+
+      ptype = ptype->pnext_type;
+    }
+
+    return false;
+}

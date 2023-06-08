@@ -477,23 +477,9 @@ int main(int argc, char *argv[]) {
     }
 
 
-    OutputType* ptype = pouts->pfirst_type_;
-    while (ptype != nullptr) {
+    bool output_rst_next_time = pouts->output_rst_next_timestep();
 
-      if (ptype->output_params.file_type == "rst"){
-        if ((ptype->output_params.dt > 0.0 && pmesh->time+pmesh->dt >= ptype->output_params.next_time) 
-                   || (ptype->output_params.dcycle > 0 && (pmesh->ncycle+1)%ptype->output_params.dcycle == 0)  ){
-
-                pmesh->update_metric_this_timestep = true;
-          }
-
-
-      }
-
-
-      ptype = ptype->pnext_type;
-    }
-
+    if (pouts->output_rst_next_timestep()==true) pmesh->update_metric_this_timestep = true;
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
       // pmesh->UserWorkInLoop(); //DELETE THIS...ONLY FOR DIAGNOSTICS
