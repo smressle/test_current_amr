@@ -477,7 +477,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    if (pouts->output_rst_next_timestep()==true) pmesh->update_metric_this_timestep = true;
+    if (pouts->output_rst_next_timestep(pmesh)==true) pmesh->update_metric_this_timestep = true;
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {
       // pmesh->UserWorkInLoop(); //DELETE THIS...ONLY FOR DIAGNOSTICS
