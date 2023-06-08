@@ -295,20 +295,20 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   if (max_second_bh_refinement_level>0) max_second_bh_refinement_level = max_second_bh_refinement_level -1;
   if (max_smr_refinement_level>0) max_smr_refinement_level = max_smr_refinement_level - 1;
 
-  // // Enroll boundary functions
-  // EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
-  // EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
-  // EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
-  // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
-  // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
-  // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
+  // Enroll boundary functions
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
 
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, FixedBoundary);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, FixedBoundary);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, FixedBoundary);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, FixedBoundary);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, FixedBoundary);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x1, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x1, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x2, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, FixedBoundary);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, FixedBoundary);
 
     //Enroll metric
   EnrollUserMetric(Cartesian_GR);
@@ -2851,13 +2851,13 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,is-i)>0) prim(IVX,k,j,is-i)=0;
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         if (prim(IVX,k,j,is-i)>0) prim(IVX,k,j,is-i)=0;
+//       }
+//     }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2909,13 +2909,13 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,ie+i)<0) prim(IVX,k,j,ie+i)=0;
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         if (prim(IVX,k,j,ie+i)<0) prim(IVX,k,j,ie+i)=0;
+//       }
+//     }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2967,13 +2967,13 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVY,k,js-j,i)>0) prim(IVY,k,js-j,i)=0;
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         if (prim(IVY,k,js-j,i)>0) prim(IVY,k,js-j,i)=0;
+//       }
+//     }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3025,13 +3025,13 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVY,k,je+j,i)<0) prim(IVY,k,je+j,i)=0;
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         if (prim(IVY,k,je+j,i)<0) prim(IVY,k,je+j,i)=0;
+//       }
+//     }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3083,13 +3083,13 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVZ,ks-k,j,i)>0) prim(IVZ,ks-k,j,i)=0;
-      }
-    }}
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         if (prim(IVZ,ks-k,j,i)>0) prim(IVZ,ks-k,j,i)=0;
+//       }
+//     }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3141,14 +3141,14 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   }
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVZ,ke+k,j,i)<0) prim(IVZ,ke+k,j,i)=0;
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         if (prim(IVZ,ke+k,j,i)<0) prim(IVZ,ke+k,j,i)=0;
 
-      }
-    }}
+//       }
+//     }}
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
     for (int k=1; k<=ngh; ++k) {
