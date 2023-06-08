@@ -317,7 +317,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (MAGNETIC_FIELDS_ENABLED) AllocateUserHistoryOutput(1);
 
-  (if MAGNETIC_FIELDS_ENABLED) EnrollUserHistoryOutput(0, DivergenceB, "divB");
+  if (MAGNETIC_FIELDS_ENABLED) EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
