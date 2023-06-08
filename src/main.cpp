@@ -477,8 +477,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-    bool output_rst_next_time = pouts->output_rst_next_timestep();
-
     if (pouts->output_rst_next_timestep()==true) pmesh->update_metric_this_timestep = true;
 
     for (int stage=1; stage<=ptlist->nstages; ++stage) {

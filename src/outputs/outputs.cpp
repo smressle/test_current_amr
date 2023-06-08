@@ -1085,7 +1085,7 @@ bool OutputType::ContainVariable(const std::string &haystack, const std::string 
   return false;
 }
 
-bool OutputType::output_rst_next_timestep(Mesh *pm){
+bool Outputs::output_rst_next_timestep(Mesh *pm){
 
     OutputType* ptype = pfirst_type_;
     while (ptype != nullptr) {
@@ -1096,9 +1096,7 @@ bool OutputType::output_rst_next_timestep(Mesh *pm){
             return true;
           }
 
-
       }
-
 
       ptype = ptype->pnext_type;
     }
