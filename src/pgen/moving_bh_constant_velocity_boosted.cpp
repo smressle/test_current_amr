@@ -330,6 +330,27 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   return;
 }
 
+
+
+    static Real exp_cut_off(Real r){
+
+      if (r<=rh2) return 0.0;
+      else if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
+      else return 1.0;
+    }
+
+    static Real Ax_func(Real x,Real y, Real z){
+
+      return (z  ) * field_norm;  //x 
+    }
+    static Real Ay_func(Real x, Real y, Real z){
+      return 0.0 * field_norm;  //x 
+    }
+    static Real Az_func(Real x, Real y, Real z){
+      return 0.0 * field_norm;
+    }
+
+
 //----------------------------------------------------------------------------------------
 // Function for preparing MeshBlock
 // Inputs:
@@ -589,7 +610,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
           Real beta_init = 5.0;
           Real B_const = 0.0;
-          
+
         if (MAGNETIC_FIELDS_ENABLED)
             Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
                      + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
@@ -646,38 +667,205 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
 
-  // Initialize magnetic fields
+
+    // Initialize magnetic field
   if (MAGNETIC_FIELDS_ENABLED) {
 
+
+
+
+    int ncells1 = block_size.nx1 + 2*(NGHOST);
+    int ncells2 = 1, ncells3 = 1;
+    if (block_size.nx2 > 1) ncells2 = block_size.nx2 + 2*(NGHOST);
+    if (block_size.nx3 > 1) ncells3 = block_size.nx3 + 2*(NGHOST);
+
+    AthenaArray<Real> A3,A1,A2;
+
+    A1.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+    A2.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+    A3.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+
       // Set B^1
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-              pfield->b.x1f(k,j,i) = B_const;
-            }
-          }
-        }
-      
-      // Set B^2
-      for (int k = kl; k <= ku; ++k) {
+      for (int k = kl; k <= ku+1; ++k) {
         for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu; ++i) {
-              pfield->b.x2f(k,j,i) = 0.0;
+          for (int i = il; i <= iu+1; ++i) {
+
+            //A1 defined at cell center in x1 but face in x2 x3, 
+            //A2 defined at cell center in x2 but face in x1 x3,
+            //A3 defined at cell center in x3 but face in x1 x2
+
+            Real rprime,xprime,zprime,yprime,Rprime;
+            Real x_coord;
+            if (i<= iu) x_coord = pcoord->x1v(i);
+            else x_coord = pcoord->x1v(iu) + pcoord->dx1v(iu);
+
+            get_prime_coords(x_coord,pcoord->x2f(j),pcoord->x3f(k), pmy_mesh->t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+            Real Ax = Ax_func(xprime,yprime,zprime);
+            Real Ay = Ay_func(xprime,yprime,zprime);
+            Real Az = Az_func(xprime,yprime,zprime);
+
+            // Real Ar,Ath,Aphi,A0;;
+
+
+            A1(k,j,i) = Ax * exp_cut_off(rprime);
+
+            Real y_coord;
+            if (j<= ju) y_coord = pcoord->x2v(j);
+            else y_coord = pcoord->x2v(ju) + pcoord->dx2v(ju);
+
+            get_prime_coords(pcoord->x1f(i),y_coord,pcoord->x3f(k), pmy_mesh->t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Ax = Ax_func(xprime,yprime,zprime) ;
+            Ay = Ay_func(xprime,yprime,zprime) ;
+            Az = Az_func(xprime,yprime,zprime) ;
+
+            A2(k,j,i) = Ay * exp_cut_off(rprime);
+
+            Real z_coord;
+            if (k<= ku) z_coord = pcoord->x3v(k);
+            else z_coord = pcoord->x3v(ku) + pcoord->dx3v(ku);
+            get_prime_coords(pcoord->x1f(i),pcoord->x2f(j),z_coord, pmy_mesh->t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Ax = Ax_func(xprime,yprime,zprime) ;
+            Ay = Ay_func(xprime,yprime,zprime) ;
+            Az = Az_func(xprime,yprime,zprime) ;
+            //TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
+
+            A3(k,j,i) = Az * exp_cut_off(rprime);
+
+
+
             }
           }
         }
+
+
+      // Initialize interface fields
+    AthenaArray<Real> area;
+    area.NewAthenaArray(ncells1+1);
+
+    // for 1,2,3-D
+    for (int k=kl; k<=ku; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        pcoord->Face2Area(k,j,il,iu,area);
+        for (int i=il; i<=iu; ++i) {
+          pfield->b.x2f(k,j,i) = -1.0*(pcoord->dx3f(k)*A3(k,j,i+1) - pcoord->dx3f(k)*A3(k,j,i))/area(i);
+          if (area(i)==0.0) pfield->b.x2f(k,j,i) = 0;
+          //if (j==ju) fprintf(stderr,"B: %g area: %g theta: %g j: %d A3: %g %g \n",pfield->b.x2f(k,j,i), area(i),pcoord->x2f(j),j, 
+           // A3(k,j,i+1), A3(k,j,i));
+
+          if (std::isnan((pfield->b.x2f(k,j,i)))) fprintf(stderr,"isnan in bx2!\n");
+        }
+      }
+    }
+    for (int k=kl; k<=ku+1; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        pcoord->Face3Area(k,j,il,iu,area);
+        for (int i=il; i<=iu; ++i) {
+          pfield->b.x3f(k,j,i) = (pcoord->dx2f(j)*A2(k,j,i+1) - pcoord->dx2f(j)*A2(k,j,i))/area(i);
+          //if (area(i)==0) pfield->b.x3f(k,j,i) = 0.0;
+
+          if (std::isnan((pfield->b.x3f(k,j,i)))){
+
+           fprintf(stderr,"isnan in bx3!\n A2: %g %g \n area: %g dx2f: %g \n", A2(k,j,i+1),A2(k,j,i),area(i),pcoord->dx2f(j));
+           exit(0);
+         }
+        }
+      }
+    }
+
+    // for 2D and 3D
+    if (block_size.nx2 > 1) {
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face1Area(k,j,il,iu+1,area);
+          for (int i=il; i<=iu+1; ++i) {
+            pfield->b.x1f(k,j,i) = (pcoord->dx3f(k)*A3(k,j+1,i) - pcoord->dx3f(k)*A3(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x1f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x1f(k,j,i)))) fprintf(stderr,"isnan in bx1!\n");
+          }
+        }
+      }
+      for (int k=kl; k<=ku+1; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face3Area(k,j,il,iu,area);
+          for (int i=il; i<=iu; ++i) {
+            pfield->b.x3f(k,j,i) -= (pcoord->dx1f(i)*A1(k,j+1,i) - pcoord->dx1f(i)*A1(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x3f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x3f(k,j,i)))) {
+              fprintf(stderr,"isnan in bx3!\n A1: %g %g \n area: %g dx1f: %g \n", A1(k,j+1,i),A1(k,j,i),area(i),pcoord->dx1f(i));
+              exit(0);
+            }
+          }
+        }
+      }
+    }
+    // for 3D only
+    if (block_size.nx3 > 1) {
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face1Area(k,j,il,iu+1,area);
+          for (int i=il; i<=iu+1; ++i) {
+            pfield->b.x1f(k,j,i) -= (pcoord->dx2f(j)*A2(k+1,j,i) - pcoord->dx2f(j)*A2(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x1f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x1f(k,j,i)))) fprintf(stderr,"isnan in bx1!\n");
+          }
+        }
+      }
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face2Area(k,j,il,iu,area);
+          for (int i=il; i<=iu; ++i) {
+            pfield->b.x2f(k,j,i) += (pcoord->dx1f(i)*A1(k+1,j,i) - pcoord->dx1f(i)*A1(k,j,i))/area(i);
+            if (area(i)==0.0) pfield->b.x2f(k,j,i) = 0;
+            if (std::isnan((pfield->b.x2f(k,j,i)))) fprintf(stderr,"isnan in bx2!\n");
+            //if ( ju==je && j==je) fprintf(stderr,"B: %g area: %g theta: %g j: %d A1: %g %g \n",pfield->b.x2f(k,j,i), area(i),pcoord->x2f(j),j, 
+            //A1_bound(k+1,j,i), A1_bound(k,j,i));
+          }
+        }
+      }
+    }
+
+    area.DeleteAthenaArray();
+    A1.DeleteAthenaArray();
+    A2.DeleteAthenaArray();
+    A3.DeleteAthenaArray();
+
+
+  }
+
+
+  // // Initialize magnetic fields
+  // if (MAGNETIC_FIELDS_ENABLED) {
+
+  //     // Set B^1
+  //     for (int k = kl; k <= ku; ++k) {
+  //       for (int j = jl; j <= ju; ++j) {
+  //         for (int i = il; i <= iu+1; ++i) {
+  //             pfield->b.x1f(k,j,i) = B_const;
+  //           }
+  //         }
+  //       }
+      
+  //     // Set B^2
+  //     for (int k = kl; k <= ku; ++k) {
+  //       for (int j = jl; j <= ju+1; ++j) {
+  //         for (int i = il; i <= iu; ++i) {
+  //             pfield->b.x2f(k,j,i) = 0.0;
+  //           }
+  //         }
+  //       }
       
 
-      // Set B^3
-      for (int k = kl; k <= ku+1; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-              pfield->b.x3f(k,j,i) = 0.0;
-            }
-          }
-        }
+  //     // Set B^3
+  //     for (int k = kl; k <= ku+1; ++k) {
+  //       for (int j = jl; j <= ju; ++j) {
+  //         for (int i = il; i <= iu; ++i) {
+  //             pfield->b.x3f(k,j,i) = 0.0;
+  //           }
+  //         }
+  //       }
       
-    }
+  //   }
 
   // Calculate cell-centered magnetic field
   AthenaArray<Real> bb;

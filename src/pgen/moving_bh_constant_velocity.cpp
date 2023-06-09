@@ -379,6 +379,24 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   return;
 }
 
+    static Real exp_cut_off(Real r){
+
+      if (r<=rh) return 0.0;
+      else if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
+      else return 1.0;
+    }
+
+    static Real Ax_func(Real x,Real y, Real z){
+
+      return (z  ) * field_norm;  //x 
+    }
+    static Real Ay_func(Real x, Real y, Real z){
+      return 0.0 * field_norm;  //x 
+    }
+    static Real Az_func(Real x, Real y, Real z){
+      return 0.0 * field_norm;
+    }
+
 
 int RefinementCondition(MeshBlock *pmb)
 {
