@@ -143,7 +143,7 @@ static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
 static Real rho0,press0;
-static Real field_norm;  
+static Real field_norm,r_cut;  
 
 
 // Real rotation_matrix[3][3];
@@ -229,6 +229,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   rho0 = 1.0;
   press0 = 1.0;
+  r_cut = 5.0
   if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
   rho_min = pin->GetReal("hydro", "rho_min");
@@ -625,7 +626,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real ut,ux,uy,uz,uu1,uu2,uu3;
 
-        if (r>5.0){
+        if (r>r_cut){
             ut = std::sqrt(-1.0/denom);
 
             ux = 0.0;
