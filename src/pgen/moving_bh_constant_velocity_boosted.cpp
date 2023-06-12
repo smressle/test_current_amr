@@ -146,6 +146,9 @@ static Real v_bh2;
 static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
+static Real rho0,press0;
+static Real field_norm;  
+
 
 // Real rotation_matrix[3][3];
 
@@ -226,6 +229,12 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 
 
 void Mesh::InitUserMeshData(ParameterInput *pin) {
+
+
+  rho0 = 1.0;
+  press0 = 0.0;
+  if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
+
   // Read problem-specific parameters from input file
   rho_min = pin->GetReal("hydro", "rho_min");
   rho_pow = pin->GetReal("hydro", "rho_pow");
@@ -592,8 +601,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       pcoord->CellMetric(k, j, il, iu, g, gi);
       for (int i = il; i <= iu; ++i) {
 
-        Real rho = 1.0;
-        Real pgas = 1e-3;
+        Real rho = rho0;
+        Real pgas = press0;
         Real uu1 = 0.0;
         Real uu2 = 0.0;
         Real uu3 = 0.0;
@@ -608,47 +617,47 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           pgas = 0.0;
         }
 
-          Real beta_init = 5.0;
-          Real B_const = 0.0;
+       //    Real beta_init = 5.0;
+       //    Real B_const = 0.0;
 
-        if (MAGNETIC_FIELDS_ENABLED)
-            Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                     + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                     + g(I33,i)*uu3*uu3;
-            Real gamma = std::sqrt(1.0 + tmp);
-            // user_out_var(0,k,j,i) = gamma;
+       //  if (MAGNETIC_FIELDS_ENABLED)
+       //      Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+       //               + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+       //               + g(I33,i)*uu3*uu3;
+       //      Real gamma = std::sqrt(1.0 + tmp);
+       //      // user_out_var(0,k,j,i) = gamma;
 
-            // Calculate 4-velocity
-            Real alpha = std::sqrt(-1.0/gi(I00,i));
-            Real u0 = gamma/alpha;
-            Real u1 = uu1 - alpha * gamma * gi(I01,i);
-            Real u2 = uu2 - alpha * gamma * gi(I02,i);
-            Real u3 = uu3 - alpha * gamma * gi(I03,i);
-            Real u_0, u_1, u_2, u_3;
+       //      // Calculate 4-velocity
+       //      Real alpha = std::sqrt(-1.0/gi(I00,i));
+       //      Real u0 = gamma/alpha;
+       //      Real u1 = uu1 - alpha * gamma * gi(I01,i);
+       //      Real u2 = uu2 - alpha * gamma * gi(I02,i);
+       //      Real u3 = uu3 - alpha * gamma * gi(I03,i);
+       //      Real u_0, u_1, u_2, u_3;
 
-            pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+       //      pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
-            // Calculate 4-magnetic field
-            Real bb1 = 0.0;
-            Real bb2 = 0.1;
-            Real bb3 = 0.0;
-            Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                    + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                    + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                    + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-            Real b1 = (bb1 + b0 * u1) / u0;
-            Real b2 = (bb2 + b0 * u2) / u0;
-            Real b3 = (bb3 + b0 * u3) / u0;
-            Real b_0, b_1, b_2, b_3;
-            pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+       //      // Calculate 4-magnetic field
+       //      Real bb1 = 0.0;
+       //      Real bb2 = 0.1;
+       //      Real bb3 = 0.0;
+       //      Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+       //              + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+       //              + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+       //              + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+       //      Real b1 = (bb1 + b0 * u1) / u0;
+       //      Real b2 = (bb2 + b0 * u2) / u0;
+       //      Real b3 = (bb3 + b0 * u3) / u0;
+       //      Real b_0, b_1, b_2, b_3;
+       //      pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-            // Calculate magnetic pressure
-            Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+       //      // Calculate magnetic pressure
+       //      Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
-            Real beta_act = pgas / b_sq * 2.0;
+       //      Real beta_act = pgas / b_sq * 2.0;
 
-            B_const = std::sqrt(beta_act/beta_init*b_sq);
-       }
+       //      B_const = std::sqrt(beta_act/beta_init*b_sq);
+       // }
 
 
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
@@ -2539,23 +2548,19 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        prim(n,k,j,is-i) = prim(n,k,j,is);
-      }
-    }}
-  }
+        prim(IDN,k,j,is-i) = rho0;
+        prim(IPR,k,j,is-i) = press0;
+        prim(IVX,k,j,is-i) = 0.0;
+        prim(IVY,k,j,is-i) = 0.0;
+        prim(IVZ,k,j,is-i) = 0.0;
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,is-i)>0) prim(IVX,k,j,is-i)=0;
       }
     }}
+  
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2597,23 +2602,18 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        prim(n,k,j,ie+i) = prim(n,k,j,ie);
+        prim(IDN,k,j,ie+i) = rho0;
+        prim(IPR,k,j,ie+i) = press0;
+        prim(IVX,k,j,ie+i) = 0.0;
+        prim(IVY,k,j,ie+i) = 0.0;
+        prim(IVZ,k,j,ie+i) = 0.0;
       }
     }}
-  }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,ie+i)<0) prim(IVX,k,j,ie+i)=0;
-      }
-    }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2655,23 +2655,18 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        prim(n,k,js-j,i) = prim(n,k,js,i);
+        prim(IDN,k,js-j,i) = rho0;
+        prim(IPR,k,js-j,i) = press0;
+        prim(IVX,k,js-j,i) = 0.0;
+        prim(IVY,k,js-j,i) = 0.0;
+        prim(IVZ,k,js-j,i) = 0.0;
       }
     }}
-  }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVY,k,js-j,i)>0) prim(IVY,k,js-j,i)=0;
-      }
-    }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2713,23 +2708,18 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        prim(n,k,je+j,i) = prim(n,k,je,i);
+        prim(IDN,k,je+j,i) = rho0;
+        prim(IPR,k,je+j,i) = press0;
+        prim(IVX,k,je+j,i) = 0.0;
+        prim(IVY,k,je+j,i) = 0.0;
+        prim(IVZ,k,je+j,i) = 0.0;
       }
     }}
-  }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVY,k,je+j,i)<0) prim(IVY,k,je+j,i)=0;
-      }
-    }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2771,23 +2761,18 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        prim(n,ks-k,j,i) = prim(n,ks,j,i);
+        prim(IDN,ks-k,j,i) = rho0;
+        prim(IPR,ks-k,j,i) = press0;
+        prim(IVX,ks-k,j,i) = 0.0;
+        prim(IVY,ks-k,j,i) = 0.0;
+        prim(IVZ,ks-k,j,i) = 0.0;
       }
     }}
-  }
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVZ,ks-k,j,i)>0) prim(IVZ,ks-k,j,i)=0;
-      }
-    }}
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -2829,24 +2814,18 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        prim(n,ke+k,j,i) = prim(n,ke,j,i);
+        prim(IDN,ke+k,j,i) = rho0;
+        prim(IPR,ke+k,j,i) = press0;
+        prim(IVX,ke+k,j,i) = 0.0;
+        prim(IVY,ke+k,j,i) = 0.0;
+        prim(IVZ,ke+k,j,i) = 0.0;
       }
     }}
-  }
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        if (prim(IVZ,ke+k,j,i)<0) prim(IVZ,ke+k,j,i)=0;
-
-      }
-    }}
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
     for (int k=1; k<=ngh; ++k) {
