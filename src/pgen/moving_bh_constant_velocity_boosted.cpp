@@ -852,8 +852,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     A2.DeleteAthenaArray();
     A3.DeleteAthenaArray();
 
-
-          }
       for (int k=kl; k<=ku+1; ++k) {
         for (int j=jl; j<=ju+1; ++j) {
           for (int i=il; i<=iu+1; ++i) {
