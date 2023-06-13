@@ -411,9 +411,9 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   if (block_size.nx3 > 1) ncells3 = block_size.nx3 + 2*(NGHOST);
 
 
-  ruser_meshblock_data[2].NewAthenaArray(ncells3,ncells2,ncells1);
-  ruser_meshblock_data[3].NewAthenaArray(ncells3,ncells2,ncells1);
-  ruser_meshblock_data[4].NewAthenaArray(ncells3,ncells2,ncells1);
+  // ruser_meshblock_data[2].NewAthenaArray(ncells3,ncells2,ncells1);
+  // ruser_meshblock_data[3].NewAthenaArray(ncells3,ncells2,ncells1);
+  // ruser_meshblock_data[4].NewAthenaArray(ncells3,ncells2,ncells1);
 
 
 
@@ -852,17 +852,17 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     A2.DeleteAthenaArray();
     A3.DeleteAthenaArray();
 
-      for (int k=kl; k<=ku+1; ++k) {
-        for (int j=jl; j<=ju+1; ++j) {
-          for (int i=il; i<=iu+1; ++i) {
+      // for (int k=kl; k<=ku+1; ++k) {
+      //   for (int j=jl; j<=ju+1; ++j) {
+      //     for (int i=il; i<=iu+1; ++i) {
 
-            if (j<ju+1 && k<ku+1) ruser_meshblock_data[2](k,j,i) = pfield->b.x1f(k,j,i) ;
-            if (i<iu+1 && k<ku+1) ruser_meshblock_data[3](k,j,i) = pfield->b.x2f(k,j,i) ;
-            if (i<iu+1 && j<ju+1) ruser_meshblock_data[4](k,j,i) = pfield->b.x3f(k,j,i) ;
+      //       if (j<ju+1 && k<ku+1) ruser_meshblock_data[2](k,j,i) = pfield->b.x1f(k,j,i) ;
+      //       if (i<iu+1 && k<ku+1) ruser_meshblock_data[3](k,j,i) = pfield->b.x2f(k,j,i) ;
+      //       if (i<iu+1 && j<ju+1) ruser_meshblock_data[4](k,j,i) = pfield->b.x3f(k,j,i) ;
 
-          }
-        }
-      }
+      //     }
+      //   }
+      // }
 
 
   }
@@ -2587,32 +2587,32 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
   
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(is-i)) = pmb->ruser_meshblock_data[2](k,j,(is-i));
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x1f(k,j,(is-i)) = pmb->ruser_meshblock_data[2](k,j,(is-i));
+//       }
+//     }}
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je+1; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(is-i)) = pmb->ruser_meshblock_data[3](k,j,(is-i));
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je+1; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x2f(k,j,(is-i)) = pmb->ruser_meshblock_data[3](k,j,(is-i));
+//       }
+//     }}
 
-    for (int k=ks; k<=ke+1; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(is-i)) = pmb->ruser_meshblock_data[4](k,j,(is-i));
-      }
-    }}
-  }
+//     for (int k=ks; k<=ke+1; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x3f(k,j,(is-i)) = pmb->ruser_meshblock_data[4](k,j,(is-i));
+//       }
+//     }}
+//   }
 
   return;
 }
@@ -2640,32 +2640,32 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
 
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(ie+i+1)) = pmb->ruser_meshblock_data[2](k,j,(ie+i+1));
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x1f(k,j,(ie+i+1)) = pmb->ruser_meshblock_data[2](k,j,(ie+i+1));
+//       }
+//     }}
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je+1; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(ie+i)) = pmb->ruser_meshblock_data[3](k,j,(ie+i));
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=js; j<=je+1; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x2f(k,j,(ie+i)) = pmb->ruser_meshblock_data[3](k,j,(ie+i));
+//       }
+//     }}
 
-    for (int k=ks; k<=ke+1; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(ie+i)) = pmb->ruser_meshblock_data[4](k,j,(ie+i));
-      }
-    }}
-  }
+//     for (int k=ks; k<=ke+1; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=1; i<=ngh; ++i) {
+//         b.x3f(k,j,(ie+i)) = pmb->ruser_meshblock_data[4](k,j,(ie+i));
+//       }
+//     }}
+//   }
 
   return;
 }
@@ -2693,32 +2693,32 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
 
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(js-j),i) = pmb->ruser_meshblock_data[2](k,(js-j),i);
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie+1; ++i) {
+//         b.x1f(k,(js-j),i) = pmb->ruser_meshblock_data[2](k,(js-j),i);
+//       }
+//     }}
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(js-j),i) = pmb->ruser_meshblock_data[3](k,(js-j),i);
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x2f(k,(js-j),i) = pmb->ruser_meshblock_data[3](k,(js-j),i);
+//       }
+//     }}
 
-    for (int k=ks; k<=ke+1; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(js-j),i) = pmb->ruser_meshblock_data[4](k,(js-j),i);
-      }
-    }}
-  }
+//     for (int k=ks; k<=ke+1; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x3f(k,(js-j),i) = pmb->ruser_meshblock_data[4](k,(js-j),i);
+//       }
+//     }}
+//   }
 
   return;
 }
@@ -2746,32 +2746,32 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
 
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(je+j  ),i) = pmb->ruser_meshblock_data[2](k,(je+j  ),i);
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie+1; ++i) {
+//         b.x1f(k,(je+j  ),i) = pmb->ruser_meshblock_data[2](k,(je+j  ),i);
+//       }
+//     }}
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(je+j+1),i) = pmb->ruser_meshblock_data[3](k,(je+j+1),i);
-      }
-    }}
+//     for (int k=ks; k<=ke; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x2f(k,(je+j+1),i) = pmb->ruser_meshblock_data[3](k,(je+j+1),i);
+//       }
+//     }}
 
-    for (int k=ks; k<=ke+1; ++k) {
-    for (int j=1; j<=ngh; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(je+j  ),i) = pmb->ruser_meshblock_data[4](k,(je+j  ),i);
-      }
-    }}
-  }
+//     for (int k=ks; k<=ke+1; ++k) {
+//     for (int j=1; j<=ngh; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x3f(k,(je+j  ),i) = pmb->ruser_meshblock_data[4](k,(je+j  ),i);
+//       }
+//     }}
+//   }
 
   return;
 }
@@ -2799,32 +2799,32 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     }}
 
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ks-k),j,i) = pmb->ruser_meshblock_data[2]((ks-k),j,i);
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie+1; ++i) {
+//         b.x1f((ks-k),j,i) = pmb->ruser_meshblock_data[2]((ks-k),j,i);
+//       }
+//     }}
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je+1; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x2f((ks-k),j,i) = pmb->ruser_meshblock_data[3]((ks-k),j,i);
-      }
-    }}
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je+1; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x2f((ks-k),j,i) = pmb->ruser_meshblock_data[3]((ks-k),j,i);
+//       }
+//     }}
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x3f((ks-k),j,i) = pmb->ruser_meshblock_data[4]((ks-k),j,i);
-      }
-    }}
-  }
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x3f((ks-k),j,i) = pmb->ruser_meshblock_data[4]((ks-k),j,i);
+//       }
+//     }}
+//   }
 
   return;
 }
@@ -2851,32 +2851,32 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
       }
     }}
 
-  // copy face-centered magnetic fields into ghost zones
-  if (MAGNETIC_FIELDS_ENABLED) {
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ke+k  ),j,i) = pmb->ruser_meshblock_data[2]((ke+k  ),j,i);
-      }
-    }}
+//   // copy face-centered magnetic fields into ghost zones
+//   if (MAGNETIC_FIELDS_ENABLED) {
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie+1; ++i) {
+//         b.x1f((ke+k  ),j,i) = pmb->ruser_meshblock_data[2]((ke+k  ),j,i);
+//       }
+//     }}
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x2f((ke+k  ),j,i) = pmb->ruser_meshblock_data[3]((ke+k  ),j,i);
-      }
-    }}
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x2f((ke+k  ),j,i) = pmb->ruser_meshblock_data[3]((ke+k  ),j,i);
+//       }
+//     }}
 
-    for (int k=1; k<=ngh; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=is; i<=ie; ++i) {
-        b.x3f((ke+k+1),j,i) = pmb->ruser_meshblock_data[4]((ke+k+1),j,i);
-      }
-    }}
-  }
+//     for (int k=1; k<=ngh; ++k) {
+//     for (int j=js; j<=je; ++j) {
+// #pragma omp simd
+//       for (int i=is; i<=ie; ++i) {
+//         b.x3f((ke+k+1),j,i) = pmb->ruser_meshblock_data[4]((ke+k+1),j,i);
+//       }
+//     }}
+//   }
 
   return;
 }
