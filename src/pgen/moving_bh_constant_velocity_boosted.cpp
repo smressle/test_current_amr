@@ -2593,7 +2593,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(is-i)) = ruser_meshblock_data[2](k,j,(is-i));
+        b.x1f(k,j,(is-i)) = pmb->ruser_meshblock_data[2](k,j,(is-i));
       }
     }}
 
@@ -2601,7 +2601,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(is-i)) = ruser_meshblock_data[3](k,j,(is-i));
+        b.x2f(k,j,(is-i)) = pmb->ruser_meshblock_data[3](k,j,(is-i));
       }
     }}
 
@@ -2609,7 +2609,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(is-i)) = ruser_meshblock_data[4](k,j,(is-i));
+        b.x3f(k,j,(is-i)) = pmb->ruser_meshblock_data[4](k,j,(is-i));
       }
     }}
   }
@@ -2646,7 +2646,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(ie+i+1)) = ruser_meshblock_data[2](k,j,(ie+i+1));
+        b.x1f(k,j,(ie+i+1)) = pmb->ruser_meshblock_data[2](k,j,(ie+i+1));
       }
     }}
 
@@ -2654,7 +2654,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(ie+i)) = ruser_meshblock_data[3](k,j,(ie+i));
+        b.x2f(k,j,(ie+i)) = pmb->ruser_meshblock_data[3](k,j,(ie+i));
       }
     }}
 
@@ -2662,7 +2662,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(ie+i)) = ruser_meshblock_data[4](k,j,(ie+i));
+        b.x3f(k,j,(ie+i)) = pmb->ruser_meshblock_data[4](k,j,(ie+i));
       }
     }}
   }
@@ -2699,7 +2699,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(js-j),i) = ruser_meshblock_data[2](k,(js-j),i);
+        b.x1f(k,(js-j),i) = pmb->ruser_meshblock_data[2](k,(js-j),i);
       }
     }}
 
@@ -2707,7 +2707,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(js-j),i) = ruser_meshblock_data[3](k,(js-j),i);
+        b.x2f(k,(js-j),i) = pmb->ruser_meshblock_data[3](k,(js-j),i);
       }
     }}
 
@@ -2715,7 +2715,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(js-j),i) = ruser_meshblock_data[4](k,(js-j),i);
+        b.x3f(k,(js-j),i) = pmb->ruser_meshblock_data[4](k,(js-j),i);
       }
     }}
   }
@@ -2752,7 +2752,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(je+j  ),i) = ruser_meshblock_data[2](k,(je+j  ),i);
+        b.x1f(k,(je+j  ),i) = pmb->ruser_meshblock_data[2](k,(je+j  ),i);
       }
     }}
 
@@ -2760,7 +2760,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(je+j+1),i) = ruser_meshblock_data[3](k,(je+j+1),i);
+        b.x2f(k,(je+j+1),i) = pmb->ruser_meshblock_data[3](k,(je+j+1),i);
       }
     }}
 
@@ -2768,7 +2768,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(je+j  ),i) = ruser_meshblock_data[4](k,(je+j  ),i);
+        b.x3f(k,(je+j  ),i) = pmb->ruser_meshblock_data[4](k,(je+j  ),i);
       }
     }}
   }
@@ -2805,7 +2805,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ks-k),j,i) = ruser_meshblock_data[2]((ks-k),j,i);
+        b.x1f((ks-k),j,i) = pmb->ruser_meshblock_data[2]((ks-k),j,i);
       }
     }}
 
@@ -2813,7 +2813,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f((ks-k),j,i) = ruser_meshblock_data[3]((ks-k),j,i);
+        b.x2f((ks-k),j,i) = pmb->ruser_meshblock_data[3]((ks-k),j,i);
       }
     }}
 
@@ -2821,7 +2821,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f((ks-k),j,i) = ruser_meshblock_data[4]((ks-k),j,i);
+        b.x3f((ks-k),j,i) = pmb->ruser_meshblock_data[4]((ks-k),j,i);
       }
     }}
   }
@@ -2857,7 +2857,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ke+k  ),j,i) = ruser_meshblock_data[2]((ke+k  ),j,i);
+        b.x1f((ke+k  ),j,i) = pmb->ruser_meshblock_data[2]((ke+k  ),j,i);
       }
     }}
 
@@ -2865,7 +2865,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f((ke+k  ),j,i) = ruser_meshblock_data[3]((ke+k  ),j,i);
+        b.x2f((ke+k  ),j,i) = pmb->ruser_meshblock_data[3]((ke+k  ),j,i);
       }
     }}
 
@@ -2873,7 +2873,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f((ke+k+1),j,i) = ruser_meshblock_data[4]((ke+k+1),j,i);
+        b.x3f((ke+k+1),j,i) = pmb->ruser_meshblock_data[4]((ke+k+1),j,i);
       }
     }}
   }
