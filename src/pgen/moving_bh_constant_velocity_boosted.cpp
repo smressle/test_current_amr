@@ -411,9 +411,9 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   if (block_size.nx3 > 1) ncells3 = block_size.nx3 + 2*(NGHOST);
 
 
-  // ruser_meshblock_data[2].NewAthenaArray(ncells3,ncells2,ncells1);
-  // ruser_meshblock_data[3].NewAthenaArray(ncells3,ncells2,ncells1);
-  // ruser_meshblock_data[4].NewAthenaArray(ncells3,ncells2,ncells1);
+  ruser_meshblock_data[2].NewAthenaArray(ncells3,ncells2,ncells1);
+  ruser_meshblock_data[3].NewAthenaArray(ncells3,ncells2,ncells1);
+  ruser_meshblock_data[4].NewAthenaArray(ncells3,ncells2,ncells1);
 
 
 
