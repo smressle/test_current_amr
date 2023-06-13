@@ -852,17 +852,17 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     A2.DeleteAthenaArray();
     A3.DeleteAthenaArray();
 
-      // for (int k=kl; k<=ku+1; ++k) {
-      //   for (int j=jl; j<=ju+1; ++j) {
-      //     for (int i=il; i<=iu+1; ++i) {
+      for (int k=kl; k<=ku+1; ++k) {
+        for (int j=jl; j<=ju+1; ++j) {
+          for (int i=il; i<=iu+1; ++i) {
 
-      //       if (j<ju+1 && k<ku+1) ruser_meshblock_data[2](k,j,i) = pfield->b.x1f(k,j,i) ;
-      //       if (i<iu+1 && k<ku+1) ruser_meshblock_data[3](k,j,i) = pfield->b.x2f(k,j,i) ;
-      //       if (i<iu+1 && j<ju+1) ruser_meshblock_data[4](k,j,i) = pfield->b.x3f(k,j,i) ;
+            if (j<ju+1 && k<ku+1) ruser_meshblock_data[2](k,j,i) = pfield->b.x1f(k,j,i) ;
+            if (i<iu+1 && k<ku+1) ruser_meshblock_data[3](k,j,i) = pfield->b.x2f(k,j,i) ;
+            if (i<iu+1 && j<ju+1) ruser_meshblock_data[4](k,j,i) = pfield->b.x3f(k,j,i) ;
 
-      //     }
-      //   }
-      // }
+          }
+        }
+      }
 
 
   }
