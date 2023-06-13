@@ -228,7 +228,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // Read problem-specific parameters from input file
 
   rho0 = 1.0;
-  press0 = 1.0;
+  press0 = 1e-3;
   r_cut = 5.0
   if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
