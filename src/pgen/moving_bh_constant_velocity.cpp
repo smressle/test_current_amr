@@ -3024,13 +3024,13 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,is-i) / gi(I00,is-i) * ut;
-        uu2 = uy - gi(I02,is-i) / gi(I00,is-i) * ut;
-        uu3 = uz - gi(I03,is-i) / gi(I00,is-i) * ut;
+        Real uu1 = ux - gi(I01,is-i) / gi(I00,is-i) * ut;
+        Real uu2 = uy - gi(I02,is-i) / gi(I00,is-i) * ut;
+        Real uu3 = uz - gi(I03,is-i) / gi(I00,is-i) * ut;
 
         prim(IVX,k,j,is-i) = uu1;
         prim(IVY,k,j,is-i) = uu2;
@@ -3107,13 +3107,13 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,ie+i) / gi(I00,ie+i) * ut;
-        uu2 = uy - gi(I02,ie+i) / gi(I00,ie+i) * ut;
-        uu3 = uz - gi(I03,ie+i) / gi(I00,ie+i) * ut;
+        Real uu1 = ux - gi(I01,ie+i) / gi(I00,ie+i) * ut;
+        Real uu2 = uy - gi(I02,ie+i) / gi(I00,ie+i) * ut;
+        Real uu3 = uz - gi(I03,ie+i) / gi(I00,ie+i) * ut;
 
         prim(IVX,k,j,ie+i) = uu1;
         prim(IVY,k,j,ie+i) = uu2;
@@ -3187,13 +3187,13 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+       Real  uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
         prim(IVX,k,js-j,i) = uu1;
         prim(IVY,k,js-j,i) = uu2;
@@ -3262,13 +3262,13 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        Real uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
         prim(IVX,k,je+j,i) = uu1;
         prim(IVY,k,je+j,i) = uu2;
@@ -3336,13 +3336,13 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        Real uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
         prim(IVX,ks-k,j,i) = uu1;
         prim(IVY,ks-k,j,i) = uu2;
@@ -3408,13 +3408,13 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         std::sqrt(-1.0/denom);
 
-        ux = 0.0;
-        uy = 0.0;
-        uz = -v_bh2 * ut;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = -v_bh2 * ut;
 
-        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+        Real uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        Real uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        Real uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
         prim(IVX,ke+k,j,i) = uu1;
         prim(IVY,ke+k,j,i) = uu2;
