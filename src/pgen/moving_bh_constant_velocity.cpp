@@ -3319,7 +3319,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco>CellMetric(ks-k, j, is,ie, g, gi);
+      pco->CellMetric(ks-k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,ks-k,j,i) = rho0;
