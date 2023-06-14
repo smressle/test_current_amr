@@ -230,7 +230,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   rho0 = 1.0;
   press0 = 1e-3;
   r_cut = 5.0
-  if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
+  if (MAGNETIC_FIELDS_ENABLED) field_norm =  std::sqrt(1.0/5000.0); //pin->GetReal("problem", "field_norm");
 
   rho_min = pin->GetReal("hydro", "rho_min");
   rho_pow = pin->GetReal("hydro", "rho_pow");
@@ -611,7 +611,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real rho = rho0;
         Real pgas = press0;
 
-        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03);
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
 
         Real r,th,ph;
         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,&th, &ph);
@@ -2998,19 +2998,50 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
+
+  AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, ngh+2);
+  gi.NewAthenaArray(NMETRIC,ngh+2);
+  // Initialize primitive values
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
         prim(IDN,k,j,is-i) = rho0;
         prim(IPR,k,j,is-i) = press0;
-        prim(IVX,k,j,is-i) = 0.0;
-        prim(IVY,k,j,is-i) = 0.0;
-        prim(IVZ,k,j,is-i) = 0.0;
+
+
+        Real denom = g(I00,is-i) + g(I33,is-i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,is-i);
+
+
+
+        // if (denom>0){
+        //   fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
+        // }
+
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,is-i) / gi(I00,is-i) * ut;
+        uu2 = uy - gi(I02,is-i) / gi(I00,is-i) * ut;
+        uu3 = uz - gi(I03,is-i) / gi(I00,is-i) * ut;
+
+        prim(IVX,k,j,is-i) = uu1;
+        prim(IVY,k,j,is-i) = uu2;
+        prim(IVZ,k,j,is-i) = uu3;
+
 
       }
     }}
+
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
   
 
   // copy face-centered magnetic fields into ghost zones
@@ -3019,7 +3050,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(is-i)) = b.x1f(k,j,is);
+        b.x1f(k,j,(is-i)) = 0.0; //pmb->ruser_meshblock_data[2](k,j,(is-i));
       }
     }}
 
@@ -3027,7 +3058,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(is-i)) = b.x2f(k,j,is);
+        b.x2f(k,j,(is-i)) = field_norm; //pmb->ruser_meshblock_data[3](k,j,(is-i));
       }
     }}
 
@@ -3035,7 +3066,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(is-i)) = b.x3f(k,j,is);
+        b.x3f(k,j,(is-i)) = 0.0; //pmb->ruser_meshblock_data[4](k,j,(is-i));
       }
     }}
   }
@@ -3053,18 +3084,45 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
+
+  AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
         prim(IDN,k,j,ie+i) = rho0;
         prim(IPR,k,j,ie+i) = press0;
-        prim(IVX,k,j,ie+i) = 0.0;
-        prim(IVY,k,j,ie+i) = 0.0;
-        prim(IVZ,k,j,ie+i) = 0.0;
+
+        Real denom = g(I00,ie+i) + g(I33,ie+i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,ie+i);
+
+
+
+        // if (denom>0){
+        //   fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
+        // }
+
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,ie+i) / gi(I00,ie+i) * ut;
+        uu2 = uy - gi(I02,ie+i) / gi(I00,ie+i) * ut;
+        uu3 = uz - gi(I03,ie+i) / gi(I00,ie+i) * ut;
+
+        prim(IVX,k,j,ie+i) = uu1;
+        prim(IVY,k,j,ie+i) = uu2;
+        prim(IVZ,k,j,ie+i) = uu3;
       }
     }}
 
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3072,7 +3130,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x1f(k,j,(ie+i+1)) = b.x1f(k,j,(ie+1));
+        b.x1f(k,j,(ie+i+1)) = 0.0; //pmb->ruser_meshblock_data[2](k,j,(ie+i+1));
       }
     }}
 
@@ -3080,7 +3138,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x2f(k,j,(ie+i)) = b.x2f(k,j,ie);
+        b.x2f(k,j,(ie+i)) = field_norm; //pmb->ruser_meshblock_data[3](k,j,(ie+i));
       }
     }}
 
@@ -3088,7 +3146,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        b.x3f(k,j,(ie+i)) = b.x3f(k,j,ie);
+        b.x3f(k,j,(ie+i)) = 0.0; //pmb->ruser_meshblock_data[4](k,j,(ie+i));
       }
     }}
   }
@@ -3105,18 +3163,46 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
+
+  AthenaArray<Real> g, gi;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
+      pcoord->CellMetric(k, js-j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,k,js-j,i) = rho0;
         prim(IPR,k,js-j,i) = press0;
-        prim(IVX,k,js-j,i) = 0.0;
-        prim(IVY,k,js-j,i) = 0.0;
-        prim(IVZ,k,js-j,i) = 0.0;
+
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
+
+
+
+        // if (denom>0){
+        //   fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
+        // }
+
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+        prim(IVX,k,js-j,i) = uu1;
+        prim(IVY,k,js-j,i) = uu2;
+        prim(IVZ,k,js-j,i) = uu3;
       }
     }}
+
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
 
   // copy face-centered magnetic fields into ghost zones
@@ -3125,7 +3211,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(js-j),i) = b.x1f(k,js,i);
+        b.x1f(k,(js-j),i) = 0.0; //pmb->ruser_meshblock_data[2](k,(js-j),i);
       }
     }}
 
@@ -3133,7 +3219,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(js-j),i) = b.x2f(k,js,i);
+        b.x2f(k,(js-j),i) = field_norm; // pmb->ruser_meshblock_data[3](k,(js-j),i);
       }
     }}
 
@@ -3141,7 +3227,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(js-j),i) = b.x3f(k,js,i);
+        b.x3f(k,(js-j),i) = 0.0; //pmb->ruser_meshblock_data[4](k,(js-j),i);
       }
     }}
   }
@@ -3159,18 +3245,40 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
+
+  AthenaArray<Real> g, gi;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
+      pcoord->CellMetric(k, je+j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,k,je+j,i) = rho0;
         prim(IPR,k,je+j,i) = press0;
-        prim(IVX,k,je+j,i) = 0.0;
-        prim(IVY,k,je+j,i) = 0.0;
-        prim(IVZ,k,je+j,i) = 0.0;
+
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
+
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+        prim(IVX,k,je+j,i) = uu1;
+        prim(IVY,k,je+j,i) = uu2;
+        prim(IVZ,k,je+j,i) = uu3;
       }
     }}
 
+
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3178,7 +3286,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f(k,(je+j  ),i) = b.x1f(k,(je  ),i);
+        b.x1f(k,(je+j  ),i) = 0.0; //pmb->ruser_meshblock_data[2](k,(je+j  ),i);
       }
     }}
 
@@ -3186,7 +3294,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f(k,(je+j+1),i) = b.x2f(k,(je+1),i);
+        b.x2f(k,(je+j+1),i) = field_norm; // pmb->ruser_meshblock_data[3](k,(je+j+1),i);
       }
     }}
 
@@ -3194,7 +3302,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=1; j<=ngh; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f(k,(je+j  ),i) = b.x3f(k,(je  ),i);
+        b.x3f(k,(je+j  ),i) = 0.0; //pmb->ruser_meshblock_data[4](k,(je+j  ),i);
       }
     }}
   }
@@ -3212,18 +3320,38 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
+    AthenaArray<Real> g, gi;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(ks-k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,ks-k,j,i) = rho0;
         prim(IPR,ks-k,j,i) = press0;
-        prim(IVX,ks-k,j,i) = 0.0;
-        prim(IVY,ks-k,j,i) = 0.0;
-        prim(IVZ,ks-k,j,i) = 0.0;
+
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
+
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+        prim(IVX,ks-k,j,i) = uu1;
+        prim(IVY,ks-k,j,i) = uu2;
+        prim(IVZ,ks-k,j,i) = uu3;
       }
     }}
 
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3231,7 +3359,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ks-k),j,i) = b.x1f(ks,j,i);
+        b.x1f((ks-k),j,i) = 0.0; //pmb->ruser_meshblock_data[2]((ks-k),j,i);
       }
     }}
 
@@ -3239,7 +3367,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je+1; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f((ks-k),j,i) = b.x2f(ks,j,i);
+        b.x2f((ks-k),j,i) = field_norm; // pmb->ruser_meshblock_data[3]((ks-k),j,i);
       }
     }}
 
@@ -3247,7 +3375,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f((ks-k),j,i) = b.x3f(ks,j,i);
+        b.x3f((ks-k),j,i) = 0.0; //pmb->ruser_meshblock_data[4]((ks-k),j,i);
       }
     }}
   }
@@ -3265,17 +3393,37 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
+    AthenaArray<Real> g, gi;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(ke+k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,ke+k,j,i) = rho0;
         prim(IPR,ke+k,j,i) = press0;
-        prim(IVX,ke+k,j,i) = 0.0;
-        prim(IVY,ke+k,j,i) = 0.0;
-        prim(IVZ,ke+k,j,i) = 0.0;
+
+        Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
+
+        std::sqrt(-1.0/denom);
+
+        ux = 0.0;
+        uy = 0.0;
+        uz = -v_bh2 * ut;
+
+        uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+        uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+        uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+        prim(IVX,ke+k,j,i) = uu1;
+        prim(IVY,ke+k,j,i) = uu2;
+        prim(IVZ,ke+k,j,i) = uu3;
       }
     }}
+
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -3283,7 +3431,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie+1; ++i) {
-        b.x1f((ke+k  ),j,i) = b.x1f((ke  ),j,i);
+        b.x1f((ke+k  ),j,i) = 0.0; //pmb->ruser_meshblock_data[2]((ke+k  ),j,i);
       }
     }}
 
@@ -3291,7 +3439,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x2f((ke+k  ),j,i) = b.x2f((ke  ),j,i);
+        b.x2f((ke+k  ),j,i) = field_norm; //pmb->ruser_meshblock_data[3]((ke+k  ),j,i);
       }
     }}
 
@@ -3299,14 +3447,13 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
     for (int j=js; j<=je; ++j) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
-        b.x3f((ke+k+1),j,i) = b.x3f((ke+1),j,i);
+        b.x3f((ke+k+1),j,i) = 0.0; //pmb->ruser_meshblock_data[4]((ke+k+1),j,i);
       }
     }}
   }
 
   return;
 }
-
 bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 {
     Real det;
