@@ -3006,7 +3006,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(k, j, is-ngh,is-1, g, gi);
+      pco->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
         prim(IDN,k,j,is-i) = rho0;
@@ -3022,7 +3022,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         // }
 
 
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
@@ -3090,7 +3090,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(k, j, ie+1,ie+ngh, g, gi);
+      pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
         prim(IDN,k,j,ie+i) = rho0;
@@ -3105,7 +3105,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         // }
 
 
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
@@ -3170,7 +3170,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
-      pcoord->CellMetric(k, js-j, is,ie, g, gi);
+      pco->CellMetric(k, js-j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,k,js-j,i) = rho0;
@@ -3179,13 +3179,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
 
 
-
-        // if (denom>0){
-        //   fprintf(stderr,"nan ut! xyz: %g %g %g  \n g: %g %g %g \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),g(I00,i),g(I03,i),g(I33,i));
-        // }
-
-
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
@@ -3251,7 +3245,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
-      pcoord->CellMetric(k, je+j, is,ie, g, gi);
+      pco->CellMetric(k, je+j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,k,je+j,i) = rho0;
@@ -3260,7 +3254,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
 
 
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
@@ -3325,7 +3319,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(ks-k, j, is,ie, g, gi);
+      pco>CellMetric(ks-k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,ks-k,j,i) = rho0;
@@ -3334,7 +3328,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
 
 
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
@@ -3398,7 +3392,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(ke+k, j, is,ie, g, gi);
+      pco->CellMetric(ke+k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         prim(IDN,ke+k,j,i) = rho0;
@@ -3406,7 +3400,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         Real denom = g(I00,i) + g(I33,i)*SQR(v_bh2) - 2.0*v_bh2*g(I03,i);
 
-        std::sqrt(-1.0/denom);
+        Real ut = std::sqrt(-1.0/denom);
 
         Real ux = 0.0;
         Real uy = 0.0;
