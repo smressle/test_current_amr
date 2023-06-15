@@ -616,9 +616,28 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real rho = rho0;
         Real pgas = press0;
-        Real uu1 = 0.0;
-        Real uu2 = 0.0;
-        Real uu3 = 0.0;
+
+        Real denom = g(I00,i);
+
+
+        Real ut,ux,uy,uz,uu1,uu2,uu3;
+
+        if (r>r_cut){
+            ut = std::sqrt(-1.0/denom);
+
+            ux = 0.0;
+            uy = 0.0;
+            uz = 0.0;
+
+            uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+            uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+            uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+         }
+         else{
+          uu1 = 0.0;
+          uu2 = 0.0;
+          uu3 = 0.0;
+        }
 
 
         Real xprime,yprime,zprime,rprime,Rprime;
