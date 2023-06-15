@@ -620,9 +620,14 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real denom = g(I00,i);
 
 
+        Real xprime,yprime,zprime,rprime,Rprime;
+
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
         Real ut,ux,uy,uz,uu1,uu2,uu3;
 
-        if (r>r_cut){
+        if (rprime>r_cut){
             ut = std::sqrt(-1.0/denom);
 
             ux = 0.0;
@@ -640,9 +645,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
-        Real xprime,yprime,zprime,rprime,Rprime;
 
-        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
         if (rprime<=r_cut){
           rho = 0.0;
