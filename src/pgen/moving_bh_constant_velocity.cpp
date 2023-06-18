@@ -636,6 +636,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
             uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
             uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+            // Real uu1 = ux_cks + gi(I01,i)/std::abs(gi(I00,i)) * ut_cks ; // ut = gamma/alpha = sqrt(-gitt)
+            // Real uu2 = uy_cks + gi(I02,i)/std::abs(gi(I00,i)) * ut_cks ;
+            // Real uu3 = uz_cks + gi(I03,i)/std::abs(gi(I00,i)) * ut_cks ;
          }
          else{
           uu1 = 0.0;

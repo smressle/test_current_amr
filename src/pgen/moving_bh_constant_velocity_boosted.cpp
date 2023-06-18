@@ -1329,6 +1329,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
           if (rprime < r_inner_boundary_2){
+
+              Real bsq_over_rho_max = 1.0;
+              Real beta_floor = 0.2;
               
 
               //set uu assuming u is zero
@@ -1344,8 +1347,55 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               prim(IVY,k,j,i) = 0.;
               prim(IVZ,k,j,i) = 0.;
               prim(IPR,k,j,i) = pfloor;
+
+
+              uu1 = prim(IVX,k,j,i);
+              uu2 = prim(IVY,k,j,i);
+              uu3 = prim(IVZ,k,j,i);
+              Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                       + g(I33,i)*uu3*uu3;
+              Real gamma = std::sqrt(1.0 + tmp);
+              // user_out_var(0,k,j,i) = gamma;
+
+              // Calculate 4-velocity
+              Real alpha = std::sqrt(-1.0/gi(I00,i));
+              Real u0 = gamma/alpha;
+              Real u1 = uu1 - alpha * gamma * gi(I01,i);
+              Real u2 = uu2 - alpha * gamma * gi(I02,i);
+              Real u3 = uu3 - alpha * gamma * gi(I03,i);
+              Real u_0, u_1, u_2, u_3;
+
+              // user_out_var(1,k,j,i) = u0;
+              // user_out_var(2,k,j,i) = u1;
+              // user_out_var(3,k,j,i) = u2;
+              // user_out_var(4,k,j,i) = u3;
+              if (MAGNETIC_FIELDS_ENABLED) {
+    
+
+                pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+                // Calculate 4-magnetic field
+                Real bb1 = pfield->bcc(IB1,k,j,i);
+                Real bb2 = pfield->bcc(IB2,k,j,i);
+                Real bb3 = pfield->bcc(IB3,k,j,i);
+                Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+                        + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+                        + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+                        + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+                Real b1 = (bb1 + b0 * u1) / u0;
+                Real b2 = (bb2 + b0 * u2) / u0;
+                Real b3 = (bb3 + b0 * u3) / u0;
+                Real b_0, b_1, b_2, b_3;
+                pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+                // Calculate bsq
+                Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+
+                if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
+                if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
             
-              
+              }
               
           }
 
