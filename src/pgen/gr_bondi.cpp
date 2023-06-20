@@ -106,6 +106,8 @@ Real Omega_bh2;
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
+
+static Real SMALL = 1e-5;
 // } // namespace
 
 
@@ -635,7 +637,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(ie+i), pcoord->x2v(j), pcoord->x3v(k),, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(ie+i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
         Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
         Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
