@@ -33,22 +33,22 @@ void FixedBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                    FaceField &bb, Real time, Real dt,
                    int il, int iu, int jl, int ju, int kl, int ku, int ngh);
 
-void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) ;
-void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) ;
-void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) ;
-void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) ;
-void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) ;
-void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
 
@@ -60,6 +60,11 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
   const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar);
 int RefinementCondition(MeshBlock *pmb);
+
+void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
+    AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+
 
 static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
@@ -526,12 +531,12 @@ void FixedBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                          FaceField &b, Real time, Real dt,
 //                          int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, inner x1 boundary
 
-void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
 
@@ -559,7 +564,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uu3 = u3 - gi(I03,is-i)/gi(I00,is-i) * u0;
 
         prim(IDN,k,j,is-i) = rho;
-        prim(IPR,k,j,is-i) = press;
+        prim(IPR,k,j,is-i) = pgas;
         prim(IVX,k,j,is-i) = uu1;
         prim(IVY,k,j,is-i) = uu2;
         prim(IVZ,k,j,is-i) = uu3;
@@ -603,12 +608,12 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 }
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                         FaceField &b, Real time, Real dt,
 //                         int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, outer x1 boundary
 
-void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
@@ -633,7 +638,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
 
         prim(IDN,k,j,ie+i) = rho;
-        prim(IPR,k,j,ie+i) = press;
+        prim(IPR,k,j,ie+i) = pgas;
         prim(IVX,k,j,ie+i) = uu1;
         prim(IVY,k,j,ie+i) = uu2;
         prim(IVZ,k,j,ie+i) = uu3;
@@ -675,12 +680,12 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 }
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomInnerX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                          FaceField &b, Real time, Real dt,
 //                          int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, inner x2 boundary
 
-void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
 
@@ -708,7 +713,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
 
         prim(IDN,k,js-j,i) = rho;
-        prim(IPR,k,js-j,i) = press;
+        prim(IPR,k,js-j,i) = pgas;
         prim(IVX,k,js-j,i) = uu1;
         prim(IVY,k,js-j,i) = uu2;
         prim(IVZ,k,js-j,i) = uu3;
@@ -750,12 +755,12 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 }
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomOuterX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                          FaceField &b, Real time, Real dt,
 //                          int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, outer x2 boundary
 
-void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
@@ -781,7 +786,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
 
         prim(IDN,k,je+j,i) = rho;
-        prim(IPR,k,je+j,i) = press;
+        prim(IPR,k,je+j,i) = pgas;
         prim(IVX,k,je+j,i) = uu1;
         prim(IVY,k,je+j,i) = uu2;
         prim(IVZ,k,je+j,i) = uu3;
@@ -823,12 +828,12 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 }
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomInnerX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                          FaceField &b, Real time, Real dt,
 //                          int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, inner x3 boundary
 
-void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomInnerX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
@@ -854,7 +859,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
 
         prim(IDN,ks-k,j,i) = rho;
-        prim(IPR,ks-k,j,i) = press;
+        prim(IPR,ks-k,j,i) = pgas;
         prim(IVX,ks-k,j,i) = uu1;
         prim(IVY,ks-k,j,i) = uu2;
         prim(IVZ,ks-k,j,i) = uu3;
@@ -895,12 +900,12 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 }
 
 //----------------------------------------------------------------------------------------
-//! \fn void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+//! \fn void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
 //                          FaceField &b, Real time, Real dt,
 //                          int is, int ie, int js, int je, int ks, int ke, int ngh)
 //  \brief OUTFLOW boundary conditions, outer x3 boundary
 
-void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
+void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   // copy hydro variables into ghost zones
@@ -925,7 +930,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
 
         prim(IDN,ke+k,j,i) = rho;
-        prim(IPR,ke+k,j,i) = press;
+        prim(IPR,ke+k,j,i) = pgas;
         prim(IVX,ke+k,j,i) = uu1;
         prim(IVY,ke+k,j,i) = uu2;
         prim(IVZ,ke+k,j,i) = uu3;
