@@ -23,6 +23,10 @@
 #include "../mesh/mesh.hpp"
 #include "../parameter_input.hpp"          // ParameterInput
 
+
+
+#include <cfloat>
+
 // Configuration checking
 #if not GENERAL_RELATIVITY
 #error "This problem generator must be used with general relativity"
