@@ -78,9 +78,8 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
 // namespace {
 void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
                                   Real *ptheta, Real *pphi);
-void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
-                     Real theta, Real phi,
-                     Real *pa0, Real *pa1, Real *pa2, Real *pa3);
+void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
+                     Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 void CalculatePrimitives(Real r, Real temp_min, Real temp_max, Real *prho,
                          Real *ppgas, Real *put, Real *pur);
 Real TemperatureMin(Real r, Real t_min, Real t_max);
@@ -324,7 +323,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -365,9 +364,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
             br = (bbr + bt * ur) / ut;
             Real u0, u1, u2, u3;
-            TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+            TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
             Real b0, b1, b2, b3;
-            TransformVector(bt, br, 0.0, 0.0, r, theta, phi, &b0, &b1, &b2, &b3);
+            TransformVector(bt, br, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
             pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1;
           }
 
@@ -380,9 +379,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
             br = (bbr + bt * ur) / ut;
             Real u0, u1, u2, u3;
-            TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+            TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
             Real b0, b1, b2, b3;
-            TransformVector(bt, br, 0.0, 0.0, r, theta, phi, &b0, &b1, &b2, &b3);
+            TransformVector(bt, br, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
             pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2;
           }
 
@@ -395,9 +394,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
             br = (bbr + bt * ur) / ut;
             Real u0, u1, u2, u3;
-            TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+            TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
             Real b0, b1, b2, b3;
-            TransformVector(bt, br, 0.0, 0.0, r, theta, phi, &b0, &b1, &b2, &b3);
+            TransformVector(bt, br, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
             pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
           }
         }
@@ -562,7 +561,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(is-i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,is-i)/gi(I00,is-i) * u0;
         Real uu2 = u2 - gi(I02,is-i)/gi(I00,is-i) * u0;
         Real uu3 = u3 - gi(I03,is-i)/gi(I00,is-i) * u0;
@@ -636,7 +635,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(ie+i), pcoord->x2v(j), pcoord->x3v(k),, &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
         Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
         Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
@@ -710,7 +709,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(js-j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -784,7 +783,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(je+j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -856,7 +855,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(ks-k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -928,7 +927,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
         Real rho, pgas, ut, ur;
         CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, r, theta, phi, &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(ke+k), &u0, &u1, &u2, &u3);
         Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
         Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -1208,9 +1207,8 @@ void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
 // Notes:
 //   Schwarzschild coordinates match Boyer-Lindquist when a = 0
 
-void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
-                     Real theta, Real phi,
-                     Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
+void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
+                     Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
   if (COORDINATE_SYSTEM == "schwarzschild") {
     *pa0 = a0_bl;
     *pa1 = a1_bl;
