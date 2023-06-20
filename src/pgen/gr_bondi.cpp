@@ -97,6 +97,8 @@ Real bsq_over_rho;  // b^2/rho at inner radius
 static Real dfloor,pfloor;                         // density and pressure floors
 static Real rh;   
 
+Real temp_max,temp_min;
+
 Real aprime,q;          // black hole mass and spin
 Real r_inner_boundary,r_inner_boundary_2;
 Real rh2;
@@ -160,6 +162,11 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 // Outputs: (none)
 
 void Mesh::InitUserMeshData(ParameterInput *pin) {
+
+
+  temp_min = 1.0e-2;  // lesser temperature root must be greater than this
+  temp_max = 1.0e1;   // greater temperature root must be less than this
+
   // Read problem parameters
   k_adi = pin->GetReal("hydro", "k_adi");
   r_crit = pin->GetReal("problem", "r_crit");
@@ -270,9 +277,6 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Parameters
-  const Real temp_min = 1.0e-2;  // lesser temperature root must be greater than this
-  const Real temp_max = 1.0e1;   // greater temperature root must be less than this
-
   // Prepare index bounds
   int il = is - NGHOST;
   int iu = ie + NGHOST;
@@ -547,7 +551,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco->CellMetric(k, j, is-ngh,is-1, g, gi);
+      pcoord->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
@@ -623,7 +627,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
+      pcoord->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
         Real r(0.0), theta(0.0), phi(0.0);
@@ -695,7 +699,7 @@ void CustomInnerX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
-      pco->CellMetric(k, js-j, is,ie, g, gi);
+      pcoord->CellMetric(k, js-j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
 
@@ -770,7 +774,7 @@ void CustomOuterX2(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=1; j<=ngh; ++j) {
-      pco->CellMetric(k, je+j, is,ie, g, gi);
+      pcoord->CellMetric(k, je+j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
 
@@ -842,7 +846,7 @@ void CustomInnerX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco->CellMetric(ks-k, j, is,ie, g, gi);
+      pcoord->CellMetric(ks-k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
 
@@ -914,7 +918,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=1; k<=ngh; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco->CellMetric(ke+k, j, is,ie, g, gi);
+      pcoord->CellMetric(ke+k, j, is,ie, g, gi);
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
 
