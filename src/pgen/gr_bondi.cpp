@@ -104,6 +104,7 @@ Real temp_max,temp_min;
 
 Real aprime,q;          // black hole mass and spin
 Real r_inner_boundary,r_inner_boundary_2;
+Real r_inner_bondi_boundary;
 Real rh2;
 Real v_bh2;
 Real Omega_bh2;
@@ -242,6 +243,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
   rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
   r_inner_boundary = rh/2.0;
+
+  r_inner_bondi_boundary = 3.0;
 
 
     // Get mass of black hole
@@ -443,6 +446,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
+
+
+
+         if (r<r_inner_bondi_boundary){
+
+            Real r(0.0), theta(0.0), phi(0.0);
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+                                         &theta, &phi);
+            Real rho, pgas, ut, ur;
+            CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
+            TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+            Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
+            Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
+            Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
+            prim(IDN,k,j,i) = rho;
+            prim(IVX,k,j,i) = uu1;
+            prim(IVY,k,j,i) = uu2;
+            prim(IVZ,k,j,i) = uu3;
+            prim(IPR,k,j,i) = pgas;
+
+
+         }
 
           if (r < r_inner_boundary){
               
