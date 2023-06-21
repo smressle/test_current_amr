@@ -452,7 +452,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
          if (r<r_inner_bondi_boundary){
 
             Real r(0.0), theta(0.0), phi(0.0);
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+            GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &r,
                                          &theta, &phi);
             Real rho, pgas, ut, ur;
             CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
