@@ -1023,7 +1023,7 @@ void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 
   *xbh = 0.0;
   *ybh = 0.0;
-  *zbh = v_bh2 * (t) - 0.8;
+  *zbh = v_bh2 * (t) - 80.0;
 
 }
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
