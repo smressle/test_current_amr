@@ -457,7 +457,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             Real rho, pgas, ut, ur;
             CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-            TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+            TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
             Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
             Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
             Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
