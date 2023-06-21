@@ -104,7 +104,7 @@ Real temp_max,temp_min;
 
 Real aprime,q;          // black hole mass and spin
 Real r_inner_boundary,r_inner_boundary_2;
-Real r_inner_bondi_boundary;
+Real r_inner_bondi_boundary,r_outer_bondi_boundary;
 Real rh2;
 Real v_bh2;
 Real Omega_bh2;
@@ -245,6 +245,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   r_inner_boundary = rh/2.0;
 
   r_inner_bondi_boundary = 3.0;
+  r_outer_bondi_boundary = 10.0;
 
 
     // Get mass of black hole
@@ -449,7 +450,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
-         if (r<r_inner_bondi_boundary){
+         if (r<r_inner_bondi_boundary || r>r_outer_bondi_boundary){
 
             Real r(0.0), theta(0.0), phi(0.0);
             GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &r,
