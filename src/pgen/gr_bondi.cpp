@@ -468,6 +468,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             prim(IVZ,k,j,i) = uu3;
             prim(IPR,k,j,i) = pgas;
 
+            fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
+              r, rho, pgas, u1,u2,u3);
+
 
          }
 
