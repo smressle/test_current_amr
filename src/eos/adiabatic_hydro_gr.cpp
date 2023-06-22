@@ -221,7 +221,7 @@ void EquationOfState::ConservedToPrimitive(
         }
 
         // Recalculate density and pressure floors given new velocity
-        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
+        r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         // Calculate floors for density and pressure
         density_floor_local = density_floor_;
         if (rho_pow_ != 0.0) {
