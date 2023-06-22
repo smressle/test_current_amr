@@ -227,7 +227,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   a = pin->GetReal("coord", "a");
   m = pin->GetReal("coord", "m");
     // Get ratio of specific heats
-  Real gamma_adi = peos->GetGamma();
+  Real gamma_adi = pin->GetReal("hydro", "gamma");
   n_adi = 1.0/(gamma_adi-1.0);
   // Prepare various constants for determining primitives
   Real u_crit_sq = m/(2.0*r_crit);                                          // (HSW 71)

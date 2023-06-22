@@ -229,7 +229,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
   // Get ratio of specific heats
-  Real gamma_adi = peos->GetGamma();
+  Real gamma_adi = pin->GetReal("hydro", "gamma");
   n_adi = 1.0/(gamma_adi-1.0);
 
 
