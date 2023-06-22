@@ -222,6 +222,20 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
+
+
+  a = pin->GetReal("coord", "a");
+  m = pin->GetReal("coord", "m");
+    // Get ratio of specific heats
+  Real gamma_adi = peos->GetGamma();
+  n_adi = 1.0/(gamma_adi-1.0);
+  // Prepare various constants for determining primitives
+  Real u_crit_sq = m/(2.0*r_crit);                                          // (HSW 71)
+  Real u_crit = -std::sqrt(u_crit_sq);
+  Real t_crit = n_adi/(n_adi+1.0) * u_crit_sq/(1.0-(n_adi+3.0)*u_crit_sq);  // (HSW 74)
+  c1 = std::pow(t_crit, n_adi) * u_crit * SQR(r_crit);                      // (HSW 68)
+  c2 = SQR(1.0 + (n_adi+1.0) * t_crit) * (1.0 - 3.0*m/(2.0*r_crit));        // (HSW 69)
+
   return;
 }
 
@@ -313,21 +327,12 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   m = pcoord->GetMass();
   a = pcoord->GetSpin();
 
-  // Get ratio of specific heats
-  Real gamma_adi = peos->GetGamma();
-  n_adi = 1.0/(gamma_adi-1.0);
 
   // Prepare scratch arrays
   AthenaArray<Real> g, gi;
   g.NewAthenaArray(NMETRIC, iu+1);
   gi.NewAthenaArray(NMETRIC, iu+1);
 
-  // Prepare various constants for determining primitives
-  Real u_crit_sq = m/(2.0*r_crit);                                          // (HSW 71)
-  Real u_crit = -std::sqrt(u_crit_sq);
-  Real t_crit = n_adi/(n_adi+1.0) * u_crit_sq/(1.0-(n_adi+3.0)*u_crit_sq);  // (HSW 74)
-  c1 = std::pow(t_crit, n_adi) * u_crit * SQR(r_crit);                      // (HSW 68)
-  c2 = SQR(1.0 + (n_adi+1.0) * t_crit) * (1.0 - 3.0*m/(2.0*r_crit));        // (HSW 69)
 
   // Initialize primitive values
   for (int k=kl; k<=ku; ++k) {

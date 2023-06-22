@@ -65,6 +65,18 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_mm_.NewAthenaArray(4,nc1);
 }
 
+Real GetRadius(Real x1, Real x2, Real x3, Real a){
+   if (COORDINATE_SYSTEM=="gr_user"){
+      Real x = x1;
+      Real y = x2;
+      Real z = x3;
+      Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+      Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+      return r;
+  }
+  else return x1;
+}
+
 //----------------------------------------------------------------------------------------
 //! \fn void EquationOfState::ConservedToPrimitive(
 //!   AthenaArray<Real> &cons, const AthenaArray<Real> &prim_old, const FaceField &bb,
@@ -111,15 +123,17 @@ void EquationOfState::ConservedToPrimitive(
         bool fixed = false;
 
         // Calculate floors for density and pressure
+        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
+        // Calculate floors for density and pressure
         Real density_floor_local = density_floor_;
         if (rho_pow_ != 0.0) {
           density_floor_local =
-              std::max(density_floor_local, rho_min_ * std::pow(pco->x1v(i), rho_pow_));
+              std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         Real pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
-                                          pgas_min_ * std::pow(pco->x1v(i), pgas_pow_));
+                                          pgas_min_ * std::pow(r, pgas_pow_));
         }
 
         // Ensure conserved density is large enough
@@ -207,15 +221,17 @@ void EquationOfState::ConservedToPrimitive(
         }
 
         // Recalculate density and pressure floors given new velocity
-        density_floor_local = density_floor_;
+        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
+        // Calculate floors for density and pressure
+        Real density_floor_local = density_floor_;
         if (rho_pow_ != 0.0) {
           density_floor_local =
-              std::max(density_floor_local, rho_min_ * std::pow(pco->x1v(i), rho_pow_));
+              std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
-        pressure_floor_local = pressure_floor_;
+        Real pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
-                                          pgas_min_ * std::pow(pco->x1v(i), pgas_pow_));
+                                          pgas_min_ * std::pow(r, pgas_pow_));
         }
 
         // Apply density and gas pressure floors in fluid frame

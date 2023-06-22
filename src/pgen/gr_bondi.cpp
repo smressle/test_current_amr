@@ -169,10 +169,6 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 
 void Mesh::InitUserMeshData(ParameterInput *pin) {
 
-
-  temp_min = 1.0e-2;  // lesser temperature root must be greater than this
-  temp_max = 1.0e1;   // greater temperature root must be less than this
-
   // Read problem parameters
   k_adi = pin->GetReal("hydro", "k_adi");
   r_crit = pin->GetReal("problem", "r_crit");
@@ -214,6 +210,29 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
+
+
+
+  temp_min = 1.0e-2;  // lesser temperature root must be greater than this
+  temp_max = 1.0e1;   // greater temperature root must be less than this
+
+
+  a = pin->GetReal("coord", "a");
+  m = pin->GetReal("coord", "m");
+
+  // Prepare various constants for determining primitives
+  Real u_crit_sq = m/(2.0*r_crit);                                          // (HSW 71)
+  Real u_crit = -std::sqrt(u_crit_sq);
+  Real t_crit = n_adi/(n_adi+1.0) * u_crit_sq/(1.0-(n_adi+3.0)*u_crit_sq);  // (HSW 74)
+  c1 = std::pow(t_crit, n_adi) * u_crit * SQR(r_crit);                      // (HSW 68)
+  c2 = SQR(1.0 + (n_adi+1.0) * t_crit) * (1.0 - 3.0*m/(2.0*r_crit));        // (HSW 69)
+
+
+  // Get ratio of specific heats
+  Real gamma_adi = peos->GetGamma();
+  n_adi = 1.0/(gamma_adi-1.0);
+
+
 
   return;
 }
@@ -306,21 +325,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   m = pcoord->GetMass();
   a = pcoord->GetSpin();
 
-  // Get ratio of specific heats
-  Real gamma_adi = peos->GetGamma();
-  n_adi = 1.0/(gamma_adi-1.0);
-
   // Prepare scratch arrays
   AthenaArray<Real> g, gi;
   g.NewAthenaArray(NMETRIC, iu+1);
   gi.NewAthenaArray(NMETRIC, iu+1);
 
-  // Prepare various constants for determining primitives
-  Real u_crit_sq = m/(2.0*r_crit);                                          // (HSW 71)
-  Real u_crit = -std::sqrt(u_crit_sq);
-  Real t_crit = n_adi/(n_adi+1.0) * u_crit_sq/(1.0-(n_adi+3.0)*u_crit_sq);  // (HSW 74)
-  c1 = std::pow(t_crit, n_adi) * u_crit * SQR(r_crit);                      // (HSW 68)
-  c2 = SQR(1.0 + (n_adi+1.0) * t_crit) * (1.0 - 3.0*m/(2.0*r_crit));        // (HSW 69)
 
   // Initialize primitive values
   for (int k=kl; k<=ku; ++k) {
@@ -468,8 +477,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             prim(IVZ,k,j,i) = uu3;
             prim(IPR,k,j,i) = pgas;
 
-            fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
-              r, rho, pgas, u1,u2,u3);
+            // fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
+            //   r, rho, pgas, u1,u2,u3);
 
 
          }
