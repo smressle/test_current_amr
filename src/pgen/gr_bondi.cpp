@@ -434,7 +434,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Free scratch arrays
   g.DeleteAthenaArray();
   gi.DeleteAthenaArray();
-  
+
   return;
 }
 
@@ -1257,6 +1257,8 @@ void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
 
 void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
                      Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
+
+  Real tiny = 1e-6;
   if (COORDINATE_SYSTEM == "schwarzschild") {
     *pa0 = a0_bl;
     *pa1 = a1_bl;
@@ -1280,10 +1282,10 @@ void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
     Real delta = SQR(r) - 2.0*m*r + SQR(a);
     *pa0 = a0_bl + 2.0*r/delta * a1_bl;
     *pa1 = a1_bl * ( (r*x+a*y)/(SQR(r) + SQR(a)) - y*a/delta) + 
-           a2_bl * x*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) - 
+           a2_bl * x*z/r * std::sqrt((SQR(r) + SQR(a)))/(std::sqrt((SQR(x) + SQR(y))) + tiny ) - 
            a3_bl * y; 
     *pa2 = a1_bl * ( (r*y-a*x)/(SQR(r) + SQR(a)) + x*a/delta) + 
-           a2_bl * y*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) + 
+           a2_bl * y*z/r * std::sqrt((SQR(r) + SQR(a)))/(std::sqrt((SQR(x) + SQR(y))) + tiny ) + 
            a3_bl * x;
     *pa3 = a1_bl * z/r - 
            a2_bl * r * std::sqrt((SQR(x) + SQR(y))/(SQR(r) + SQR(a)));
