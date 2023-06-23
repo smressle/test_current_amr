@@ -344,7 +344,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                                      &theta, &phi);
 
         Real xprime,yprime,zprime,rprime,Rprime;
-        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k) pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
         Real rho, pgas, ut, ur;
         CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
