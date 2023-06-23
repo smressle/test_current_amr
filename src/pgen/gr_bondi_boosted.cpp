@@ -342,10 +342,13 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real r(0.0), theta(0.0), phi(0.0);
         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
                                      &theta, &phi);
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k) pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
         Real rho, pgas, ut, ur;
-        CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+        CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
         Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-        TransformVector(ut, ur, 0.0, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+        TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
         Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
         BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
         Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
@@ -503,9 +506,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &r,
                                          &theta, &phi);
             Real rho, pgas, ut, ur;
-            CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
-            TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
             Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
             BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
             Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
