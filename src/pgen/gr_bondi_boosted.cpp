@@ -107,7 +107,7 @@ static Real rh;
 
 Real temp_max,temp_min;
 
-Real aprime,q;          // black hole mass and spin
+Real aprime,q,m2;          // black hole mass and spin
 Real r_inner_boundary,r_inner_boundary_2;
 Real r_inner_bondi_boundary,r_outer_bondi_boundary;
 Real rh2;
@@ -270,7 +270,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 
     // Get mass of black hole
-  Real m2 = q;
+  m2 = q;
 
   rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
@@ -1341,8 +1341,8 @@ void CalculatePrimitives(Real r, Real temp_min, Real temp_max, Real *prho,
   Real rho = std::pow(temp/k_adi, n_adi);             // not same K as HSW
   Real pgas = temp * rho;
   Real ur = c1 / (SQR(r) * std::pow(temp, n_adi));    // (HSW 75)
-  Real ut = std::sqrt(1.0/SQR(1.0-2.0*m/r) * SQR(ur)
-                      + 1.0/(1.0-2.0*m/r));
+  Real ut = std::sqrt(1.0/SQR(1.0-2.0*m2/r) * SQR(ur)
+                      + 1.0/(1.0-2.0*m2/r));
 
   // Set primitives
   *prho = rho;
