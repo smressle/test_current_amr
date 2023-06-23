@@ -1470,7 +1470,7 @@ Real TemperatureBisect(Real r, Real t_min, Real t_max) {
 
 Real TemperatureResidual(Real t, Real r) {
   return SQR(1.0 + (n_adi+1.0) * t)
-      * (1.0 - 2.0*m/r + SQR(c1) / (SQR(SQR(r)) * std::pow(t, 2.0*n_adi))) - c2;
+      * (1.0 - 2.0*m2/r + SQR(c1) / (SQR(SQR(r)) * std::pow(t, 2.0*n_adi))) - c2;
 }
 // } // namespace
 
