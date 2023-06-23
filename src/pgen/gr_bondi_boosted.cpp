@@ -1286,7 +1286,7 @@ void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
 
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
-    Real delta = SQR(r) - 2.0*m*r + SQR(a);
+    Real delta = SQR(r) - 2.0*m2*r + SQR(a);
     *pa0 = a0_bl + 2.0*r/delta * a1_bl;
     *pa1 = a1_bl * ( (r*x+a*y)/(SQR(r) + SQR(a)) - y*a/delta) + 
            a2_bl * x*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) - 
