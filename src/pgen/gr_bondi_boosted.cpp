@@ -1273,8 +1273,8 @@ void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
     *pa3 = a3_bl;
   } else if (COORDINATE_SYSTEM == "kerr-schild") {
     Real r = x1;
-    Real delta = SQR(r) - 2.0*m*r + SQR(a);
-    *pa0 = a0_bl + 2.0*m*r/delta * a1_bl;
+    Real delta = SQR(r) - 2.0*m2*r + SQR(a);
+    *pa0 = a0_bl + 2.0*m2*r/delta * a1_bl;
     *pa1 = a1_bl;
     *pa2 = a2_bl;
     *pa3 = a3_bl + a/delta * a1_bl;
@@ -1306,10 +1306,10 @@ void BoostVector(Real a0, Real a1, Real a2, Real a3, Real x1,
   Real gamma = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
   Real beta = v_bh2;
 
-  *pa0 = gamma * (a0 - beta * a3);
+  *pa0 = gamma * (a0 + beta * a3);
   *pa1 = a1;
   *pa2 = a2; 
-  *pa3 = gamma * (a3 - beta * a0);
+  *pa3 = gamma * (a3 + beta * a0);
 
   return;
 
