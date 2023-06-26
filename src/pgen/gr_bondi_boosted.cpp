@@ -1659,6 +1659,19 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   l_lowerprime[3] = l_upperprime[3];
 
 
+  //BOOST //
+
+  Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+
+  Real l0 = l_lowerprime[0];
+  Real l3 = l_lowerprime[3];
+
+  l_lowerprime[0] = Lorentz * (l0 - v_bh2 * l3);
+  l_lowerprime[3] = Lorentz * (l3 - v_bh2 * l0);
+
+
+
+
 
 
 
@@ -1793,6 +1806,25 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   dgprime_dx1.NewAthenaArray(NMETRIC);
   dgprime_dx2.NewAthenaArray(NMETRIC);
   dgprime_dx3.NewAthenaArray(NMETRIC);
+
+  Real dl0_dx1_tmp = dl0prime_dx1;
+  Real dl0_dx2_tmp = dl0prime_dx2;
+  Real dl0_dx3_tmp = dl0prime_dx3;
+
+  Real dl3_dx1_tmp = dl3prime_dx1;
+  Real dl3_dx2_tmp = dl3prime_dx2;
+  Real dl3_dx3_tmp = dl3prime_dx3;
+
+
+
+  dl0prime_dx1 = Lorentz * (dl0_dx1_tmp - v_bh2 * dl3_dx1_tmp); 
+  dl0prime_dx2 = Lorentz * (dl0_dx2_tmp - v_bh2 * dl3_dx2_tmp); 
+  dl0prime_dx2 = Lorentz * (dl0_dx3_tmp - v_bh2 * dl3_dx3_tmp); 
+
+
+  dl3prime_dx1 = Lorentz * (dl3_dx1_tmp - v_bh2 * dl0_dx1_tmp); 
+  dl3prime_dx2 = Lorentz * (dl3_dx2_tmp - v_bh2 * dl0_dx2_tmp); 
+  dl3prime_dx2 = Lorentz * (dl3_dx3_tmp - v_bh2 * dl0_dx3_tmp); 
 
   // // Set x-derivatives of covariant components
   // dgprime_dx1(I00) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx1 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx1
