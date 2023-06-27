@@ -608,11 +608,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       br = (bbr + bt * ur) / ut;
                       // Real u0, u1, u2, u3;
                       TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
-                      Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+                      // Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
                       BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
                       // Real b0, b1, b2, b3;
                       TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
-                      Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+                      // Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
                       pmb->pfield->b.x2f(k,j,i)  = b2prime * u0prime - b0prime * u2prime;
                       pmb->pfield->b1.x2f(k,j,i) = pmb->pfield->b.x2f(k,j,i);
@@ -630,11 +630,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       br = (bbr + bt * ur) / ut;
                       // Real u0, u1, u2, u3;
                       TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
-                      Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+                      // Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
                       BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
                       // Real b0, b1, b2, b3;
                       TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
-                      Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+                      // Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
                       pmb->pfield->b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
                       pmb->pfield->b1.x3f(k,j,i) = pmb->pfield->b.x3f(k,j,i);
