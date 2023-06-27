@@ -1661,7 +1661,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   //BOOST //
 
-  Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+  // Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+  Real Lorentz = 1.0;
 
   Real l0 = l_lowerprime[0];
   Real l3 = l_lowerprime[3];
