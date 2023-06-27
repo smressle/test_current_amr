@@ -600,7 +600,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                     // if (i != iu+1 && k != ku+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
                                                    &r, &theta, &phi);
-                      Real xprime,yprime,zprime,rprime,Rprime;
+                      // Real xprime,yprime,zprime,rprime,Rprime;
                       get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
                       CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
                       bbr = normalization/SQR(rprime);
@@ -622,7 +622,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                     // if (i != iu+1 && j != ju+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
                                                    &r, &theta, &phi);
-                      Real xprime,yprime,zprime,rprime,Rprime;
+                      // Real xprime,yprime,zprime,rprime,Rprime;
                       get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
                       CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
                       bbr = normalization/SQR(rprime);
