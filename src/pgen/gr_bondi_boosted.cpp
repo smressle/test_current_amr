@@ -1819,12 +1819,12 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   dl0prime_dx1 = Lorentz * (dl0_dx1_tmp - v_bh2 * dl3_dx1_tmp); 
   dl0prime_dx2 = Lorentz * (dl0_dx2_tmp - v_bh2 * dl3_dx2_tmp); 
-  dl0prime_dx2 = Lorentz * (dl0_dx3_tmp - v_bh2 * dl3_dx3_tmp); 
+  dl0prime_dx3 = Lorentz * (dl0_dx3_tmp - v_bh2 * dl3_dx3_tmp); 
 
 
   dl3prime_dx1 = Lorentz * (dl3_dx1_tmp - v_bh2 * dl0_dx1_tmp); 
   dl3prime_dx2 = Lorentz * (dl3_dx2_tmp - v_bh2 * dl0_dx2_tmp); 
-  dl3prime_dx2 = Lorentz * (dl3_dx3_tmp - v_bh2 * dl0_dx3_tmp); 
+  dl3prime_dx3 = Lorentz * (dl3_dx3_tmp - v_bh2 * dl0_dx3_tmp); 
 
   // // Set x-derivatives of covariant components
   // dgprime_dx1(I00) = dfprime_dx1*l_lowerprime[0]*l_lowerprime[0] + fprime * dl0prime_dx1 * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dx1
