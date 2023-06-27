@@ -562,8 +562,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             if (MAGNETIC_FIELDS_ENABLED) {
               // Find normalization
               Real r, theta, phi;
-              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(pmb->is), pmb->pcoord->x2v((pmb->jl+pmb->ju)/2),
-                                           pmb->pcoord->x3v((pmb->kl+pmb->ku)/2), &r, &theta, &phi);
+              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(pmb->is), pmb->pcoord->x2v((jl+ju)/2),
+                                           pmb->pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
               Real rho, pgas, ut, ur;
               CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
               Real bbr = 1.0/SQR(r);
@@ -606,11 +606,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       bbr = normalization/SQR(rprime);
                       bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
                       br = (bbr + bt * ur) / ut;
-                      Real u0, u1, u2, u3;
+                      // Real u0, u1, u2, u3;
                       TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
                       Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
                       BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
-                      Real b0, b1, b2, b3;
+                      // Real b0, b1, b2, b3;
                       TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
                       Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
@@ -628,11 +628,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       bbr = normalization/SQR(rprime);
                       bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
                       br = (bbr + bt * ur) / ut;
-                      Real u0, u1, u2, u3;
+                      // Real u0, u1, u2, u3;
                       TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
                       Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
                       BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
-                      Real b0, b1, b2, b3;
+                      // Real b0, b1, b2, b3;
                       TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
                       Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
