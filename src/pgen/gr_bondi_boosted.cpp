@@ -478,13 +478,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
 
+  int il = pmb->is - NGHOST;
+  int iu = pmb->ie + NGHOST;
+  int jl = pmb->js;
+  int ju = pmb->je;
+  if (pmb->block_size.nx2 > 1) {
+    jl -= NGHOST;
+    ju += NGHOST;
+  }
+  int kl = pmb->ks;
+  int ku = pmb->ke;
+  if (pmb->block_size.nx3 > 1) {
+    kl -= NGHOST;
+    ku += NGHOST;
+  }
 
-   for (int k=pmb->ks; k<=pmb->ke; ++k) {
+
+
+   for (int k=pmb->ks; k<=pmb->ke+1; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=pmb->js; j<=pmb->je; ++j) {
+    for (int j=pmb->js; j<=pmb->je+1; ++j) {
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
 #pragma simd
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+      for (int i=pmb->is; i<=pmb->ie+1; ++i) {
 
 
          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
@@ -557,7 +573,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real bsq_over_rho_actual = bsq/rho;
               Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
 
-                    if (j != ju+1 && k != ku+1) {
+                    // if (j != ju+1 && k != ku+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
@@ -578,10 +594,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
                       pmb->pfield->b.x1f(k,j,i) = b1prime * u0prime - b0prime * u1prime;
                       pmb->pfield->b1.x1f(k,j,i) = pmb->pfield->b.x1f(k,j,i);
-                    }
+                    // }
 
                     // Set B^2
-                    if (i != iu+1 && k != ku+1) {
+                    // if (i != iu+1 && k != ku+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
@@ -600,10 +616,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
                       pmb->pfield->b.x2f(k,j,i)  = b2prime * u0prime - b0prime * u2prime;
                       pmb->pfield->b1.x2f(k,j,i) = pmb->pfield->b.x2f(k,j,i);
-                    }
+                    // }
 
                     // Set B^3
-                    if (i != iu+1 && j != ju+1) {
+                    // if (i != iu+1 && j != ju+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
@@ -622,7 +638,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       BoostVector(b0,b1,b2,b3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
                       pmb->pfield->b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
                       pmb->pfield->b1.x3f(k,j,i) = pmb->pfield->b.x3f(k,j,i);
-                    }
+                    // }
                 }
 
          }
