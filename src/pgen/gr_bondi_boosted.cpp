@@ -546,8 +546,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             if (MAGNETIC_FIELDS_ENABLED) {
               // Find normalization
               Real r, theta, phi;
-              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(is), pmb->pcoord->x2v((jl+ju)/2),
-                                           pmb->pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(pmb->is), pmb->pcoord->x2v((pmb->jl+pmb->ju)/2),
+                                           pmb->pcoord->x3v((pmb->kl+pmb->ku)/2), &r, &theta, &phi);
               Real rho, pgas, ut, ur;
               CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
               Real bbr = 1.0/SQR(r);
@@ -557,16 +557,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real bsq_over_rho_actual = bsq/rho;
               Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
 
-              // Set face-centered field
-              for (int k=kl; k<=ku+1; ++k) {
-                for (int j=jl; j<=ju+1; ++j) {
-                  for (int i=il; i<=iu+1; ++i) {
-                    // Set B^1
                     if (j != ju+1 && k != ku+1) {
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
-                      get_prime_coords(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+                      get_prime_coords(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
                       CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
                       bbr = normalization/SQR(rprime);
                       bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -590,7 +585,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
-                      get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+                      get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
                       CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
                       bbr = normalization/SQR(rprime);
                       bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -612,7 +607,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
                                                    &r, &theta, &phi);
                       Real xprime,yprime,zprime,rprime,Rprime;
-                      get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+                      get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
                       CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
                       bbr = normalization/SQR(rprime);
                       bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -628,11 +623,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                       pmb->pfield->b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
                       pmb->pfield->b1.x3f(k,j,i) = pmb->pfield->b.x3f(k,j,i);
                     }
-                  }
                 }
-              }
-
-
 
          }
 
