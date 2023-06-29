@@ -523,9 +523,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               bbr = normalization/SQR(r);
               bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
               br = (bbr + bt * ur) / ut;
-              Real u0, u1, u2, u3;
               TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
-              Real b0, b1, b2, b3;
               TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
               pmb->pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2;
               pmb->pfield->b1.x2f(k,j,i) = pmb->pfield->b.x2f(k,j,i);
@@ -537,12 +535,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               bbr = normalization/SQR(r);
               bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
               br = (bbr + bt * ur) / ut;
-              Real u0, u1, u2, u3;
               TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
-              Real b0, b1, b2, b3;
               TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
-              pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
-              pfield->b1.x3f(k,j,i) = pfield->b.x3f(k,j,i);
+              pmb->pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
+              pmb->pfield->b1.x3f(k,j,i) = pfield->b.x3f(k,j,i);
 
 
             // fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
@@ -550,6 +546,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
          }
+       }
 
           if (r < r_inner_boundary){
               
