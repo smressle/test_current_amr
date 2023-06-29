@@ -564,8 +564,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             if (MAGNETIC_FIELDS_ENABLED) {
               // Find normalization
               Real r, theta, phi;
-              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(pmb->is), pmb->pcoord->x2v((jl+ju)/2),
-                                           pmb->pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+              // GetBoyerLindquistCoordinates(pmb->pcoord->x1f(pmb->is), pmb->pcoord->x2v((jl+ju)/2),
+              //                              pmb->pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+
+              r = 3.0;
               Real rho, pgas, ut, ur;
               CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
               Real bbr = 1.0/SQR(r);

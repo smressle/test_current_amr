@@ -453,12 +453,12 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
-   for (int k=pmb->ks; k<=pmb->ke; ++k) {
+   for (int k=pmb->ks; k<=pmb->ke+1; ++k) {
 #pragma omp parallel for schedule(static)
-    for (int j=pmb->js; j<=pmb->je; ++j) {
+    for (int j=pmb->js; j<=pmb->je+1; ++j) {
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
 #pragma simd
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+      for (int i=pmb->is; i<=pmb->ie+1; ++i) {
 
 
          GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
@@ -482,6 +482,68 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             prim(IVY,k,j,i) = uu2;
             prim(IVZ,k,j,i) = uu3;
             prim(IPR,k,j,i) = pgas;
+
+
+            // Initialize magnetic field
+            if (MAGNETIC_FIELDS_ENABLED) {
+              // Find normalization
+              Real r, theta, phi;
+              // GetBoyerLindquistCoordinates(pcoord->x1f(is), pcoord->x2v((jl+ju)/2),
+              //                              pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+
+              r = 3.0;
+              Real rho, pgas, ut, ur;
+              CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+              Real bbr = 1.0/SQR(r);
+              Real bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+              Real br = (bbr + bt * ur) / ut;
+              Real bsq = -(1.0-2.0*m/r) * SQR(bt) + 1.0/(1.0-2.0*m/r) * SQR(br);
+              Real bsq_over_rho_actual = bsq/rho;
+              Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
+
+              // Set face-centered field
+
+              GetBoyerLindquistCoordinates(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
+                                           &r, &theta, &phi);
+              CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+              bbr = normalization/SQR(r);
+              bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+              br = (bbr + bt * ur) / ut;
+              Real u0, u1, u2, u3;
+              TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              Real b0, b1, b2, b3;
+              TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              pmb->pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1;
+              pmb->pfield->b1.x1f(k,j,i) = pmb->pfield->b.x1f(k,j,i);
+
+            // Set B^2
+              GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
+                                           &r, &theta, &phi);
+              CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+              bbr = normalization/SQR(r);
+              bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+              br = (bbr + bt * ur) / ut;
+              Real u0, u1, u2, u3;
+              TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              Real b0, b1, b2, b3;
+              TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              pmb->pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2;
+              pmb->pfield->b1.x2f(k,j,i) = pmb->pfield->b.x2f(k,j,i);
+
+            // Set B^3
+              GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
+                                           &r, &theta, &phi);
+              CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+              bbr = normalization/SQR(r);
+              bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+              br = (bbr + bt * ur) / ut;
+              Real u0, u1, u2, u3;
+              TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              Real b0, b1, b2, b3;
+              TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
+              pfield->b1.x3f(k,j,i) = pfield->b.x3f(k,j,i);
+
 
             // fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
             //   r, rho, pgas, u1,u2,u3);
