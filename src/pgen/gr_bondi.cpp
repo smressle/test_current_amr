@@ -538,7 +538,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               TransformVector(ut, ur, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0, &u1, &u2, &u3);
               TransformVector(bt, br, 0.0, 0.0, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &b0, &b1, &b2, &b3);
               pmb->pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
-              pmb->pfield->b1.x3f(k,j,i) = pfield->b.x3f(k,j,i);
+              pmb->pfield->b1.x3f(k,j,i) = pmb->pfield->b.x3f(k,j,i);
 
 
             // fprintf(stderr,"xyz: %g %g %g r: %g \n rho pgas u1 u2 u3: %g %g %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
