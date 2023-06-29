@@ -523,6 +523,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     //Enroll metric
   EnrollUserMetric(Cartesian_GR);
 
+  if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
+
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
   AllocateUserHistoryOutput(1);
@@ -3142,11 +3144,34 @@ void cks_inverse_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g_inv){
 // }
 
 
-#define DEL 1e-7
 void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
+
+
+  a = pin->GetReal("coord", "a");
+  m = pin->GetReal("coord", "m");
+
+  //////////////Perturber Black Hole//////////////////
+
+  q = pin->GetOrAddReal("problem", "q", 1.0);
+  aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
+  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+
+  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt);
+
+  return;
+
+}
+
+#define DEL 1e-7
+void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
+    AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
+{
+
 
   // if  (Globals::my_rank == 0) fprintf(stderr,"Metric time in pgen file (GLOBAL RANK): %g \n", t);
   // else fprintf(stderr,"Metric time in pgen file (RANK %d): %g \n", Globals::my_rank,t);
@@ -3155,17 +3180,11 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real y = x2;
   Real z = x3;
 
-  a = pin->GetReal("coord", "a");
   Real a_spin =a;
 
   if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
   if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
 
-  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
-  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
-
-  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
-  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
     x = 0.1;
@@ -3182,7 +3201,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real th  = std::acos(z/r);
   Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
                               (a*y+r*x)/(SQR(r) + SQR(a) )  );
-  rh =  ( 1.0 + std::sqrt(1.0-SQR(a)) );
+  rh =  ( m + std::sqrt(SQR(m)-SQR(a)) );
   if (r<rh/2.0) {
     r = rh/2.0;
     x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
@@ -3217,18 +3236,9 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   //////////////Perturber Black Hole//////////////////
 
-  q = pin->GetOrAddReal("problem", "q", 1.0);
-  aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
 
-
- // Real t = 10000;
-    // Position of black hole
-
-  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
   Omega_bh2 = v_bh2/r_bh2;
-  // Omega_bh2 = 0.0;
 
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
@@ -3237,6 +3247,10 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real dx_bh2_dt = 0.0;
   Real dy_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
   Real dz_bh2_dt = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+
+  Real ax_bh2 = 0.0; 
+  Real ay_bh2 = -SQR(Omega_bh2) * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  Real az_bh2 = -SQR(Omega_bh2) * r_bh2 * std::cos(Omega_bh2 * (t-t0));
 
   // Real dz_bh2_dt = 0.0;
   // Real dx_bh2_dt =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
@@ -3279,7 +3293,26 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   l_lowerprime[2] = l_upperprime[2];
   l_lowerprime[3] = l_upperprime[3];
 
+  //BOOST //
 
+  Real vsq = SQR(dx_bh2_dt) + SQR(dy_bh2_dt) + SQR(dz_bh2_dt);
+  // Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
+  Real Lorentz = 1.0;
+
+  Real l0 = l_lowerprime[0];
+  Real l1 = l_lowerprime[1];
+  Real l2 = l_lowerprime[2];
+  Real l3 = l_lowerprime[3];
+
+  // l_lowerprime[0] = Lorentz * (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
+  // l_lowerprime[3] = Lorentz * (l3 - v_bh2 * l0);
+
+  //These assuem gamma = 1.  Musch more complicated if not
+
+  l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
+  l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
+  l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
+  l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
 
 
 
@@ -3321,19 +3354,6 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   if (invertible==false) {
     fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
   }
-
-
-  // // Set contravariant components
-  // g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] - fprime * l_upperprime[0]*l_upperprime[0];
-  // g_inv(I01) =        - f * l_upper[0]*l_upper[1] - fprime * l_upperprime[0]*l_upperprime[1];
-  // g_inv(I02) =        - f * l_upper[0]*l_upper[2] - fprime * l_upperprime[0]*l_upperprime[2];
-  // g_inv(I03) =        - f * l_upper[0]*l_upper[3] - fprime * l_upperprime[0]*l_upperprime[3];
-  // g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] - fprime * l_upperprime[1]*l_upperprime[1];
-  // g_inv(I12) =        - f * l_upper[1]*l_upper[2] - fprime * l_upperprime[1]*l_upperprime[2];
-  // g_inv(I13) =        - f * l_upper[1]*l_upper[3] - fprime * l_upperprime[1]*l_upperprime[3];
-  // g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] - fprime * l_upperprime[2]*l_upperprime[2];
-  // g_inv(I23) =        - f * l_upper[2]*l_upper[3] - fprime * l_upperprime[2]*l_upperprime[3];
-  // g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] - fprime * l_upperprime[3]*l_upperprime[3];
 
 
   Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
@@ -3461,6 +3481,68 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   Real dl0prime_dx2 = 0.0;
   Real dl0prime_dx3 = 0.0;
 
+
+
+  Real dl0_dx1_tmp = dl0prime_dx1;
+  Real dl0_dx2_tmp = dl0prime_dx2;
+  Real dl0_dx3_tmp = dl0prime_dx3;
+
+  Real dl1_dx1_tmp = dl1prime_dx1;
+  Real dl1_dx2_tmp = dl1prime_dx2;
+  Real dl1_dx3_tmp = dl1prime_dx3;
+
+  Real dl2_dx1_tmp = dl2prime_dx1;
+  Real dl2_dx2_tmp = dl2prime_dx2;
+  Real dl2_dx3_tmp = dl2prime_dx3;
+
+  Real dl3_dx1_tmp = dl3prime_dx1;
+  Real dl3_dx2_tmp = dl3prime_dx2;
+  Real dl3_dx3_tmp = dl3prime_dx3;
+
+
+
+
+
+  // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
+  // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
+  // l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
+  // l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
+
+
+  // BoostLowerVector(dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1,
+  //                  dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1);
+  // BoostLowerVector(dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2,
+  //                  dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2);
+  // BoostLowerVector(dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3,
+  //                  dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3);
+
+
+  dl0prime_dx1 = (dl0_dx1_tmp - dx_bh2_dt * dl1_dx1_tmp - dy_bh2_dt * dl2_dx1_tmp - dz_bh2_dt * dl3_dx1_tmp); 
+  dl0prime_dx2 = (dl0_dx2_tmp - dx_bh2_dt * dl1_dx2_tmp - dy_bh2_dt * dl2_dx2_tmp - dz_bh2_dt * dl3_dx2_tmp); 
+  dl0prime_dx3 = (dl0_dx3_tmp - dx_bh2_dt * dl1_dx3_tmp - dy_bh2_dt * dl2_dx3_tmp - dz_bh2_dt * dl3_dx3_tmp);  
+
+
+  dl1prime_dx1 = (dl1_dx1_tmp - dx_bh2_dt * dl0_dx1_tmp); 
+  dl1prime_dx2 = (dl1_dx2_tmp - dx_bh2_dt * dl0_dx2_tmp); 
+  dl1prime_dx3 = (dl1_dx3_tmp - dx_bh2_dt * dl0_dx3_tmp); 
+
+
+  dl2prime_dx1 = (dl2_dx1_tmp - dy_bh2_dt * dl0_dx1_tmp); 
+  dl2prime_dx2 = (dl2_dx2_tmp - dy_bh2_dt * dl0_dx2_tmp); 
+  dl2prime_dx3 = (dl2_dx3_tmp - dy_bh2_dt * dl0_dx3_tmp); 
+
+  dl3prime_dx1 = (dl3_dx1_tmp - dz_bh2_dt * dl0_dx1_tmp); 
+  dl3prime_dx2 = (dl3_dx2_tmp - dz_bh2_dt * dl0_dx2_tmp); 
+  dl3prime_dx3 = (dl3_dx3_tmp - dz_bh2_dt * dl0_dx3_tmp); 
+
+
+  //partial derivatives in t
+  Real dl0prime_dt = - ax_bh2 * l1 - ay_bh2 * l2 - az_bh2 *l3;
+  Real dl1prime_dt = - ax_bh2 * l0;
+  Real dl2prime_dt = - ay_bh2 * l0;
+  Real dl3prime_dt = - az_bh2 * l0;
+
+
   AthenaArray<Real> dgprime_dx1, dgprime_dx2, dgprime_dx3;
 
   dgprime_dx1.NewAthenaArray(NMETRIC);
@@ -3558,6 +3640,18 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   dg_dt(I22) = -1.0 * (dx_bh2_dt * dgprime_dx1(I22) + dy_bh2_dt * dgprime_dx2(I22) + dz_bh2_dt * dgprime_dx3(I22) );;
   dg_dt(I23) = -1.0 * (dx_bh2_dt * dgprime_dx1(I23) + dy_bh2_dt * dgprime_dx2(I23) + dz_bh2_dt * dgprime_dx3(I23) );;
   dg_dt(I33) = -1.0 * (dx_bh2_dt * dgprime_dx1(I33) + dy_bh2_dt * dgprime_dx2(I33) + dz_bh2_dt * dgprime_dx3(I33) );;
+
+
+  dg_dt(I00) += fprime * dl0prime_dt * l_lowerprime[0] + fprime * l_lowerprime[0] * dl0prime_dt;
+  dg_dt(I01) += fprime * dl0prime_dt * l_lowerprime[1] + fprime * l_lowerprime[0] * dl1prime_dt;;
+  dg_dt(I02) += fprime * dl0prime_dt * l_lowerprime[2] + fprime * l_lowerprime[0] * dl2prime_dt;;
+  dg_dt(I03) += fprime * dl0prime_dt * l_lowerprime[3] + fprime * l_lowerprime[0] * dl3prime_dt;;
+  dg_dt(I11) += fprime * dl1prime_dt * l_lowerprime[1] + fprime * l_lowerprime[1] * dl1prime_dt;;
+  dg_dt(I12) += fprime * dl1prime_dt * l_lowerprime[2] + fprime * l_lowerprime[1] * dl2prime_dt;;
+  dg_dt(I13) += fprime * dl1prime_dt * l_lowerprime[3] + fprime * l_lowerprime[1] * dl3prime_dt;;
+  dg_dt(I22) += fprime * dl2prime_dt * l_lowerprime[2] + fprime * l_lowerprime[2] * dl2prime_dt;;
+  dg_dt(I23) += fprime * dl2prime_dt * l_lowerprime[3] + fprime * l_lowerprime[2] * dl3prime_dt;;
+  dg_dt(I33) += fprime * dl3prime_dt * l_lowerprime[3] + fprime * l_lowerprime[3] * dl3prime_dt;;
 
 
   dgprime_dx1.DeleteAthenaArray();

@@ -1793,10 +1793,6 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-
-
-
-
   // Set covariant components
   // g(I00) = eta[0] + fprime * l_lowerprime[0]*l_lowerprime[0] + v_bh2 * fprime * l_lowerprime[0]*l_lowerprime[3];
   // g(I01) =          fprime * l_lowerprime[0]*l_lowerprime[1] + v_bh2 * fprime * l_lowerprime[1]*l_lowerprime[3];
