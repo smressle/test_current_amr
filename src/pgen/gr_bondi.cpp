@@ -360,8 +360,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   if (MAGNETIC_FIELDS_ENABLED) {
     // Find normalization
     Real r, theta, phi;
-    GetBoyerLindquistCoordinates(pcoord->x1f(is), pcoord->x2v((jl+ju)/2),
-                                 pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+    // GetBoyerLindquistCoordinates(pcoord->x1f(is), pcoord->x2v((jl+ju)/2),
+    //                              pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+
+    r = 3.0;
     Real rho, pgas, ut, ur;
     CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
     Real bbr = 1.0/SQR(r);
