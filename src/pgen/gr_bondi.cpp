@@ -1466,8 +1466,8 @@ Real TemperatureMin(Real r, Real t_min, Real t_max) {
 Real TemperatureBisect(Real r, Real t_min, Real t_max) {
   // Parameters
   const int max_iterations = 100;
-  const Real tol_residual = 1.0e-6;
-  const Real tol_temperature = 1.0e-6;
+  const Real tol_residual = 1.0e-7;
+  const Real tol_temperature = 1.0e-7;
 
   // Find initial residuals
   Real res_min = TemperatureResidual(t_min, r);
