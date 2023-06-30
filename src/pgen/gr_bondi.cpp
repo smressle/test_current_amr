@@ -1428,7 +1428,7 @@ void CalculatePrimitives(Real r, Real temp_min, Real temp_max, Real *prho,
 Real TemperatureMin(Real r, Real t_min, Real t_max) {
   // Parameters
   const Real ratio = 0.3819660112501051;  // (3+\sqrt{5})/2
-  const int max_iterations = 30;          // maximum number of iterations
+  const int max_iterations = 100;          // maximum number of iterations
 
   // Initialize values
   Real t_mid = t_min + ratio * (t_max - t_min);
