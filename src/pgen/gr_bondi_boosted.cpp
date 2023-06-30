@@ -446,9 +446,14 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
             Real b0, b1, b2, b3;
             TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
-                        Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
             BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
             pfield->b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
+
+
+           if (std::isnan(pfield->b.x3f(k,j,i))) 
+              fprintf(stderr,"Bx1f nan! r: %g bbr: %g bt: %g br: %g \n ur: %g ur %g \n b0-3: %g %g %g %g \n u0-3: %g %g %g %g \n",
+                              rprime,bbr,bt,br,ur,ur,b0,b1,b2,b3,u0,u1,u2,u3);
           }
         }
       }
