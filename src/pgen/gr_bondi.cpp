@@ -1407,7 +1407,8 @@ void CalculatePrimitives(Real r, Real temp_min, Real temp_max, Real *prho,
 
   if (std::isnan(ut)){
 
-    fprintf(stderr,"nan in CalculatePrimitives!!!! \n r: %g temp: %g rho: %g ur: %g ut: %g \n c1: %g n_adi: %g \n");
+    fprintf(stderr,"nan in CalculatePrimitives!!!! \n r: %g temp: %g rho: %g ur: %g ut: %g \n c1: %g n_adi: %g \n",
+      r,temp,rho,ur,ut,c1,n_adi);
     exit(0);
   }
   return;
