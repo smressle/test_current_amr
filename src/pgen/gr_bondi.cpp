@@ -390,6 +390,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Real b0, b1, b2, b3;
             TransformVector(bt, br, 0.0, 0.0, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
             pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1;
+
+            if (std::isnan(pfield->b.x1f(k,j,i))) 
+              fprintf(stderr,"Bx1f nan! r: %g bbr: %g bt: %g br: %g \n ur: %g ur %g \n b0-3: %g %g %g %g \n u0-3: %g %g %g %g \n",
+                              r,bbr,bt,br,ur,ur,b0,b1,b2,b3,u0,u1,u2,u3)
           }
 
           // Set B^2
