@@ -376,9 +376,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     Real rho, pgas, ut, ur;
     CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
     Real bbr = 1.0/SQR(r);
-    Real bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+    Real bt = 1.0/(1.0-2.0*m2/r) * bbr * ur;
     Real br = (bbr + bt * ur) / ut;
-    Real bsq = -(1.0-2.0*m/r) * SQR(bt) + 1.0/(1.0-2.0*m/r) * SQR(br);
+    Real bsq = -(1.0-2.0*m2/r) * SQR(bt) + 1.0/(1.0-2.0*m2/r) * SQR(br);
     Real bsq_over_rho_actual = bsq/rho;
     Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
 
@@ -576,9 +576,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real rho, pgas, ut, ur;
               CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
               Real bbr = 1.0/SQR(r);
-              Real bt = 1.0/(1.0-2.0*m/r) * bbr * ur;
+              Real bt = 1.0/(1.0-2.0*m2/r) * bbr * ur;
               Real br = (bbr + bt * ur) / ut;
-              Real bsq = -(1.0-2.0*m/r) * SQR(bt) + 1.0/(1.0-2.0*m/r) * SQR(br);
+              Real bsq = -(1.0-2.0*m2/r) * SQR(bt) + 1.0/(1.0-2.0*m2/r) * SQR(br);
               Real bsq_over_rho_actual = bsq/rho;
               Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
 
