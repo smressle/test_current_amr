@@ -657,6 +657,7 @@ if (MAGNETIC_FIELDS_ENABLED) {
             pmb->pfield->b.x1f(k,j,i) = b1prime * u0prime - b0prime * u1prime;
             pmb->pfield->b1.x1f(k,j,i) = pmb->pfield->b.x1f(k,j,i);
         }
+      }
 
         if (i!=pmb->ie+1 && k!=pmb->ke+1){
           get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2f(j),pmb->pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
@@ -681,6 +682,7 @@ if (MAGNETIC_FIELDS_ENABLED) {
             pmb->pfield->b.x2f(k,j,i)  = b2prime * u0prime - b0prime * u2prime;
             pmb->pfield->b1.x2f(k,j,i) = pmb->pfield->b.x2f(k,j,i);
         }
+      }
 
         if (i!=pmb->ie+1 && j!=pmb->je+1){
           get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
@@ -706,6 +708,7 @@ if (MAGNETIC_FIELDS_ENABLED) {
             pmb->pfield->b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
             pmb->pfield->b1.x3f(k,j,i) = pmb->pfield->b.x3f(k,j,i);
         }
+      }
 
 
 
