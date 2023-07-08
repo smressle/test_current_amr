@@ -57,6 +57,9 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
 
 void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar);
+void apply_inner_boundary_condition_in_boundary_function(MeshBlock *pmb,Coordinates *pcoord, AthenaArray<Real> &prim,FaceField &b, Real time,
+                    int is, int ie, int js, int je, int ks, int ke,int ngh);
+
 void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
   const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
   const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
@@ -733,6 +736,241 @@ if (MAGNETIC_FIELDS_ENABLED) {
 }
 
 }
+
+
+void apply_inner_boundary_condition_in_boundary_function(MeshBlock *pmb,Coordinates *pcoord,AthenaArray<Real> &prim,FaceField &b, Real t,
+                    int is, int ie, int js, int je, int ks, int ke,int ngh){
+  Real r,th,ph;
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+
+
+   for (int k=ks; k<=ke; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(k, j, is, ie, g, gi);
+#pragma simd
+      for (int i=is; i<=ie; ++i) {
+
+
+         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j),pcoord->x3v(k), &r, &th, &ph);
+
+
+          if (r < r_inner_boundary){
+              
+
+              //set uu assuming u is zero
+              Real gamma = 1.0;
+              Real alpha = std::sqrt(-1.0/gi(I00,i));
+              Real u0 = gamma/alpha;
+              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
+              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
+              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+              
+              prim(IDN,k,j,i) = dfloor;
+              prim(IVX,k,j,i) = 0.;
+              prim(IVY,k,j,i) = 0.;
+              prim(IVZ,k,j,i) = 0.;
+              prim(IPR,k,j,i) = pfloor;
+            
+              
+              
+          }
+
+          Real x = pcoord->x1v(i);
+          Real y = pcoord->x2v(j);
+          Real z = pcoord->x3v(k);
+
+          Real xprime,yprime,zprime,rprime,Rprime;
+
+          get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
+
+         if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+
+          // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+          //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          // {
+
+            Real r(0.0), theta(0.0), phi(0.0);
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+                                         &theta, &phi);
+            Real rho, pgas, ut, ur;
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
+            Real uu2 = u2prime - gi(I02,i)/gi(I00,i) * u0prime;
+            Real uu3 = u3prime - gi(I03,i)/gi(I00,i) * u0prime;
+            prim(IDN,k,j,i) = rho;
+            prim(IVX,k,j,i) = uu1;
+            prim(IVY,k,j,i) = uu2;
+            prim(IVZ,k,j,i) = uu3;
+            prim(IPR,k,j,i) = pgas;
+
+
+         }
+
+          if (rprime < r_inner_boundary_2){
+              
+
+              //set uu assuming u is zero
+              Real gamma = 1.0;
+              Real alpha = std::sqrt(-1.0/gi(I00,i));
+              Real u0 = gamma/alpha;
+              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
+              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
+              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+              
+              prim(IDN,k,j,i) = dfloor;
+              prim(IVX,k,j,i) = 0.;
+              prim(IVY,k,j,i) = 0.;
+              prim(IVZ,k,j,i) = 0.;
+              prim(IPR,k,j,i) = pfloor;
+            
+              
+              
+          }
+
+
+
+}}}
+
+
+if (MAGNETIC_FIELDS_ENABLED) {
+
+
+    Real r,theta,phi;
+    r = 3.0;
+    Real rho, pgas, ut, ur;
+    CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+    Real bbr = 1.0/SQR(r);
+    Real bt = 1.0/(1.0-2.0*m2/r) * bbr * ur;
+    Real br = (bbr + bt * ur) / ut;
+    Real bsq = -(1.0-2.0*m2/r) * SQR(bt) + 1.0/(1.0-2.0*m2/r) * SQR(br);
+    Real bsq_over_rho_actual = bsq/rho;
+    Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
+
+
+
+   for (int k=ks; k<=ke+1; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=js; j<=je+1; ++j) {
+      pcoord->CellMetric(k, j, is, ie, g, gi);
+#pragma simd
+      for (int i=is; i<=ie+1; ++i) {
+
+
+        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j),pcoord->x3v(k), &r, &th, &ph);
+
+
+
+        Real x = pcoord->x1v(i);
+        Real y = pcoord->x2v(j);
+        Real z = pcoord->x3v(k);
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+
+        if (j !=je+1 && k!=ke+1){
+          get_prime_coords(pcoord->x1f(i),pcoord->x2v(j),pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+          //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          // {
+
+
+                            // if (j != ju+1 && k != ku+1) {
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            b.x1f(k,j,i) = b1prime * u0prime - b0prime * u1prime;
+        }
+      }
+
+        if (i!=ie+1 && k!=ke+1){
+          get_prime_coords(pcoord->x1v(i),pcoord->x2f(j),pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+          //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          // {
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            b.x2f(k,j,i)  = b2prime * u0prime - b0prime * u2prime;
+        }
+      }
+
+        if (i!=ie+1 && j!=je+1){
+          get_prime_coords(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3f(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+          //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          // {
+
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            b.x3f(k,j,i) = b3prime * u0prime - b0prime * u3prime;
+        }
+      }
+
+
+
+
+}
+}
+}
+
+}
+}
 void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
   const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
   const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
@@ -842,6 +1080,10 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
       }
     }}
   }
+
+
+
+  apply_inner_boundary_condition_in_boundary_function(pmb,pcoord,prim,b,time,is,ie,js,je,ks,ke,ngh);
 
   return;
 }

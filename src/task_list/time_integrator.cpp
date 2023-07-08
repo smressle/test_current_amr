@@ -899,12 +899,12 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
   {using namespace HydroIntegratorTaskNames; // NOLINT (build/namespace)
     // calculate hydro/field diffusive fluxes
     if (!STS_ENABLED) {
-      AddTask(UPDATE_BVAL_AMR,NONE);
-      //AddTask(DIFFUSE_HYD,NONE);
-      AddTask(DIFFUSE_HYD,UPDATE_BVAL_AMR);
+      // AddTask(UPDATE_BVAL_AMR,NONE);
+      AddTask(DIFFUSE_HYD,NONE);
+      // AddTask(DIFFUSE_HYD,UPDATE_BVAL_AMR);
       if (MAGNETIC_FIELDS_ENABLED) {
-        // AddTask(DIFFUSE_FLD,NONE);
-        AddTask(DIFFUSE_FLD,UPDATE_BVAL_AMR);
+        AddTask(DIFFUSE_FLD,NONE);
+        // AddTask(DIFFUSE_FLD,UPDATE_BVAL_AMR);
         // compute hydro fluxes, integrate hydro variables
         AddTask(CALC_HYDFLX,(DIFFUSE_HYD|DIFFUSE_FLD));
       } else { // Hydro
@@ -1189,16 +1189,19 @@ void TimeIntegratorTaskList::AddTask(const TaskID& id, const TaskID& dep) {
       task_list_[ntasks].TaskFunc=
         static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::RadSourceTerms);
+        task_list_[ntasks].lb_time = true;
   } 
-  else if  (id ==UPDATE_BVAL_AMR){
-      task_list_[ntasks].TaskFunc=
-        static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
-        (&TimeIntegratorTaskList::UpdateInnerBoundaryAfterAMR);
-  } 
+  // else if  (id ==UPDATE_BVAL_AMR){
+  //     task_list_[ntasks].TaskFunc=
+  //       static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
+  //       (&TimeIntegratorTaskList::UpdateInnerBoundaryAfterAMR);
+  //       task_list_[ntasks].lb_time = true;
+  // } 
   else if  (id ==UPDATE_METRIC){
       task_list_[ntasks].TaskFunc=
         static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::UpdateMetric);
+        task_list_[ntasks].lb_time = true;
   } 
   else if (id == SEND_HYD) {
     task_list_[ntasks].TaskFunc=
