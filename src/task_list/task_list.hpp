@@ -160,6 +160,7 @@ class TimeIntegratorTaskList : public TaskList {
   TaskStatus AddSourceTerms(MeshBlock *pmb, int stage);
 
   TaskStatus RadSourceTerms(MeshBlock *pmb, int stage);
+  TaskStatus UpdateInnerBoundaryAfterAMR(MeshBlock *pmb, int stage);
   TaskStatus UpdateMetric(MeshBlock *pmb, int stage);
 
 
