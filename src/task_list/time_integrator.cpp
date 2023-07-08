@@ -899,7 +899,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
   {using namespace HydroIntegratorTaskNames; // NOLINT (build/namespace)
     // calculate hydro/field diffusive fluxes
     if (!STS_ENABLED) {
-      AddTask(UPDATE_BVAL_AMR,NONE)
+      AddTask(UPDATE_BVAL_AMR,NONE);
       //AddTask(DIFFUSE_HYD,NONE);
       AddTask(DIFFUSE_HYD,UPDATE_BVAL_AMR);
       if (MAGNETIC_FIELDS_ENABLED) {
