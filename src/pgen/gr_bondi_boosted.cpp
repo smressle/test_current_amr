@@ -545,7 +545,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
-         if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+         // if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+
+          if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+               (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          {
 
             Real r(0.0), theta(0.0), phi(0.0);
             GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &r,
@@ -632,7 +636,10 @@ if (MAGNETIC_FIELDS_ENABLED) {
         if (j !=pmb->je+1 && k!=pmb->ke+1){
           get_prime_coords(pmb->pcoord->x1f(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
-          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+               (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          {
 
 
                             // if (j != ju+1 && k != ku+1) {
@@ -662,7 +669,10 @@ if (MAGNETIC_FIELDS_ENABLED) {
         if (i!=pmb->ie+1 && k!=pmb->ke+1){
           get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2f(j),pmb->pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
-          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+               (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          {
             GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
                                          &r, &theta, &phi);
             Real xprime,yprime,zprime,rprime,Rprime;
@@ -687,7 +697,10 @@ if (MAGNETIC_FIELDS_ENABLED) {
         if (i!=pmb->ie+1 && j!=pmb->je+1){
           get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
-          if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          // if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+          if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
+               (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
+          {
 
             GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
                                          &r, &theta, &phi);
