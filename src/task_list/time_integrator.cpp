@@ -899,9 +899,12 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
   {using namespace HydroIntegratorTaskNames; // NOLINT (build/namespace)
     // calculate hydro/field diffusive fluxes
     if (!STS_ENABLED) {
-      AddTask(DIFFUSE_HYD,NONE);
+      AddTask(UPDATE_BVAL_AMR,None)
+      //AddTask(DIFFUSE_HYD,NONE);
+      AddTask(DIFFUSE_HYD,UPDATE_BVAL_AMR);
       if (MAGNETIC_FIELDS_ENABLED) {
-        AddTask(DIFFUSE_FLD,NONE);
+        // AddTask(DIFFUSE_FLD,NONE);
+        AddTask(DIFFUSE_FLD,UPDATE_BVAL_AMR);
         // compute hydro fluxes, integrate hydro variables
         AddTask(CALC_HYDFLX,(DIFFUSE_HYD|DIFFUSE_FLD));
       } else { // Hydro
@@ -1186,6 +1189,11 @@ void TimeIntegratorTaskList::AddTask(const TaskID& id, const TaskID& dep) {
       task_list_[ntasks].TaskFunc=
         static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
         (&TimeIntegratorTaskList::RadSourceTerms);
+  } 
+  else if  (id ==UPDATE_BVAL_AMR){
+      task_list_[ntasks].TaskFunc=
+        static_cast<enum TaskStatus (TaskList::*)(MeshBlock*,int)>
+        (&TimeIntegratorTaskList::UpdateInnerBoundaryAfterAMR);
   } 
   else if  (id ==UPDATE_METRIC){
       task_list_[ntasks].TaskFunc=
@@ -1773,6 +1781,79 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
 
   return TaskStatus::next;
 }
+
+
+
+TaskStatus TimeIntegratorTaskList::UpdateInnerBoundaryAfterAMR(MeshBlock *pmb, int stage)
+{
+  Hydro *ph=pmb->phydro;
+  Field *pf=pmb->pfield;
+  PassiveScalars *ps = pmb->pscalars;
+
+
+  BoundaryValues *pbval=pmb->pbval;
+
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+  if (pbval->nblevel[1][1][0] != -1) is-=NGHOST;
+  if (pbval->nblevel[1][1][2] != -1) ie+=NGHOST;
+  if (pbval->nblevel[1][0][1] != -1) js-=NGHOST;
+  if (pbval->nblevel[1][2][1] != -1) je+=NGHOST;
+  if (pbval->nblevel[0][1][1] != -1) ks-=NGHOST;
+  if (pbval->nblevel[2][1][1] != -1) ke+=NGHOST;
+
+  // return if there are no source terms to be added
+  if (ph->hsrc.rad_sourceterms_defined == false) return TaskStatus::next;
+
+  // *** this must be changed for the RK3 integrator
+  if (stage <= nstages) {
+    // Time at beginning of stage for u()
+    Real t_start_stage = pmb->pmy_mesh->time
+                           + stage_wghts[(stage-1)].sbeta*pmb->pmy_mesh->dt;    
+                           // Scaled coefficient for RHS update
+    Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
+
+
+    //w contains old primitives, w1 is a placeholder array
+    pmb->peos->ConservedToPrimitive(ph->u, ph->w1, pf->b, ph->w, pf->bcc,
+           pmb->pcoord, is,ie,js,je,ks,ke);
+
+    // if (NSCALARS > 0) {
+    //   pmb->peos->PassiveScalarConservedToPrimitive(ps->s, ph->u, ps->r, ps->r,
+    //                                                pmb->pcoord, is, ie, js, je, ks, ke);
+    // }
+
+    if (ALLOCATE_U2){
+      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+        ph->u2, ph->u1,ph->u,
+        ph->w2,ph->w1,ph->w,
+        pf->b1,pf->b,
+        ps->s2, ps->s1, ps->s,
+        ps->r, ps->r);
+    }
+    else{
+      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+        ph->u1, ph->u1,ph->u,
+        ph->w,ph->w1,ph->w,
+        pf->b1,pf->b,
+        ps->s1, ps->s1, ps->s,
+        ps->r, ps->r);
+    }
+
+
+
+    /*update conservative vars*/
+    pmb->peos->PrimitiveToConserved(ph->w,pf->bcc, ph->u, pmb->pcoord,is,ie,js,je,ks,ke);
+    if (NSCALARS>0) pmb->peos->PassiveScalarPrimitiveToConserved(ps->r, ph->u, ps->s, pmb->pcoord,is, ie, js, je, ks, ke);
+
+     
+  } else {
+    return TaskStatus::fail;
+  }
+
+  return TaskStatus::next;
+}
+
 
 TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
 {
