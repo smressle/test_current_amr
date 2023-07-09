@@ -733,7 +733,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 // }
 // }
 
-}
+// }
 
 }
 
