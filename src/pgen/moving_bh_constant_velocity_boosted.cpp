@@ -1381,7 +1381,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               uu1 = prim(IVX,k,j,i);
               uu2 = prim(IVY,k,j,i);
               uu3 = prim(IVZ,k,j,i);
-              Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+              tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
                        + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                        + g(I33,i)*uu3*uu3;
               gamma = std::sqrt(1.0 + tmp);
@@ -1390,9 +1390,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // Calculate 4-velocity
               alpha = std::sqrt(-1.0/gi(I00,i));
               u0 = gamma/alpha;
-              Real u1 = uu1 - alpha * gamma * gi(I01,i);
-              Real u2 = uu2 - alpha * gamma * gi(I02,i);
-              Real u3 = uu3 - alpha * gamma * gi(I03,i);
+              u1 = uu1 - alpha * gamma * gi(I01,i);
+              u2 = uu2 - alpha * gamma * gi(I02,i);
+              u3 = uu3 - alpha * gamma * gi(I03,i);
               Real u_0, u_1, u_2, u_3;
 
               // user_out_var(1,k,j,i) = u0;
