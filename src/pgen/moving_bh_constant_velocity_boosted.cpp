@@ -1328,7 +1328,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
           get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
-          if (rprime < r_inner_boundary_2){
+          if (rprime < rh2){
 
               Real bsq_over_rho_max = 1.0;
               Real beta_floor = 0.2;
@@ -1337,15 +1337,44 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               //set uu assuming u is zero
               Real gamma = 1.0;
               Real alpha = std::sqrt(-1.0/gi(I00,i));
+              // Real u0 = gamma/alpha;
+              // Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
+              // Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
+              // Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+
+
+                            // Calculate normal frame Lorentz factor
+              Real uu1 = 0.0;
+              Real uu2 = 0.0;
+              Real uu3 = 0.0;
+              Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                       + g(I33,i)*uu3*uu3;
+              Real gamma = std::sqrt(1.0 + tmp);
+              // user_out_var(0,k,j,i) = gamma;
+
+              // Calculate 4-velocity
+              Real alpha = std::sqrt(-1.0/gi(I00,i));
               Real u0 = gamma/alpha;
-              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+              Real u1 = uu1 - alpha * gamma * gi(I01,i);
+              Real u2 = uu2 - alpha * gamma * gi(I02,i);
+              Real u3 = uu3 - alpha * gamma * gi(I03,i);
+
+              Lorentz = 1.0/std::sqrt(1.0-SQR(v_bh2));
+
+              Real u0prime = Lorentz*(u0 + v_bh2*u3);
+              Real u3prime = Lorentz*(u3 + v_bh2*u0);
+
+
+              uu1 = u1 - gi(I01,i) / gi(I00,i) * u0prime;
+              uu2 = u2 - gi(I02,i) / gi(I00,i) * u0prime;
+              uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
               
               prim(IDN,k,j,i) = dfloor;
-              prim(IVX,k,j,i) = 0.;
-              prim(IVY,k,j,i) = 0.;
-              prim(IVZ,k,j,i) = 0.;
+              prim(IVX,k,j,i) = uu1;
+              prim(IVY,k,j,i) = uu2;
+              prim(IVZ,k,j,i) = uu3;
               prim(IPR,k,j,i) = pfloor;
 
 
