@@ -1941,8 +1941,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real u2prime = (u2 + dy_bh2_dt * u0);
               Real u3prime = (u3 + dz_bh2_dt * u0);
 
-              Real u0prime = Lorentz*(u0 + v_bh2*u3);
-              Real u3prime = Lorentz*(u3 + v_bh2*u0);
 
 
               uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
@@ -3374,8 +3372,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
+  Real dx_bh2_dt,dy_bh2_dt,dz_bh2_dt;
   get_bh_velocity(t,&dx_bh2_dt,&dy_bh2_dt,&dz_bh2_dt);
 
+  Real ay_bh2,az_bh2,ax_bh2;
   get_bh_acceleration(t,&ax_bh2,&ay_bh2,&az_bh2);
 
   // Real ax_bh2 = 0.0; 
