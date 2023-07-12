@@ -111,6 +111,12 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
 
 void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
+void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
+  AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+{
+
+
 Real DivergenceB(MeshBlock *pmb, int iout);
 
 
