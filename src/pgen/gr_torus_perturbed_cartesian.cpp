@@ -151,6 +151,7 @@ static Real r_bh2;
 static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
+static Real orbit_inclination;
 
 // Real rotation_matrix[3][3];
 
@@ -566,6 +567,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
   t0 = pin->GetOrAddReal("problem","t0", 1e4);
+
+  orbit_inclination = pin->GetOrAddReal("problem","orbit_inclination",0.0);
 
 
   Real v_bh2 = 1.0/std::sqrt(r_bh2);
@@ -2925,9 +2928,17 @@ static void TransformAphi(Real a3_ks, Real x1,
 
 void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 
-  *xbh = 0.0;
-  *ybh = r_bh2 * std::sin(Omega_bh2 * (t-t0));
-  *zbh = r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  Real xbh_ = 0.0;
+  Real ybh_ = r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  Real zbh_ = r_bh2 * std::cos(Omega_bh2 * (t-t0));
+
+  // *xbh = 0.0;
+  // *ybh = r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  // *zbh = r_bh2 * std::cos(Omega_bh2 * (t-t0));
+
+  *xbh = std::sin(orbit_inclination) * zbh_;
+  *ybh = ybh_;
+  *zbh = std::cos(orbit_inclination) * zbh_;
 
 
   // *zbh = 0.0;
@@ -2942,10 +2953,18 @@ void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 }
 void get_bh_velocity(Real t, Real *vxbh, Real *vybh, Real *vzbh){
 
-  *vxbh = 0.0;
-  *vybh = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
-  *vzbh = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  Real vxbh_ = 0.0;
+  Real vybh_ = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  Real vzbh_ = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
 
+  // *vxbh = 0.0;
+  // *vybh = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  // *vzbh = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+
+
+  *vxbh = std::sin(orbit_inclination) * vzbh_;
+  *vybh = vybh_;
+  *vzbh = std::cos(orbit_inclination) * vzbh_;
   // *zbh = 0.0;
   // *xbh = r_bh2 * std::sin(Omega_bh2 * (t-t0));
   // *ybh = r_bh2 * std::cos(Omega_bh2 * (t-t0));
@@ -2958,9 +2977,18 @@ void get_bh_velocity(Real t, Real *vxbh, Real *vybh, Real *vzbh){
 }
 void get_bh_acceleration(Real t, Real *axbh, Real *aybh, Real *azbh){
 
-  *axbh = 0.0;
-  *aybh = -SQR(Omega_bh2) * r_bh2 * std::sin(Omega_bh2 * (t-t0));
-  *azbh = -SQR(Omega_bh2) * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+
+  Real axbh_ = 0.0;
+  Real aybh_ = -SQR(Omega_bh2) * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  Real azbh_ = -SQR(Omega_bh2) * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+
+  // *axbh = 0.0;
+  // *aybh = -SQR(Omega_bh2) * r_bh2 * std::sin(Omega_bh2 * (t-t0));
+  // *azbh = -SQR(Omega_bh2) * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+
+  *axbh = std::sin(orbit_inclination) * azbh_;
+  *aybh = aybh_;
+  *azbh = std::cos(orbit_inclination) * azbh_;
 
 }
 
