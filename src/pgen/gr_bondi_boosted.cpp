@@ -1469,9 +1469,10 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime
   Real xbh,ybh,zbh;
   get_bh_position(t,&xbh,&ybh,&zbh);
 
+  Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
   *xprime = x - xbh;
   *yprime = y - ybh;
-  *zprime = z - zbh;
+  *zprime = Lorentz * (z - zbh);
 
 
   if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
