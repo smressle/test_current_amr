@@ -472,7 +472,7 @@ int main(int argc, char *argv[]) {
 
     if (pmesh->turb_flag > 1) pmesh->ptrbd->Driving(); // driven turbulence
 
-    if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0 && pmesh->ncycle >0) {
+    if (METRIC_EVOLUTION && pmesh->ncycle % 1 == 0 && pmesh->ncycle >0) {
         pmesh->update_metric_this_timestep = true;
     }
 
