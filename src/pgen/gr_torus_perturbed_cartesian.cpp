@@ -185,6 +185,16 @@ typedef struct secondary_bh_s{
 
 secondary_bh bh2;          /* The stars structure used throughout */
 
+
+void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real *A_new[4]){
+
+  *A_new[0] = L(I00) * A[0] + L(I01)*A[1] + L(I02) * A[2] + L(I03) * A[3]; 
+  *A_new[1] = L(I10) * A[0] + L(I11)*A[1] + L(I12) * A[2] + L(I13) * A[3]; 
+  *A_new[2] = L(I20) * A[0] + L(I21)*A[1] + L(I22) * A[2] + L(I23) * A[3]; 
+  *A_new[3] = L(I30) * A[0] + L(I31)*A[1] + L(I32) * A[2] + L(I33) * A[3]; 
+
+}
+
 //----------------------------------------------------------------------------------------
 // Functions for calculating determinant
 // Inputs:
@@ -3445,7 +3455,12 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
   Real l_lowerprime[4],l_upperprime[4];
+  Real l_lowerprime_transformed[4];
+  AthenaArray<Real> Lambda,dLambda_dt;
 
+  dgprime_dx1.NewAthenaArray(NMETRIC);
+  dgprime_dx2.NewAthenaArray(NMETRIC);
+  dgprime_dx3.NewAthenaArray(NMETRIC);
   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
   l_upperprime[0] = -1.0;
   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
@@ -3460,8 +3475,44 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   //BOOST //
 
   Real vsq = SQR(dx_bh2_dt) + SQR(dy_bh2_dt) + SQR(dz_bh2_dt);
-  // Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
-  Real Lorentz = 1.0;
+  Real beta_mag = std::sqrt(vsq);
+  Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
+  ///Real Lorentz = 1.0;
+  Real nx = dx_bh2_dt/beta_mag;
+  Real ny = dy_bh2_dt/beta_mag;
+  Real nz = dz_bh2_dt/beta_mag;
+
+
+  Real dLorentz_dt = std::pow(Lorentz,3.0) * (dx_bh2_dt*ax_bh2 + dy_bh2_dt*ay_bh2 + dz_bh2_dt*az_bh2);
+
+  Real dnx_dt = ax_bh2/beta_mag - nx/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
+  Real dny_dt = ay_bh2/beta_mag - ny/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
+  Real dnz_dt = az_bh2/beta_mag - nz/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
+
+
+  Lambda(I00) = Lorentz;
+  Lambda(I01) = -Lorentz * dx_bh2_dt;
+  Lambda(I02) = -Lorentz * dy_bh2_dt;
+  Lambda(I03) = -Lorentz * dz_bh2_dt;
+  Lambda(I11) = ( 1.0 + (Lorentz - 1.0) * nx * nx );
+  Lambda(I12) = (       (Lorentz - 1.0) * nx * ny ); 
+  Lambda(I13) = (       (Lorentz - 1.0) * nx * nz );
+  Lambda(I22) = ( 1.0 + (Lorentz - 1.0) * ny * ny ); 
+  Lambda(I23) = (       (Lorentz - 1.0) * ny * nz );
+  Lambda(I33) = ( 1.0 + (Lorentz - 1.0) * nz * nz );
+
+  dLambda_dt(I00) = dLorentz_dt;
+  dLambda_dt(I01) = -dx_bh2_dt*dLorentz_dt - Lorentz*ax_bh2;
+  dLambda_dt(I02) = -dy_bh2_dt*dLorentz_dt - Lorentz*ay_bh2;
+  dLambda_dt(I03) = -dz_bh2_dt*dLorentz_dt - Lorentz*az_bh2;
+  dLambda_dt(I11) = dLorentz_dt * nx * nx + (1.0 + (Lorentz - 1.0)) * ( dnx_dt * nx + nx * dnx_dt);
+  dLambda_dt(I12) = dLorentz_dt * nx * ny + (      (Lorentz - 1.0)) * ( dnx_dt * ny + nx * dny_dt);
+  dLambda_dt(I13) = dLorentz_dt * nx * nz + (      (Lorentz - 1.0)) * ( dnx_dt * nz + nx * dnz_dt);
+  dLambda_dt(I22) = dLorentz_dt * ny * ny + (1.0 + (Lorentz - 1.0)) * ( dny_dt * ny + ny * dny_dt);
+  dLambda_dt(I23) = dLorentz_dt * ny * nz + (      (Lorentz - 1.0)) * ( dny_dt * nz + ny * dnz_dt);
+  dLambda_dt(I33) = dLorentz_dt * nz * nz + (1.0 + (Lorentz - 1.0)) * ( dnz_dt * nz + nz * dnz_dt);
+
+
 
   Real l0 = l_lowerprime[0];
   Real l1 = l_lowerprime[1];
@@ -3473,25 +3524,27 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   //These assuem gamma = 1.  Much more complicated if not
 
-  l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
-  l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
-  l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
-  l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
+  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
+
+  // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
+  // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
+  // l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
+  // l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
 
 
 
 
   // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] + fprime * l_lowerprime[0]*l_lowerprime[0];
-  g(I01) =          f * l_lower[0]*l_lower[1] + fprime * l_lowerprime[0]*l_lowerprime[1];
-  g(I02) =          f * l_lower[0]*l_lower[2] + fprime * l_lowerprime[0]*l_lowerprime[2];
-  g(I03) =          f * l_lower[0]*l_lower[3] + fprime * l_lowerprime[0]*l_lowerprime[3];
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] + fprime * l_lowerprime[1]*l_lowerprime[1];
-  g(I12) =          f * l_lower[1]*l_lower[2] + fprime * l_lowerprime[1]*l_lowerprime[2];
-  g(I13) =          f * l_lower[1]*l_lower[3] + fprime * l_lowerprime[1]*l_lowerprime[3];
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] + fprime * l_lowerprime[2]*l_lowerprime[2];
-  g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime[2]*l_lowerprime[3];
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
+  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
+  g(I01) =          f * l_lower[0]*l_lower[1] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
+  g(I02) =          f * l_lower[0]*l_lower[2] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
+  g(I03) =          f * l_lower[0]*l_lower[3] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
+  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
+  g(I12) =          f * l_lower[1]*l_lower[2] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
+  g(I13) =          f * l_lower[1]*l_lower[3] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
+  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
+  g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
+  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
 
   // Real det_test = Determinant(g);
 
@@ -3622,28 +3675,51 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
 
 
-  Real dfprime_dx1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
+  Real dfprime_dX1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
                       ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
   //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real dfprime_dx2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
+  Real dfprime_dX2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
                       ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  Real dfprime_dx3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
+  Real dfprime_dX3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
                       ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
   //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  Real dl1prime_dx1 = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+  Real dl1prime_dZ1 = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
   // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  Real dl1prime_dx2 = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
-  Real dl1prime_dx3 = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  Real dl2prime_dx1 = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
-  Real dl2prime_dx2 = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
-  Real dl2prime_dx3 = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
-  Real dl3prime_dx1 = - xprime*zprime/(rprime) /( sqrt_term );
-  Real dl3prime_dx2 = - yprime*zprime/(rprime) /( sqrt_term );
-  Real dl3prime_dx3 = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
+  Real dl1prime_dX2 = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
+  Real dl1prime_dX3 = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
+  Real dl2prime_dX1 = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
+  Real dl2prime_dX2 = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+  Real dl2prime_dX3 = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
+  Real dl3prime_dX1 = - xprime*zprime/(rprime) /( sqrt_term );
+  Real dl3prime_dX2 = - yprime*zprime/(rprime) /( sqrt_term );
+  Real dl3prime_dX3 = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
 
   Real dl0prime_dx1 = 0.0;
   Real dl0prime_dx2 = 0.0;
   Real dl0prime_dx3 = 0.0;
+
+  Real dX1_dx1 = 1.0 + (Lorentz-1.0)*nx*nx ;
+  Real dX1_dx2 =       (Lorentz-1.0)*nx*ny ;
+  Real dX1_dx3 =       (Lorentz-1.0)*nx*nz ;
+  Real dX2_dx1 =       (Lorentz-1.0)*ny*nx ;
+  Real dX2_dx2 = 1.0 + (Lorentz-1.0)*ny*ny ;  
+  Real dX2_dx3 =       (Lorentz-1.0)*ny*nz ;
+  Real dX3_dx1 =       (Lorentz-1.0)*nz*nx ;
+  Real dX3_dx2 =       (Lorentz-1.0)*nz*ny ;  
+  Real dX3_dx3 = 1.0 + (Lorentz-1.0)*nz*nz ;
+
+
+  Real dl1prime_dx1 = dl1prime_dX1 * dX1_dx1 + dl1prime_dX2 * dX2_dx1 + dl1prime_dX3 * dX3_dx1;
+  Real dl1prime_dx2 = dl1prime_dX1 * dX1_dx2 + dl1prime_dX2 * dX2_dx2 + dl1prime_dX3 * dX3_dx2;
+  Real dl1prime_dx3 = dl1prime_dX1 * dX1_dx3 + dl1prime_dX2 * dX2_dx3 + dl1prime_dX3 * dX3_dx3;
+  
+  Real dl2prime_dx1 = dl2prime_dX1 * dX1_dx1 + dl2prime_dX2 * dX2_dx1 + dl2prime_dX3 * dX3_dx1;
+  Real dl2prime_dx2 = dl2prime_dX1 * dX1_dx2 + dl2prime_dX2 * dX2_dx2 + dl2prime_dX3 * dX3_dx2;
+  Real dl2prime_dx3 = dl2prime_dX1 * dX1_dx3 + dl2prime_dX2 * dX2_dx3 + dl2prime_dX3 * dX3_dx3;
+
+  Real dl3prime_dx1 = dl3prime_dX1 * dX1_dx1 + dl3prime_dX2 * dX2_dx1 + dl3prime_dX3 * dX3_dx1;
+  Real dl3prime_dx2 = dl3prime_dX1 * dX1_dx2 + dl3prime_dX2 * dX2_dx2 + dl3prime_dX3 * dX3_dx2;
+  Real dl3prime_dx3 = dl3prime_dX1 * dX1_dx3 + dl3prime_dX2 * dX2_dx3 + dl3prime_dX3 * dX3_dx3;
 
 
 
