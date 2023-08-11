@@ -3541,7 +3541,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   //These assuem gamma = 1.  Much more complicated if not
 
-  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,&l_lowerprime_transformed);
 
   // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
   // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
@@ -3751,9 +3751,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX1_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX2_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,dlprime_dX3_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,&dlprime_dX1_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,&dlprime_dX2_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,&dlprime_dX3_transformed);
 
   // Real dl0_dx1_tmp = dl0prime_dx1;
   // Real dl0_dx2_tmp = dl0prime_dx2;
@@ -3936,6 +3936,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   dg_dx3(I33) += dgprime_dX1(I33) * dX1_dx3 + dgprime_dX2(I33) * dX2_dx3 + dgprime_dX3(I33) * dX3_dx3 ;
 
 
+  Real x_bh2,y_bh2,z_bh2;
+  get_bh_position(t,&x_bh2,&y_bh2,&z_bh2);
+
   Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
                dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
                dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
@@ -3963,7 +3966,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   Real dlprime_transformed_dt[4];
 
-  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime_transformed,dlprime_transformed_dt);
+  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime_transformed,&dlprime_transformed_dt);
 
 
   dg_dt(I00) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[0];
