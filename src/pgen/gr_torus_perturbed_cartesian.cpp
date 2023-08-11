@@ -186,7 +186,7 @@ typedef struct secondary_bh_s{
 secondary_bh bh2;          /* The stars structure used throughout */
 
 
-void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real *A_new[4]){
+void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
 
   *A_new[0] = L(I00) * A[0] + L(I01)*A[1] + L(I02) * A[2] + L(I03) * A[3]; 
   *A_new[1] = L(I01) * A[0] + L(I11)*A[1] + L(I12) * A[2] + L(I13) * A[3]; 
@@ -3541,7 +3541,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   //These assuem gamma = 1.  Much more complicated if not
 
-  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,&l_lowerprime_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
   // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
   // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
@@ -3751,9 +3751,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,&dlprime_dX1_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,&dlprime_dX2_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,&dlprime_dX3_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX1_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,dlprime_dX2_transformed);
+  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX3,dlprime_dX3_transformed);
 
   // Real dl0_dx1_tmp = dl0prime_dx1;
   // Real dl0_dx2_tmp = dl0prime_dx2;
@@ -3966,7 +3966,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   Real dlprime_transformed_dt[4];
 
-  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime_transformed,&dlprime_transformed_dt);
+  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime_transformed,dlprime_transformed_dt);
 
 
   dg_dt(I00) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[0];
