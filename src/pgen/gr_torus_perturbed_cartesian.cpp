@@ -3936,15 +3936,15 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   dg_dx3(I33) += dgprime_dX1(I33) * dX1_dx3 + dgprime_dX2(I33) * dX2_dx3 + dgprime_dX3(I33) * dX3_dx3 ;
 
 
-  Real dX_dt = dLorentz_dt(I11) * (x - x_bh2) - Lorentz(I11) * dx_bh2_dt + 
-               dLorentz_dt(I12) * (y - y_bh2) - Lorentz(I12) * dy_bh2_dt + 
-               dLorentz_dt(I13) * (z - z_bh2) - Lorentz(I13) * dz_bh2_dt ;
-  Real dY_dt = dLorentz_dt(I12) * (x - x_bh2) - Lorentz(I12) * dx_bh2_dt + 
-               dLorentz_dt(I22) * (y - y_bh2) - Lorentz(I22) * dy_bh2_dt + 
-               dLorentz_dt(I23) * (z - z_bh2) - Lorentz(I23) * dz_bh2_dt ;
-  Real dZ_dt = dLorentz_dt(I13) * (x - x_bh2) - Lorentz(I13) * dx_bh2_dt + 
-               dLorentz_dt(I23) * (y - y_bh2) - Lorentz(I23) * dy_bh2_dt + 
-               dLorentz_dt(I33) * (z - z_bh2) - Lorentz(I33) * dz_bh2_dt ;
+  Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
+               dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
+               dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
+  Real dY_dt = dLambda_dt(I12) * (x - x_bh2) - Lambda(I12) * dx_bh2_dt + 
+               dLambda_dt(I22) * (y - y_bh2) - Lambda(I22) * dy_bh2_dt + 
+               dLambda_dt(I23) * (z - z_bh2) - Lambda(I23) * dz_bh2_dt ;
+  Real dZ_dt = dLambda_dt(I13) * (x - x_bh2) - Lambda(I13) * dx_bh2_dt + 
+               dLambda_dt(I23) * (y - y_bh2) - Lambda(I23) * dy_bh2_dt + 
+               dLambda_dt(I33) * (z - z_bh2) - Lambda(I33) * dz_bh2_dt ;
 
 
 
