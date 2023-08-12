@@ -186,6 +186,7 @@ typedef struct secondary_bh_s{
 secondary_bh bh2;          /* The stars structure used throughout */
 
 
+//This function performs L * A = A_new 
 void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
 
   A_new[0] = L(I00) * A[0] + L(I01)*A[1] + L(I02) * A[2] + L(I03) * A[3]; 
@@ -3019,15 +3020,15 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime
   Real ny = vybh/beta_mag;
   Real nz = vzbh/beta_mag;
 
-  *xprime = (1.0 + (Lorentz -1.0)* nx * nx) * ( x - xbh ) + 
-            (      (Lorentz -1.0)* nx * ny) * ( y - ybh ) +
-            (      (Lorentz -1.0)* nx * nz) * ( z - ybh );
-  *yprime = (      (Lorentz -1.0)* ny * nx) * ( x - xbh ) + 
-            (1.0 + (Lorentz -1.0)* ny * ny) * ( y - ybh ) +
-            (      (Lorentz -1.0)* ny * nz) * ( z - ybh );  
-  *zprime = (      (Lorentz -1.0)* nz * nx) * ( x - xbh ) + 
-            (      (Lorentz -1.0)* nz * ny) * ( y - ybh ) +
-            (1.0 + (Lorentz -1.0)* nz * nz) * ( z - ybh );  
+  *xprime = (1.0 + (Lorentz - 1.0) * nx * nx) * ( x - xbh ) + 
+            (      (Lorentz - 1.0) * nx * ny) * ( y - ybh ) +
+            (      (Lorentz - 1.0) * nx * nz) * ( z - ybh );
+  *yprime = (      (Lorentz - 1.0) * ny * nx) * ( x - xbh ) + 
+            (1.0 + (Lorentz - 1.0) * ny * ny) * ( y - ybh ) +
+            (      (Lorentz - 1.0) * ny * nz) * ( z - ybh );  
+  *zprime = (      (Lorentz - 1.0) * nz * nx) * ( x - xbh ) + 
+            (      (Lorentz - 1.0) * nz * ny) * ( y - ybh ) +
+            (1.0 + (Lorentz - 1.0) * nz * nz) * ( z - ybh );  
 
   if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
@@ -3049,7 +3050,7 @@ void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
   if (std::fabs(z)<SMALL) z= SMALL;
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
+    x = 0.1;
     y = 0.1;
     z = 0.1;
   }
@@ -3369,10 +3370,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real y = x2;
   Real z = x3;
 
-  Real a_spin =a;
+  Real a_spin = a;
 
-  if ((std::fabs(z)<SMALL) && (z>=0)) z= SMALL;
-  if ((std::fabs(z)<SMALL) && (z<0)) z= -SMALL;
+  if ((std::fabs(z)<SMALL) && (z>=0)) z =  SMALL;
+  if ((std::fabs(z)<SMALL) && (z <0)) z = -SMALL;
 
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
@@ -3471,6 +3472,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   //if (r<0.01) r = 0.01;
 
 
+  //First calculated all quantities in BH rest (primed) frame
+
   Real l_lowerprime[4],l_upperprime[4];
   Real l_lowerprime_transformed[4];
   AthenaArray<Real> Lambda,dLambda_dt;
@@ -3489,7 +3492,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   l_lowerprime[2] = l_upperprime[2];
   l_lowerprime[3] = l_upperprime[3];
 
-  //BOOST //
+  //Terms for the boost //
 
   Real vsq = SQR(dx_bh2_dt) + SQR(dy_bh2_dt) + SQR(dz_bh2_dt);
   Real beta_mag = std::sqrt(vsq);
@@ -3502,11 +3505,15 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   Real dLorentz_dt = std::pow(Lorentz,3.0) * (dx_bh2_dt*ax_bh2 + dy_bh2_dt*ay_bh2 + dz_bh2_dt*az_bh2);
 
+  // dbeta_dt = nx*ax + ny*ay + nz*az
+
   Real dnx_dt = ax_bh2/beta_mag - nx/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
   Real dny_dt = ay_bh2/beta_mag - ny/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
   Real dnz_dt = az_bh2/beta_mag - nz/beta_mag * (nx*ax_bh2+ny*ay_bh2+nz*az_bh2);
 
 
+  // This is the inverse transformation since l_mu is lowered.  This 
+  // takes a lowered vector from BH frame to lab frame.   
   Lambda(I00) = Lorentz;
   Lambda(I01) = -Lorentz * dx_bh2_dt;
   Lambda(I02) = -Lorentz * dy_bh2_dt;
@@ -3517,6 +3524,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Lambda(I22) = ( 1.0 + (Lorentz - 1.0) * ny * ny ); 
   Lambda(I23) = (       (Lorentz - 1.0) * ny * nz );
   Lambda(I33) = ( 1.0 + (Lorentz - 1.0) * nz * nz );
+
+  // Derivative with respect to time of Lambda. Used for taking derivative of metric
 
   dLambda_dt(I00) = dLorentz_dt;
   dLambda_dt(I01) = -dx_bh2_dt*dLorentz_dt - Lorentz*ax_bh2;
@@ -3531,17 +3540,15 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-  Real l0 = l_lowerprime[0];
-  Real l1 = l_lowerprime[1];
-  Real l2 = l_lowerprime[2];
-  Real l3 = l_lowerprime[3];
+  // Real l0 = l_lowerprime[0];
+  // Real l1 = l_lowerprime[1];
+  // Real l2 = l_lowerprime[2];
+  // Real l3 = l_lowerprime[3];
 
   // l_lowerprime[0] = Lorentz * (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
   // l_lowerprime[3] = Lorentz * (l3 - v_bh2 * l0);
 
   //These assuem gamma = 1.  Much more complicated if not
-
-  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
   // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
   // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
@@ -3549,6 +3556,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   // l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
 
 
+
+  // Boost l_mu
+  matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
 
   // Set covariant components
@@ -3589,6 +3599,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
   }
 
+
+  //Compute derivatives of primary BH
 
   Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
   Real rsq_p_asq = SQR(r) + SQR(a);
@@ -3687,6 +3699,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 /////Secondary Black hole/////
 
 
+  //these are derivatives with respect to xprime (or X Y Z)
+  //lab frame is x y z
+  //be careful with difference between X and x, Y and y, Z and z
+  //Note that these derivative are of l_mu pre boost
   Real dlprime_dX1[4], dlprime_dX2[4], dlprime_dX3[4];
 
 
@@ -3721,6 +3737,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   dlprime_dX3[0] = 0.0;
 
 
+  //Coordinate dependence vectors.  Should be the same as Lambda but 
+  //being explicit to be safe
   Real dX1_dx1 = 1.0 + (Lorentz-1.0)*nx*nx ;
   Real dX1_dx2 =       (Lorentz-1.0)*nx*ny ;
   Real dX1_dx3 =       (Lorentz-1.0)*nx*nz ;
@@ -3732,6 +3750,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real dX3_dx3 = 1.0 + (Lorentz-1.0)*nz*nz ;
 
 
+  //derivatives of boosted vectors
   Real dlprime_dX1_transformed[4], dlprime_dX2_transformed[4], dlprime_dX3_transformed[4];
 
 
@@ -3750,7 +3769,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-
+  //Boost spatial derivative vectors
+  //Can do this because Lambda doesn't depend on spatial coordinates
   matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX1_transformed);
   matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,dlprime_dX2_transformed);
   matrix_multiply_vector_lefthandside(Lambda,dlprime_dX3,dlprime_dX3_transformed);
@@ -3897,7 +3917,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 
-
+  //Convert derivatives from d/dX to d/dx
+  //Could be a dg/dT * dT/dx term but no dependence on T in g
 
   // // Set x-derivatives of covariant components
   dg_dx1(I00) += dgprime_dX1(I00) * dX1_dx1 + dgprime_dX2(I00) * dX2_dx1 + dgprime_dX3(I00) * dX3_dx1 ;
