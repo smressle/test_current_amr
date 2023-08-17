@@ -487,6 +487,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
+  Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+
 
   int il = pmb->is - NGHOST;
   int iu = pmb->ie + NGHOST;
@@ -547,8 +549,19 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
+          get_bh_position(t, &xbh,&ybh,&zbh);
+          Real fake_xprime = x-xbh;
+          Real fake_yprime = y-ybh;
+          Real fake_zprime = z-zbh;
 
-         if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
+
+
+          if (std::fabs(fake_zprime)<SMALL) fake_zprime= SMALL;
+          Real fake_Rprime = std::sqrt(SQR(fake_xprime) + SQR(fake_yprime) + SQR(fake_zprime));
+          Real fake_rprime = SQR(fake_Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(fake_Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(fake_zprime) );
+          fake_rprime = std::sqrt(fake_rprime/2.0);
+
+         if (fake_rprime<r_inner_bondi_boundary || fake_rprime>r_outer_bondi_boundary){
 
           // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
           //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
