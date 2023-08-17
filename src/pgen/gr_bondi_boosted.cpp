@@ -2125,7 +2125,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3,
   g(I23) =          fprime * l_lowerprime[2]*l_lowerprime[3];
   g(I33) = eta[3] + fprime * l_lowerprime[3]*l_lowerprime[3];
 
-  return
+  return;
 
   }
 #define DEL 1e-5
