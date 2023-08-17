@@ -549,6 +549,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
+          Real xbh,ybh,zbh;
           get_bh_position(t, &xbh,&ybh,&zbh);
           Real fake_xprime = x-xbh;
           Real fake_yprime = y-ybh;
