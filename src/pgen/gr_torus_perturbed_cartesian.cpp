@@ -3879,7 +3879,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   // Derivatives in primed coordinates (black hole frame)
   // // Set x-derivatives of covariant components
-  dgprime_dX1(I00) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[0] ;
+  dgprime_dX1(I00) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[0];
   dgprime_dX1(I01) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[1];
   dgprime_dX1(I02) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[2];
   dgprime_dX1(I03) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[3];
