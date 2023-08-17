@@ -1557,14 +1557,19 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real xprime,yprime,zprime,rprime,Rprime;
             get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Real xbh,ybh,zbh;
+            get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+            Real fake_xprime = x-xbh;
+            Real fake_yprime = y-ybh;
+            Real fake_zprime = z-zbh;
             Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
             // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
             // }
-            if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
-              && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+            if (fake_xprime < box_radius && fake_xprime > -box_radius && fake_yprime < box_radius
+              && fake_yprime > -box_radius && fake_zprime < box_radius && fake_zprime > -box_radius ){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
@@ -1601,8 +1606,8 @@ int RefinementCondition(MeshBlock *pmb)
             Real y = pmb->pcoord->x2v(j);
             Real z = pmb->pcoord->x3v(k);
 
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            // Real xprime,yprime,zprime,rprime,Rprime;
+            // get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
           
