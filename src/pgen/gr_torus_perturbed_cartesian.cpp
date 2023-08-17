@@ -3960,6 +3960,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real x_bh2,y_bh2,z_bh2;
   get_bh_position(t,&x_bh2,&y_bh2,&z_bh2);
 
+
+  //Partial derivatives with respect to T of coordinate relatiosn
+  //Note that Lambda as defined in this function is the inverse transformation, so formally this should
+  //be the derivative of the inverse of that
+  //but only the 0 components are affected by the inverse  (e.g., Lambda(I11) = Lambda_inv(I11))
   Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
                dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
                dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
@@ -3974,6 +3979,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
   // Set t-derivatives of covariant components
+  // d/dt = partial_t + partial_X dX/dt
+  // first do latter part
   dg_dt(I00) = (dX_dt * dgprime_dX1(I00) + dY_dt * dgprime_dX2(I00) + dZ_dt * dgprime_dX3(I00) );
   dg_dt(I01) = (dX_dt * dgprime_dX1(I01) + dY_dt * dgprime_dX2(I01) + dZ_dt * dgprime_dX3(I01) );
   dg_dt(I02) = (dX_dt * dgprime_dX1(I02) + dY_dt * dgprime_dX2(I02) + dZ_dt * dgprime_dX3(I02) );
@@ -3987,7 +3994,12 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   Real dlprime_transformed_dt[4];
 
-  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime_transformed,dlprime_transformed_dt);
+
+  //Since direct t dependence only shows up through Lambda, can take dLambda_dt and use that
+  //for transforming vectors
+  //Note need to transform lowerprime *before* transformation
+  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime,dlprime_transformed_dt);
+
 
 
   dg_dt(I00) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[0];
