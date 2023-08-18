@@ -116,6 +116,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
 
 
+void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 
@@ -1952,14 +1953,18 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real dx_bh2_dt,dy_bh2_dt,dz_bh2_dt;
 
+
+
               get_bh_velocity(t,&dx_bh2_dt,&dy_bh2_dt,&dz_bh2_dt);
 
 
 
-              Real u0prime = (u0 + dx_bh2_dt * u1 + dy_bh2_dt * u2 + dz_bh2_dt * u3);
-              Real u1prime = (u1 + dx_bh2_dt * u0);
-              Real u2prime = (u2 + dy_bh2_dt * u0);
-              Real u3prime = (u3 + dz_bh2_dt * u0);
+              Real u0prime,u1prime,u2prime,u3prime;
+              BoostVector(t,u0,u1,u2,u3, &u0prime,&u1prime,&u2prime,&u3prime);
+              // Real u0prime = (u0 + dx_bh2_dt * u1 + dy_bh2_dt * u2 + dz_bh2_dt * u3);
+              // Real u1prime = (u1 + dx_bh2_dt * u0);
+              // Real u2prime = (u2 + dy_bh2_dt * u0);
+              // Real u3prime = (u3 + dz_bh2_dt * u0);
 
 
 
@@ -2965,7 +2970,7 @@ void get_bh_position(Real t, Real *xbh, Real *ybh, Real *zbh){
 void get_bh_velocity(Real t, Real *vxbh, Real *vybh, Real *vzbh){
 
   Real vxbh_ = 0.0;
-  Real vybh_ = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
+  Real vybh_ =  Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
   Real vzbh_ = -Omega_bh2 * r_bh2 * std::sin(Omega_bh2 * (t-t0));
 
   // *vxbh = 0.0;
@@ -3022,22 +3027,65 @@ void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime
 
   *xprime = (1.0 + (Lorentz - 1.0) * nx * nx) * ( x - xbh ) + 
             (      (Lorentz - 1.0) * nx * ny) * ( y - ybh ) +
-            (      (Lorentz - 1.0) * nx * nz) * ( z - ybh );
+            (      (Lorentz - 1.0) * nx * nz) * ( z - zbh );
+  
   *yprime = (      (Lorentz - 1.0) * ny * nx) * ( x - xbh ) + 
             (1.0 + (Lorentz - 1.0) * ny * ny) * ( y - ybh ) +
-            (      (Lorentz - 1.0) * ny * nz) * ( z - ybh );  
+            (      (Lorentz - 1.0) * ny * nz) * ( z - zbh );  
+ 
   *zprime = (      (Lorentz - 1.0) * nz * nx) * ( x - xbh ) + 
             (      (Lorentz - 1.0) * nz * ny) * ( y - ybh ) +
-            (1.0 + (Lorentz - 1.0) * nz * nz) * ( z - ybh );  
+            (1.0 + (Lorentz - 1.0) * nz * nz) * ( z - zbh );  
 
   if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(*Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(*zprime) );
   *rprime = std::sqrt(*rprime/2.0);
 
+  return;
+
 }
 
+//From BHframe to lab frame
 
+void BoostVector(Real t,Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
+
+
+  Real xbh,ybh,zbh;
+  Real vxbh,vybh,vzbh;
+  get_bh_position(t,&xbh,&ybh,&zbh);
+  get_bh_velocity(t,&vxbh,&vybh,&vzbh);
+
+
+
+  Real vsq = SQR(vxbh) + SQR(vybh) + SQR(vzbh);
+  Real beta_mag = std::sqrt(vsq);
+  Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
+
+  Real nx = vxbh/beta_mag;
+  Real ny = vybh/beta_mag;
+  Real nz = vzbh/beta_mag;
+
+  *pa0 =    Lorentz * (a0 + vxbh * a1 + vybh * a2 + vzbh * a3);
+
+  *pa1 =                       Lorentz * vxbh * ( a0 ) +
+            (1.0 + (Lorentz - 1.0) * nx * nx) * ( a1 ) + 
+            (      (Lorentz - 1.0) * nx * ny) * ( a2 ) +
+            (      (Lorentz - 1.0) * nx * nz) * ( a3 ) ;
+  
+  *pa2 =                       Lorentz * vybh * ( a0 ) +
+            (      (Lorentz - 1.0) * ny * nx) * ( a1 ) + 
+            (1.0 + (Lorentz - 1.0) * ny * ny) * ( a2 ) +
+            (      (Lorentz - 1.0) * ny * nz) * ( a3 );  
+ 
+  *pa3 =                       Lorentz * vzbh * ( a0 ) +
+            (      (Lorentz - 1.0) * nz * nx) * ( a1 ) + 
+            (      (Lorentz - 1.0) * nz * ny) * ( a2 ) +
+            (1.0 + (Lorentz - 1.0) * nz * nz) * ( a3 );  
+
+  return;
+
+}
 
 void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
     // Extract inputs
@@ -3514,7 +3562,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   // This is the inverse transformation since l_mu is lowered.  This 
   // takes a lowered vector from BH frame to lab frame.   
-  Lambda(I00) = Lorentz;
+  Lambda(I00) =  Lorentz;
   Lambda(I01) = -Lorentz * dx_bh2_dt;
   Lambda(I02) = -Lorentz * dy_bh2_dt;
   Lambda(I03) = -Lorentz * dz_bh2_dt;
@@ -3742,9 +3790,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real dX1_dx1 = 1.0 + (Lorentz-1.0)*nx*nx ;
   Real dX1_dx2 =       (Lorentz-1.0)*nx*ny ;
   Real dX1_dx3 =       (Lorentz-1.0)*nx*nz ;
+
   Real dX2_dx1 =       (Lorentz-1.0)*ny*nx ;
   Real dX2_dx2 = 1.0 + (Lorentz-1.0)*ny*ny ;  
   Real dX2_dx3 =       (Lorentz-1.0)*ny*nz ;
+
   Real dX3_dx1 =       (Lorentz-1.0)*nz*nx ;
   Real dX3_dx2 =       (Lorentz-1.0)*nz*ny ;  
   Real dX3_dx3 = 1.0 + (Lorentz-1.0)*nz*nz ;
@@ -3968,9 +4018,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
                dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
                dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
+
   Real dY_dt = dLambda_dt(I12) * (x - x_bh2) - Lambda(I12) * dx_bh2_dt + 
                dLambda_dt(I22) * (y - y_bh2) - Lambda(I22) * dy_bh2_dt + 
                dLambda_dt(I23) * (z - z_bh2) - Lambda(I23) * dz_bh2_dt ;
+
   Real dZ_dt = dLambda_dt(I13) * (x - x_bh2) - Lambda(I13) * dx_bh2_dt + 
                dLambda_dt(I23) * (y - y_bh2) - Lambda(I23) * dy_bh2_dt + 
                dLambda_dt(I33) * (z - z_bh2) - Lambda(I33) * dz_bh2_dt ;
