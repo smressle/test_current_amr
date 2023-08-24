@@ -2917,7 +2917,7 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
             (1.0 + (Lorentz - 1.0) * nz * nz) * ( z - zbh );  
 
 
-  Real a_dot_x_prime = ax * xprime + ay * yprime + az * zprime;
+  Real a_dot_x_prime = ax * (*xprime) + ay * (*yprime) + az * (*zprime);
 
   if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
