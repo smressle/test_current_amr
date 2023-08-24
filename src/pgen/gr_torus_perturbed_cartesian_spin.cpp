@@ -122,6 +122,8 @@ void set_orbit_arrays(std::string orbit_file_name);
 void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
     Real *x, Real *y, Real *z);
 
+void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities);
+
 // Global variables
 static Real m, a;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
@@ -1242,7 +1244,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     for (int j = jl; j <= ju; ++j) {
       for (int i = il; i <= iu; ++i) {
         Real r, theta, phi;
-        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),&r,0.0, 0.0, a,
+        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a, &r,
             &theta, &phi);
         Real &rho = phydro->w(IDN,k,j,i);
         Real &pgas = phydro->w(IEN,k,j,i);
@@ -1775,7 +1777,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
 
-         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
+         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),a1x,a1y,a1z, &r, &th, &ph);
 
           if (r < r_inner_boundary){
               
@@ -2756,7 +2758,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
 
     *pr = r;
     *ptheta = std::acos(lz); //   std::acos(z/r);
-    *pphi = std::atan1(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
+    *pphi = std::atan2(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
   return;
 }
 void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,AthenaArray<Real>&orbit_quantities,
