@@ -628,6 +628,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
   Real a = pin->GetOrAddReal("problem", "a", 0.0);
+  Real rh =  ( m + std::sqrt( SQR(m) -SQR(a)) );
 
   //initialize random numbers
   std::mt19937_64 generator;
@@ -1695,7 +1696,7 @@ return;
 void set_orbit_arrays(std::string orbit_file_name){
       FILE *input_file;
         if ((input_file = fopen(orbit_file_name.c_str(), "r")) == NULL)   
-               fprintf(stderr, "Cannot open %s, %s\n", "input_file",initfile.c_str());
+               fprintf(stderr, "Cannot open %s, %s\n", "input_file",orbit_file_name.c_str());
 
 
 
