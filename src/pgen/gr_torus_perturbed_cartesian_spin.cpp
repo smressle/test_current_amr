@@ -1730,7 +1730,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
 
-  for (iorbit=0; iorbit<Norbit; iorbit++){
+  for (int iorbit=0; iorbit<Norbit; iorbit++){
     interp_orbits(t,orbit_array(iorbit),&orbit_quantities(iorbit));
   }
 
