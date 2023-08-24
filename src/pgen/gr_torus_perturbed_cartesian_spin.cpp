@@ -123,6 +123,7 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
     Real *x, Real *y, Real *z);
 
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities);
+void interp_orbits(Real t, AthenaArray<Real> &arr, Real *result);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
@@ -1767,7 +1768,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
   Real r_inner_boundary = rh/2.0;
 
-  Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2) );
+  Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
 
    for (int k=pmb->ks; k<=pmb->ke; ++k) {
 #pragma omp parallel for schedule(static)
