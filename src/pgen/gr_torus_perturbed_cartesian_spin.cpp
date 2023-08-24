@@ -2750,7 +2750,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
 
     Real rsq_p_asq = SQR(r) + SQR(a);
 
-    Real lz = (r * x - a_cross_x[0] + a_dot_x * ax/r)/(rsq_p_asq);
+    Real lx = (r * x - a_cross_x[0] + a_dot_x * ax/r)/(rsq_p_asq);
     Real ly = (r * y - a_cross_x[1] + a_dot_x * ay/r)/(rsq_p_asq);
     Real lz = (r * z - a_cross_x[2] + a_dot_x * az/r)/(rsq_p_asq);
 
@@ -3109,7 +3109,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
-  rsq_p_asq_prime = SQR(rprime) + SQR(a2);
+  Real rsq_p_asq_prime = SQR(rprime) + SQR(a2);
 
   //First calculated all quantities in BH rest (primed) frame
 
