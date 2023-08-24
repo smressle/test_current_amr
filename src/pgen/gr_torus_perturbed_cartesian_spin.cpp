@@ -183,7 +183,7 @@ int IV2X = 15;
 int IV2Y = 16;
 int IV2Z = 17;
 
-int Norbit = IV2z - IX1+1;
+int Norbit = IV2Z - IX1+1;
 
 
 // Real rotation_matrix[3][3];
@@ -2979,14 +2979,10 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 {
 
 
-  a = pin->GetReal("coord", "a");
   m = pin->GetReal("coord", "m");
 
   //////////////Perturber Black Hole//////////////////
 
-  q = pin->GetOrAddReal("problem", "q", 1.0);
-  aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
-  r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
   t0 = pin->GetOrAddReal("problem","t0", 1e4);
 
   Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt);
@@ -3181,8 +3177,6 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
-
-
 
   Real x = x1;
   Real y = x2;
@@ -3720,7 +3714,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 
   if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
   if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
-  
+
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
     x = 0.1;
     y = 0.1;
