@@ -2743,11 +2743,12 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     a_cross_x[2] = ax * y - ay * x;
 
 
-    rsq_p_asq = SQR(r) + SQR(a);
 
 
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a_dot_x) )  )/std::sqrt(2.0);
+
+    Real rsq_p_asq = SQR(r) + SQR(a);
 
     Real lz = (r * x - a_cross_x[0] + a_dot_x * ax/r)/(rsq_p_asq);
     Real ly = (r * y - a_cross_x[1] + a_dot_x * ay/r)/(rsq_p_asq);
@@ -3022,16 +3023,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
-  Real a_cross_x[3];
-
-  a_cross_x[0] = a1y * z - a1z * y;
-  a_cross_x[1] = a1z * x - a1x * z;
-  a_cross_x[2] = a1x * y - a1y * x;
-
-  Real a_dot_x = a1x * x + a1y * y + a1z * z;
-
-  rsq_p_asq = SQR(r) + SQR(a1);
-
 
   if ((std::fabs(z)<SMALL) && (z>=0)) z =  SMALL;
   if ((std::fabs(z)<SMALL) && (z <0)) z = -SMALL;
@@ -3047,7 +3038,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   GetBoyerLindquistCoordinates(x,y,z,a1x,a1y,a1z, &r, &th, &phi);
 
 
-
 /// prevent metric from getting nan sqrt(-gdet)
 
   Real rh =  ( m + std::sqrt(SQR(m)-SQR(a1)) );
@@ -3056,6 +3046,19 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     convert_spherical_to_cartesian_ks(r,th,phi, a1x,a1y,a1z,&x,&y,&z);
 
   }
+
+  
+  Real a_cross_x[3];
+
+  a_cross_x[0] = a1y * z - a1z * y;
+  a_cross_x[1] = a1z * x - a1x * z;
+  a_cross_x[2] = a1x * y - a1y * x;
+
+  Real a_dot_x = a1x * x + a1y * y + a1z * z;
+
+  Real rsq_p_asq = SQR(r) + SQR(a1);
+
+
 
 
   Real eta[4],l_lower[4],l_upper[4];
@@ -3084,6 +3087,19 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
+  Real thprime,phiprime;
+  GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
+
+
+/// prevent metric from getting nan sqrt(-gdet)
+
+  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
+  if (rprime < rhprime*0.8) {
+    rprime = rhprime*0.8;
+    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+  }
+
+
   Real a_cross_x_prime[3];
 
 
@@ -3095,22 +3111,11 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   rsq_p_asq_prime = SQR(rprime) + SQR(a2);
 
-/// prevent metric from getting nan sqrt(-gdet)
-  Real thprime  = std::acos(l_lowerprime[3]);  
-  Real phiprime = std::atan2(l_lowerprime[2],l_lowerprime[1]); 
-
-  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
-  if (rprime < rhprime*0.8) {
-    rprime = rhprime*0.8;
-    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
-  }
-
-
   //First calculated all quantities in BH rest (primed) frame
 
   Real l_lowerprime[4],l_upperprime[4];
   Real l_lowerprime_transformed[4];
-  AthenaArray<Real> Lambda,dLambda_dt;
+  AthenaArray<Real> Lambda;
 
   Lambda.NewAthenaArray(NMETRIC);
 
