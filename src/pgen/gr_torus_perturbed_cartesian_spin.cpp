@@ -123,7 +123,7 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
     Real *x, Real *y, Real *z);
 
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities);
-void interp_orbits(Real t, AthenaArray<Real> &arr, Real *result);
+void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
@@ -1732,7 +1732,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
 
   for (int iorbit=0; iorbit<Norbit; iorbit++){
-    interp_orbits(t,orbit_array(iorbit),&orbit_quantities(iorbit));
+    interp_orbits(t,iorbit,orbit_array,&orbit_quantities(iorbit));
   }
 
 }
@@ -2854,7 +2854,7 @@ static void TransformAphi(Real a3_ks, Real x1,
 }
 
 
-void interp_orbits(Real t, AthenaArray<Real> &arr, Real *result){
+void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
     int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
 
     if (it<= 0) it = 0;
@@ -2864,16 +2864,16 @@ void interp_orbits(Real t, AthenaArray<Real> &arr, Real *result){
 
 
    if (t<t0_orbits){
-      slope = (arr(it+1)-arr(it));
-      *result = (t - t_orbits(it) ) * slope + arr(it);
+      slope = (arr(iorbit,it+1)-arr(iorbit,it));
+      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
    }
    else if (it==nt-1){
-      slope = (arr(it)-arr(it-1))/dt_orbits;
-      *result = (t - t_orbits(it) ) * slope + arr(it);
+      slope = (arr(iorbit,it)-arr(iorbit,it-1))/dt_orbits;
+      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
     }
     else{
-      slope = (arr(it+1)-arr(it))/dt_orbits;
-      *result = (t - t_orbits(it) ) * slope + arr(it);
+      slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
+      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
     }
 
     return;
