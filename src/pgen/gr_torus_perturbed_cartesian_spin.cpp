@@ -70,12 +70,12 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
   const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar);
 
-static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
+static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Real ay, Real az,Real *pr,
                                          Real *ptheta, Real *pphi);
 static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
-                     Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
+                     Real theta, Real phi, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
-                     Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
+                     Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3);
 static Real CalculateLFromRPeak(Real r);
 static Real CalculateRPeakFromL(Real l_target);
 static Real LogHAux(Real r, Real sin_theta);
@@ -102,7 +102,7 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
 
-void get_prime_coords(Real x, Real y, Real z, Real t, AthenaArray<Real> &orbit_quantities,Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
+void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities,Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
 
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
@@ -119,8 +119,8 @@ Real DivergenceB(MeshBlock *pmb, int iout);
 
 void set_orbit_arrays(std::string orbit_file_name);
 
-void InitOrbitVariables
-
+void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
+    Real *x, Real *y, Real *z);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
@@ -399,7 +399,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
   // Get mass and spin of black hole
   m = pcoord->GetMass();
-  q = pin->GetOrAddReal("problem", "q", 0.1);
+  // q = pin->GetOrAddReal("problem", "q", 0.1);
   // aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   // r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
@@ -488,7 +488,7 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z, pmb->pmy_mesh->time, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
         
@@ -535,7 +535,7 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z, pmb->pmy_mesh->time,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
           
@@ -621,6 +621,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
+
+  Real a = pin->GetOrAddReal("problem", "a", 0.0);
+
   //initialize random numbers
   std::mt19937_64 generator;
   std::uniform_real_distribution<Real> uniform(-0.02, std::nextafter(0.02, std::numeric_limits<Real>::max()));
@@ -656,7 +659,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         // Calculate Boyer-Lindquist coordinates of cell
         Real r, theta, phi;
-        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), 0.0, 0.0, a, &r,
             &theta, &phi);
         Real sin_theta = std::sin(theta);
         Real cos_theta = std::cos(theta);
@@ -779,7 +782,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
           // Transform to preferred coordinates
           Real u0, u1, u2, u3;
-          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
           uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
           uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
           uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -828,7 +831,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       Real x1_val = (p%2 == 0) ? x1_min : x1_max;
       Real x2_val = ((p/2)%2 == 0) ? x2_min : x2_max;
       Real x3_val = ((p/4)%2 == 0) ? x3_min : x3_max;
-      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val, r_vals+p, theta_vals+p,
+      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val, 0.0, 0.0, a,,r_vals+p, theta_vals+p,
           phi_vals+p);
     }
     // r_min = *std::min_element(r_vals, r_vals+8);
@@ -862,7 +865,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             if (r >= r_edge) {
               Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
@@ -883,7 +886,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju; ++j) {
           for (int i = il; i <= iu; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             if (r >= r_edge) {
               Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
@@ -929,7 +932,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             if (r >= r_edge) {
               Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
@@ -950,7 +953,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju; ++j) {
           for (int i = il; i <= iu; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             if (r >= r_edge) {
               Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
@@ -994,7 +997,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             Real sin_theta = std::sin(theta);
             Real cos_theta = std::cos(theta);
@@ -1011,9 +1014,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               Real br = 1.0/ut * bbr;
               Real btheta = 1.0/ut * bbtheta;
               Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
               Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&b0, &b1, &b2, &b3);
               pfield->b.x1f(k,j,i) = (b1 * u0 - b0 * u1) * normalization;
             }
           }
@@ -1025,7 +1028,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             Real sin_theta = std::sin(theta);
             Real cos_theta = std::cos(theta);
@@ -1042,9 +1045,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               Real br = 1.0/ut * bbr;
               Real btheta = 1.0/ut * bbtheta;
               Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),a, &u0, &u1, &u2, &u3);
               Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&b0, &b1, &b2, &b3);
               pfield->b.x2f(k,j,i) = (b2 * u0 - b0 * u2) * normalization;
             }
           }
@@ -1056,7 +1059,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju; ++j) {
           for (int i = il; i <= iu; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),0.0, 0.0, a,
                 &r, &theta, &phi);
             Real sin_theta = std::sin(theta);
             Real cos_theta = std::cos(theta);
@@ -1073,9 +1076,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               Real br = 1.0/ut * bbr;
               Real btheta = 1.0/ut * bbtheta;
               Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
               Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &b0, &b1, &b2, &b3);
+              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),a, &b0, &b1, &b2, &b3);
               pfield->b.x3f(k,j,i) = (b3 * u0 - b0 * u3) * normalization;
             }
           }
@@ -1104,9 +1107,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Az /dy
             Real tmp, Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k), a, 
                 &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k), a, 
                 &tmp,&tmp,&Az_1);
                   
 
@@ -1114,9 +1117,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ay/dz
             Real  Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1),
+            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1), a,
                 &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), a,
                 &tmp,&Ay_1,&tmp);
 
             pfield->b.x1f(k,j,i) -= 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx3f(k) );
@@ -1145,9 +1148,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ax /dz
             Real tmp, Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1),
+            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1), a, 
                 &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), a, 
                 &Ax_1,&tmp,&tmp);
                   
 
@@ -1155,9 +1158,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Az/dx
             Real Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k), a, 
                 &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k), a, 
                 &tmp,&tmp,&Az_1);
 
             pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
@@ -1186,9 +1189,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ay /dx
             Real tmp, Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k), a, 
                 &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), a, 
                 &tmp,&Ay_1,&tmp);
                   
 
@@ -1196,9 +1199,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ax/dy
             Real Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k), a, 
                 &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), a, 
                 &Ax_1,&tmp,&tmp);
 
             pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
@@ -1237,7 +1240,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     for (int j = jl; j <= ju; ++j) {
       for (int i = il; i <= iu; ++i) {
         Real r, theta, phi;
-        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),&r,0.0, 0.0, a,
             &theta, &phi);
         Real &rho = phydro->w(IDN,k,j,i);
         Real &pgas = phydro->w(IEN,k,j,i);
@@ -1693,7 +1696,7 @@ void set_orbit_arrays(std::string orbit_file_name){
       int nt; /* size of initial condition arrays */
 
 
-    fscanf(input_file, "%i \n", &nt);
+    fscanf(input_file, "%i %g \n", &nt, &q);
 
        
 
@@ -1802,7 +1805,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
           Real xprime,yprime,zprime,rprime,Rprime;
 
-          get_prime_coords(x,y,z, t, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
           if (rprime < rh2){
@@ -2722,21 +2725,47 @@ static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real
 // Notes:
 //   conversion is trivial in all currently implemented coordinate systems
 
-static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
+static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Real ay, Real az, Real *pr,
                                          Real *ptheta, Real *pphi) {
 
     Real x = x1;
     Real y = x2;
     Real z = x3;
+
+    Real a = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
+
+    Real a_dot_x = ax * x + ay * y + az * z;
+
+    Real a_cross_x[3];
+
+    a_cross_x[0] = ay * z - az * y;
+    a_cross_x[1] = az * x - ax * z;
+    a_cross_x[2] = ax * y - ay * x;
+
+
+    rsq_p_asq = SQR(r) + SQR(a);
+
+
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-    Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+    Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a_dot_x) )  )/std::sqrt(2.0);
+
+    Real lz = (r * x - a_cross_x[0] + a_dot_x * ax/r)/(rsq_p_asq);
+    Real ly = (r * y - a_cross_x[1] + a_dot_x * ay/r)/(rsq_p_asq);
+    Real lz = (r * z - a_cross_x[2] + a_dot_x * az/r)/(rsq_p_asq);
 
     *pr = r;
-    *ptheta = std::acos(z/r);
-    *pphi = std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
+    *ptheta = std::acos(lz); //   std::acos(z/r);
+    *pphi = std::atan1(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
   return;
 }
+void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,AthenaArray<Real>&orbit_quantities,,
+    Real *x, Real *y, Real *z){
 
+  *x = r * std::sin(th) * std::cos(phi) + ay * std::cos(th)                 - az*std::sin(th) * std::sin(phi);
+  *y = r * std::sin(th) * std::sin(phi) + az * std::sin(th) * std::cos(phi) - ax*std::cos(th)                ;
+  *z = r * std::cos(phi)                + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi)              ;;
+
+}
 
 //----------------------------------------------------------------------------------------
 // Function for transforming 4-vector from Boyer-Lindquist to desired coordinates
@@ -2749,7 +2778,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real *pr,
 //   Schwarzschild coordinates match Boyer-Lindquist when a = 0
 
 static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
-                     Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
+                     Real x2, Real x3, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
 
   if (COORDINATE_SYSTEM == "schwarzschild") {
     *pa0 = a0_bl;
@@ -2790,7 +2819,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
 // phi_ks = arctan((r*y + a*x)/(r*x - a*y) ) 
 //
 static void TransformAphi(Real a3_ks, Real x1,
-                     Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3) {
+                     Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3) {
 
   if (COORDINATE_SYSTEM == "gr_user"){
     Real x = x1;
@@ -2847,7 +2876,7 @@ void interp_orbits(Real t, AthenaArray<Real> &arr, Real *result){
 }
 
 
-void get_prime_coords(Real x, Real y, Real z, Real t, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
+void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
 
 
   Real xbh = orbit_quantities(IX2);
@@ -3018,22 +3047,18 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     z = 0.1;
   }
 
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a1) + std::sqrt( SQR( SQR(R) - SQR(a1) ) + 4.0*SQR(a_dot_x) );
-  r = std::sqrt(r/2.0);
+  Real r, th, phi;
+  GetBoyerLindquistCoordinates(x,y,z,a1x,a1y,a1z, &r, &th, &phi);
+
 
 
 /// prevent metric from getting nan sqrt(-gdet)
-/// NEED TO CHANGE THIS
-  Real th  = std::acos(z/r);
-  Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
-                              (a*y+r*x)/(SQR(r) + SQR(a) )  );
+
   Real rh =  ( m + std::sqrt(SQR(m)-SQR(a1)) );
   if (r<rh/2.0) {
     r = rh/2.0;
-    x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
-    y = r * std::sin(phi)*std::sin(th) + a * std::cos(phi)*std::sin(th);
-    z = r * std::cos(th);
+    convert_spherical_to_cartesian_ks(r,th,phi, a1x,a1y,a1z,&x,&y,&z);
+
   }
 
 
@@ -3061,7 +3086,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   Real xprime,yprime,zprime,rprime,Rprime;
-  get_prime_coords(x,y,z, t, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+  get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
   Real a_cross_x_prime[3];
 
@@ -3075,16 +3100,13 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   rsq_p_asq_prime = SQR(rprime) + SQR(a2);
 
 /// prevent metric from getting nan sqrt(-gdet)
-  Real thprime  = std::acos(zprime/rprime);
-  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
+  Real thprime  = std::acos(l_lowerprime[3]);  
+  Real phiprime = std::atan1(l_lowerprime[2],l_lowerprime[1]); 
 
   Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
   if (rprime < rhprime*0.8) {
     rprime = rhprime*0.8;
-    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-    zprime = rprime * std::cos(thprime);
+    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
   }
 
 
@@ -3693,18 +3715,12 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   Real y = x2;
   Real z = x3;
 
-  a = pin->GetReal("coord", "a");
+  Real a = pin->GetReal("coord", "a");
   Real a_spin = a;
 
   if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
   if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
-
-  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
-  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
-
-  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
-  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
-
+  
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
     x = 0.1;
     y = 0.1;
