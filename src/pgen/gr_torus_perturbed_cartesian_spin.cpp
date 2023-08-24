@@ -3097,7 +3097,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 /// prevent metric from getting nan sqrt(-gdet)
   Real thprime  = std::acos(l_lowerprime[3]);  
-  Real phiprime = std::atan1(l_lowerprime[2],l_lowerprime[1]); 
+  Real phiprime = std::atan2(l_lowerprime[2],l_lowerprime[1]); 
 
   Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
   if (rprime < rhprime*0.8) {
@@ -3195,11 +3195,6 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
   }
 
-
-
-
-  Lambda.DeleteAthenaArray();
-  // dLambda_dt.DeleteAthenaArray();
 
 
   AthenaArray<Real> gp,gm;
