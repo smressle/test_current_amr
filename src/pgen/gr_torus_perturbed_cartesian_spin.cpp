@@ -2763,7 +2763,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     *pphi = std::atan2(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
   return;
 }
-void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,AthenaArray<Real>&orbit_quantities,
+void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
     Real *x, Real *y, Real *z){
 
   *x = r * std::sin(th) * std::cos(phi) + ay * std::cos(th)                 - az*std::sin(th) * std::sin(phi);
