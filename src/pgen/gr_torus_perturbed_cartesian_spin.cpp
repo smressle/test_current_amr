@@ -154,6 +154,8 @@ static Real t0; //time at which second BH is at polar axis
 static Real orbit_inclination;
 
 static Real t0_orbits,dt_orbits;
+
+static int nt;
 AthenaArray<Real> t_orbits,orbit_array;
 
 
@@ -831,7 +833,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       Real x1_val = (p%2 == 0) ? x1_min : x1_max;
       Real x2_val = ((p/2)%2 == 0) ? x2_min : x2_max;
       Real x3_val = ((p/4)%2 == 0) ? x3_min : x3_max;
-      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val, 0.0, 0.0, a,,r_vals+p, theta_vals+p,
+      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val, 0.0, 0.0, a,r_vals+p, theta_vals+p,
           phi_vals+p);
     }
     // r_min = *std::min_element(r_vals, r_vals+8);
@@ -1692,8 +1694,6 @@ void set_orbit_arrays(std::string orbit_file_name){
         if ((input_file = fopen(orbit_file_name.c_str(), "r")) == NULL)   
                fprintf(stderr, "Cannot open %s, %s\n", "input_file",initfile.c_str());
 
-
-      int nt; /* size of initial condition arrays */
 
 
     fscanf(input_file, "%i %g \n", &nt, &q);
@@ -2759,7 +2759,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     *pphi = std::atan1(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
   return;
 }
-void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,AthenaArray<Real>&orbit_quantities,,
+void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,AthenaArray<Real>&orbit_quantities,
     Real *x, Real *y, Real *z){
 
   *x = r * std::sin(th) * std::cos(phi) + ay * std::cos(th)                 - az*std::sin(th) * std::sin(phi);
@@ -3047,7 +3047,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   }
 
-  
+
   Real a_cross_x[3];
 
   a_cross_x[0] = a1y * z - a1z * y;
