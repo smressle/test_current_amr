@@ -191,37 +191,11 @@ int IV2Z = 17;
 int Norbit = IV2Z - IX1+1;
 
 
-// Real rotation_matrix[3][3];
-
-
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
 static Real SMALL = 1e-5;
-
-
-/* A structure defining the properties of each of the source 'stars' */
-typedef struct secondary_bh_s{
-  Real q;     /* mass ratio */
-  Real spin;    /* dimensionless spin in units of ???s*/
-  Real x1;      /* position in X,Y,Z (in pc) */
-  Real x2;
-  Real x3;
-  Real v1;      /* velocity in X,Y,Z */
-  Real v2;
-  Real v3;
-  Real alpha;     /* euler angles for ZXZ rotation*/
-  Real beta;
-  Real gamma;
-  Real tau;
-  Real mean_angular_motion;
-  Real eccentricity;
-  Real rotation_matrix[3][3];
-  Real period;
-}secondary_bh;
-
-secondary_bh bh2;          /* The stars structure used throughout */
 
 
 //This function performs L * A = A_new 
@@ -379,6 +353,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
+  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  m = pcoord->GetMass();
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
@@ -1710,14 +1686,14 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
     int iorbit, it;
-      for (it=0; it<nt; it++) {
+    for (it=0; it<nt; it++) {
 
-        fread( &t_orbits(it), sizeof( Real ), 1, input_file );
+      fread( &t_orbits(it), sizeof( Real ), 1, input_file );
 
-        for (int iorbit=0; iorbit<Norbit; iorbit++){
+      for (int iorbit=0; iorbit<Norbit; iorbit++){
 
         fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
-  }
+      }
 
     }
 
@@ -2855,6 +2831,7 @@ static void TransformAphi(Real a3_ks, Real x1,
 
 
 void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
+
     int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
 
     if (it<= 0) it = 0;
