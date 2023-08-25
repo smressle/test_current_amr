@@ -2914,10 +2914,6 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
 void BoostVector(Real t,Real a0, Real a1, Real a2, Real a3, AthenaArray<Real> &orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
 
 
-  Real xbh = orbit_quantities(IX2);
-  Real ybh = orbit_quantities(IY2);
-  Real zbh = orbit_quantities(IZ2);
-
   Real vxbh = orbit_quantities(IV2X);
   Real vybh = orbit_quantities(IV2Y);
   Real vzbh = orbit_quantities(IV2Z);
@@ -3153,6 +3149,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
 
+
+  Lambda.DeleteAthenaArray();
   return;
 }
 
