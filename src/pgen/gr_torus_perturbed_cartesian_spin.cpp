@@ -354,7 +354,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
   t0 = pin->GetOrAddReal("problem","t0", 1e4);
-  m = pcoord->GetMass();
+  m =pin->GetReal("coord", "m");
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
