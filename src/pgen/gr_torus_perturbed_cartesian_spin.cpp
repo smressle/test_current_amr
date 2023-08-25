@@ -1690,7 +1690,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
       fread( &t_orbits(it), sizeof( Real ), 1, input_file );
 
-      for (int iorbit=0; iorbit<Norbit; iorbit++){
+      for (iorbit=0; iorbit<Norbit; iorbit++){
 
         fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
       }
@@ -3079,9 +3079,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   }
 
 
-  fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n", t, a1x,a2y,a1z,a2x,a2y,a2z,a1,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
-    orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime);
-
 
   Real a_cross_x_prime[3];
 
@@ -3158,6 +3155,21 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   Lambda.DeleteAthenaArray();
+
+
+
+  fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n", t, a1x,a2y,a1z,a2x,a2y,a2z,a1,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
+    orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime);
+
+  for (int imetric=0; imetric<NMETRIC; imetrix++){
+    if std::isnan(g(imetric)) {
+      fprintf(stderr,"ISNAN in metrix!!\n imetric: %d \n",imetric);
+        fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n", t, a1x,a2y,a1z,a2x,a2y,a2z,a1,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
+    orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime);
+      exit(0);
+    }
+  }
+
   return;
 }
 
