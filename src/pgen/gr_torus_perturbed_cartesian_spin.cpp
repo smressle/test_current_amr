@@ -1680,7 +1680,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
        
     fprintf(stderr,"q in set_orbit_arrays: %g \n", q);
-    
+
     t_orbits.NewAthenaArray(nt);
     orbit_array.NewAthenaArray(Norbit,nt);
 
@@ -3172,7 +3172,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
         fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n", 
           t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
     orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
-    q,);
+    q);
       exit(0);
     }
   }
