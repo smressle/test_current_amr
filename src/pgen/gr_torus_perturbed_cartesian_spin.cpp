@@ -3162,7 +3162,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
     nt,q,t0,t0_orbits);
 
-  for (int imetric=0; imetric<NMETRIC; imetrix++){
+  for (int imetric=0; imetric<NMETRIC; imetric++){
     if std::isnan(g(imetric)) {
       fprintf(stderr,"ISNAN in metrix!!\n imetric: %d \n",imetric);
         fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n", t, a1x,a2y,a1z,a2x,a2y,a2z,a1,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
