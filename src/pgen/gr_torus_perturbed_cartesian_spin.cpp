@@ -418,7 +418,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 
     // Get mass of black hole
-  Real m2 = q;
+  // Real m2 = q;
 
   // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   //r_inner_boundary_2 = rh2/2.0;
@@ -3028,8 +3028,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
 
-  if ((std::fabs(z)<SMALL) && (z>=0)) z =  SMALL;
-  if ((std::fabs(z)<SMALL) && (z <0)) z = -SMALL;
+  // if ((std::fabs(z)<SMALL) && (z>=0)) z =  SMALL;
+  // if ((std::fabs(z)<SMALL) && (z <0)) z = -SMALL;
 
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
@@ -3082,7 +3082,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   eta[1] = 1.0;
   eta[2] = 1.0;
   eta[3] = 1.0;
-
 
 
   //////////////Perturber Black Hole//////////////////
@@ -3177,6 +3176,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
   g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
 
+  return;
 }
 
 
@@ -3248,7 +3248,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real tp = t + DEL ;
   Real tm = t - DEL ;
 
+  get_orbit_quantities(tp,orbit_quantities);
   metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
+
+  get_orbit_quantities(tm,orbit_quantities);
   metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
     // // Set t-derivatives of covariant components
   for (int n = 0; n < NMETRIC; ++n) {
