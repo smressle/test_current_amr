@@ -1697,7 +1697,9 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     }
 
-    t0_orbits = t_orbits(0) + t0;
+    for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
+
+    t0_orbits = t_orbits(0);
     dt_orbits = t_orbits(1) - t_orbits(0);
         
 
