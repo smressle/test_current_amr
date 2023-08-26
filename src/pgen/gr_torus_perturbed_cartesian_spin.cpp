@@ -1676,7 +1676,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
 
-    fscanf(input_file, "%i %g \n", &nt, &q);
+    fscanf(input_file, "%i %f \n", &nt, &q);
 
        
     fprintf(stderr,"q in set_orbit_arrays: %g \n", q);
@@ -2903,7 +2903,26 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
 
   Real a_dot_x_prime = ax * (*xprime) + ay * (*yprime) + az * (*zprime);
 
-  if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+
+    Real diff = SMALL - a_dot_x_prime;
+    a_dot_x_prime =  SMALL;
+
+    *xprime = *xprime + diff*a2x/a2;
+    *yprime = *yprime + diff*a2y/a2;
+    *zprime = *zprime + diff*a2z/a2;
+  }
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+
+    Real diff = -SMALL - a_dot_x_prime;
+    a_dot_x_prime =  -SMALL;
+
+    *xprime = *xprime + diff*a2x/a2;
+    *yprime = *yprime + diff*a2y/a2;
+    *zprime = *zprime + diff*a2z/a2;
+  } 
+
+  // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(a_mag) + std::sqrt( SQR( SQR(*Rprime) - SQR(a_mag) ) + 4.0*SQR(a_dot_x_prime) );
   *rprime = std::sqrt(*rprime/2.0);
@@ -3006,9 +3025,26 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
+  Real a_dot_x = a1x * x + a1y * y + a1z * z;
 
-  // if ((std::fabs(z)<SMALL) && (z>=0)) z =  SMALL;
-  // if ((std::fabs(z)<SMALL) && (z <0)) z = -SMALL;
+  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
+
+    Real diff = SMALL - a_dot_x;
+    a_dot_x =  SMALL;
+
+    x = x + diff*a1x/a1;
+    y = y + diff*a1y/a1;
+    z = z + diff*a1z/a1;
+  }
+  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+
+    Real diff = -SMALL - a_dot_x;
+    a_dot_x =  -SMALL;
+
+    x = x + diff*a1x/a1;
+    y = y + diff*a1y/a1;
+    z = z + diff*a1z/a1;
+  } 
 
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
@@ -3030,6 +3066,9 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   }
 
+  //recompute after changes to coordinates
+  a_dot_x = a1x * x + a1y * y + a1z * z;
+
 
   Real a_cross_x[3];
 
@@ -3037,7 +3076,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   a_cross_x[1] = a1z * x - a1x * z;
   a_cross_x[2] = a1x * y - a1y * x;
 
-  Real a_dot_x = a1x * x + a1y * y + a1z * z;
 
   Real rsq_p_asq = SQR(r) + SQR(a1);
 
@@ -3069,6 +3107,27 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
+  Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
+
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+
+    Real diff = SMALL - a_dot_x_prime;
+    a_dot_x_prime =  SMALL;
+
+    xprime = xprime + diff*a2x/a2;
+    yprime = yprime + diff*a2y/a2;
+    zprime = zprime + diff*a2z/a2;
+  }
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+
+    Real diff = -SMALL - a_dot_x_prime;
+    a_dot_x_prime =  -SMALL;
+
+    xprime = xprime + diff*a2x/a2;
+    yprime = yprime + diff*a2y/a2;
+    zprime = zprime + diff*a2z/a2;
+  } 
+  
   Real thprime,phiprime;
   GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
@@ -3081,7 +3140,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
   }
 
-
+  a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
   Real a_cross_x_prime[3];
 
@@ -3090,7 +3149,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   a_cross_x_prime[1] = a2z * xprime - a2x * zprime;
   a_cross_x_prime[2] = a2x * yprime - a2y * xprime;
 
-  Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
   Real rsq_p_asq_prime = SQR(rprime) + SQR(a2);
 
@@ -3169,10 +3227,10 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   for (int imetric=0; imetric<NMETRIC; imetric++){
     if (std::isnan(g(imetric))) {
       fprintf(stderr,"ISNAN in metrix!!\n imetric: %d \n",imetric);
-        fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n", 
+        fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n xyz: %g %g %g \n", 
           t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
     orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
-    q);
+    q, x, y, z );
       exit(0);
     }
   }
