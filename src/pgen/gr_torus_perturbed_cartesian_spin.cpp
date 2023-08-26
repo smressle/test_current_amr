@@ -149,8 +149,8 @@ static Real pert_amp, pert_kr, pert_kz;            // parameters for initial per
 static Real dfloor,pfloor;                         // density and pressure floors
 // static Real rh;                                    // horizon radius
 
-// static Real q;          // black hole mass and spin
-Real q; 
+static Real q;          // black hole mass and spin
+//Real q; 
 // static Real r_inner_boundary,r_inner_boundary_2;
 // static Real rh2;
 // static Real eccentricity, tau, mean_angular_motion;
@@ -3284,6 +3284,12 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   AthenaArray<Real> gp,gm;
 
+
+  Real det = Determinant(g);
+  if (det<=0){
+    fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n",x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2));
+    exit(0);
+  }
 
 
   gp.NewAthenaArray(NMETRIC);
