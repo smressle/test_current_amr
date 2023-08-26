@@ -2740,6 +2740,12 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     *pr = r;
     *ptheta = std::acos(lz); //   std::acos(z/r);
     *pphi = std::atan2(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
+
+    if (std::isnan(*pr) or std::isnan(*ptheta) or std::isnan(*pphi)){
+      fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n ax ay az a: %g %g %g %g \n lx ly lz: %g %g %g \n adotx: %g a_cross_x: %g %g %g \n ",
+        x,y,z,ax,ay,az,a,lx,ly,lz, a_dot_x,a_cross_x[0],a_cross_x[1],a_cross_x[2] );
+      exit(0);
+    }
   return;
 }
 void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
@@ -3063,7 +3069,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   if (r<rh/2.0) {
     r = rh/2.0;
     convert_spherical_to_cartesian_ks(r,th,phi, a1x,a1y,a1z,&x,&y,&z);
-
   }
 
   //recompute after changes to coordinates
@@ -3226,7 +3231,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   for (int imetric=0; imetric<NMETRIC; imetric++){
     if (std::isnan(g(imetric))) {
-      fprintf(stderr,"ISNAN in metrix!!\n imetric: %d \n",imetric);
+      fprintf(stderr,"ISNAN in metric!!\n imetric: %d \n",imetric);
         fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n xyz: %g %g %g \n", 
           t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
     orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
