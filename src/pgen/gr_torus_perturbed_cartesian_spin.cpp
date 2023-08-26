@@ -2914,18 +2914,18 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
     Real diff = SMALL - a_dot_x_prime;
     a_dot_x_prime =  SMALL;
 
-    *xprime = *xprime + diff*ax/a_mag;
-    *yprime = *yprime + diff*ay/a_mag;
-    *zprime = *zprime + diff*az/a_mag;
+    *xprime = *xprime + diff*ax/(a_mag+SMALL);
+    *yprime = *yprime + diff*ay/(a_mag+SMALL);
+    *zprime = *zprime + diff*az/(a_mag+SMALL);;
   }
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
     Real diff = -SMALL - a_dot_x_prime;
     a_dot_x_prime =  -SMALL;
 
-    *xprime = *xprime + diff*ax/a_mag;
-    *yprime = *yprime + diff*ay/a_mag;
-    *zprime = *zprime + diff*az/a_mag;
+    *xprime = *xprime + diff*ax/(a_mag+SMALL);
+    *yprime = *yprime + diff*ay/(a_mag+SMALL);
+    *zprime = *zprime + diff*az/(a_mag+SMALL);
   } 
 
   // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
