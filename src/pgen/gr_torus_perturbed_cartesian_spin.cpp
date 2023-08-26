@@ -3302,9 +3302,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   }
 
 
-  Real R = np.sqrt( SQR(x) + SQR(y) + SQR(z) );
-  Real a1 = np.sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
-  Real a2 = np.sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
+  Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+  Real a1 = std::sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
+  Real a2 = std::sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
 
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
