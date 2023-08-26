@@ -2741,11 +2741,11 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     *ptheta = std::acos(lz); //   std::acos(z/r);
     *pphi = std::atan2(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
 
-    if (std::isnan(*pr) or std::isnan(*ptheta) or std::isnan(*pphi)){
-      fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n ax ay az a: %g %g %g %g \n lx ly lz: %g %g %g \n adotx: %g a_cross_x: %g %g %g \n ",
-        x,y,z,ax,ay,az,a,lx,ly,lz, a_dot_x,a_cross_x[0],a_cross_x[1],a_cross_x[2] );
-      exit(0);
-    }
+    // if (std::isnan(*pr) or std::isnan(*ptheta) or std::isnan(*pphi)){
+    //   fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n ax ay az a: %g %g %g %g \n lx ly lz: %g %g %g \n adotx: %g a_cross_x: %g %g %g \n ",
+    //     x,y,z,ax,ay,az,a,lx,ly,lz, a_dot_x,a_cross_x[0],a_cross_x[1],a_cross_x[2] );
+    //   exit(0);
+    // }
   return;
 }
 void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
@@ -2932,6 +2932,13 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(a_mag) + std::sqrt( SQR( SQR(*Rprime) - SQR(a_mag) ) + 4.0*SQR(a_dot_x_prime) );
   *rprime = std::sqrt(*rprime/2.0);
+
+
+  if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
+      fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n ",
+        x,y,z,ax,ay,az,a_mag, a_dot_x );
+      exit(0);
+    }
 
   return;
 
