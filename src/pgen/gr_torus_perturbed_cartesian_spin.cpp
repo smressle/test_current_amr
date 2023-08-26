@@ -3236,13 +3236,13 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
-  Real det = Determinant(g);
-  if (det>=0){
-    fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
-      x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
-      xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
-    exit(0);
-  }
+  // Real det = Determinant(g);
+  // if (det>=0){
+  //   fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
+  //     x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+  //     xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
+  //   exit(0);
+  // }
 
 
 
@@ -3295,11 +3295,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> gp,gm;
 
 
-  Real det = Determinant(g);
-  if (det>=0){
-    fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n",x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2));
-    exit(0);
-  }
+  // Real det = Determinant(g);
+  // if (det>=0){
+  //   fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n",x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2));
+  //   exit(0);
+  // }
 
 
   Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
