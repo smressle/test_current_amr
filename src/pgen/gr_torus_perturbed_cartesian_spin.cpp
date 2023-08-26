@@ -3286,7 +3286,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
   Real det = Determinant(g);
-  if (det<=0){
+  if (det>=0){
     fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n",x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2));
     exit(0);
   }
