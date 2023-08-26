@@ -1678,6 +1678,8 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     fscanf(input_file, "%i %f \n", &nt, &q);
 
+    q = 0.1;
+
        
     fprintf(stderr,"q in set_orbit_arrays: %g \n", q);
 
