@@ -2758,7 +2758,7 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
 
   *x = r * std::sin(th) * std::cos(phi) + ay * std::cos(th)                 - az*std::sin(th) * std::sin(phi);
   *y = r * std::sin(th) * std::sin(phi) + az * std::sin(th) * std::cos(phi) - ax*std::cos(th)                ;
-  *z = r * std::cos(phi)                + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi)              ;;
+  *z = r * std::cos(th)                 + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi)              ;;
 
 }
 
@@ -3240,7 +3240,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   if (det>=0){
     fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
       x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
-      xprime,yprime,zprime,r,th,phi,rprime,thprime,zprime);
+      xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
     exit(0);
   }
 
