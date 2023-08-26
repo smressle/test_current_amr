@@ -2936,7 +2936,7 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
 
   if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
       fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n ",
-        x,y,z,ax,ay,az,a_mag, a_dot_x );
+        x,y,z,ax,ay,az,a_mag, a_dot_x_prime );
       exit(0);
     }
 
