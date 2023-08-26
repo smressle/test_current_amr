@@ -3045,18 +3045,18 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     Real diff = SMALL - a_dot_x;
     a_dot_x =  SMALL;
 
-    x = x + diff*a1x/a1;
-    y = y + diff*a1y/a1;
-    z = z + diff*a1z/a1;
+    x = x + diff*a1x/(a1+SMALL);
+    y = y + diff*a1y/(a1+SMALL);
+    z = z + diff*a1z/(a1+SMALL);
   }
   if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
     Real diff = -SMALL - a_dot_x;
     a_dot_x =  -SMALL;
 
-    x = x + diff*a1x/a1;
-    y = y + diff*a1y/a1;
-    z = z + diff*a1z/a1;
+    x = x + diff*a1x/(a1+SMALL);
+    y = y + diff*a1y/(a1+SMALL);
+    z = z + diff*a1z/(a1+SMALL);
   } 
 
 
@@ -3126,18 +3126,18 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     Real diff = SMALL - a_dot_x_prime;
     a_dot_x_prime =  SMALL;
 
-    xprime = xprime + diff*a2x/a2;
-    yprime = yprime + diff*a2y/a2;
-    zprime = zprime + diff*a2z/a2;
+    xprime = xprime + diff*a2x/(a2+SMALL);
+    yprime = yprime + diff*a2y/(a2+SMALL);
+    zprime = zprime + diff*a2z/(a2+SMALL);
   }
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
     Real diff = -SMALL - a_dot_x_prime;
     a_dot_x_prime =  -SMALL;
 
-    xprime = xprime + diff*a2x/a2;
-    yprime = yprime + diff*a2y/a2;
-    zprime = zprime + diff*a2z/a2;
+    xprime = xprime + diff*a2x/(a2+SMALL);
+    yprime = yprime + diff*a2y/(a2+SMALL);
+    zprime = zprime + diff*a2z/(a2+SMALL);
   } 
   
   Real thprime,phiprime;
