@@ -149,7 +149,8 @@ static Real pert_amp, pert_kr, pert_kz;            // parameters for initial per
 static Real dfloor,pfloor;                         // density and pressure floors
 // static Real rh;                                    // horizon radius
 
-static Real q;          // black hole mass and spin
+// static Real q;          // black hole mass and spin
+Real q; 
 // static Real r_inner_boundary,r_inner_boundary_2;
 // static Real rh2;
 // static Real eccentricity, tau, mean_angular_motion;
