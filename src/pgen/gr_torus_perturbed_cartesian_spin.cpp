@@ -1679,7 +1679,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     fscanf(input_file, "%i %f \n", &nt, &q);
 
-    // q = 0.1;
+    q = 0.1;
 
        
     fprintf(stderr,"q in set_orbit_arrays: %g \n", q);
@@ -3236,6 +3236,16 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
+  Real det = Determinant(g);
+  if (det>=0){
+    fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
+      x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+      xprime,yprime,zprime,r,th,phi,rprime,thprime,zprime);
+    exit(0);
+  }
+
+
+
   // fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n nt: %d q: %g t0: %g t0_orbits: %g dt_orbits: %g\n", 
   //   t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
   //   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
@@ -3291,6 +3301,23 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     exit(0);
   }
 
+
+  Real R = np.sqrt( SQR(x) + SQR(y) + SQR(z) );
+  Real a1 = np.sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
+  Real a2 = np.sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
+
+  Real xprime,yprime,zprime,rprime,Rprime;
+  get_prime_coords(x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
+
+  if (Rprime<=a2 or R<=a1){
+
+for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx1(n) = 0.0;
+     dg_dx2(n) = 0.0;
+     dg_dx3(n) = 0.0;
+     dg_dt(n) = 0.0;
+  }
+  }
 
   gp.NewAthenaArray(NMETRIC);
   gm.NewAthenaArray(NMETRIC);
