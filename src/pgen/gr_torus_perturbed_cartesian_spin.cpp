@@ -3317,6 +3317,7 @@ for (int n = 0; n < NMETRIC; ++n) {
      dg_dx3(n) = 0.0;
      dg_dt(n) = 0.0;
   }
+  return;
   }
 
   gp.NewAthenaArray(NMETRIC);
