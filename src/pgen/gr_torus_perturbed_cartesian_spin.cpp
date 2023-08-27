@@ -3251,16 +3251,16 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   //   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
   //   nt,q,t0,t0_orbits, dt_orbits);
 
-  for (int imetric=0; imetric<NMETRIC; imetric++){
-    if (std::isnan(g(imetric))) {
-      fprintf(stderr,"ISNAN in metric!!\n imetric: %d \n",imetric);
-        fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n xyz: %g %g %g \n", 
-          t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
-    orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
-    q, x, y, z );
-      exit(0);
-    }
-  }
+  // for (int imetric=0; imetric<NMETRIC; imetric++){
+  //   if (std::isnan(g(imetric))) {
+  //     fprintf(stderr,"ISNAN in metric!!\n imetric: %d \n",imetric);
+  //       fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n xyz: %g %g %g \n", 
+  //         t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
+  //   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
+  //   q, x, y, z );
+  //     exit(0);
+  //   }
+  // }
 
   return;
 }
@@ -3311,13 +3311,13 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   if (Rprime<=a2 or R<=a1){
 
-for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx1(n) = 0.0;
-     dg_dx2(n) = 0.0;
-     dg_dx3(n) = 0.0;
-     dg_dt(n) = 0.0;
-  }
-  return;
+    for (int n = 0; n < NMETRIC; ++n) {
+         dg_dx1(n) = 0.0;
+         dg_dx2(n) = 0.0;
+         dg_dx3(n) = 0.0;
+         dg_dt(n) = 0.0;
+      }
+    return;
   }
 
   gp.NewAthenaArray(NMETRIC);
