@@ -1259,7 +1259,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = true; //pin->GetOrAddBoolean("problem","scale_divergence",false);
+  int SCALE_DIVERGENCE = false; //pin->GetOrAddBoolean("problem","scale_divergence",false);
 
   if (!SCALE_DIVERGENCE) return;
   fprintf(stderr,"Scaling divergence \n");
@@ -3078,8 +3078,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 /// prevent metric from getting nan sqrt(-gdet)
 
   Real rh =  ( m + std::sqrt(SQR(m)-SQR(a1)) );
-  if (r<rh/2.0) {
-    r = rh/2.0;
+  if (r<rh*0.8) {
+    r = rh*0.8;
     convert_spherical_to_cartesian_ks(r,th,phi, a1x,a1y,a1z,&x,&y,&z);
   }
 
