@@ -1735,7 +1735,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   AthenaArray<Real> orbit_quantities;
   orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(pmb->pmy_mesh->time,orbit_quantities);
+  get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
 
   Real a1x = orbit_quantities(IA1X);
   Real a1y = orbit_quantities(IA1Y);
