@@ -1749,7 +1749,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
 
   Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
-  Real r_inner_boundary = rh/2.0;
+  Real r_inner_boundary = rh*0.8;
 
   Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
 
