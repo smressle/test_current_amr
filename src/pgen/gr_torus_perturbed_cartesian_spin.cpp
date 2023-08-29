@@ -2729,6 +2729,26 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     a_cross_x[2] = ax * y - ay * x;
 
 
+    if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
+
+      Real diff = SMALL - a_dot_x/(a_mag+SMALL);
+      a_dot_x =  SMALL;
+
+      x = 
+      x = x + diff*ax/(a+SMALL); 
+      y = y + diff*ay/(a+SMALL);
+      z = z + diff*az/(a+SMALL);
+    }
+    if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+
+      Real diff = -SMALL - a_dot_x/(a_mag+SMALL);;
+      a_dot_x =  -SMALL;
+
+      x = x + diff*ax/(a+SMALL);
+      y = y + diff*ay/(a+SMALL);
+      z = z + diff*az/(a+SMALL);
+    } 
+
 
 
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
@@ -2758,7 +2778,7 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
 
   *x = r * std::sin(th) * std::cos(phi) + ay * std::cos(th)                 - az*std::sin(th) * std::sin(phi);
   *y = r * std::sin(th) * std::sin(phi) + az * std::sin(th) * std::cos(phi) - ax*std::cos(th)                ;
-  *z = r * std::cos(th)                 + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi)              ;;
+  *z = r * std::cos(th)                 + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi);
 
 }
 
@@ -2916,7 +2936,7 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
 
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-    Real diff = SMALL - a_dot_x_prime;
+    Real diff = SMALL - a_dot_x_prime/(a_mag+SMALL);
     a_dot_x_prime =  SMALL;
 
     *xprime = *xprime + diff*ax/(a_mag+SMALL);
@@ -2925,7 +2945,7 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
   }
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-    Real diff = -SMALL - a_dot_x_prime;
+    Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);;
     a_dot_x_prime =  -SMALL;
 
     *xprime = *xprime + diff*ax/(a_mag+SMALL);
@@ -2939,11 +2959,11 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
   *rprime = std::sqrt(*rprime/2.0);
 
 
-  if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
-      fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n xbh ybh zbh: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n xyzprime: %g %g %g \n ",
-        x,y,z,xbh, ybh, zbh, ax,ay,az,a_mag, a_dot_x_prime,*xprime,*yprime,*zprime );
-      exit(0);
-    }
+  // if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
+  //     fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n xbh ybh zbh: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n xyzprime: %g %g %g \n ",
+  //       x,y,z,xbh, ybh, zbh, ax,ay,az,a_mag, a_dot_x_prime,*xprime,*yprime,*zprime );
+  //     exit(0);
+  //   }
 
   return;
 
@@ -3047,7 +3067,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
-    Real diff = SMALL - a_dot_x;
+    Real diff = SMALL - a_dot_x/(a1+SMALL);
     a_dot_x =  SMALL;
 
     x = x + diff*a1x/(a1+SMALL);
@@ -3056,7 +3076,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   }
   if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
-    Real diff = -SMALL - a_dot_x;
+    Real diff = -SMALL - a_dot_x/(a1+SMALL);
     a_dot_x =  -SMALL;
 
     x = x + diff*a1x/(a1+SMALL);
@@ -3128,7 +3148,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-    Real diff = SMALL - a_dot_x_prime;
+    Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
     a_dot_x_prime =  SMALL;
 
     xprime = xprime + diff*a2x/(a2+SMALL);
@@ -3137,7 +3157,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   }
   if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-    Real diff = -SMALL - a_dot_x_prime;
+    Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
     a_dot_x_prime =  -SMALL;
 
     xprime = xprime + diff*a2x/(a2+SMALL);
