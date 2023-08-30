@@ -2761,7 +2761,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     Real lz = (r * z - a_cross_x[2] + a_dot_x * az/r)/(rsq_p_asq);
 
     if (lz>1.0) lz = 1.0;
-    if (lz<1.0) lz = 1.0;
+    if (lz<-1.0) lz = -1.0;
     *pr = r;
     *ptheta = std::acos(lz); //   std::acos(z/r);
     *pphi = std::atan2(ly,lx); //std::atan2( (r*y-a*x)/(SQR(r)+SQR(a) ), (a*y+r*x)/(SQR(r) + SQR(a) )  );
