@@ -1717,7 +1717,10 @@ void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
     interp_orbits(t,iorbit,orbit_array,&orbit_quantities(iorbit));
   }
 
+  return;
+
 }
+
 
 
 
