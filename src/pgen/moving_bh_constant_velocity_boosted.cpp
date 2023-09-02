@@ -641,6 +641,12 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   gamma_adi = peos->GetGamma();
 
 
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(pmy_mesh->metric_time,orbit_quantities);
+
   // Prepare scratch arrays
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
   g.NewAthenaArray(NMETRIC, iu+1);
@@ -659,7 +665,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real xprime,yprime,zprime,rprime,Rprime;
 
-        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), orbit_quantities &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
         Real ut,ux,uy,uz,uu1,uu2,uu3;
@@ -780,7 +786,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (i<= iu) x_coord = pcoord->x1v(i);
             else x_coord = pcoord->x1v(iu) + pcoord->dx1v(iu);
 
-            get_prime_coords(x_coord,pcoord->x2f(j),pcoord->x3f(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(x_coord,pcoord->x2f(j),pcoord->x3f(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
             Real Ax = Ax_func(xprime,yprime,zprime);
             Real Ay = Ay_func(xprime,yprime,zprime);
@@ -795,7 +801,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (j<= ju) y_coord = pcoord->x2v(j);
             else y_coord = pcoord->x2v(ju) + pcoord->dx2v(ju);
 
-            get_prime_coords(pcoord->x1f(i),y_coord,pcoord->x3f(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(pcoord->x1f(i),y_coord,pcoord->x3f(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Ax = Ax_func(xprime,yprime,zprime) ;
             Ay = Ay_func(xprime,yprime,zprime) ;
             Az = Az_func(xprime,yprime,zprime) ;
@@ -805,7 +811,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Real z_coord;
             if (k<= ku) z_coord = pcoord->x3v(k);
             else z_coord = pcoord->x3v(ku) + pcoord->dx3v(ku);
-            get_prime_coords(pcoord->x1f(i),pcoord->x2f(j),z_coord, pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(pcoord->x1f(i),pcoord->x2f(j),z_coord, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Ax = Ax_func(xprime,yprime,zprime) ;
             Ay = Ay_func(xprime,yprime,zprime) ;
             Az = Az_func(xprime,yprime,zprime) ;
@@ -982,6 +988,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
   // Call user work function to set output variables
   UserWorkInLoop();
+
+  orbit_quantities.DeleteAthenaArray():
   return;
 }
 
