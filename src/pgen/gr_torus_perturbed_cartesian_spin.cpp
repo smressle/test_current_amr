@@ -3360,7 +3360,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   Real x2p = x2 + DEL; // * rprime;
   // Real x2m = x2 - DEL; // * rprime;
-  Real x1m = x2;
+  Real x2m = x2;
 
   metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
   // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
