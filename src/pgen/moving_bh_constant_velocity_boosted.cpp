@@ -72,10 +72,10 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
 
 static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Real ay, Real az,Real *pr,
                                          Real *ptheta, Real *pphi);
-static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
-                     Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
-static void TransformAphi(Real a3_bl, Real x1,
-                     Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
+// static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
+                     // Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
+// static void TransformAphi(Real a3_bl, Real x1,
+                     // Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
 static Real CalculateLFromRPeak(Real r);
 static Real CalculateRPeakFromL(Real l_target);
 static Real LogHAux(Real r, Real sin_theta);
@@ -2434,76 +2434,76 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
 // Notes:
 //   Schwarzschild coordinates match Boyer-Lindquist when a = 0
 
-static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
-                     Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
+// static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
+//                      Real x2, Real x3, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
 
-  if (COORDINATE_SYSTEM == "schwarzschild") {
-    *pa0 = a0_bl;
-    *pa1 = a1_bl;
-    *pa2 = a2_bl;
-    *pa3 = a3_bl;
-  } else if (COORDINATE_SYSTEM == "kerr-schild") {
-    Real r = x1;
-    Real delta = SQR(r) - 2.0*m*r + SQR(a);
-    *pa0 = a0_bl + 2.0*m*r/delta * a1_bl;
-    *pa1 = a1_bl;
-    *pa2 = a2_bl;
-    *pa3 = a3_bl + a/delta * a1_bl;
-  }
-    else if (COORDINATE_SYSTEM == "gr_user"){
-    Real x = x1;
-    Real y = x2;
-    Real z = x3;
+//   if (COORDINATE_SYSTEM == "schwarzschild") {
+//     *pa0 = a0_bl;
+//     *pa1 = a1_bl;
+//     *pa2 = a2_bl;
+//     *pa3 = a3_bl;
+//   } else if (COORDINATE_SYSTEM == "kerr-schild") {
+//     Real r = x1;
+//     Real delta = SQR(r) - 2.0*m*r + SQR(a);
+//     *pa0 = a0_bl + 2.0*m*r/delta * a1_bl;
+//     *pa1 = a1_bl;
+//     *pa2 = a2_bl;
+//     *pa3 = a3_bl + a/delta * a1_bl;
+//   }
+//     else if (COORDINATE_SYSTEM == "gr_user"){
+//     Real x = x1;
+//     Real y = x2;
+//     Real z = x3;
 
-    Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-    Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
-    Real delta = SQR(r) - 2.0*m*r + SQR(a);
-    *pa0 = a0_bl + 2.0*r/delta * a1_bl;
-    *pa1 = a1_bl * ( (r*x+a*y)/(SQR(r) + SQR(a)) - y*a/delta) + 
-           a2_bl * x*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) - 
-           a3_bl * y; 
-    *pa2 = a1_bl * ( (r*y-a*x)/(SQR(r) + SQR(a)) + x*a/delta) + 
-           a2_bl * y*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) + 
-           a3_bl * x;
-    *pa3 = a1_bl * z/r - 
-           a2_bl * r * std::sqrt((SQR(x) + SQR(y))/(SQR(r) + SQR(a)));
-  }
-  return;
-}
+//     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+//     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+//     Real delta = SQR(r) - 2.0*m*r + SQR(a);
+//     *pa0 = a0_bl + 2.0*r/delta * a1_bl;
+//     *pa1 = a1_bl * ( (r*x+a*y)/(SQR(r) + SQR(a)) - y*a/delta) + 
+//            a2_bl * x*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) - 
+//            a3_bl * y; 
+//     *pa2 = a1_bl * ( (r*y-a*x)/(SQR(r) + SQR(a)) + x*a/delta) + 
+//            a2_bl * y*z/r * std::sqrt((SQR(r) + SQR(a))/(SQR(x) + SQR(y))) + 
+//            a3_bl * x;
+//     *pa3 = a1_bl * z/r - 
+//            a2_bl * r * std::sqrt((SQR(x) + SQR(y))/(SQR(r) + SQR(a)));
+//   }
+//   return;
+// }
 
 //Transform vector potential, A_\mu, from KS to CKS coordinates assuming A_r = A_theta = 0
 // A_\mu (cks) = A_nu (ks)  dx^nu (ks)/dx^\mu (cks) = A_phi (ks) dphi (ks)/dx^\mu
 // phi_ks = arctan((r*y + a*x)/(r*x - a*y) ) 
 //
-static void TransformAphi(Real a3_ks, Real x1,
-                     Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3) {
+// static void TransformAphi(Real a3_ks, Real x1,
+//                      Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3) {
 
-  if (COORDINATE_SYSTEM == "gr_user"){
-    Real x = x1;
-    Real y = x2;
-    Real z = x3;
+//   if (COORDINATE_SYSTEM == "gr_user"){
+//     Real x = x1;
+//     Real y = x2;
+//     Real z = x3;
 
-    Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-    Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
-    Real delta = SQR(r) - 2.0*m*r + SQR(a);
-    Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
+//     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+//     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+//     Real delta = SQR(r) - 2.0*m*r + SQR(a);
+//     Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
 
-    //dphi/dx =  partial phi/partial x + partial phi/partial r partial r/partial x 
-    *pa1 = a3_ks * ( -y/(SQR(x)+SQR(y))  + a*x*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
-    //dphi/dx =  partial phi/partial y + partial phi/partial r partial r/partial y 
-    *pa2 = a3_ks * (  x/(SQR(x)+SQR(y))  + a*y*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
-    //dphi/dx =   partial phi/partial r partial r/partial z 
-    *pa3 = a3_ks * ( a*z/(r*sqrt_term) );
-  }
-  else{
-          std::stringstream msg;
-      msg << "### FATAL ERROR in TransformAphi\n"
-          << "this function only works for CKS coordinates"
-          <<  std::endl;
-    throw std::runtime_error(msg.str().c_str());
-  }
-  return;
-}
+//     //dphi/dx =  partial phi/partial x + partial phi/partial r partial r/partial x 
+//     *pa1 = a3_ks * ( -y/(SQR(x)+SQR(y))  + a*x*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
+//     //dphi/dx =  partial phi/partial y + partial phi/partial r partial r/partial y 
+//     *pa2 = a3_ks * (  x/(SQR(x)+SQR(y))  + a*y*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
+//     //dphi/dx =   partial phi/partial r partial r/partial z 
+//     *pa3 = a3_ks * ( a*z/(r*sqrt_term) );
+//   }
+//   else{
+//           std::stringstream msg;
+//       msg << "### FATAL ERROR in TransformAphi\n"
+//           << "this function only works for CKS coordinates"
+//           <<  std::endl;
+//     throw std::runtime_error(msg.str().c_str());
+//   }
+//   return;
+// }
 
 
 void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
@@ -2585,178 +2585,178 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
 
 
 
-void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
-    // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
+// void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
+//     // Extract inputs
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
 
-  Real a_spin = a; //-a;
+//   Real a_spin = a; //-a;
 
-  if (std::fabs(z)<SMALL) z= SMALL;
+//   if (std::fabs(z)<SMALL) z= SMALL;
 
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-  //if (r<0.01) r = 0.01;
+//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+//     x=  0.1;
+//     y = 0.1;
+//     z = 0.1;
+//   }
+//   Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+//   Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+//   r = std::sqrt(r/2.0);
 
 
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-
-  // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0];
-  g(I01) = f * l_lower[0]*l_lower[1];
-  g(I02) = f * l_lower[0]*l_lower[2];
-  g(I03) = f * l_lower[0]*l_lower[3];
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1];
-  g(I12) = f * l_lower[1]*l_lower[2];
-  g(I13) = f * l_lower[1]*l_lower[3];
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2];
-  g(I23) = f * l_lower[2]*l_lower[3];
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3];
+//   //if (r<0.01) r = 0.01;
 
 
-}
+//   Real eta[4],l_lower[4],l_upper[4];
 
-void cks_inverse_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g_inv){
-    // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
+//   Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
+//   l_upper[0] = -1.0;
+//   l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
+//   l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
+//   l_upper[3] = z/r;
 
-  Real a_spin = a; //-a;
+//   l_lower[0] = 1.0;
+//   l_lower[1] = l_upper[1];
+//   l_lower[2] = l_upper[2];
+//   l_lower[3] = l_upper[3];
 
-  if (std::fabs(z)<SMALL) z= SMALL;
+//   eta[0] = -1.0;
+//   eta[1] = 1.0;
+//   eta[2] = 1.0;
+//   eta[3] = 1.0;
 
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-    // // Set contravariant components
-  g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] ;
-  g_inv(I01) =        - f * l_upper[0]*l_upper[1] ;
-  g_inv(I02) =        - f * l_upper[0]*l_upper[2] ;
-  g_inv(I03) =        - f * l_upper[0]*l_upper[3] ;
-  g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] ;
-  g_inv(I12) =        - f * l_upper[1]*l_upper[2] ;
-  g_inv(I13) =        - f * l_upper[1]*l_upper[3] ;
-  g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] ;
-  g_inv(I23) =        - f * l_upper[2]*l_upper[3] ;
-  g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] ;
+//   // Set covariant components
+//   g(I00) = eta[0] + f * l_lower[0]*l_lower[0];
+//   g(I01) = f * l_lower[0]*l_lower[1];
+//   g(I02) = f * l_lower[0]*l_lower[2];
+//   g(I03) = f * l_lower[0]*l_lower[3];
+//   g(I11) = eta[1] + f * l_lower[1]*l_lower[1];
+//   g(I12) = f * l_lower[1]*l_lower[2];
+//   g(I13) = f * l_lower[1]*l_lower[3];
+//   g(I22) = eta[2] + f * l_lower[2]*l_lower[2];
+//   g(I23) = f * l_lower[2]*l_lower[3];
+//   g(I33) = eta[3] + f * l_lower[3]*l_lower[3];
 
 
-}
-void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g){
-  q = pin->GetOrAddReal("problem", "q", 0.1);
-  aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+// }
 
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
+// void cks_inverse_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g_inv){
+//     // Extract inputs
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
 
+//   Real a_spin = a; //-a;
 
-  Real xprime,yprime,zprime,rprime,Rprime;
-  get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+//   if (std::fabs(z)<SMALL) z= SMALL;
 
-
-/// prevent metric from getting nan sqrt(-gdet)
-  Real thprime  = std::acos(zprime/rprime);
-  Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
-                              (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
-
-  Real rhprime = ( q + std::sqrt(q*q-SQR(aprime)) );
-  if (rprime<rhprime/2.0) {
-    rprime = rhprime/2.0;
-    xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
-    yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
-    zprime = rprime * std::cos(thprime);
-  }
+//   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+//     x=  0.1;
+//     y = 0.1;
+//     z = 0.1;
+//   }
+//   Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+//   Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+//   r = std::sqrt(r/2.0);
 
 
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real l_lowerprime[4],l_upperprime[4];
-
-  Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
-  l_upperprime[0] = -1.0;
-  l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
-  l_upperprime[3] = zprime/rprime;
-
-  l_lowerprime[0] = 1.0;
-  l_lowerprime[1] = l_upperprime[1];
-  l_lowerprime[2] = l_upperprime[2];
-  l_lowerprime[3] = l_upperprime[3];
+//   //if (r<0.01) r = 0.01;
 
 
+//   Real eta[4],l_lower[4],l_upper[4];
+
+//   Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
+//   l_upper[0] = -1.0;
+//   l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
+//   l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
+//   l_upper[3] = z/r;
+
+//   l_lower[0] = 1.0;
+//   l_lower[1] = l_upper[1];
+//   l_lower[2] = l_upper[2];
+//   l_lower[3] = l_upper[3];
+
+//   eta[0] = -1.0;
+//   eta[1] = 1.0;
+//   eta[2] = 1.0;
+//   eta[3] = 1.0;
+//     // // Set contravariant components
+//   g_inv(I00) = eta[0] - f * l_upper[0]*l_upper[0] ;
+//   g_inv(I01) =        - f * l_upper[0]*l_upper[1] ;
+//   g_inv(I02) =        - f * l_upper[0]*l_upper[2] ;
+//   g_inv(I03) =        - f * l_upper[0]*l_upper[3] ;
+//   g_inv(I11) = eta[1] - f * l_upper[1]*l_upper[1] ;
+//   g_inv(I12) =        - f * l_upper[1]*l_upper[2] ;
+//   g_inv(I13) =        - f * l_upper[1]*l_upper[3] ;
+//   g_inv(I22) = eta[2] - f * l_upper[2]*l_upper[2] ;
+//   g_inv(I23) =        - f * l_upper[2]*l_upper[3] ;
+//   g_inv(I33) = eta[3] - f * l_upper[3]*l_upper[3] ;
+
+
+// }
+// void delta_cks_metric(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g){
+//   q = pin->GetOrAddReal("problem", "q", 0.1);
+//   aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
+
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
+
+
+//   Real xprime,yprime,zprime,rprime,Rprime;
+//   get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
+// /// prevent metric from getting nan sqrt(-gdet)
+//   Real thprime  = std::acos(zprime/rprime);
+//   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
+//                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );
+
+//   Real rhprime = ( q + std::sqrt(q*q-SQR(aprime)) );
+//   if (rprime<rhprime/2.0) {
+//     rprime = rhprime/2.0;
+//     xprime = rprime * std::cos(phiprime)*std::sin(thprime) - aprime * std::sin(phiprime)*std::sin(thprime);
+//     yprime = rprime * std::sin(phiprime)*std::sin(thprime) + aprime * std::cos(phiprime)*std::sin(thprime);
+//     zprime = rprime * std::cos(thprime);
+//   }
+
+
+
+//   //if (r<0.01) r = 0.01;
+
+
+//   Real l_lowerprime[4],l_upperprime[4];
+
+//   Real fprime = q *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+//   l_upperprime[0] = -1.0;
+//   l_upperprime[1] = (rprime*xprime + aprime*yprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[2] = (rprime*yprime - aprime*xprime)/( SQR(rprime) + SQR(aprime) );
+//   l_upperprime[3] = zprime/rprime;
+
+//   l_lowerprime[0] = 1.0;
+//   l_lowerprime[1] = l_upperprime[1];
+//   l_lowerprime[2] = l_upperprime[2];
+//   l_lowerprime[3] = l_upperprime[3];
 
 
 
 
-  // Set covariant components
-  delta_g(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
-  delta_g(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
-  delta_g(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
-  delta_g(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
-  delta_g(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
-  delta_g(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
-  delta_g(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
-  delta_g(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
-  delta_g(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
-  delta_g(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
 
-}
+
+//   // Set covariant components
+//   delta_g(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
+//   delta_g(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
+//   delta_g(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
+//   delta_g(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
+//   delta_g(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
+//   delta_g(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
+//   delta_g(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
+//   delta_g(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
+//   delta_g(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
+//   delta_g(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
+
+// }
 // void delta_cks_metric_inverse(ParameterInput *pin,Real t, Real x1, Real x2, Real x3,AthenaArray<Real> &delta_g_inv){
 //   Real q = pin->GetOrAddReal("problem", "q", 0.1);
 //   Real aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
