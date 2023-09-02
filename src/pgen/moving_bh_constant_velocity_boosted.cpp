@@ -665,7 +665,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real xprime,yprime,zprime,rprime,Rprime;
 
-        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), orbit_quantities &xprime,&yprime, &zprime, &rprime,&Rprime);
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
         Real ut,ux,uy,uz,uu1,uu2,uu3;
@@ -989,7 +989,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Call user work function to set output variables
   UserWorkInLoop();
 
-  orbit_quantities.DeleteAthenaArray():
+  orbit_quantities.DeleteAthenaArray();
   return;
 }
 
