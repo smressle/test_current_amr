@@ -146,15 +146,11 @@ static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D s
 static Real phi_min, phi_max;                      // limits in phi for 3D samples
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
 static Real dfloor,pfloor;                         // density and pressure floors
-static Real rh;                                    // horizon radius
 
 static Real q;          // black hole mass and spin
-static Real r_inner_boundary,r_inner_boundary_2;
-static Real rh2;
 static Real v_bh2;
 static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
-static Real t0; //time at which second BH is at polar axis
 static Real rho0,press0;
 static Real field_norm, r_cut;  
 
@@ -410,15 +406,15 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 
 
-  rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
-  r_inner_boundary = rh/2.0;
+  // rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
+  // r_inner_boundary = rh/2.0;
 
 
     // Get mass of black hole
   Real m2 = q;
 
-  rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
-  r_inner_boundary_2 = rh2/2.0;
+  // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
+  // r_inner_boundary_2 = rh2/2.0;
 
   int N_user_vars = 7;
   if (MAGNETIC_FIELDS_ENABLED) {
