@@ -2875,7 +2875,7 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
 
 
    if (t<t0_orbits){
-      slope = (arr(iorbit,it+1)-arr(iorbit,it));
+      slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
       *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
    }
    else if (it==nt-1){
@@ -3341,55 +3341,71 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   }
 
   gp.NewAthenaArray(NMETRIC);
-  gm.NewAthenaArray(NMETRIC);
+  // gm.NewAthenaArray(NMETRIC);
 
   Real x1p = x1 + DEL; // * rprime;
-  Real x1m = x1 - DEL; // * rprime;
+  // Real x1m = x1 - DEL; // * rprime;
+  Real x1m = x1;
 
   metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
-  metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
+  // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
 
     // // Set x-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
+  // }
+    for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
   }
 
   Real x2p = x2 + DEL; // * rprime;
-  Real x2m = x2 - DEL; // * rprime;
+  // Real x2m = x2 - DEL; // * rprime;
+  Real x1m = x2;
 
   metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
-  metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
+  // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
     // // Set y-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+  // }
   for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+     dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
   }
   
   Real x3p = x3 + DEL; // * rprime;
-  Real x3m = x3 - DEL; // * rprime;
+  // Real x3m = x3 - DEL; // * rprime;
+  Real x3m = x3;
 
   metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
-  metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
+  // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
     // // Set z-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+  // }
+    for (int n = 0; n < NMETRIC; ++n) {
+     dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
   }
 
   Real tp = t + DEL ;
-  Real tm = t - DEL ;
+  Real tm = t;
+  // Real tm = t - DEL ;
 
   get_orbit_quantities(tp,orbit_quantities);
   metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
 
-  get_orbit_quantities(tm,orbit_quantities);
-  metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
+  // get_orbit_quantities(tm,orbit_quantities);
+  // metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
     // // Set t-derivatives of covariant components
+  // for (int n = 0; n < NMETRIC; ++n) {
+  //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+  // }
   for (int n = 0; n < NMETRIC; ++n) {
-     dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+     dg_dt(n) = (gp(n)-g(n))/(tp-tm);
   }
 
   gp.DeleteAthenaArray();
-  gm.DeleteAthenaArray();
+  // gm.DeleteAthenaArray();
 
   orbit_quantities.DeleteAthenaArray();
   return;
