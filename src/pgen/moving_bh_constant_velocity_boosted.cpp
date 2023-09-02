@@ -2506,34 +2506,6 @@ static void TransformAphi(Real a3_ks, Real x1,
 }
 
 
-void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
-
-    int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
-
-    if (it<= 0) it = 0;
-    if (it>=nt-1) it = nt-1;
-
-    Real slope;
-
-
-   if (t<t0_orbits){
-      slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
-      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
-   }
-   else if (it==nt-1){
-      slope = (arr(iorbit,it)-arr(iorbit,it-1))/dt_orbits;
-      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
-    }
-    else{
-      slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
-      *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
-    }
-
-    return;
-
-}
-
-
 void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
 
 
@@ -2950,11 +2922,11 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   } 
 
 
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x = 0.1;
-    y = 0.1;
-    z = 0.1;
-  }
+  // if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+  //   x = 0.1;
+  //   y = 0.1;
+  //   z = 0.1;
+  // }
 
   Real r, th, phi;
   GetBoyerLindquistCoordinates(x,y,z,a1x,a1y,a1z, &r, &th, &phi);
