@@ -366,6 +366,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
     static Real exp_cut_off(Real r){
 
+      Real rh2 = 2.0*q;
+
       if (r<=rh2) return 0.0;
       else if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
       else return 1.0;
