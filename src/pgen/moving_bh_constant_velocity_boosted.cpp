@@ -346,6 +346,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, FixedBoundary);
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, FixedBoundary);
 
+
+  v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
     //Enroll metric
   EnrollUserMetric(Cartesian_GR);
 
@@ -2403,6 +2405,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 {
 
 
+  v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
   m = pin->GetReal("coord", "m");
 
   //////////////Perturber Black Hole//////////////////
