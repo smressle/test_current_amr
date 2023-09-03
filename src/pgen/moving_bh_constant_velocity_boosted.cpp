@@ -2641,7 +2641,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   Real det = Determinant(g);
-  if (det>=0){
+  if (det>=0 or std::isnan(det)){
     fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
       x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
       xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
