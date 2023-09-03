@@ -2716,16 +2716,16 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
 
-  if (Rprime<=a2 or R<=a1){
+  // if (Rprime<=a2 or R<=a1){
 
-    for (int n = 0; n < NMETRIC; ++n) {
-         dg_dx1(n) = 0.0;
-         dg_dx2(n) = 0.0;
-         dg_dx3(n) = 0.0;
-         dg_dt(n) = 0.0;
-      }
-    return;
-  }
+  //   for (int n = 0; n < NMETRIC; ++n) {
+  //        dg_dx1(n) = 0.0;
+  //        dg_dx2(n) = 0.0;
+  //        dg_dx3(n) = 0.0;
+  //        dg_dt(n) = 0.0;
+  //     }
+  //   return;
+  // }
 
   gp.NewAthenaArray(NMETRIC);
   // gm.NewAthenaArray(NMETRIC);
