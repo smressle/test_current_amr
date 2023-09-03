@@ -2082,11 +2082,11 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
   *rprime = std::sqrt(*rprime/2.0);
 
 
-  if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
-      fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n xbh ybh zbh: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n xyzprime: %g %g %g \n vbh: %g %g %g \n ",
-        x,y,z,xbh, ybh, zbh, ax,ay,az,a_mag, a_dot_x_prime,*xprime,*yprime,*zprime, vxbh,vybh,vzbh );
-      exit(0);
-    }
+  // if (std::isnan(*rprime) or std::isnan(*xprime) or std::isnan(*yprime) or std::isnan(*zprime) ){
+  //     fprintf(stderr,"ISNAN in GetBoyer!!! \n xyz: %g %g %g \n xbh ybh zbh: %g %g %g \n ax ay az a: %g %g %g %g \n adotx: %g \n xyzprime: %g %g %g \n vbh: %g %g %g \n ",
+  //       x,y,z,xbh, ybh, zbh, ax,ay,az,a_mag, a_dot_x_prime,*xprime,*yprime,*zprime, vxbh,vybh,vzbh );
+  //     exit(0);
+  //   }
 
   return;
 
@@ -2643,13 +2643,13 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
-  Real det = Determinant(g);
-  if (det>=0 or std::isnan(det)){
-    fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
-      x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
-      xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
-    exit(0);
-  }
+  // Real det = Determinant(g);
+  // if (det>=0 or std::isnan(det)){
+  //   fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
+  //     x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+  //     xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
+  //   exit(0);
+  // }
 
 
 
