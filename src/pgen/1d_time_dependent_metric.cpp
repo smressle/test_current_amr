@@ -442,7 +442,7 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
   eta[1][0] = 0.0;
   eta[1][1] = 1.0;
 
-
+  Real Lambda_inverse[2][2], Lambda[2][2];
   get_Lambda(t, x, Lambda,Lambda_inverse);
 
   //g_mu_nu = eta_alpha_beta Lambda_inverse[alpha][mu] Lambda_inverse[beta][nu]
