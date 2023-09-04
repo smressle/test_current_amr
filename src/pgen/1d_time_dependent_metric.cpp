@@ -670,7 +670,9 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uz = 0.0;
 
         Real t;
-        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(is-i),poord->x2v(j), pcoord->x3v(k),&t);
+        Real xprime = pcoord->x1v(is-i);
+        Real tprime = pmb->pmy_mesh->time;
+        get_t_from_prime(trpime,xprime,poord->x2v(j), pcoord->x3v(k),&t);
 
         Real v = v_func(t);
         Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
