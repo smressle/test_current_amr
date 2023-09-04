@@ -516,7 +516,7 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
   bool invertible = gluInvertMatrix(g,g_inv);
 
   if (invertible==false) {
-    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", xprime,yprime,zprime);
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x1prime,x2prime,x3prime);
   }
 
 
