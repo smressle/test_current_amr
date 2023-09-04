@@ -458,7 +458,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 }
 
-void metric_for_derivatives(Real t, Real x1, Real x2, Real x3,
+void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prime,
     AthenaArray<Real> &g)
 {
   Real xprime = x1prime;
@@ -473,12 +473,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3,
   Real acc = acc_func(t);
 
   Real x = Lorentz * (xprime + v * tprime);
-
-
-
-  Real r, th, phi;
-  GetBoyerLindquistCoordinates(x,y,z,a1x,a1y,a1z, &r, &th, &phi);
-
 
   Real eta[2][2];
 
