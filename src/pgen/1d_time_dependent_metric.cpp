@@ -138,7 +138,7 @@ void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
   Lambda_inverse[1][0] = -Lambda[1][0] / det;
   Lambda_inverse[1][1] = Lambda[0][0] / det;
 
-  return();
+  return;
 }
 //----------------------------------------------------------------------------------------
 // Functions for calculating determinant
@@ -379,8 +379,7 @@ void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
   Real a = Lorentz_max * (tprime - std::abs(vmax * xprime));
 
   if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
-      cout << "You have not assumed right a and b\n";
-      fprintf(stderr,"a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
+      fprintf(stderr,"BAD a and b!! \n a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
       exit(0);
    }
    Real c = a;
@@ -517,7 +516,7 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
   bool invertible = gluInvertMatrix(g,g_inv);
 
   if (invertible==false) {
-    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", xprime,yprime,zprime);
   }
 
 
