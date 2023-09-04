@@ -656,12 +656,11 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(k, j, is-ngh,is-1, g, gi);
+      pco->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
 
-        Real rho, pgas, ut, ur;
         Real rho = 1.0;
         Real pgas = 1.0;
         Real ut = -1.0;
@@ -752,11 +751,10 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pcoord->CellMetric(k, j, ie+1,ie+ngh, g, gi);
+      pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
-        Real rho, pgas, ut, ur;
         Real rho = 1.0;
         Real pgas = 1.0;
         Real ut = -1.0;
