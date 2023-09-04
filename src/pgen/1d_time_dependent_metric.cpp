@@ -550,7 +550,7 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
 {
 
 
-  metric_for_derivatives(t,x1,x2,x3,g);
+  metric_for_derivatives(tprime,x1prime,x2prime,x3prime,g);
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
@@ -573,11 +573,11 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
   gp.NewAthenaArray(NMETRIC);
   // gm.NewAthenaArray(NMETRIC);
 
-  Real x1p = x1 + DEL; // * rprime;
+  Real x1p = x1prime + DEL; // * rprime;
   // Real x1m = x1 - DEL; // * rprime;
-  Real x1m = x1;
+  Real x1m = x1prime;
 
-  metric_for_derivatives(t,x1p,x2,x3,gp);
+  metric_for_derivatives(tprime,x1p,x2prime,x3prime,gp);
   // metric_for_derivatives(t,x1m,x2,x3,gm);
 
     // // Set x-derivatives of covariant components
@@ -588,11 +588,11 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
      dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
   }
 
-  Real x2p = x2 + DEL; // * rprime;
+  Real x2p = x2prime + DEL; // * rprime;
   // Real x2m = x2 - DEL; // * rprime;
-  Real x2m = x2;
+  Real x2m = x2prime;
 
-  metric_for_derivatives(t,x1,x2p,x3,gp);
+  metric_for_derivatives(tprime,x1prime,x2p,x3prime,gp);
   // metric_for_derivatives(t,x1,x2m,x3,gm);
     // // Set y-derivatives of covariant components
   // for (int n = 0; n < NMETRIC; ++n) {
@@ -602,11 +602,11 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
      dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
   }
   
-  Real x3p = x3 + DEL; // * rprime;
+  Real x3p = x3prime + DEL; // * rprime;
   // Real x3m = x3 - DEL; // * rprime;
-  Real x3m = x3;
+  Real x3m = x3prime;
 
-  metric_for_derivatives(t,x1,x2,x3p,gp);
+  metric_for_derivatives(tprime,x1prime,x2prime,x3p,gp);
   // metric_for_derivatives(t,x1,x2,x3m,gm);
 
     // // Set z-derivatives of covariant components
@@ -617,11 +617,11 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
      dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
   }
 
-  Real tp = t + DEL ;
-  Real tm = t;
+  Real tp = tprime + DEL ;
+  Real tm = tprime;
   // Real tm = t - DEL ;
 
-  metric_for_derivatives(tp,x1,x2,x3,gp);
+  metric_for_derivatives(tp,x1prime,x2prime,x3prime,gp);
 
   // get_orbit_quantities(tm,orbit_quantities);
   // metric_for_derivatives(tm,x1,x2,x3,gm);
@@ -672,7 +672,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real t;
         Real xprime = pcoord->x1v(is-i);
         Real tprime = pmb->pmy_mesh->time;
-        get_t_from_prime(trpime,xprime,poord->x2v(j), pcoord->x3v(k),&t);
+        get_t_from_prime(tprime,xprime,pcoord->x2v(j), pcoord->x3v(k),&t);
 
         Real v = v_func(t);
         Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
@@ -765,7 +765,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uz = 0.0;
 
         Real t;
-        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(ie+i),poord->x2v(j), pcoord->x3v(k),&t);
+        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(ie+i),pcoord->x2v(j), pcoord->x3v(k),&t);
 
         Real v = v_func(t);
         Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
