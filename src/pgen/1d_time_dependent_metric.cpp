@@ -655,24 +655,61 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
 void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
+  AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, ngh+2);
+  gi.NewAthenaArray(NMETRIC,ngh+2);
+  // Initialize primitive values
   // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        prim(n,k,j,is-i) = prim(n,k,j,is);
+
+
+        Real rho, pgas, ut, ur;
+        Real rho = 1.0;
+        Real pgas = 1.0;
+        Real ut = -1.0;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = 0.0;
+
+        Real t;
+        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(is-i),poord->x2v(j), pcoord->x3v(k),&t);
+
+        Real v = v_func(t);
+        Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+        Real acc = acc_func(t);
+
+        Real x = Lorentz * (xprime + v * tprime);
+
+        Real Lambda_inverse[2][2],Lambda[2][2];
+        get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+        Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux
+        Real u2 = uy; 
+        Real u3 = uz;
+        Real uu1 = u1 - gi(I01,is-i)/gi(I00,is-i) * u0;
+        Real uu2 = u2 - gi(I02,is-i)/gi(I00,is-i) * u0;
+        Real uu3 = u3 - gi(I03,is-i)/gi(I00,is-i) * u0;
+
+        prim(IDN,k,j,is-i) = rho;
+        prim(IPR,k,j,is-i) = pgas;
+        prim(IVX,k,j,is-i) = uu1;
+        prim(IVY,k,j,is-i) = uu2;
+        prim(IVZ,k,j,is-i) = uu3;
+
+
       }
-    }}
+    }
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,is-i)>0) prim(IVX,k,j,is-i)=0;
-      }
-    }}
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
+  
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
@@ -713,24 +750,56 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
-  // copy hydro variables into ghost zones
-  for (int n=0; n<(NHYDRO); ++n) {
+  
+  AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
+      pcoord->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
-        prim(n,k,j,ie+i) = prim(n,k,j,ie);
-      }
-    }}
-  }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-#pragma omp simd
-      for (int i=1; i<=ngh; ++i) {
-        if (prim(IVX,k,j,ie+i)<0) prim(IVX,k,j,ie+i)=0;
+        Real rho, pgas, ut, ur;
+        Real rho = 1.0;
+        Real pgas = 1.0;
+        Real ut = -1.0;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = 0.0;
+
+        Real t;
+        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(ie+i),poord->x2v(j), pcoord->x3v(k),&t);
+
+        Real v = v_func(t);
+        Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+        Real acc = acc_func(t);
+
+        Real x = Lorentz * (xprime + v * tprime);
+
+        Real Lambda_inverse[2][2],Lambda[2][2];
+        get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+        Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux
+        Real u2 = uy; 
+        Real u3 = uz;
+        Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
+        Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
+        Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
+
+        prim(IDN,k,j,is-i) = rho;
+        prim(IPR,k,j,is-i) = pgas;
+        prim(IVX,k,j,is-i) = uu1;
+        prim(IVY,k,j,is-i) = uu2;
+        prim(IVZ,k,j,is-i) = uu3;
+
       }
     }}
+
+    g.DeleteAthenaArray();
+    gi.DeleteAthenaArray();
 
   // copy face-centered magnetic fields into ghost zones
   if (MAGNETIC_FIELDS_ENABLED) {
