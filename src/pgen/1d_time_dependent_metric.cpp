@@ -97,6 +97,9 @@ void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa
 void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
     Real *x, Real *y, Real *z);
 
+Real v_func(Real t);
+Real acc_func(Real t);
+
 // Global variables
 static Real dfloor,pfloor;                         // density and pressure floors
 static Real vmax, Omega;
@@ -353,46 +356,6 @@ return;
 }
 
 
-
-//From BHframe to lab frame
-
-void BoostVector(Real t,Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
-
-
-  Real vxbh = orbit_quantities(IV2X);
-  Real vybh = orbit_quantities(IV2Y);
-  Real vzbh = orbit_quantities(IV2Z);
-
-
-
-  Real vsq = SQR(vxbh) + SQR(vybh) + SQR(vzbh);
-  Real beta_mag = std::sqrt(vsq);
-  Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
-
-  Real nx = vxbh/beta_mag;
-  Real ny = vybh/beta_mag;
-  Real nz = vzbh/beta_mag;
-
-  *pa0 =    Lorentz * (a0 + vxbh * a1 + vybh * a2 + vzbh * a3);
-
-  *pa1 =                       Lorentz * vxbh * ( a0 ) +
-            (1.0 + (Lorentz - 1.0) * nx * nx) * ( a1 ) + 
-            (      (Lorentz - 1.0) * nx * ny) * ( a2 ) +
-            (      (Lorentz - 1.0) * nx * nz) * ( a3 ) ;
-  
-  *pa2 =                       Lorentz * vybh * ( a0 ) +
-            (      (Lorentz - 1.0) * ny * nx) * ( a1 ) + 
-            (1.0 + (Lorentz - 1.0) * ny * ny) * ( a2 ) +
-            (      (Lorentz - 1.0) * ny * nz) * ( a3 );  
- 
-  *pa3 =                       Lorentz * vzbh * ( a0 ) +
-            (      (Lorentz - 1.0) * nz * nx) * ( a1 ) + 
-            (      (Lorentz - 1.0) * nz * ny) * ( a2 ) +
-            (1.0 + (Lorentz - 1.0) * nz * nz) * ( a3 );  
-
-  return;
-
-}
 
 
 Real v_func(Real t){
