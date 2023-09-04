@@ -361,40 +361,41 @@ Real acc_func(Real t){
   return Omega * vmax * std::cos(Omega*t);
 }
 
+
+
+  Real func(Real tprime_, Real xprime_,Real t_){
+    Real v = v_func(t_);
+    Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+    return Lorentz * (tprime_ + v * xprime_) - t_;
+  }
 void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
 
-  // Real func(Real tprime_, Real xprime_,Real t_){
-  //   Real v = v_func(t_);
-  //   Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
-  //   return Lorentz * (tprime_ + v * xprime_) - t_;
-  // }
+  Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
+  Real b = Lorentz_max * (tprime + std::abs(vmax * xprime));
+  Real a = Lorentz_max * (tprime - std::abs(vmax * xprime));
 
-  // Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
-  // Real b = Lorentz_max * (tprime + std::abs(vmax * xprime));
-  // Real a = Lorentz_max * (tprime - std::abs(vmax * xprime));
-
-  // if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
-  //     fprintf(stderr,"BAD a and b!! \n a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
-  //     exit(0);
-  //  }
-  //  Real c = a;
-  //  while ((b-a) >= EP) {
-  //     // Find middle point
-  //     c = (a+b)/2;
-  //     // Check if middle point is root
-  //     if (func(tprime,xprime,c) == 0.0)
-  //        break;
-  //      // Decide the side to repeat the steps
-  //     else if (func(tprime,xprime,c)*func(tprime,xprime,a) < 0)
-  //        b = c;
-  //     else
-  //        a = c;
-  //  }
-  //  //cout << "The value of root is : " << c;
+  if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
+      fprintf(stderr,"BAD a and b!! \n a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
+      exit(0);
+   }
+   Real c = a;
+   while ((b-a) >= EP) {
+      // Find middle point
+      c = (a+b)/2;
+      // Check if middle point is root
+      if (func(tprime,xprime,c) == 0.0)
+         break;
+       // Decide the side to repeat the steps
+      else if (func(tprime,xprime,c)*func(tprime,xprime,a) < 0)
+         b = c;
+      else
+         a = c;
+   }
+   //cout << "The value of root is : " << c;
 
 
 
-  //  *t = c;
+   *t = c;
    return;
 
 
