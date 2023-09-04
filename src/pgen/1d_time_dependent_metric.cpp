@@ -414,22 +414,22 @@ void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
 
   Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
   Real b = Lorentz_max * (tprime + std::abs(vmax * xprime));
-  Real c = Lorentz_max * (tprime - std::abs(vmax * xprime));
+  Real a = Lorentz_max * (tprime - std::abs(vmax * xprime));
 
-  if (func(a) * func(b) >= 0) {
+  if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
       cout << "You have not assumed right a and b\n";
       fprintf(stderr,"a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
       exit(0);
    }
-   double c = a;
+   Real c = a;
    while ((b-a) >= EP) {
       // Find middle point
       c = (a+b)/2;
       // Check if middle point is root
-      if (func(c) == 0.0)
+      if (func(tprime,xprime,c) == 0.0)
          break;
        // Decide the side to repeat the steps
-      else if (func(c)*func(a) < 0)
+      else if (func(tprime,xprime,c)*func(tprime,xprime,a) < 0)
          b = c;
       else
          a = c;
@@ -478,7 +478,7 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
 
   eta[0][0] = -1.0;
   eta[0][1] = 0.0;
-  eta[1][0] = 0.0
+  eta[1][0] = 0.0;
   eta[1][1] = 1.0;
 
 
