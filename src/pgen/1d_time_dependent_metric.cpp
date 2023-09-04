@@ -348,10 +348,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; //pin->GetOrAddBoolean("problem","scale_divergence",false);
-
-
-
 return;
 }
 
@@ -366,13 +362,13 @@ Real acc_func(Real t){
 }
 
 void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
-  
-  Real func(Real tprime_, Real xprime_,Real t_){
-    Real v = v_func(t_);
-    Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
 
-    return Lorentz * (tprime_ + v*xprime_) - t_;
-  }
+  // Real func(Real tprime_, Real xprime_,Real t_){
+  //   Real v = v_func(t_);
+  //   Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+
+  //   return Lorentz * (tprime_ + v * xprime_) - t_;
+  // }
 
   Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
   Real b = Lorentz_max * (tprime + std::abs(vmax * xprime));
