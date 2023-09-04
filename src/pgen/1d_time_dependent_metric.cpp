@@ -685,7 +685,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
 
         Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
-        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux
+        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
         Real u2 = uy; 
         Real u3 = uz;
         Real uu1 = u1 - gi(I01,is-i)/gi(I00,is-i) * u0;
@@ -765,7 +765,9 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uz = 0.0;
 
         Real t;
-        get_t_from_prime(pmb->pmy_mesh->time,pcoord->x1v(ie+i),pcoord->x2v(j), pcoord->x3v(k),&t);
+        Real tprime = pmb->pmy_mesh->time;
+        Real xprime = pcoord->x1v(ie+i);
+        get_t_from_prime(tprime,xprime,pcoord->x2v(j), pcoord->x3v(k),&t);
 
         Real v = v_func(t);
         Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
@@ -778,7 +780,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
 
         Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
-        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux
+        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
         Real u2 = uy; 
         Real u3 = uz;
         Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
