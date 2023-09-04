@@ -129,7 +129,6 @@ void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
 
 
   Real det = (Lambda[0][0] * Lambda[1][1]) - (Lambda[0][1] * Lambda[1][0]);
-  Real Lambda_inverse[2][2];
 
   Lambda_inverse[0][0] = Lambda[1][1] / det;
   Lambda_inverse[0][1] = -Lambda[0][1] / det;
@@ -764,7 +763,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         Real t;
         Real tprime = pmb->pmy_mesh->time;
-        Real xprime = pco>x1v(ie+i);
+        Real xprime = pco->x1v(ie+i);
         get_t_from_prime(tprime,xprime,pco->x2v(j), pco->x3v(k),&t);
 
         Real v = v_func(t);
