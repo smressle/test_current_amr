@@ -175,13 +175,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
-  
-  int N_user_vars = 11;
-  if (MAGNETIC_FIELDS_ENABLED) {
-    AllocateUserOutputVariables(N_user_vars);
-  } else {
-    AllocateUserOutputVariables(N_user_vars);
-  }
+
+
 
   vmax = 0.5;
   Real period = 10.0;
@@ -214,8 +209,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1+NGHOST);
 
 
-  dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
-  pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
+  int N_user_vars = 11;
+  AllocateUserOutputVariables(N_user_vars);
 
 
   return;
@@ -350,8 +345,6 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
         user_out_var(8,k,j,i) = g(I23); 
         user_out_var(9,k,j,i) = g(I33); 
         user_out_var(10,k,j,i) = Determinant(g);
-
-
       }
     }
   }
