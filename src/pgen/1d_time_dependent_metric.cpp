@@ -328,26 +328,32 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
   AthenaArray<Real> &g = ruser_meshblock_data[0];
   AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
+  AthenaArray<Real> g_tmp;
+  g_tmp.NewAthenaArray(NMETRIC);
   // Go through all cells
   for (int k = ks; k <= ke; ++k) {
     for (int j = js; j <= je; ++j) {
       pcoord->CellMetric(k, j, is, ie, g, gi);
       for (int i = is; i <= ie; ++i) {
         // Calculate normal-frame Lorentz factor
-        user_out_var(0,k,j,i) = g(I00); 
-        user_out_var(1,k,j,i) = g(I01); 
-        user_out_var(2,k,j,i) = g(I02); 
-        user_out_var(3,k,j,i) = g(I03); 
-        user_out_var(4,k,j,i) = g(I11); 
-        user_out_var(5,k,j,i) = g(I12); 
-        user_out_var(6,k,j,i) = g(I13); 
-        user_out_var(7,k,j,i) = g(I22); 
-        user_out_var(8,k,j,i) = g(I23); 
-        user_out_var(9,k,j,i) = g(I33); 
-        user_out_var(10,k,j,i) = Determinant(g);
+        user_out_var(0,k,j,i) = g(I00,i); 
+        user_out_var(1,k,j,i) = g(I01,i); 
+        user_out_var(2,k,j,i) = g(I02,i); 
+        user_out_var(3,k,j,i) = g(I03,i); 
+        user_out_var(4,k,j,i) = g(I11,i); 
+        user_out_var(5,k,j,i) = g(I12,i); 
+        user_out_var(6,k,j,i) = g(I13,i); 
+        user_out_var(7,k,j,i) = g(I22,i); 
+        user_out_var(8,k,j,i) = g(I23,i); 
+        user_out_var(9,k,j,i) = g(I33,i); 
+
+        for (int n=0; n<NMETRIC; ++n) g_tmp(n) = g(n,i);
+        user_out_var(10,k,j,i) = Determinant(g_tmp);
       }
     }
   }
+
+  g_tmp.DeleteAthenaArray();
   return;
 }
 
