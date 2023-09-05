@@ -781,11 +781,11 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
         Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
 
-        prim(IDN,k,j,is-i) = rho;
-        prim(IPR,k,j,is-i) = pgas;
-        prim(IVX,k,j,is-i) = uu1;
-        prim(IVY,k,j,is-i) = uu2;
-        prim(IVZ,k,j,is-i) = uu3;
+        prim(IDN,k,j,ie+i) = rho;
+        prim(IPR,k,j,ie+i) = pgas;
+        prim(IVX,k,j,ie+i) = uu1;
+        prim(IVY,k,j,ie+i) = uu2;
+        prim(IVZ,k,j,ie+i) = uu3;
 
         // fprintf(stderr,"xprime: %g tprime: %g x: %g t: %g \n v: %g Lorentz: %g gi01: %g gi00: %g \n u0: %g u1: %g \n Lambda: %g %g %g %g \n vel1: %g \n",
         //   xprime,tprime,x,t,v,Lorentz,gi(I01,ie+i),gi(I00,ie+i),u0,u1,Lambda[0][0],Lambda[0][1],Lambda[1][0],Lambda[1][1],uu1);
