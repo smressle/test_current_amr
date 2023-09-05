@@ -268,19 +268,45 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         // Calculate background primitives
         Real rho = 1.0;
         Real pgas = 1.0;
-        Real uu1 = 0.0;
-        Real uu2 = 0.0;
-        Real uu3 = 0.0;
+
+
+          Real ut = 1.0;
+        Real ux = 0.0;
+        Real uy = 0.0;
+        Real uz = 0.0;
+
+        Real t;
+        Real xprime = pmb->pcoord->x1v(i);
+        Real tprime = pmy_mesh->time;
+        get_t_from_prime(tprime,xprime,pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),&t);
+
+        Real v = v_func(t);
+        Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+        Real acc = acc_func(t);
+
+        Real x = Lorentz * (xprime + v * tprime);
+
+        Real Lambda_inverse[2][2],Lambda[2][2];
+        get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+
+        Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+        Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
+        Real u2 = uy; 
+        Real u3 = uz;
+        Real uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
+        Real uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
+        Real uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
         
 
 
         if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5) rho = 2.0;
-        //fprintf(stderr,"xyz: %g %g %g \n r th ph: %g %g %g in_torus: %d \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),r,theta,phi, in_torus);
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
         phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas;
-        phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = 0.0;
-        phydro->w(IVY,k,j,i) = phydro->w1(IM2,k,j,i) = 0.0;
-        phydro->w(IVZ,k,j,i) = phydro->w1(IM3,k,j,i) = 0.0;
+        phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
+        phydro->w(IVY,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
+        phydro->w(IVZ,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
       }
     }
   }
