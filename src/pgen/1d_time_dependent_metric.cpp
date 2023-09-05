@@ -346,7 +346,8 @@ void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
 
   Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
   Real b = Lorentz_max * (tprime + std::abs(vmax * xprime)) + SMALL;
-  Real a = Lorentz_max * (tprime - std::abs(vmax * xprime)) - SMALL;
+  // Real a = Lorentz_max * (tprime - std::abs(vmax * xprime)) - SMALL;
+  Real a = tprime - Lorentz_max * std::abs(vmax * xprime) - SMALL;
 
   if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
       fprintf(stderr,"BAD a and b!! \n a: %g b: %g tprime: %g xprime: %g vmax: %g \n", a,b,tprime,xprime,vmax);
