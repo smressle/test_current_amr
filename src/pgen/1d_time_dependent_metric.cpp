@@ -595,7 +595,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         Real rho = 1.0;
         Real pgas = 1.0;
-        Real ut = -1.0;
+        Real ut = 1.0;
         Real ux = 0.0;
         Real uy = 0.0;
         Real uz = 0.0;
@@ -689,7 +689,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         Real rho = 1.0;
         Real pgas = 1.0;
-        Real ut = -1.0;
+        Real ut = 1.0;
         Real ux = 0.0;
         Real uy = 0.0;
         Real uz = 0.0;
