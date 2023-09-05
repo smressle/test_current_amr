@@ -302,7 +302,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         
 
 
-        if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5) rho =  (1.0+ std::cos(2.0*PI*pcoord->x1v(i)/0.5))*0.5+1.0;
+        if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5) rho =  (1.0+ std::cos(2.0*PI*pcoord->x1v(i)/1.0))*0.5+1.0;
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
         phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas;
         phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
