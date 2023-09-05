@@ -175,7 +175,13 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
-
+  
+  int N_user_vars = 11;
+  if (MAGNETIC_FIELDS_ENABLED) {
+    AllocateUserOutputVariables(N_user_vars);
+  } else {
+    AllocateUserOutputVariables(N_user_vars);
+  }
 
   vmax = 0.5;
   Real period = 10.0;
@@ -317,6 +323,38 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
   // Call user work function to set output variables
   UserWorkInLoop();
+  return;
+}
+
+
+
+void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
+  // Prepare scratch arrays
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+
+  // Go through all cells
+  for (int k = ks; k <= ke; ++k) {
+    for (int j = js; j <= je; ++j) {
+      pcoord->CellMetric(k, j, is, ie, g, gi);
+      for (int i = is; i <= ie; ++i) {
+        // Calculate normal-frame Lorentz factor
+        user_out_var(0,k,j,i) = g(I00); 
+        user_out_var(1,k,j,i) = g(I01); 
+        user_out_var(2,k,j,i) = g(I02); 
+        user_out_var(3,k,j,i) = g(I03); 
+        user_out_var(4,k,j,i) = g(I11); 
+        user_out_var(5,k,j,i) = g(I12); 
+        user_out_var(6,k,j,i) = g(I13); 
+        user_out_var(7,k,j,i) = g(I22); 
+        user_out_var(8,k,j,i) = g(I23); 
+        user_out_var(9,k,j,i) = g(I33); 
+        user_out_var(10,k,j,i) = Determinant(g);
+
+
+      }
+    }
+  }
   return;
 }
 
@@ -723,7 +761,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         prim(IVY,k,j,is-i) = uu2;
         prim(IVZ,k,j,is-i) = uu3;
 
-        fprintf(stderr,"xprime: %g tprime: %g x: %g t: %g \n v: %g Lorentz: %g gi01: %g gi00: %g \n u0: %g u1: %g \nLambda: %g %g %g %g \n",xprime,tprime,x,t,v,Lorentz,gi(I01,ie+i),gi(I00,ie+i),u0,u1,Lambda[0][0],Lambda[0][1],Lambda[1][0],Lambda[1][1]);
+        fprintf(stderr,"xprime: %g tprime: %g x: %g t: %g \n v: %g Lorentz: %g gi01: %g gi00: %g \n u0: %g u1: %g \n Lambda: %g %g %g %g \n",xprime,tprime,x,t,v,Lorentz,gi(I01,ie+i),gi(I00,ie+i),u0,u1,Lambda[0][0],Lambda[0][1],Lambda[1][0],Lambda[1][1]);
 
       }
     }}
