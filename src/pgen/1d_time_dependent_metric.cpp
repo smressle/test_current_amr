@@ -90,7 +90,7 @@ static Real vmax, Omega;
 
 static Real SMALL = 1e-5;
 
-#define EP 1e-6
+#define EP 1e-9
 
 
 void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
