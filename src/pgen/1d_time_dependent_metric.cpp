@@ -170,8 +170,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   // // Enroll boundary functions
 
-  if (mesh_bcs[BoundaryFace::inner_x1] == GetBoundaryFlag("user"))EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
-  (mesh_bcs[BoundaryFace::outer_x1] == GetBoundaryFlag("user")) EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
+  if (mesh_bcs[BoundaryFace::inner_x1] == GetBoundaryFlag("user")) EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
+  if (mesh_bcs[BoundaryFace::outer_x1] == GetBoundaryFlag("user")) EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
