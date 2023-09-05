@@ -538,7 +538,7 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
 
 
 
-#define DEL 1e-7
+#define DEL 1e-5
 void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
