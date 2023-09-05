@@ -276,9 +276,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real uz = 0.0;
 
         Real t;
-        Real xprime = pmb->pcoord->x1v(i);
+        Real xprime = pcoord->x1v(i);
         Real tprime = pmy_mesh->time;
-        get_t_from_prime(tprime,xprime,pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),&t);
+        get_t_from_prime(tprime,xprime,pcoord->x2v(j), pcoord->x3v(k),&t);
 
         Real v = v_func(t);
         Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
