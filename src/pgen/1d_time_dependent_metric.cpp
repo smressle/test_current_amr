@@ -99,11 +99,10 @@ void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
   Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
   Real acc = acc_func(t);
 
-  Lambda[0][0] =  Lorentz * (1 - SQR(Lorentz) * acc * (v*t-x));  //dtprime/dt
+  Lambda[0][0] =  Lorentz * (1 + SQR(Lorentz) * acc * (v*t-x));  //dtprime/dt
   Lambda[0][1] =  - Lorentz * v;
   Lambda[1][1] = Lorentz;
-  Lambda[1][0] = - Lorentz * v + SQR(Lorentz)*Lorentz * acc * (t - v*acc*x);
-
+  Lambda[1][0] = - Lorentz * v + SQR(Lorentz)*Lorentz * acc * (v*acc*x -t);
 
   Real det = (Lambda[0][0] * Lambda[1][1]) - (Lambda[0][1] * Lambda[1][0]);
 
@@ -613,6 +612,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
         Real Lambda_inverse[2][2],Lambda[2][2];
         get_Lambda(t,x, Lambda,Lambda_inverse);
+
 
 
         Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
