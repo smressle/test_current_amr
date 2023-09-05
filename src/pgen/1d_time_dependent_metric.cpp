@@ -99,7 +99,7 @@ void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
   Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
   Real acc = acc_func(t);
 
-  Lambda[0][0] =  Lorentz * (1 + SQR(Lorentz) * acc * (v*t-x));  //dtprime/dt
+  Lambda[0][0] =  Lorentz + SQR(Lorentz)*Lorentz * acc * (v*t-x);  //dtprime/dt
   Lambda[0][1] =  - Lorentz * v;
   Lambda[1][1] = Lorentz;
   Lambda[1][0] = - Lorentz * v + SQR(Lorentz)*Lorentz * acc * (v*acc*x -t);
@@ -331,7 +331,7 @@ Real v_func(Real t){
   return vmax * std::sin(Omega * t);
 }
 Real acc_func(Real t){
-  return Omega * vmax * std::cos(Omega*t);
+  return Omega * vmax * std::cos(Omega * t);
 }
 
 
@@ -722,6 +722,8 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         prim(IVX,k,j,is-i) = uu1;
         prim(IVY,k,j,is-i) = uu2;
         prim(IVZ,k,j,is-i) = uu3;
+
+        fprintf(stderr,"xprime: %g tprime: %g x: %g t: %g \n v: %g Lorentz: %g gi01: %g gi00: %g \n u0: %g u1: %g \nLambda: %g %g %g %g \n",xprime,tprime,x,t,v,Lorentz,gi(I01,ie+i),gi(I00,ie+i),u0,u1,Lambda[0][0],Lambda[0][1],Lambda[1][0],Lambda[1][1]);
 
       }
     }}
