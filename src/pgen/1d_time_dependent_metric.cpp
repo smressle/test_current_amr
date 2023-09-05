@@ -198,10 +198,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // // Enroll boundary functions
   EnrollUserBoundaryFunction(BoundaryFace::inner_x1, CustomInnerX1);
   EnrollUserBoundaryFunction(BoundaryFace::outer_x1, CustomOuterX1);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
-  EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
-  EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x2, CustomOuterX2);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x2, CustomInnerX2);
+  // EnrollUserBoundaryFunction(BoundaryFace::outer_x3, CustomOuterX3);
+  // EnrollUserBoundaryFunction(BoundaryFace::inner_x3, CustomInnerX3);
 
 
   vmax = 0.5;
