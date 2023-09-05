@@ -64,14 +64,6 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
 
 
-static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Real ay, Real az,Real *pr,
-                                         Real *ptheta, Real *pphi);
-static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real r,
-                     Real theta, Real phi, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
-static void TransformAphi(Real a3_bl, Real x1,
-                     Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3);
-
-int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
@@ -82,20 +74,10 @@ static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a
 static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
-
-void get_prime_coords(Real x, Real y, Real z,Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
-
-
 void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t);
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
-
-void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
-
-
-void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real ay, Real az,
-    Real *x, Real *y, Real *z);
 
 Real v_func(Real t);
 Real acc_func(Real t);
@@ -109,15 +91,7 @@ static Real vmax, Omega;
 static Real SMALL = 1e-5;
 
 #define EP 1e-6
-//This function performs L * A = A_new 
-void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
 
-  A_new[0] = L(I00) * A[0] + L(I01)*A[1] + L(I02) * A[2] + L(I03) * A[3]; 
-  A_new[1] = L(I01) * A[0] + L(I11)*A[1] + L(I12) * A[2] + L(I13) * A[3]; 
-  A_new[2] = L(I02) * A[0] + L(I12)*A[1] + L(I22) * A[2] + L(I23) * A[3]; 
-  A_new[3] = L(I03) * A[0] + L(I13)*A[1] + L(I23) * A[2] + L(I33) * A[3]; 
-
-}
 
 void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
 
@@ -371,8 +345,8 @@ Real acc_func(Real t){
 void get_t_from_prime(Real tprime,Real xprime,Real yprime,Real zprime,Real *t){
 
   Real Lorentz_max = 1.0/std::sqrt(1.0-SQR(vmax));
-  Real b = Lorentz_max * (tprime + std::abs(vmax * xprime));
-  Real a = Lorentz_max * (tprime - std::abs(vmax * xprime));
+  Real b = Lorentz_max * (tprime + std::abs(vmax * xprime)) + SMALL;
+  Real a = Lorentz_max * (tprime - std::abs(vmax * xprime)) - SMALL;
 
   if (func(tprime,xprime,a) * func(tprime,xprime,b) >= 0) {
       fprintf(stderr,"BAD a and b!! \n a: %g b: %g tprime: %g vmax: %g \n", a,b,tprime,vmax);
