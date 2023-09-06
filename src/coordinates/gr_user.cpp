@@ -1673,6 +1673,11 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   Mesh *pm = pmy_block->pmy_mesh;
   RegionSize& block_size = pmy_block->block_size;
 
+
+  bool is_half_time_step = false;
+
+  if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*dt) is_half_time_step = true;
+
   // set more indices
   int ill = il - ng;
   int iuu = iu + ng;
@@ -1706,12 +1711,20 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
   // Allocate scratch arrays
   AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
+  AthenaArray<Real> gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1, dg_dtp1;
+
   g.NewAthenaArray(NMETRIC);
   g_inv.NewAthenaArray(NMETRIC);
   dg_dx1.NewAthenaArray(NMETRIC);
   dg_dx2.NewAthenaArray(NMETRIC);
   dg_dx3.NewAthenaArray(NMETRIC);
   dg_dt.NewAthenaArray(NMETRIC);
+  gp1.NewAthenaArray(NMETRIC);
+  g_invp1.NewAthenaArray(NMETRIC);
+  dg_dx1p1.NewAthenaArray(NMETRIC);
+  dg_dx2p1.NewAthenaArray(NMETRIC);
+  dg_dx3p1.NewAthenaArray(NMETRIC);
+  dg_dtp1.NewAthenaArray(NMETRIC);
   if (not coarse_flag) {
     transformation.NewAthenaArray(2, NTRIANGULAR);
   }
@@ -1770,13 +1783,22 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         // Calculate metric coefficients
         MetricWithoutPin(metric_t,x1, x2, x3, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
+
         // Calculate volumes
         if (not coarse_flag ) {
+          Real det_p1,facp1;
+           if (is_half_time_step) {
+            MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
+            det_p1 = eterminant(gp1);
+            facp1 = sqrt_minus_det_old/std::sqrt(-det_p1);
+
+          }
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
             pmb->phydro->u(n_cons,k,j,i) *=fac;
+            if (is_half_time_step) pmb->phydro->u1(n_cons,k,j,i) *=facp1;
           }
 
         }
@@ -2053,6 +2075,12 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   dg_dx2.DeleteAthenaArray();
   dg_dx3.DeleteAthenaArray();
   dg_dt.DeleteAthenaArray();
+  gp1.DeleteAthenaArray();
+  g_invp1.DeleteAthenaArray();
+  dg_dx1p1.DeleteAthenaArray();
+  dg_dx2p1.DeleteAthenaArray();
+  dg_dx3p1.DeleteAthenaArray();
+  dg_dtp1.DeleteAthenaArray();
   if (not coarse_flag) {
     transformation.DeleteAthenaArray();
     if (MAGNETIC_FIELDS_ENABLED){
