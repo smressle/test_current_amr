@@ -1868,7 +1868,7 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
 
   // if (stage != nstages) return TaskStatus::success; // only do on last stage
   if (stage <= nstages) {
-  // if (stage==nstages){
+  if (stage==nstages){
 
     // Time at end of stage for u()
     Real t_end_stage = pmb->pmy_mesh->time
