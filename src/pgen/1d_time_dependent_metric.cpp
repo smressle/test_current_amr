@@ -670,7 +670,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         
         if (std::abs((time - (pmb->pmy_mesh->time + dt))) < 1e-2*dt) {
           tprime = time;
-          fprintf(stderr,'end of stage in boundary!! \n t: %g old_t: %g dt: %g t_end_step: %g \n',time,pmb->pmy_mesh->time,dt, pmb->pmy_mesh->time + dt);
+          fprintf(stderr,"end of stage in boundary!! \n t: %g old_t: %g dt: %g t_end_step: %g \n",time,pmb->pmy_mesh->time,dt, pmb->pmy_mesh->time + dt);
         }
         else{
           tprime = pmb->pmy_mesh->metric_time;
@@ -773,7 +773,7 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         
         if (std::abs((time - (pmb->pmy_mesh->time + dt))) < 1e-2*dt) {
           tprime = time;
-          fprintf(stderr,'end of stage in boundary!! \n t: %g old_t: %g dt: %g t_end_step: %g \n',time,pmb->pmy_mesh->time,dt, pmb->pmy_mesh->time + dt);
+          fprintf(stderr,"end of stage in boundary!! \n t: %g old_t: %g dt: %g t_end_step: %g \n",time,pmb->pmy_mesh->time,dt, pmb->pmy_mesh->time + dt);
         }
         else{
           tprime = pmb->pmy_mesh->metric_time;
