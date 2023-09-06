@@ -497,17 +497,18 @@ int main(int argc, char *argv[]) {
         pststlist->DoTaskListOneStage(pmesh, stage);
     }
 
-    if (pmesh->update_metric_this_timestep){
-      pmesh->metric_time = pmesh->time;
-      pmesh->update_metric_this_timestep = false;
-    }
-
     pmesh->UserWorkInLoop();
 
     pmesh->ncycle++;
     pmesh->time += pmesh->dt;
     mbcnt += pmesh->nbtotal;
     pmesh->step_since_lb++;
+
+    if (pmesh->update_metric_this_timestep){
+      pmesh->metric_time = pmesh->time;
+      pmesh->update_metric_this_timestep = false;
+    }
+
 
 
     pmesh->LoadBalancingAndAdaptiveMeshRefinement(pinput);
