@@ -701,12 +701,12 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
         Real u2 = uy; 
         Real u3 = uz;
-        // Real uu1 = u1 - gi(I01,is-i)/gi(I00,is-i) * u0;
-        // Real uu2 = u2 - gi(I02,is-i)/gi(I00,is-i) * u0;
-        // Real uu3 = u3 - gi(I03,is-i)/gi(I00,is-i) * u0;
-        Real uu1 = u1 - gi(I01)/gi(I00) * u0;
-        Real uu2 = u2 - gi(I02)/gi(I00) * u0;
-        Real uu3 = u3 - gi(I03)/gi(I00) * u0;
+        Real uu1 = u1 - gi(I01,is-i)/gi(I00,is-i) * u0;
+        Real uu2 = u2 - gi(I02,is-i)/gi(I00,is-i) * u0;
+        Real uu3 = u3 - gi(I03,is-i)/gi(I00,is-i) * u0;
+        // Real uu1 = u1 - gi(I01)/gi(I00) * u0;
+        // Real uu2 = u2 - gi(I02)/gi(I00) * u0;
+        // Real uu3 = u3 - gi(I03)/gi(I00) * u0;
 
         prim(IDN,k,j,is-i) = rho;
         prim(IPR,k,j,is-i) = pgas;
