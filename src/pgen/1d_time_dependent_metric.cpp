@@ -766,8 +766,8 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
   // g.NewAthenaArray(NMETRIC, ie+ngh+1);
   // gi.NewAthenaArray(NMETRIC,ie+ngh+1);
-  g.NewAthenaArray(NMETRIC, ie+ngh+1);
-  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
+  g.NewAthenaArray(NMETRIC);
+  gi.NewAthenaArray(NMETRIC);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
       // pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
