@@ -1676,7 +1676,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
   bool is_half_time_step = false;
 
-  if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*dt) is_half_time_step = true;
+  if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*pmb->pmy_mesh->dt) is_half_time_step = true;
 
   // set more indices
   int ill = il - ng;
@@ -1789,7 +1789,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real det_p1,facp1;
            if (is_half_time_step) {
             MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
-            det_p1 = eterminant(gp1);
+            det_p1 = Determinant(gp1);
             facp1 = sqrt_minus_det_old/std::sqrt(-det_p1);
 
           }
