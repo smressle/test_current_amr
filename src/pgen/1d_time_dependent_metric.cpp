@@ -566,7 +566,7 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
 
 
   gp.NewAthenaArray(NMETRIC);
-  // gm.NewAthenaArray(NMETRIC);
+  gm.NewAthenaArray(NMETRIC);
 
   Real x1p = x1prime + DEL; // * rprime;
   // Real x1m = x1 - DEL; // * rprime;
@@ -629,7 +629,7 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
   }
 
   gp.DeleteAthenaArray();
-  // gm.DeleteAthenaArray();
+  gm.DeleteAthenaArray();
 
   return;
 }
