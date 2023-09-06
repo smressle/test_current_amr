@@ -645,15 +645,15 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
-  // g.NewAthenaArray(NMETRIC, ngh+2);
-  // gi.NewAthenaArray(NMETRIC,ngh+2);
-  g.NewAthenaArray(NMETRIC);
-  gi.NewAthenaArray(NMETRIC);
+  g.NewAthenaArray(NMETRIC, ngh+2);
+  gi.NewAthenaArray(NMETRIC,ngh+2);
+  // g.NewAthenaArray(NMETRIC);
+  // gi.NewAthenaArray(NMETRIC);
   // Initialize primitive values
   // copy hydro variables into ghost zones
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      // pco->CellMetric(k, j, is-ngh,is-1, g, gi);
+      pco->CellMetric(k, j, is-ngh,is-1, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
@@ -680,9 +680,9 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         //   tprime = pmb->pmy_mesh->metric_time;
         // }
 
-        metric_for_derivatives(tprime,xprime,pco->x2v(j), pco->x3v(k),g);
+        // metric_for_derivatives(tprime,xprime,pco->x2v(j), pco->x3v(k),g);
 
-        bool invertible = gluInvertMatrix(g,gi);
+        // bool invertible = gluInvertMatrix(g,gi);
 
         get_t_from_prime(tprime,xprime,pco->x2v(j), pco->x3v(k),&t);
 
@@ -764,13 +764,13 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
-  // g.NewAthenaArray(NMETRIC, ie+ngh+1);
-  // gi.NewAthenaArray(NMETRIC,ie+ngh+1);
-  g.NewAthenaArray(NMETRIC);
-  gi.NewAthenaArray(NMETRIC);
+  g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  gi.NewAthenaArray(NMETRIC,ie+ngh+1);
+  // g.NewAthenaArray(NMETRIC);
+  // gi.NewAthenaArray(NMETRIC);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      // pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
+      pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
@@ -795,9 +795,9 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real tprime = time;
         Real xprime = pco->x1v(ie+i);
 
-        metric_for_derivatives(tprime,xprime,pco->x2v(j), pco->x3v(k),g);
+        // metric_for_derivatives(tprime,xprime,pco->x2v(j), pco->x3v(k),g);
 
-        bool invertible = gluInvertMatrix(g,gi);
+        // bool invertible = gluInvertMatrix(g,gi);
 
         get_t_from_prime(tprime,xprime,pco->x2v(j), pco->x3v(k),&t);
 
@@ -815,12 +815,12 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
         Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
         Real u2 = uy; 
         Real u3 = uz;
-        // Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
-        // Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
-        // Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
-        Real uu1 = u1 - gi(I01)/gi(I00) * u0;
-        Real uu2 = u2 - gi(I02)/gi(I00) * u0;
-        Real uu3 = u3 - gi(I03)/gi(I00) * u0;
+        Real uu1 = u1 - gi(I01,ie+i)/gi(I00,ie+i) * u0;
+        Real uu2 = u2 - gi(I02,ie+i)/gi(I00,ie+i) * u0;
+        Real uu3 = u3 - gi(I03,ie+i)/gi(I00,ie+i) * u0;
+        // Real uu1 = u1 - gi(I01)/gi(I00) * u0;
+        // Real uu2 = u2 - gi(I02)/gi(I00) * u0;
+        // Real uu3 = u3 - gi(I03)/gi(I00) * u0;
 
         prim(IDN,k,j,ie+i) = rho;
         prim(IPR,k,j,ie+i) = pgas;
