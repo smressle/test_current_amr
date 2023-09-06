@@ -90,7 +90,7 @@ static Real vmax, Omega;
 
 static Real SMALL = 1e-5;
 
-#define EP 1e-9
+#define EP 1e-11
 
 
 void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
@@ -538,7 +538,7 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
 
 
 
-#define DEL 1e-5
+#define DEL 1e-7
 void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
