@@ -1674,9 +1674,9 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   RegionSize& block_size = pmy_block->block_size;
 
 
-  bool is_half_time_step = false;
+  // bool is_half_time_step = false;
 
-  if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*pmb->pmy_mesh->dt) is_half_time_step = true;
+  // if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*pmb->pmy_mesh->dt) is_half_time_step = true;
 
   // set more indices
   int ill = il - ng;
@@ -1786,21 +1786,21 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
         // Calculate volumes
         if (not coarse_flag ) {
-          Real det_p1,facp1;
-           if (is_half_time_step) {
-            MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
-            det_p1 = Determinant(gp1);
-            facp1 = sqrt_minus_det_old/std::sqrt(-det_p1);
+          // Real det_p1,facp1;
+          //  if (is_half_time_step) {
+          //   MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
+          //   det_p1 = Determinant(gp1);
+          //   facp1 = sqrt_minus_det_old/std::sqrt(-det_p1);
 
-            fprintf(stderr,"This is a half time step!! \n");
+          //   fprintf(stderr,"This is a half time step!! \n");
 
-          }
+          // }
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
             pmb->phydro->u(n_cons,k,j,i) *=fac;
-            if (is_half_time_step) pmb->phydro->u1(n_cons,k,j,i) *=facp1;
+            // if (is_half_time_step) pmb->phydro->u1(n_cons,k,j,i) *=facp1;
           }
 
         }
