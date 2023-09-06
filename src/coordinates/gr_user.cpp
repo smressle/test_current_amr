@@ -1792,6 +1792,8 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
             det_p1 = Determinant(gp1);
             facp1 = sqrt_minus_det_old/std::sqrt(-det_p1);
 
+            fprintf(stderr,"This is a half time step!! \n");
+
           }
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
