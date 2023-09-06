@@ -764,11 +764,13 @@ void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
                     int is, int ie, int js, int je, int ks, int ke, int ngh) {
   
   AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  // g.NewAthenaArray(NMETRIC, ie+ngh+1);
+  // gi.NewAthenaArray(NMETRIC,ie+ngh+1);
   g.NewAthenaArray(NMETRIC, ie+ngh+1);
   gi.NewAthenaArray(NMETRIC,ie+ngh+1);
     for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
+      // pco->CellMetric(k, j, ie+1,ie+ngh, g, gi);
 #pragma omp simd
       for (int i=1; i<=ngh; ++i) {
 
