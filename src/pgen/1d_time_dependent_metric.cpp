@@ -570,62 +570,62 @@ void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
 
   Real x1p = x1prime + DEL; // * rprime;
   // Real x1m = x1 - DEL; // * rprime;
-  Real x1m = x1prime;
+  Real x1m = x1prime - DEL;
 
   metric_for_derivatives(tprime,x1p,x2prime,x3prime,gp);
-  // metric_for_derivatives(t,x1m,x2,x3,gm);
+  metric_for_derivatives(tprime,x1m,x2prime,x3prime,gm);
 
     // // Set x-derivatives of covariant components
   // for (int n = 0; n < NMETRIC; ++n) {
   //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
   // }
     for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
+     dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
   }
 
   Real x2p = x2prime + DEL; // * rprime;
   // Real x2m = x2 - DEL; // * rprime;
-  Real x2m = x2prime;
+  Real x2m = x2prime - DEL;
 
   metric_for_derivatives(tprime,x1prime,x2p,x3prime,gp);
-  // metric_for_derivatives(t,x1,x2m,x3,gm);
+  metric_for_derivatives(tprime,x1prime,x2m,x3prime,gm);
     // // Set y-derivatives of covariant components
   // for (int n = 0; n < NMETRIC; ++n) {
   //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
   // }
   for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
+     dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
   }
   
   Real x3p = x3prime + DEL; // * rprime;
   // Real x3m = x3 - DEL; // * rprime;
-  Real x3m = x3prime;
+  Real x3m = x3prime - DEL;
 
   metric_for_derivatives(tprime,x1prime,x2prime,x3p,gp);
-  // metric_for_derivatives(t,x1,x2,x3m,gm);
+  metric_for_derivatives(tprime,x1prime,x2prime,x3m,gm);
 
     // // Set z-derivatives of covariant components
   // for (int n = 0; n < NMETRIC; ++n) {
   //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
   // }
     for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
+     dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
   }
 
   Real tp = tprime + DEL ;
-  Real tm = tprime;
+  Real tm = tprime - DEL;
   // Real tm = t - DEL ;
 
   metric_for_derivatives(tp,x1prime,x2prime,x3prime,gp);
 
   // get_orbit_quantities(tm,orbit_quantities);
-  // metric_for_derivatives(tm,x1,x2,x3,gm);
+  metric_for_derivatives(tm,x1prime,x2prime,x3prime,gm);
     // // Set t-derivatives of covariant components
   // for (int n = 0; n < NMETRIC; ++n) {
   //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
   // }
   for (int n = 0; n < NMETRIC; ++n) {
-     dg_dt(n) = (gp(n)-g(n))/(tp-tm);
+     dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
   }
 
   gp.DeleteAthenaArray();
