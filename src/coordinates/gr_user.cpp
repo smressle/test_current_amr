@@ -1776,7 +1776,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
-            // pmb->phydro->u(n_cons,k,j,i) *=fac;
+            pmb->phydro->u(n_cons,k,j,i) *=fac;
           }
 
         }
