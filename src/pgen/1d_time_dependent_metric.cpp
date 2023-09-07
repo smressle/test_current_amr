@@ -233,6 +233,17 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 //              Fishbone 1977, ApJ 215 323 (F)
 //   assumes x3 is axisymmetric direction
 
+
+Real press_func(Real t, Real x){
+  if (MAGNETIC_FIELDS_ENABLED){
+    if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5){
+      return 1.0 - 0.5 * (1.0+ std::cos(2.0*PI*x/1.0));
+    }
+    else return 0.0;
+  }
+  else return 1.0;
+}
+
 void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Prepare index bounds
   int il = is - NGHOST;
@@ -304,7 +315,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5) rho =  (1.0+ std::cos(2.0*PI*pcoord->x1v(i)/1.0))*0.5+1.0;
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
-        phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas;
+        phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = press_func(t,pcoord->x1v(i));
         phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
         phydro->w(IVY,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
         phydro->w(IVZ,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
@@ -322,7 +333,155 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
 
+if (MAGNETIC_FIELDS_ENABLED){
+    // Set face-centered field
+    for (int k=kl; k<=ku; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        for (int i=il; i<=iu+1; ++i) {
+          // Set B^1         
+            Real t;
+            Real xprime = pcoord->x1f(i);
+            Real tprime = pmy_mesh->time;
+            get_t_from_prime(tprime,xprime,pcoord->x2v(j), pcoord->x3v(k),&t);
 
+            Real v = v_func(t);
+            Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+            Real acc = acc_func(t);
+
+            Real x = Lorentz * (xprime + v * tprime);
+
+            Real Lambda_inverse[2][2],Lambda[2][2];
+            get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+            //bsq/2 = 1.0 - press
+            Real bt = 0.0;
+            Real bx = 0.0;
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1f(i)));
+            Real bz = 0.0
+
+
+            Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
+            Real b1 = Lambda[1][0] * bt + Lambda[1][1] * bx;
+            Real b2 = by; 
+            Real b3 = bz;
+
+
+            Real ut = 1.0;
+            Real ux = 0.0;
+            Real uy = 0.0;
+            Real uz = 0.0;
+
+            Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+            Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
+            Real u2 = uy; 
+            Real u3 = uz;
+
+            
+            pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1
+
+          }
+        }
+      }
+
+    for (int k=kl; k<=ku; ++k) {
+      for (int j=jl; j<=ju+1; ++j) {
+        for (int i=il; i<=iu; ++i) {
+          // Set B^2         
+            Real t;
+            Real xprime = pcoord->x1v(i);
+            Real tprime = pmy_mesh->time;
+            get_t_from_prime(tprime,xprime,pcoord->x2f(j), pcoord->x3v(k),&t);
+
+            Real v = v_func(t);
+            Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+            Real acc = acc_func(t);
+
+            Real x = Lorentz * (xprime + v * tprime);
+
+            Real Lambda_inverse[2][2],Lambda[2][2];
+            get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+            //bsq/2 = 1.0 - press
+            Real bt = 0.0;
+            Real bx = 0.0;
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1v(i)));
+            Real bz = 0.0
+
+
+            Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
+            Real b1 = Lambda[1][0] * bt + Lambda[1][1] * bx;
+            Real b2 = by; 
+            Real b3 = bz;
+
+
+
+            Real ut = 1.0;
+            Real ux = 0.0;
+            Real uy = 0.0;
+            Real uz = 0.0;
+
+            Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+            Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
+            Real u2 = uy; 
+            Real u3 = uz;
+
+            
+            pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2
+
+          }
+        }
+      }
+
+          for (int k=kl; k<=ku+1; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        for (int i=il; i<=iu; ++i) {
+          // Set B^3         
+            Real t;
+            Real xprime = pcoord->x1v(i);
+            Real tprime = pmy_mesh->time;
+            get_t_from_prime(tprime,xprime,pcoord->x2v(j), pcoord->x3f(k),&t);
+
+            Real v = v_func(t);
+            Real Lorentz = 1.0/std::sqrt(1.0-SQR(v));
+            Real acc = acc_func(t);
+
+            Real x = Lorentz * (xprime + v * tprime);
+
+            Real Lambda_inverse[2][2],Lambda[2][2];
+            get_Lambda(t,x, Lambda,Lambda_inverse);
+
+
+            //bsq/2 = 1.0 - press
+            Real bt = 0.0;
+            Real bx = 0.0;
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1v(i)));
+            Real bz = 0.0
+
+
+            Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
+            Real b1 = Lambda[1][0] * bt + Lambda[1][1] * bx;
+            Real b2 = by; 
+            Real b3 = bz;
+
+            Real ut = 1.0;
+            Real ux = 0.0;
+            Real uy = 0.0;
+            Real uz = 0.0;
+
+            Real u0 = Lambda[0][0] * ut + Lambda[0][1] * ux;
+            Real u1 = Lambda[1][0] * ut + Lambda[1][1] * ux;
+            Real u2 = uy; 
+            Real u3 = uz;
+
+            
+            pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3
+
+          }
+        }
+      }
+}
 
 
   // Calculate cell-centered magnetic field
@@ -753,6 +912,7 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 
   return;
 }
+
 
 //----------------------------------------------------------------------------------------
 //! \fn void CustomOuterX1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
