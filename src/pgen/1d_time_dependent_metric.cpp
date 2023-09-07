@@ -392,10 +392,10 @@ return;
 
 
 Real v_func(Real t){
-  return vmax * std::sin(Omega * t);
+  return - vmax * std::sin(Omega * t);
 }
 Real acc_func(Real t){
-  return Omega * vmax * std::cos(Omega * t);
+  return - Omega * vmax * std::cos(Omega * t);
 }
 
 
