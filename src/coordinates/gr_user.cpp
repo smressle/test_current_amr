@@ -1787,14 +1787,14 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         // Calculate volumes
         if (not coarse_flag ) {
           Real det_p1,facp1;
-           if (is_half_time_step) {
-            // MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
-            // det_p1 = Determinant(gp1);
-            facp1 = sqrt_minus_det_old/std::sqrt(-det);
+          //  if (is_half_time_step) {
+          //   // MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
+          //   // det_p1 = Determinant(gp1);
+          //   facp1 = sqrt_minus_det_old/std::sqrt(-det);
 
-            fprintf(stderr,"This is a half time step!! \n");
+          //   fprintf(stderr,"This is a half time step!! \n");
 
-          }
+          // }
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
