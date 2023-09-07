@@ -102,7 +102,7 @@ void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
   Lambda[0][0] =  Lorentz + SQR(Lorentz)*Lorentz * acc * (v*t-x);  //dtprime/dt
   Lambda[0][1] =  - Lorentz * v;
   Lambda[1][1] = Lorentz;
-  Lambda[1][0] = - Lorentz * v + SQR(Lorentz)*Lorentz * acc * (v*acc*x -t);
+  Lambda[1][0] = - Lorentz * v + SQR(Lorentz)*Lorentz * acc * (v*x -t);
 
   Real det = (Lambda[0][0] * Lambda[1][1]) - (Lambda[0][1] * Lambda[1][0]);
 
@@ -392,10 +392,10 @@ return;
 
 
 Real v_func(Real t){
-  return - vmax * std::sin(Omega * t);
+  return vmax * std::sin(Omega * t);
 }
 Real acc_func(Real t){
-  return - Omega * vmax * std::cos(Omega * t);
+  return Omega * vmax * std::cos(Omega * t);
 }
 
 
