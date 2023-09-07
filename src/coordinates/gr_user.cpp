@@ -1711,7 +1711,6 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
   // Allocate scratch arrays
   AthenaArray<Real> g, g_inv, dg_dx1, dg_dx2, dg_dx3, dg_dt,transformation;
-  AthenaArray<Real> gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1, dg_dtp1;
 
   g.NewAthenaArray(NMETRIC);
   g_inv.NewAthenaArray(NMETRIC);
@@ -1719,12 +1718,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   dg_dx2.NewAthenaArray(NMETRIC);
   dg_dx3.NewAthenaArray(NMETRIC);
   dg_dt.NewAthenaArray(NMETRIC);
-  gp1.NewAthenaArray(NMETRIC);
-  g_invp1.NewAthenaArray(NMETRIC);
-  dg_dx1p1.NewAthenaArray(NMETRIC);
-  dg_dx2p1.NewAthenaArray(NMETRIC);
-  dg_dx3p1.NewAthenaArray(NMETRIC);
-  dg_dtp1.NewAthenaArray(NMETRIC);
+
   if (not coarse_flag) {
     transformation.NewAthenaArray(2, NTRIANGULAR);
   }
@@ -1873,6 +1867,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x1f(k,j,i) *= fac ;
         }
       }
     }
@@ -1917,6 +1912,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x2f(k,j,i) *= fac ;
         }
       }
     }
@@ -1961,6 +1957,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x3f(k,j,i) *= fac ;
         }
       }
     }
@@ -2079,12 +2076,6 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   dg_dx2.DeleteAthenaArray();
   dg_dx3.DeleteAthenaArray();
   dg_dt.DeleteAthenaArray();
-  gp1.DeleteAthenaArray();
-  g_invp1.DeleteAthenaArray();
-  dg_dx1p1.DeleteAthenaArray();
-  dg_dx2p1.DeleteAthenaArray();
-  dg_dx3p1.DeleteAthenaArray();
-  dg_dtp1.DeleteAthenaArray();
   if (not coarse_flag) {
     transformation.DeleteAthenaArray();
     if (MAGNETIC_FIELDS_ENABLED){
