@@ -179,7 +179,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
 
-  vmax = 0.1;
+  vmax = 0.3;
   Real period = 10.0;
   Omega = 2.0 * PI / (period);
 
