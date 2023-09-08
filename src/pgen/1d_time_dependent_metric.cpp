@@ -236,10 +236,10 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 Real press_func(Real t, Real x){
   if (MAGNETIC_FIELDS_ENABLED){
-    if (pcoord->x1v(i)>=-0.5 and pcoord->x1v(i)<=0.5){
+    if (x>=-0.5 and x<=0.5){
       return 1.0 - 0.5 * (1.0+ std::cos(2.0*PI*x/1.0));
     }
-    else return 0.0;
+    else return 1.0;
   }
   else return 1.0;
 }
@@ -357,8 +357,8 @@ if (MAGNETIC_FIELDS_ENABLED){
             //bsq/2 = 1.0 - press
             Real bt = 0.0;
             Real bx = 0.0;
-            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1f(i)));
-            Real bz = 0.0
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t,pcoord->x1f(i))));
+            Real bz = 0.0;
 
 
             Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
@@ -406,8 +406,8 @@ if (MAGNETIC_FIELDS_ENABLED){
             //bsq/2 = 1.0 - press
             Real bt = 0.0;
             Real bx = 0.0;
-            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1v(i)));
-            Real bz = 0.0
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t,pcoord->x1v(i))));
+            Real bz = 0.0;
 
 
             Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
@@ -456,8 +456,8 @@ if (MAGNETIC_FIELDS_ENABLED){
             //bsq/2 = 1.0 - press
             Real bt = 0.0;
             Real bx = 0.0;
-            Real by = std::sqrt(2.0 * (1.0 - press_func(t),pcoord->x1v(i)));
-            Real bz = 0.0
+            Real by = std::sqrt(2.0 * (1.0 - press_func(t,pcoord->x1v(i))));
+            Real bz = 0.0;
 
 
             Real b0 = Lambda[0][0] * bt + Lambda[0][1] * bx;
