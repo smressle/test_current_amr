@@ -237,7 +237,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 Real press_func(Real t, Real x){
   if (MAGNETIC_FIELDS_ENABLED){
     if (x>=-0.5 and x<=0.5){
-      return 1.0 - 0.5 * (1.0+ std::cos(2.0*PI*x/1.0));
+      return 1.0 - 0.25 * (1.0+ std::cos(2.0*PI*x/1.0));
     }
     else return 1.0;
   }
