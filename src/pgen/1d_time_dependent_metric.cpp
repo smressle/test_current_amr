@@ -378,7 +378,7 @@ if (MAGNETIC_FIELDS_ENABLED){
             Real u3 = uz;
 
             
-            pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1
+            pfield->b.x1f(k,j,i) = b1 * u0 - b0 * u1;
 
           }
         }
@@ -428,7 +428,7 @@ if (MAGNETIC_FIELDS_ENABLED){
             Real u3 = uz;
 
             
-            pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2
+            pfield->b.x2f(k,j,i) = b2 * u0 - b0 * u2;
 
           }
         }
@@ -476,7 +476,7 @@ if (MAGNETIC_FIELDS_ENABLED){
             Real u3 = uz;
 
             
-            pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3
+            pfield->b.x3f(k,j,i) = b3 * u0 - b0 * u3;
 
           }
         }
