@@ -73,7 +73,7 @@ void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
 void  Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
 
 static Real Determinant(const AthenaArray<Real> &g);
@@ -562,7 +562,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           Real fake_rprime = SQR(fake_Rprime) - SQR(aprime) + std::sqrt( SQR( SQR(fake_Rprime) - SQR(aprime) ) + 4.0*SQR(aprime)*SQR(fake_zprime) );
           fake_rprime = std::sqrt(fake_rprime/2.0);
 
-         if (fake_rprime<r_inner_bondi_boundary || fake_rprime>r_outer_bondi_boundary){
+         //if (fake_rprime<r_inner_bondi_boundary || fake_rprime>r_outer_bondi_boundary){
+         if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
 
           // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
           //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
@@ -1568,8 +1569,10 @@ int RefinementCondition(MeshBlock *pmb)
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
             // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
             // }
-            if (fake_xprime < box_radius && fake_xprime > -box_radius && fake_yprime < box_radius
-              && fake_yprime > -box_radius && fake_zprime < box_radius && fake_zprime > -box_radius ){
+            // if (fake_xprime < box_radius && fake_xprime > -box_radius && fake_yprime < box_radius
+            //   && fake_yprime > -box_radius && fake_zprime < box_radius && fake_zprime > -box_radius ){
+            if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
+              && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
@@ -2025,7 +2028,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   aprime= q * pin->GetOrAddReal("problem", "a_bh2", 0.0);  //I think this factor of q is right..check
   v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
 
-  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt);
+  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
   return;
 }
@@ -2131,7 +2134,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3,
 #define DEL 1e-5
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
 {
 
   // if  (Globals::my_rank == 0) fprintf(stderr,"Metric time in pgen file (GLOBAL RANK): %g \n", t);
@@ -2537,57 +2540,60 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 //   dgprime_dx3.DeleteAthenaArray();
 
 
-  AthenaArray<Real> gp,gm;
+  if (take_derivatives){
+    AthenaArray<Real> gp,gm;
 
 
 
-  gp.NewAthenaArray(NMETRIC);
-  gm.NewAthenaArray(NMETRIC);
+    gp.NewAthenaArray(NMETRIC);
+    gm.NewAthenaArray(NMETRIC);
 
-  Real x1p = x1 + DEL; // * rprime;
-  Real x1m = x1 - DEL; // * rprime;
+    Real x1p = x1 + DEL; // * rprime;
+    Real x1m = x1 - DEL; // * rprime;
 
-  metric_for_derivatives(t,x1p,x2,x3,gp);
-  metric_for_derivatives(t,x1m,x2,x3,gm);
+    metric_for_derivatives(t,x1p,x2,x3,gp);
+    metric_for_derivatives(t,x1m,x2,x3,gm);
 
-    // // Set x-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
-  }
+      // // Set x-derivatives of covariant components
+    for (int n = 0; n < NMETRIC; ++n) {
+       dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
+    }
 
-  Real x2p = x2 + DEL; // * rprime;
-  Real x2m = x2 - DEL; // * rprime;
+    Real x2p = x2 + DEL; // * rprime;
+    Real x2m = x2 - DEL; // * rprime;
 
-  metric_for_derivatives(t,x1,x2p,x3,gp);
-  metric_for_derivatives(t,x1,x2m,x3,gm);
-    // // Set y-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
-  }
-  
-  Real x3p = x3 + DEL; // * rprime;
-  Real x3m = x3 - DEL; // * rprime;
+    metric_for_derivatives(t,x1,x2p,x3,gp);
+    metric_for_derivatives(t,x1,x2m,x3,gm);
+      // // Set y-derivatives of covariant components
+    for (int n = 0; n < NMETRIC; ++n) {
+       dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+    }
+    
+    Real x3p = x3 + DEL; // * rprime;
+    Real x3m = x3 - DEL; // * rprime;
 
-  metric_for_derivatives(t,x1,x2,x3p,gp);
-  metric_for_derivatives(t,x1,x2,x3m,gm);
+    metric_for_derivatives(t,x1,x2,x3p,gp);
+    metric_for_derivatives(t,x1,x2,x3m,gm);
 
-    // // Set z-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
-  }
+      // // Set z-derivatives of covariant components
+    for (int n = 0; n < NMETRIC; ++n) {
+       dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+    }
 
-  Real tp = t + DEL ;
-  Real tm = t - DEL ;
+    Real tp = t + DEL ;
+    Real tm = t - DEL ;
 
-  metric_for_derivatives(tp,x1,x2,x3,gp);
-  metric_for_derivatives(tm,x1,x2,x3,gm);
-    // // Set t-derivatives of covariant components
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
-  }
+    metric_for_derivatives(tp,x1,x2,x3,gp);
+    metric_for_derivatives(tm,x1,x2,x3,gm);
+      // // Set t-derivatives of covariant components
+    for (int n = 0; n < NMETRIC; ++n) {
+       dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+    }
 
-  gp.DeleteAthenaArray();
-  gm.DeleteAthenaArray();
+    gp.DeleteAthenaArray();
+    gm.DeleteAthenaArray();
+
+}
 
   return;
 }
