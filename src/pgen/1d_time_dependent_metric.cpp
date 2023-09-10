@@ -385,7 +385,7 @@ if (MAGNETIC_FIELDS_ENABLED){
       }
 
     for (int k=kl; k<=ku; ++k) {
-      for (int j=jl; j<=ju+1; ++j) {
+      for (int j=jl; j<=ju+1*(block_size.nx2>1); ++j) {
         for (int i=il; i<=iu; ++i) {
           // Set B^2         
             Real t;
@@ -434,7 +434,7 @@ if (MAGNETIC_FIELDS_ENABLED){
         }
       }
 
-          for (int k=kl; k<=ku+1; ++k) {
+    for (int k=kl; k<=ku+1*(block_size.nx3>1); ++k) {
       for (int j=jl; j<=ju; ++j) {
         for (int i=il; i<=iu; ++i) {
           // Set B^3         

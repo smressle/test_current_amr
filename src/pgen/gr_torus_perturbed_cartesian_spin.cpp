@@ -2737,7 +2737,6 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
       Real diff = SMALL - a_dot_x/(a+SMALL);
       a_dot_x =  SMALL;
 
-      x = 
       x = x + diff*ax/(a+SMALL); 
       y = y + diff*ay/(a+SMALL);
       z = z + diff*az/(a+SMALL);
