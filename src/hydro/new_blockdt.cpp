@@ -115,9 +115,9 @@ void Hydro::NewBlockTimeStep() {
         #pragma ivdep
         for (int i=is; i<=ie; ++i) {
 
-          Real cl1 = ( -g(I01) + std::sqrt( SQR(g(I01)) - g(I00)*g(I11) ) ) / g(I11);
-          Real cl2 = ( -g(I02) + std::sqrt( SQR(g(I02)) - g(I00)*g(I22) ) ) / g(I22);
-          Real cl3 = ( -g(I03) + std::sqrt( SQR(g(I03)) - g(I00)*g(I33) ) ) / g(I33);
+          Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
+          Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
+          Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
           dt1(i) /= (std::abs(cl1));
           dt2(i) /= (std::abs(cl2));
