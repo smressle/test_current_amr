@@ -110,20 +110,20 @@ void Hydro::NewBlockTimeStep() {
       }
 
 
-      if (RELATIVISTIC_DYNAMICS){
-        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
-        #pragma ivdep
-        for (int i=is; i<=ie; ++i) {
+      // if (RELATIVISTIC_DYNAMICS){
+      //   pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
+      //   #pragma ivdep
+      //   for (int i=is; i<=ie; ++i) {
 
-          Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
-          Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
-          Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
+      //     Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
+      //     Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
+      //     Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-          dt1(i) /= (std::abs(cl1));
-          dt2(i) /= (std::abs(cl2));
-          dt3(i) /= (std::abs(cl3));
-        }
-      }
+      //     dt1(i) /= (std::abs(cl1));
+      //     dt2(i) /= (std::abs(cl2));
+      //     dt3(i) /= (std::abs(cl3));
+      //   }
+      // }
 
       // compute minimum of (v1 +/- C)
       for (int i=is; i<=ie; ++i) {
