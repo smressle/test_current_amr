@@ -1678,7 +1678,6 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
   if (std::abs(metric_t - (pmb->pmy_mesh->time + pmb->pmy_mesh->dt*0.5))< 1e-2*pmb->pmy_mesh->dt) is_half_time_step = true;
 
-  if (is_half_time_step) fprintf(stderr,"is half time step!!!!! \n");
   // set more indices
   int ill = il - ng;
   int iuu = iu + ng;

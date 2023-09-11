@@ -109,6 +109,23 @@ void Hydro::NewBlockTimeStep() {
         }
       }
 
+
+      if (RELATIVISTIC_DYNAMICS){
+        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
+        #pragma ivdep
+        for (int i=is; i<=ie; ++i) {
+
+          Real cl1 = ( -g(I01) + std::sqrt( SQR(g(I01)) - g(I00)*g(I11) ) ) / g(I11);
+          Real cl2 = ( -g(I02) + std::sqrt( SQR(g(I02)) - g(I00)*g(I22) ) ) / g(I22);
+          Real cl3 = ( -g(I03) + std::sqrt( SQR(g(I03)) - g(I00)*g(I33) ) ) / g(I33);
+
+          dt1(i) /= (std::abs(cl1));
+          dt2(i) /= (std::abs(cl2));
+          dt3(i) /= (std::abs(cl3));
+
+
+      }
+
       // compute minimum of (v1 +/- C)
       for (int i=is; i<=ie; ++i) {
         Real& dt_1 = dt1(i);
