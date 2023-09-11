@@ -644,8 +644,8 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
   g(I00) = 0.0;
   g(I01) = 0.0;
   g(I11) = 0.0;
-  for (int alpha = 0; alpha <= 2; ++alpha) {
-    for (int beta = 0; beta <= 2; ++beta) {
+  for (int alpha = 0; alpha < 2; ++alpha) {
+    for (int beta = 0; beta < 2; ++beta) {
       
       g(I00) += eta[alpha][beta] * Lambda_inverse[alpha][0] * Lambda_inverse[beta][0];
       g(I01) += eta[alpha][beta] * Lambda_inverse[alpha][0] * Lambda_inverse[beta][1];
