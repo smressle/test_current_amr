@@ -122,8 +122,7 @@ void Hydro::NewBlockTimeStep() {
           dt1(i) /= (std::abs(cl1));
           dt2(i) /= (std::abs(cl2));
           dt3(i) /= (std::abs(cl3));
-
-
+        }
       }
 
       // compute minimum of (v1 +/- C)
