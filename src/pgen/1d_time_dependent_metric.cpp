@@ -90,7 +90,7 @@ static Real vmax, Omega;
 
 static Real SMALL = 1e-5;
 
-#define EP 1e-13
+#define EP 1e-11
 
 
 void get_Lambda(Real t, Real x, Real Lambda[2][2],Real Lambda_inverse[2][2]){
@@ -385,7 +385,7 @@ if (MAGNETIC_FIELDS_ENABLED){
       }
 
     for (int k=kl; k<=ku; ++k) {
-      for (int j=jl; j<=ju+1*(block_size.nx2>1); ++j) {
+      for (int j=jl; j<=ju+1; ++j) {
         for (int i=il; i<=iu; ++i) {
           // Set B^2         
             Real t;
@@ -434,7 +434,7 @@ if (MAGNETIC_FIELDS_ENABLED){
         }
       }
 
-    for (int k=kl; k<=ku+1*(block_size.nx3>1); ++k) {
+    for (int k=kl; k<=ku+1; ++k) {
       for (int j=jl; j<=ju; ++j) {
         for (int i=il; i<=iu; ++i) {
           // Set B^3         
@@ -697,7 +697,7 @@ void metric_for_derivatives(Real tprime, Real x1prime, Real x2prime, Real x3prim
 
 
 
-#define DEL 1e-9
+#define DEL 1e-7
 void Binary_BH_Metric(Real tprime, Real x1prime, Real x2prime, Real x3prime,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
