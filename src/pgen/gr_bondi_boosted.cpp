@@ -97,7 +97,7 @@ void CalculatePrimitives(Real r, Real temp_min, Real temp_max, Real *prho,
 Real TemperatureMin(Real r, Real t_min, Real t_max);
 Real TemperatureBisect(Real r, Real t_min, Real t_max);
 Real TemperatureResidual(Real t, Real r);
-
+Real SumError(MeshBlock *pmb, int iout);
 // Global variables
 Real m, a;          // black hole mass and spin
 Real n_adi, k_adi;  // hydro parameters
@@ -1042,6 +1042,22 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
   return;
 }
 
+
+Real SumError(MeshBlock *pmb, int iout)
+{
+  Real err=0;
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      for(int i=is; i<=ie; i++) {
+        err+=user_out_var(iout,k,j,i);
+      }
+    }
+  }
+
+
+  return err;
+}
 
 //----------------------------------------------------------------------------------------
 // Fixed boundary condition
