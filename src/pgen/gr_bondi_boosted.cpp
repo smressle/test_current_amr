@@ -241,6 +241,16 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   c1 = std::pow(t_crit, n_adi) * u_crit * SQR(r_crit);                      // (HSW 68)
   c2 = SQR(1.0 + (n_adi+1.0) * t_crit) * (1.0 - 3.0*m2/(2.0*r_crit));        // (HSW 69)
 
+
+
+  AllocateUserHistoryOutput(5);
+
+  EnrollUserHistoryOutput(0, SumError, "err_rho");
+  EnrollUserHistoryOutput(1, SumError, "err_press");
+  EnrollUserHistoryOutput(2, SumError, "err_vel1");
+  EnrollUserHistoryOutput(3, SumError, "err_vel2");
+  EnrollUserHistoryOutput(4, SumError, "err_vel3");
+
   return;
 }
 
