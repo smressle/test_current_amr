@@ -281,11 +281,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   r_inner_boundary_2 = rh2/2.0;
 
   int N_user_vars = 7;
-  if (MAGNETIC_FIELDS_ENABLED) {
-    AllocateUserOutputVariables(N_user_vars);
-  } else {
-    AllocateUserOutputVariables(N_user_vars);
-  }
+  AllocateUserOutputVariables(N_user_vars);
+
   AllocateRealUserMeshBlockDataField(2);
   ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+1+NGHOST);
   ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1+NGHOST);
@@ -1001,6 +998,50 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
 
   return;
 }
+
+
+void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
+  // Prepare scratch arrays
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+
+  AthenaArray<Real> g_tmp;
+  g_tmp.NewAthenaArray(NMETRIC);
+  // Go through all cells
+  for (int k = ks; k <= ke; ++k) {
+    for (int j = js; j <= je; ++j) {
+      pcoord->CellMetric(k, j, is, ie, g, gi);
+      for (int i = is; i <= ie; ++i) {
+
+        Real r(0.0), theta(0.0), phi(0.0);
+        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &r,
+                                     &theta, &phi);
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+        get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        Real rho, pgas, ut, ur;
+        CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+        Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
+        TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+        Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+        BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+        Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
+        Real uu2 = u2prime - gi(I02,i)/gi(I00,i) * u0prime;
+        Real uu3 = u3prime - gi(I03,i)/gi(I00,i) * u0prime;
+        // Calculate normal-frame Lorentz factor
+        user_out_var(0,k,j,i) = std::abs(rho - phydro->w(IDN,k,j,i)); 
+        user_out_var(1,k,j,i) = std::abs(press - phydro->w(IPR,k,j,i));
+        user_out_var(2,k,j,i) = std::abs(uu1 - phydro->w(IVX,k,j,i)); 
+        user_out_var(3,k,j,i) = std::abs(uu2 - phydro->w(IVY,k,j,i)); 
+        user_out_var(4,k,j,i) = std::abs(uu3 - phydro->w(IVZ,k,j,i)); 
+      }
+    }
+  }
+
+  g_tmp.DeleteAthenaArray();
+  return;
+}
+
 
 //----------------------------------------------------------------------------------------
 // Fixed boundary condition
