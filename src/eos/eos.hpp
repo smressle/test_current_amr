@@ -154,6 +154,9 @@ class EquationOfState {
 #else // not GENERAL_EOS
   Real GetGamma() const {return gamma_;}
 #endif
+  Real GetRadius(Real x1, Real x2, Real x3, Real a);
+  Real GetRadius2(Real x1,Real x2, Real x3);
+
 
  private:
   // (C++11) in-class Default Member Initializer (fallback option):

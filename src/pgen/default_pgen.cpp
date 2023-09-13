@@ -29,6 +29,7 @@
 #include "../athena_arrays.hpp"
 #include "../mesh/mesh.hpp"
 #include "../parameter_input.hpp"
+#include "../eos/eos.hpp"
 
 // 3x members of Mesh class:
 
@@ -107,4 +108,36 @@ void __attribute__((weak)) MeshBlock::UserWorkInLoop() {
 void __attribute__((weak)) MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
   // do nothing
   return;
+}
+
+//========================================================================================
+//! \fn void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin)
+//! \brief Function called before generating output files
+//========================================================================================
+
+Real __attribute__((weak)) EquationOfState::GetRadius(Real x1, Real x2, Real x3, Real a) {
+  // do nothing
+
+  if (COORDINATE_SYSTEM=="cartesian"){
+    return std::sqrt( SQR(x1) + SQR(x2) + SQR(x3) );
+  }
+  else if (COORDINATE_SYSTEM=="spherical_polar" or COORDINATE_SYSTEM=="schwarzschild" or COORDINATE_SYSTEM=="kerr-schild"){
+    return x1;
+  }
+  else if (COORDINATE_SYSTEM=="cylindrical"){
+    return std::sqrt( SQR(x1) + SQR(x3));
+  }
+  else if (COORDINATE_SYSTEM=="gr_user"){
+      Real x = x1;
+      Real y = x2;
+      Real z = x3;
+      Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+      Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+      return r;
+  }
+  else return std::abs(x1);
+}
+Real __attribute__((weak)) EquationOfState::GetRadius2(Real x1, Real x2, Real x3) {
+  // do nothing
+  return -1.0;
 }

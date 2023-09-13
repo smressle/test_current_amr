@@ -70,17 +70,17 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
 }
 
 
-Real GetRadius(Real x1, Real x2, Real x3, Real a){
-   if (COORDINATE_SYSTEM=="gr_user"){
-      Real x = x1;
-      Real y = x2;
-      Real z = x3;
-      Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-      Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
-      return r;
-  }
-  else return x1;
-}
+// Real GetRadius(Real x1, Real x2, Real x3, Real a){
+//    if (COORDINATE_SYSTEM=="gr_user"){
+//       Real x = x1;
+//       Real y = x2;
+//       Real z = x3;
+//       Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+//       Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
+//       return r;
+//   }
+//   else return x1;
+// }
 //----------------------------------------------------------------------------------------
 // Variable inverter
 // Inputs:
