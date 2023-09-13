@@ -1164,8 +1164,7 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
 }
 
 
-Real SumError(MeshBlock *pmb, int iout)
-{
+Real SumError(MeshBlock *pmb, int iout){
   Real err=0;
 
   for(int k=ks; k<=ke; k++) {
