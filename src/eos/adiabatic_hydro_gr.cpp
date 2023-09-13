@@ -140,7 +140,6 @@ void EquationOfState::ConservedToPrimitive(
           density_floor_local =
               std::max(density_floor_local, rho_min_ * std::pow(r2, rho_pow_));
         }
-        Real pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0 && r2>0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
                                           pgas_min_ * std::pow(r2, pgas_pow_));
@@ -249,7 +248,6 @@ void EquationOfState::ConservedToPrimitive(
           density_floor_local =
               std::max(density_floor_local, rho_min_ * std::pow(r2, rho_pow_));
         }
-        pressure_floor_local = pressure_floor_;
         if (pgas_pow_ != 0.0 && r2>0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
                                           pgas_min_ * std::pow(r2, pgas_pow_));
