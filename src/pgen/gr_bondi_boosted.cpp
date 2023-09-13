@@ -1031,6 +1031,7 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
   if (block_size.nx3 > 1) {
     kl -= NGHOST;
     ku += NGHOST;
+  }
 
   AthenaArray<Real> g_tmp;
   g_tmp.NewAthenaArray(NMETRIC);
@@ -1153,11 +1154,11 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
             Real bx3f = b3prime * u0prime - b0prime * u3prime;
             user_out_var(8,k,j,i) = std::abs(bx3f -  pfield->b.x3f(k,j,i));
 
+          }
         }
       }
     }
   }
-}
 
 
   g_tmp.DeleteAthenaArray();
@@ -1168,10 +1169,10 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
 Real SumError(MeshBlock *pmb, int iout){
   Real err=0;
 
-  for(int k=ks; k<=ke; k++) {
-    for(int j=js; j<=je; j++) {
-      for(int i=is; i<=ie; i++) {
-        err+=user_out_var(iout,k,j,i);
+  for(int k=pmb->ks; k<=pmb->ks; k++) {
+    for(int j=pmb->ks; j<=pmb->ks; j++) {
+      for(int i=pmb->ks; i<=pmb->ks; i++) {
+        err+=pmb->user_out_var(iout,k,j,i);
       }
     }
   }
