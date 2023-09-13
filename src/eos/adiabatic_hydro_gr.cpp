@@ -126,12 +126,12 @@ void EquationOfState::ConservedToPrimitive(
         Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         // Calculate floors for density and pressure
         Real density_floor_local = density_floor_;
-        if (rho_pow_ != 0.0) {
+        if (rho_pow_ != 0.0 && r>0.0) {
           density_floor_local =
               std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         Real pressure_floor_local = pressure_floor_;
-        if (pgas_pow_ != 0.0) {
+        if (pgas_pow_ != 0.0 && r>0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
                                           pgas_min_ * std::pow(r, pgas_pow_));
         }
@@ -224,12 +224,12 @@ void EquationOfState::ConservedToPrimitive(
         r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
         // Calculate floors for density and pressure
         density_floor_local = density_floor_;
-        if (rho_pow_ != 0.0) {
+        if (rho_pow_ != 0.0 && r>0.0) {
           density_floor_local =
               std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
         }
         pressure_floor_local = pressure_floor_;
-        if (pgas_pow_ != 0.0) {
+        if (pgas_pow_ != 0.0 && r>0.0) {
           pressure_floor_local = std::max(pressure_floor_local,
                                           pgas_min_ * std::pow(r, pgas_pow_));
         }
