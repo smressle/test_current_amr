@@ -1018,6 +1018,20 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
   AthenaArray<Real> &g = ruser_meshblock_data[0];
   AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= NGHOST;
+    ju += NGHOST;
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= NGHOST;
+    ku += NGHOST;
+
   AthenaArray<Real> g_tmp;
   g_tmp.NewAthenaArray(NMETRIC);
   // Go through all cells
@@ -1043,7 +1057,7 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
         Real uu3 = u3prime - gi(I03,i)/gi(I00,i) * u0prime;
         // Calculate normal-frame Lorentz factor
         user_out_var(0,k,j,i) = std::abs(rho - phydro->w(IDN,k,j,i)); 
-        user_out_var(1,k,j,i) = std::abs(press - phydro->w(IPR,k,j,i));
+        user_out_var(1,k,j,i) = std::abs(pgas - phydro->w(IPR,k,j,i));
         user_out_var(2,k,j,i) = std::abs(uu1 - phydro->w(IVX,k,j,i)); 
         user_out_var(3,k,j,i) = std::abs(uu2 - phydro->w(IVY,k,j,i)); 
         user_out_var(4,k,j,i) = std::abs(uu3 - phydro->w(IVZ,k,j,i)); 
