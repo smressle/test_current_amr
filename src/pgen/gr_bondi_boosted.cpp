@@ -1152,7 +1152,7 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
             Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
             BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
             Real bx3f = b3prime * u0prime - b0prime * u3prime;
-            user_out_var(8,k,j,i) = std::abs(bx3f -  pfield->b.x3f(k,j,i));
+            user_out_var(7,k,j,i) = std::abs(bx3f -  pfield->b.x3f(k,j,i));
 
           }
         }
