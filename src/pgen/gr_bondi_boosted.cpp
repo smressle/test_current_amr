@@ -1156,6 +1156,7 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
         }
       }
     }
+  }
 
 
   g_tmp.DeleteAthenaArray();
