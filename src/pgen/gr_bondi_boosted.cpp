@@ -1015,99 +1015,93 @@ void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
     }
   }
 
-  //   // Initialize magnetic field
-  // if (MAGNETIC_FIELDS_ENABLED) {
-  //   // Find normalization
-  //   Real r, theta, phi;
-  //   // GetBoyerLindquistCoordinates(pcoord->x1f(is), pcoord->x2v((jl+ju)/2),
-  //   //                              pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
+    // Initialize magnetic field
+  if (MAGNETIC_FIELDS_ENABLED) {
+    // Find normalization
+    Real r, theta, phi;
+    // GetBoyerLindquistCoordinates(pcoord->x1f(is), pcoord->x2v((jl+ju)/2),
+    //                              pcoord->x3v((kl+ku)/2), &r, &theta, &phi);
 
-  //   r = 3.0;
-  //   Real rho, pgas, ut, ur;
-  //   CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
-  //   Real bbr = 1.0/SQR(r);
-  //   Real bt = 1.0/(1.0-2.0*m2/r) * bbr * ur;
-  //   Real br = (bbr + bt * ur) / ut;
-  //   Real bsq = -(1.0-2.0*m2/r) * SQR(bt) + 1.0/(1.0-2.0*m2/r) * SQR(br);
-  //   Real bsq_over_rho_actual = bsq/rho;
-  //   Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
+    r = 3.0;
+    Real rho, pgas, ut, ur;
+    CalculatePrimitives(r, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+    Real bbr = 1.0/SQR(r);
+    Real bt = 1.0/(1.0-2.0*m2/r) * bbr * ur;
+    Real br = (bbr + bt * ur) / ut;
+    Real bsq = -(1.0-2.0*m2/r) * SQR(bt) + 1.0/(1.0-2.0*m2/r) * SQR(br);
+    Real bsq_over_rho_actual = bsq/rho;
+    Real normalization = std::sqrt(bsq_over_rho/bsq_over_rho_actual);
 
-  //   // Set face-centered field
-  //   for (int k=kl; k<=ku+1; ++k) {
-  //     for (int j=jl; j<=ju+1; ++j) {
-  //       for (int i=il; i<=iu+1; ++i) {
-  //         // Set B^1
-  //         if (j != ju+1 && k != ku+1) {
-  //           GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
-  //                                        &r, &theta, &phi);
-  //           Real xprime,yprime,zprime,rprime,Rprime;
-  //           get_prime_coords(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
-  //           CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
-  //           bbr = normalization/SQR(rprime);
-  //           bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
-  //           br = (bbr + bt * ur) / ut;
-  //           Real u0, u1, u2, u3;
-  //           TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+    // Set face-centered field
+    for (int k=ks; k<=ke; ++k) {
+      for (int j=js; j<=je; ++j) {
+        for (int i=ie; i<=ie; ++i) {
+          // Set B^1
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
 
-  //           Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
-  //           BoostVector(u0,u1,u2,u3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
-  //           Real b0, b1, b2, b3;
-  //           TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
 
-  //           Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
-  //           BoostVector(b0,b1,b2,b3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
-  //           Real bx1f = b1prime * u0prime - b0prime * u1prime;
-  //           user_out_var(5,k,j,i) = std::abs(bx1f -  pfield->b.x1f(k,j,i));
-  //         }
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            Real bx1f = b1prime * u0prime - b0prime * u1prime;
+            user_out_var(5,k,j,i) = std::abs(bx1f -  pfield->b.x1f(k,j,i));
 
-  //         // Set B^2
-  //         if (i != iu+1 && k != ku+1) {
-  //           GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),
-  //                                        &r, &theta, &phi);
-  //           Real xprime,yprime,zprime,rprime,Rprime;
-  //           get_prime_coords(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
-  //           CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
-  //           bbr = normalization/SQR(rprime);
-  //           bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
-  //           br = (bbr + bt * ur) / ut;
-  //           Real u0, u1, u2, u3;
-  //           TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
-  //           Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
-  //           BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
-  //           Real b0, b1, b2, b3;
-  //           TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
-  //           Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
-  //           BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
-  //           Real bx2f = b2prime * u0prime - b0prime * u2prime;
-  //           user_out_var(6,k,j,i) = std::abs(bx2f -  pfield->b.x2f(k,j,i));
-  //         }
+          // Set B^2
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            Real bx2f = b2prime * u0prime - b0prime * u2prime;
+            user_out_var(6,k,j,i) = std::abs(bx2f -  pfield->b.x2f(k,j,i));
 
-  //         // Set B^3
-  //         if (i != iu+1 && j != ju+1) {
-  //           GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),
-  //                                        &r, &theta, &phi);
-  //           Real xprime,yprime,zprime,rprime,Rprime;
-  //           get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
-  //           CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
-  //           bbr = normalization/SQR(rprime);
-  //           bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
-  //           br = (bbr + bt * ur) / ut;
-  //           Real u0, u1, u2, u3;
-  //           TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
-  //           Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
-  //           BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
-  //           Real b0, b1, b2, b3;
-  //           TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
-  //           Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
-  //           BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
-  //           Real bx3f = b3prime * u0prime - b0prime * u3prime;
-  //           user_out_var(7,k,j,i) = std::abs(bx3f -  pfield->b.x3f(k,j,i));
+          // Set B^3
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),
+                                         &r, &theta, &phi);
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
+            bbr = normalization/SQR(rprime);
+            bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
+            br = (bbr + bt * ur) / ut;
+            Real u0, u1, u2, u3;
+            TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
+            Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
+            BoostVector(u0,u1,u2,u3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &u0prime, &u1prime, &u2prime, &u3prime);
+            Real b0, b1, b2, b3;
+            TransformVector(bt, br, 0.0, 0.0, xprime,yprime,zprime, &b0, &b1, &b2, &b3);
+            Real b0prime(0.0), b1prime(0.0), b2prime(0.0), b3prime(0.0);
+            BoostVector(b0,b1,b2,b3, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), &b0prime, &b1prime, &b2prime, &b3prime);
+            Real bx3f = b3prime * u0prime - b0prime * u3prime;
+            user_out_var(7,k,j,i) = std::abs(bx3f -  pfield->b.x3f(k,j,i));
 
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+        }
+      }
+    }
+  }
 
 
   g_tmp.DeleteAthenaArray();
