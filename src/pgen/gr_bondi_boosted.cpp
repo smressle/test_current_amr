@@ -209,7 +209,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  // if (COORDINATE_SYSTEM == "gr_user") EnrollUserRadSourceFunction(inner_boundary_source_function);
+  if (COORDINATE_SYSTEM == "gr_user") EnrollUserRadSourceFunction(inner_boundary_source_function);
   // Enroll boundary functions
   // EnrollUserBoundaryFunction(BoundaryFace::inner_x1, FixedBoundary);
   // EnrollUserBoundaryFunction(BoundaryFace::outer_x1, FixedBoundary);
@@ -1234,8 +1234,8 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
     }}
   }
 
-  AthenaArray<Real> prim_scalar;
-  apply_inner_boundary_condition(pmb,prim,prim_scalar, time);
+  // AthenaArray<Real> prim_scalar;
+  // apply_inner_boundary_condition(pmb,prim,prim_scalar, time);
 
   // apply_inner_boundary_condition_in_boundary_function(pmb,pcoord,prim,b,time,is,ie,js,je,ks,ke,ngh);
 
