@@ -956,7 +956,8 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int is, ie, js, je, ks, ke;
 
 
-  apply_inner_boundary_condition(pmb,prim,prim_scalar,time);
+  //Here time+dt is time at end of substep, not full time step
+  apply_inner_boundary_condition(pmb,prim,prim_scalar,time+dt);
 
   return;
 }

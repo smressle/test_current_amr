@@ -1866,7 +1866,7 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
 
   // *** this must be changed for the RK3 integrator
 
-  if (stage != nstages) return TaskStatus::next; // only do on last stage
+  // if (stage != nstages) return TaskStatus::next; // only do on last stage
   if (stage <= nstages) {
   // if (stage==nstages){
 
