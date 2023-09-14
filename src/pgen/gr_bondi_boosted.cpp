@@ -494,8 +494,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
   Real r,th,ph;
-  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+  // AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  // AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
   Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
 
@@ -515,18 +515,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
     ku += NGHOST;
   }
 
+  AthenaArray<Real> g,gi,dg_dx2,dg_dx3,dg_dx1,dg_dt;
+
+  g.NewAthenaArray(NMETRIC);
+  gi.NewAthenaArray(NMETRIC);
+  dg_dx1.NewAthenaArray(NMETRIC);
+  dg_dx2.NewAthenaArray(NMETRIC);
+  dg_dx3.NewAthenaArray(NMETRIC);
+  dg_dt.NewAthenaArray(NMETRIC);
 
 
    for (int k=pmb->ks; k<=pmb->ke; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=pmb->js; j<=pmb->je; ++j) {
-      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+      // pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
 #pragma simd
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
+
+          metric_for_derivatives(time,)
+          Binary_BH_Metric(time,x,y,z,g,gi, dg_dx1,dg_dx2,dg_dx3,dg_dt, false);
 
           Real xprime,yprime,zprime,rprime,Rprime;
 
@@ -560,9 +571,13 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
             TransformVector(ut, ur, 0.0, 0.0, xprime,yprime,zprime, &u0, &u1, &u2, &u3);
             Real u0prime(0.0), u1prime(0.0), u2prime(0.0), u3prime(0.0);
             BoostVector(u0,u1,u2,u3, pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &u0prime, &u1prime, &u2prime, &u3prime);
-            Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
-            Real uu2 = u2prime - gi(I02,i)/gi(I00,i) * u0prime;
-            Real uu3 = u3prime - gi(I03,i)/gi(I00,i) * u0prime;
+            // Real uu1 = u1prime - gi(I01,i)/gi(I00,i) * u0prime;
+            // Real uu2 = u2prime - gi(I02,i)/gi(I00,i) * u0prime;
+            // Real uu3 = u3prime - gi(I03,i)/gi(I00,i) * u0prime;
+
+            Real uu1 = u1prime - gi(I01)/gi(I00) * u0prime;
+            Real uu2 = u2prime - gi(I02)/gi(I00) * u0prime;
+            Real uu3 = u3prime - gi(I03)/gi(I00) * u0prime;
             prim(IDN,k,j,i) = rho;
             prim(IVX,k,j,i) = uu1;
             prim(IVY,k,j,i) = uu2;
@@ -579,9 +594,13 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real gamma = 1.0;
               Real alpha = std::sqrt(-1.0/gi(I00,i));
               Real u0 = gamma/alpha;
-              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+              // Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
+              // Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
+              // Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
+
+              Real uu1 = - gi(I01)/gi(I00) * u0;
+              Real uu2 = - gi(I02)/gi(I00) * u0;
+              Real uu3 = - gi(I03)/gi(I00) * u0;
               
               prim(IDN,k,j,i) = dfloor;
               prim(IVX,k,j,i) = 0.;
@@ -596,6 +615,13 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 }}}
+
+  g.DeleteAthenaArray();
+  gi.DeleteAthenaArray();
+  dg_dx1.DeleteAthenaArray();
+  dg_dx2.DeleteAthenaArray();
+  dg_dx3.DeleteAthenaArray();
+  dg_dt.DeleteAthenaArray();
 
 
 if (MAGNETIC_FIELDS_ENABLED) {
@@ -617,7 +643,7 @@ if (MAGNETIC_FIELDS_ENABLED) {
    for (int k=pmb->ks; k<=pmb->ke+1; ++k) {
 #pragma omp parallel for schedule(static)
     for (int j=pmb->js; j<=pmb->je+1; ++j) {
-      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+      // pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
 #pragma simd
       for (int i=pmb->is; i<=pmb->ie+1; ++i) {
 
