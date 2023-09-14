@@ -56,7 +56,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &b, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar);
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const Real time);
 void apply_inner_boundary_condition_in_boundary_function(MeshBlock *pmb,Coordinates *pcoord, AthenaArray<Real> &prim,FaceField &b, Real time,
                     int is, int ie, int js, int je, int ks, int ke,int ngh);
 
@@ -490,7 +490,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 /* Apply inner "absorbing" boundary conditions */
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar){
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const Real time){
 
 
   Real r,th,ph;
@@ -524,43 +524,17 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 #pragma simd
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-
-         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
-
-
-          // if (r < r_inner_boundary){
-              
-
-          //     //set uu assuming u is zero
-          //     Real gamma = 1.0;
-          //     Real alpha = std::sqrt(-1.0/gi(I00,i));
-          //     Real u0 = gamma/alpha;
-          //     Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-          //     Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-          //     Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
-              
-          //     prim(IDN,k,j,i) = dfloor;
-          //     prim(IVX,k,j,i) = 0.;
-          //     prim(IVY,k,j,i) = 0.;
-          //     prim(IVZ,k,j,i) = 0.;
-          //     prim(IPR,k,j,i) = pfloor;
-            
-              
-              
-          // }
-
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
-          Real t = pmb->pmy_mesh->time;
 
           Real xprime,yprime,zprime,rprime,Rprime;
 
-          get_prime_coords(x,y,z, t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(x,y,z, time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
           Real xbh,ybh,zbh;
-          get_bh_position(t, &xbh,&ybh,&zbh);
+          get_bh_position(time, &xbh,&ybh,&zbh);
           Real fake_xprime = x-xbh;
           Real fake_yprime = y-ybh;
           Real fake_zprime = z-zbh;
@@ -580,8 +554,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           // {
 
             Real r(0.0), theta(0.0), phi(0.0);
-            GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &r,
-                                         &theta, &phi);
             Real rho, pgas, ut, ur;
             CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             Real u0(0.0), u1(0.0), u2(0.0), u3(0.0);
@@ -650,31 +622,17 @@ if (MAGNETIC_FIELDS_ENABLED) {
       for (int i=pmb->is; i<=pmb->ie+1; ++i) {
 
 
-        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), &r, &th, &ph);
-
-
-
-        Real x = pmb->pcoord->x1v(i);
-        Real y = pmb->pcoord->x2v(j);
-        Real z = pmb->pcoord->x3v(k);
-        Real t = pmb->pmy_mesh->time;
-
         Real xprime,yprime,zprime,rprime,Rprime;
 
         if (j !=pmb->je+1 && k!=pmb->ke+1){
-          get_prime_coords(pmb->pcoord->x1f(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(pmb->pcoord->x1f(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
           if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
           // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
           //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
           // {
 
-
                             // if (j != ju+1 && k != ku+1) {
-            GetBoyerLindquistCoordinates(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),
-                                         &r, &theta, &phi);
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(pmb->pcoord->x1f(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             bbr = normalization/SQR(rprime);
             bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -695,16 +653,12 @@ if (MAGNETIC_FIELDS_ENABLED) {
       }
 
         if (i!=pmb->ie+1 && k!=pmb->ke+1){
-          get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2f(j),pmb->pcoord->x3v(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2f(j),pmb->pcoord->x3v(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
           if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
           // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
           //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
           // {
-            GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k),
-                                         &r, &theta, &phi);
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2f(j), pmb->pcoord->x3v(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             bbr = normalization/SQR(rprime);
             bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -723,17 +677,12 @@ if (MAGNETIC_FIELDS_ENABLED) {
       }
 
         if (i!=pmb->ie+1 && j!=pmb->je+1){
-          get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k), t, &xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
           if (rprime<r_inner_bondi_boundary || rprime>r_outer_bondi_boundary){
           // if ( (std::abs(xprime)<r_inner_bondi_boundary  && std::abs(yprime)<r_inner_bondi_boundary  && std::abs(zprime)<r_inner_bondi_boundary ) ||
           //      (std::abs(xprime)>r_outer_bondi_boundary  && std::abs(yprime)>r_outer_bondi_boundary  && std::abs(zprime)>r_outer_bondi_boundary ) )
           // {
-
-            GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k),
-                                         &r, &theta, &phi);
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k), pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             CalculatePrimitives(rprime, temp_min, temp_max, &rho, &pgas, &ut, &ur);
             bbr = normalization/SQR(rprime);
             bt = 1.0/(1.0-2.0*m2/rprime) * bbr * ur;
@@ -1007,7 +956,7 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int is, ie, js, je, ks, ke;
 
 
-  apply_inner_boundary_condition(pmb,prim,prim_scalar);
+  apply_inner_boundary_condition(pmb,prim,prim_scalar,time);
 
   return;
 }
