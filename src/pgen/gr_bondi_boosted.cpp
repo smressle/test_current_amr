@@ -535,8 +535,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
-
-          metric_for_derivatives(time,)
+          
           Binary_BH_Metric(time,x,y,z,g,gi, dg_dx1,dg_dx2,dg_dx3,dg_dt, false);
 
           Real xprime,yprime,zprime,rprime,Rprime;
