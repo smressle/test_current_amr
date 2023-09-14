@@ -3928,7 +3928,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 
 Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
 
-  Real r, th, phi
+  Real r, th, phi;
   GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &ph);
   return r;
 }
