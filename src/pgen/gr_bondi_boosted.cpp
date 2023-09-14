@@ -1234,8 +1234,8 @@ void CustomInnerX1(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
     }}
   }
 
-
-  apply_inner_boundary_condition(pmb,prim,pmb->pscalars->r, time);
+  AthenaArray<Real> prim_scalar;
+  apply_inner_boundary_condition(pmb,prim,prim_scalar, time);
 
   // apply_inner_boundary_condition_in_boundary_function(pmb,pcoord,prim,b,time,is,ie,js,je,ks,ke,ngh);
 
