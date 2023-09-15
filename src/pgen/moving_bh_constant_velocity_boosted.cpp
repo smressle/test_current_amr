@@ -94,9 +94,9 @@ int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
-void  Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
+void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
 static Real Determinant(const AthenaArray<Real> &g);
 static Real Determinant(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23,
@@ -2410,7 +2410,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   //////////////Perturber Black Hole//////////////////
 
-  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt);
+  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
   return;
 
@@ -2447,77 +2447,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
-
-
-
-  Real a_dot_x = a1x * x + a1y * y + a1z * z;
-
-  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
-
-    Real diff = SMALL - a_dot_x/(a1+SMALL);
-    a_dot_x =  SMALL;
-
-    x = x + diff*a1x/(a1+SMALL);
-    y = y + diff*a1y/(a1+SMALL);
-    z = z + diff*a1z/(a1+SMALL);
-  }
-  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
-
-    Real diff = -SMALL - a_dot_x/(a1+SMALL);
-    a_dot_x =  -SMALL;
-
-    x = x + diff*a1x/(a1+SMALL);
-    y = y + diff*a1y/(a1+SMALL);
-    z = z + diff*a1z/(a1+SMALL);
-  } 
-
-
-  // if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-  //   x = 0.1;
-  //   y = 0.1;
-  //   z = 0.1;
-  // }
-
-  Real r, th, phi;
-  GetBoyerLindquistCoordinates(x,y,z,a1x,a1y,a1z, &r, &th, &phi);
-
-
-/// prevent metric from getting nan sqrt(-gdet)
-
-  Real rh =  ( m + std::sqrt(SQR(m)-SQR(a1)) );
-  if (r<rh*0.5) {
-    r = rh*0.5;
-    convert_spherical_to_cartesian_ks(r,th,phi, a1x,a1y,a1z,&x,&y,&z);
-  }
-
-  //recompute after changes to coordinates
-  a_dot_x = a1x * x + a1y * y + a1z * z;
-
-
-  Real a_cross_x[3];
-
-  a_cross_x[0] = a1y * z - a1z * y;
-  a_cross_x[1] = a1z * x - a1x * z;
-  a_cross_x[2] = a1x * y - a1y * x;
-
-
-  Real rsq_p_asq = SQR(r) + SQR(a1);
-
-
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * m *  SQR(r)*r / (SQR(SQR(r)) + SQR(a_dot_x));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r * x - a_cross_x[0] + a_dot_x * a1x/r)/(rsq_p_asq);
-  l_upper[2] = (r * y - a_cross_x[1] + a_dot_x * a1y/r)/(rsq_p_asq);
-  l_upper[3] = (r * z - a_cross_x[2] + a_dot_x * a1z/r)/(rsq_p_asq);
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
 
   eta[0] = -1.0;
   eta[1] = 1.0;
@@ -2627,16 +2556,16 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
-  g(I01) =          f * l_lower[0]*l_lower[1] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
-  g(I02) =          f * l_lower[0]*l_lower[2] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
-  g(I03) =          f * l_lower[0]*l_lower[3] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
-  g(I12) =          f * l_lower[1]*l_lower[2] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
-  g(I13) =          f * l_lower[1]*l_lower[3] + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
-  g(I23) =          f * l_lower[2]*l_lower[3] + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
+  g(I00) = eta[0]    + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
+  g(I01) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
+  g(I02) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
+  g(I03) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
+  g(I11) = eta[1]    + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
+  g(I12) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
+  g(I13) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
+  g(I22) = eta[2]    + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
+  g(I23) =             fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
+  g(I33) = eta[3]    + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
 
 
   Lambda.DeleteAthenaArray();
@@ -2679,7 +2608,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 #define DEL 1e-7
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
 {
 
   Real x = x1;
@@ -2729,72 +2658,76 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   //   return;
   // }
 
-  gp.NewAthenaArray(NMETRIC);
-  // gm.NewAthenaArray(NMETRIC);
+  if (take_derivatives){
 
-  Real x1p = x1 + DEL; // * rprime;
-  // Real x1m = x1 - DEL; // * rprime;
-  Real x1m = x1;
 
-  metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
-  // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
+    gp.NewAthenaArray(NMETRIC);
+    // gm.NewAthenaArray(NMETRIC);
 
-    // // Set x-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
-  // }
+    Real x1p = x1 + DEL; // * rprime;
+    // Real x1m = x1 - DEL; // * rprime;
+    Real x1m = x1;
+
+    metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
+    // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
+
+      // // Set x-derivatives of covariant components
+    // for (int n = 0; n < NMETRIC; ++n) {
+    //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
+    // }
+      for (int n = 0; n < NMETRIC; ++n) {
+       dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
+    }
+
+    Real x2p = x2 + DEL; // * rprime;
+    // Real x2m = x2 - DEL; // * rprime;
+    Real x2m = x2;
+
+    metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
+    // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
+      // // Set y-derivatives of covariant components
+    // for (int n = 0; n < NMETRIC; ++n) {
+    //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
+    // }
     for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
-  }
+       dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
+    }
+    
+    Real x3p = x3 + DEL; // * rprime;
+    // Real x3m = x3 - DEL; // * rprime;
+    Real x3m = x3;
 
-  Real x2p = x2 + DEL; // * rprime;
-  // Real x2m = x2 - DEL; // * rprime;
-  Real x2m = x2;
+    metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
+    // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
-  metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
-  // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
-    // // Set y-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
-  // }
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
-  }
-  
-  Real x3p = x3 + DEL; // * rprime;
-  // Real x3m = x3 - DEL; // * rprime;
-  Real x3m = x3;
+      // // Set z-derivatives of covariant components
+    // for (int n = 0; n < NMETRIC; ++n) {
+    //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
+    // }
+      for (int n = 0; n < NMETRIC; ++n) {
+       dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
+    }
 
-  metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
-  // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
+    Real tp = t + DEL ;
+    Real tm = t;
+    // Real tm = t - DEL ;
 
-    // // Set z-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
-  // }
+    get_orbit_quantities(tp,orbit_quantities);
+    metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
+
+    // get_orbit_quantities(tm,orbit_quantities);
+    // metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
+      // // Set t-derivatives of covariant components
+    // for (int n = 0; n < NMETRIC; ++n) {
+    //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
+    // }
     for (int n = 0; n < NMETRIC; ++n) {
-     dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
+       dg_dt(n) = (gp(n)-g(n))/(tp-tm);
+    }
+
+    gp.DeleteAthenaArray();
+    // gm.DeleteAthenaArray();
   }
-
-  Real tp = t + DEL ;
-  Real tm = t;
-  // Real tm = t - DEL ;
-
-  get_orbit_quantities(tp,orbit_quantities);
-  metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
-
-  // get_orbit_quantities(tm,orbit_quantities);
-  // metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
-    // // Set t-derivatives of covariant components
-  // for (int n = 0; n < NMETRIC; ++n) {
-  //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
-  // }
-  for (int n = 0; n < NMETRIC; ++n) {
-     dg_dt(n) = (gp(n)-g(n))/(tp-tm);
-  }
-
-  gp.DeleteAthenaArray();
-  // gm.DeleteAthenaArray();
 
   orbit_quantities.DeleteAthenaArray();
   return;
