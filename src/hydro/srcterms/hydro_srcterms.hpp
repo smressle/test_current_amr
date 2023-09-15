@@ -70,6 +70,10 @@ class HydroSourceTerms {
   void EnrollSrcTermFunction(SrcTermFunc my_func);
   void EnrollRadSrcTermFunction(RadSrcTermFunc my_Func);
 
+  void ApplyBondiBoundaries(Real time,MeshBlock *pmb, AthenaArray<Real> &cons, 
+           const AthenaArray<Real> &prim_old, FaceField &b,AthenaArray<Real> &prim, AthenaArray<Real> &bcc, 
+           Coordinates *pco);
+
   SrcTermFunc UserSourceTerm;
   RadSrcTermFunc UserRadSourceTerm;
 

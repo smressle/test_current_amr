@@ -110,6 +110,13 @@ void __attribute__((weak)) MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) 
   return;
 }
 
+void __attribute__((weak)) HydroSourceTerms::ApplyBondiBoundaries(Real time,MeshBlock *pmb, AthenaArray<Real> &cons, 
+           const AthenaArray<Real> &prim_old, FaceField &b,AthenaArray<Real> &prim, AthenaArray<Real> &bcc, 
+           Coordinates *pco){
+  // do nothing
+  return;
+}
+
 //========================================================================================
 //! \fn void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin)
 //! \brief Function called before generating output files
