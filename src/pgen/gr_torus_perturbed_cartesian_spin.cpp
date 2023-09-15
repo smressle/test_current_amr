@@ -1790,7 +1790,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
-          Real t = pmb->pmy_mesh->time;
+          Real t = pmb->pmy_mesh->metric_time;
 
           Real xprime,yprime,zprime,rprime,Rprime;
 

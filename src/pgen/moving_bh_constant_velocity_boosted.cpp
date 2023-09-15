@@ -1482,33 +1482,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
 
-         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),a1x,a1y,a1z, &r, &th, &ph);
-
-          if (r < r_inner_boundary){
-              
-
-              //set uu assuming u is zero
-              Real gamma = 1.0;
-              Real alpha = std::sqrt(-1.0/gi(I00,i));
-              Real u0 = gamma/alpha;
-              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
-              
-              prim(IDN,k,j,i) = dfloor;
-              prim(IVX,k,j,i) = 0.;
-              prim(IVY,k,j,i) = 0.;
-              prim(IVZ,k,j,i) = 0.;
-              prim(IPR,k,j,i) = pfloor;
-            
-              
-              
-          }
-
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
-          Real t = pmb->pmy_mesh->time;
+          Real t = pmb->pmy_mesh->metric_time;
 
           Real xprime,yprime,zprime,rprime,Rprime;
 
@@ -2448,6 +2425,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
 
+  Real eta[4];
   eta[0] = -1.0;
   eta[1] = 1.0;
   eta[2] = 1.0;
