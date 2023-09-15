@@ -1657,7 +1657,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
         pbval->ApplyPhysicalBoundaries(time, 0.0, pbval->bvars_main_int);
 
-        ph->hsrc->ApplyBondiBoundaries(time,pmb,ph->u, ph->w1, pf->b,
+        ph->hsrc.ApplyBondiBoundaries(time,pmb,ph->u, ph->w1, pf->b,
                                                      ph->w, pf->bcc, pmb->pcoord);
       }
 
