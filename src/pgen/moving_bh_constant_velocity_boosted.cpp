@@ -695,11 +695,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
-        fprintf(stderr, "xyz: %g %g %g \n metric_time: %g xyz prime: %g %g %g \n rprime: %g xyz BH: %g %g %g \n vxyz BH: %g %g %g \n denom: %g rho: %g uu: %g %g %g  \n",
-                          pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->metric_time, xprime,yprime,zprime,rprime,
-                          orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
-                          orbit_quantities(IV2X),orbit_quantities(IV2Y),orbit_quantities(IV2Z),
-                          denom, rho, uu1,uu2,uu3);
+        // fprintf(stderr, "xyz: %g %g %g \n metric_time: %g xyz prime: %g %g %g \n rprime: %g xyz BH: %g %g %g \n vxyz BH: %g %g %g \n denom: %g rho: %g uu: %g %g %g  \n",
+        //                   pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->metric_time, xprime,yprime,zprime,rprime,
+        //                   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+        //                   orbit_quantities(IV2X),orbit_quantities(IV2Y),orbit_quantities(IV2Z),
+        //                   denom, rho, uu1,uu2,uu3);
 
        //    Real beta_init = 5.0;
        //    Real B_const = 0.0;
@@ -3129,6 +3129,17 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
     }
 
     return true;
+}
+
+Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
+  return -1.0;
+}
+
+Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
+  Real xprime,yprime,zprime,rprime,Rprime;
+  get_prime_coords(x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
+
+  return rprime;
 }
 
 // void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
