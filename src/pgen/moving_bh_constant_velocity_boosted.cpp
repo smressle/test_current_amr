@@ -3136,10 +3136,12 @@ Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
 }
 
 Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
-  Real xprime,yprime,zprime,rprime,Rprime;
-  get_prime_coords(x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
+  // Real xprime,yprime,zprime,rprime,Rprime;
+  // get_prime_coords(x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
 
-  return rprime;
+  // return rprime;
+
+  return -1.0;
 }
 
 // void UpdateMetricFunction(Real metric_t, MeshBlock *pmb)
