@@ -689,11 +689,17 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
 
-
         if (rprime<=r_cut){
           rho = 0.0;
           pgas = 0.0;
         }
+
+
+        fprintf(stderr, "xyz: %g %g %g \n metric_time: %g xyz prime: %g %g %g \n rprime: %g xyz BH: %g %g %g \n vxyz BH: %g %g %g \n denom: %g rho: %g uu: %g %g %g  \n",
+                          pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->metric_time, xprime,yprime,zprime,rprime,
+                          orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+                          orbit_quantities(IV2X),orbit_quantities(IV2Y),orbit_quantities(IV2Z),
+                          denom, rho, uu1,uu2,uu3);
 
        //    Real beta_init = 5.0;
        //    Real B_const = 0.0;
