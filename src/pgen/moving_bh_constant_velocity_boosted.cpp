@@ -695,11 +695,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
-        // fprintf(stderr, "xyz: %g %g %g \n metric_time: %g xyz prime: %g %g %g \n rprime: %g xyz BH: %g %g %g \n vxyz BH: %g %g %g \n denom: %g rho: %g uu: %g %g %g  \n",
-        //                   pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->metric_time, xprime,yprime,zprime,rprime,
-        //                   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
-        //                   orbit_quantities(IV2X),orbit_quantities(IV2Y),orbit_quantities(IV2Z),
-        //                   denom, rho, uu1,uu2,uu3);
+        if (rprime<=20.0){
+
+                  fprintf(stderr, "xyz: %g %g %g \n metric_time: %g xyz prime: %g %g %g \n rprime: %g xyz BH: %g %g %g \n vxyz BH: %g %g %g \n denom: %g rho: %g uu: %g %g %g  \n",
+                          pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pmy_mesh->metric_time, xprime,yprime,zprime,rprime,
+                          orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+                          orbit_quantities(IV2X),orbit_quantities(IV2Y),orbit_quantities(IV2Z),
+                          denom, rho, uu1,uu2,uu3);
+
+        }
 
        //    Real beta_init = 5.0;
        //    Real B_const = 0.0;
@@ -1618,24 +1622,24 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
   const AthenaArray<Real> &r_half,AthenaArray<Real> &prim_scalar){
 
-  int i, j, k, kprime;
-  int is, ie, js, je, ks, ke;
+//   int i, j, k, kprime;
+//   int is, ie, js, je, ks, ke;
 
-     for (int k=pmb->ks; k<=pmb->ke; ++k) {
-#pragma omp parallel for schedule(static)
-    for (int j=pmb->js; j<=pmb->je; ++j) {
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+//      for (int k=pmb->ks; k<=pmb->ke; ++k) {
+// #pragma omp parallel for schedule(static)
+//     for (int j=pmb->js; j<=pmb->je; ++j) {
+//       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-        pmb->user_out_var(0,k,j,i) = flux[X3DIR](IDN,k,j,i);
-        pmb->user_out_var(1,k,j,i) = flux[X3DIR](IDN,k+1,j,i);
+//         pmb->user_out_var(0,k,j,i) = flux[X3DIR](IDN,k,j,i);
+//         pmb->user_out_var(1,k,j,i) = flux[X3DIR](IDN,k+1,j,i);
 
-        pmb->user_out_var(2,k,j,i) = flux[X3DIR](IPR,k,j,i);
-        pmb->user_out_var(3,k,j,i) = flux[X3DIR](IPR,k+1,j,i);
+//         pmb->user_out_var(2,k,j,i) = flux[X3DIR](IPR,k,j,i);
+//         pmb->user_out_var(3,k,j,i) = flux[X3DIR](IPR,k+1,j,i);
 
 
-      }
-    }
-  }
+//       }
+//     }
+//   }
 
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
