@@ -2391,8 +2391,8 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
 {
-
-
+  q = 1.0;
+  
   v_bh2 = pin->GetOrAddReal("problem", "vbh", 0.05);
   m = pin->GetReal("coord", "m");
 
