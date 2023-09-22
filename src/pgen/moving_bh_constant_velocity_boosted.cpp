@@ -2003,6 +2003,22 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     AthenaArray<Real> &g)
 {
 
+
+
+  // Set covariant components
+  g(I00) = -1.0   ;
+  g(I01) = 0.0            ;
+  g(I02) = 0.0             ;
+  g(I03) =    0.0          ;
+  g(I11) = 1.0     ;
+  g(I12) = 0.0             ;
+  g(I13) = 0.0             ;
+  g(I22) = 1.0     ;
+  g(I23) = 0.0             ;
+  g(I33) = 1.0    ;
+
+  return;
+
   Real x = x1;
   Real y = x2;
   Real z = x3;
