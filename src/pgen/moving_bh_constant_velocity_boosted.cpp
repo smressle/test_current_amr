@@ -2087,11 +2087,11 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 /// prevent metric from getting nan sqrt(-gdet)
 
-  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
-  if (rprime < rhprime*0.8) {
-    rprime = rhprime*0.8;
-    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
-  }
+  // Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
+  // if (rprime < rhprime*0.8) {
+  //   rprime = rhprime*0.8;
+  //   convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+  // }
 
   a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
