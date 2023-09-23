@@ -2005,19 +2005,19 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
-  // Set covariant components
-  g(I00) = -1.0   ;
-  g(I01) = 0.0            ;
-  g(I02) = 0.0             ;
-  g(I03) =    0.0          ;
-  g(I11) = 1.0     ;
-  g(I12) = 0.0             ;
-  g(I13) = 0.0             ;
-  g(I22) = 1.0     ;
-  g(I23) = 0.0             ;
-  g(I33) = 1.0    ;
+  // // Set covariant components
+  // g(I00) = -1.0   ;
+  // g(I01) = 0.0            ;
+  // g(I02) = 0.0             ;
+  // g(I03) =    0.0          ;
+  // g(I11) = 1.0     ;
+  // g(I12) = 0.0             ;
+  // g(I13) = 0.0             ;
+  // g(I22) = 1.0     ;
+  // g(I23) = 0.0             ;
+  // g(I33) = 1.0    ;
 
-  return;
+  // return;
 
   Real x = x1;
   Real y = x2;
@@ -2062,27 +2062,27 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-    Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
-    a_dot_x_prime =  SMALL;
+  //   Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
+  //   a_dot_x_prime =  SMALL;
 
-    xprime = xprime + diff*a2x/(a2+SMALL);
-    yprime = yprime + diff*a2y/(a2+SMALL);
-    zprime = zprime + diff*a2z/(a2+SMALL);
-  }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+  //   xprime = xprime + diff*a2x/(a2+SMALL);
+  //   yprime = yprime + diff*a2y/(a2+SMALL);
+  //   zprime = zprime + diff*a2z/(a2+SMALL);
+  // }
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-    Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
-    a_dot_x_prime =  -SMALL;
+  //   Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
+  //   a_dot_x_prime =  -SMALL;
 
-    xprime = xprime + diff*a2x/(a2+SMALL);
-    yprime = yprime + diff*a2y/(a2+SMALL);
-    zprime = zprime + diff*a2z/(a2+SMALL);
-  } 
+  //   xprime = xprime + diff*a2x/(a2+SMALL);
+  //   yprime = yprime + diff*a2y/(a2+SMALL);
+  //   zprime = zprime + diff*a2z/(a2+SMALL);
+  // } 
   
-  Real thprime,phiprime;
-  GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
+  // Real thprime,phiprime;
+  // GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
 
 /// prevent metric from getting nan sqrt(-gdet)
