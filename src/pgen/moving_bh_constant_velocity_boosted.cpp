@@ -2062,36 +2062,36 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
-  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-  //   Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
-  //   a_dot_x_prime =  SMALL;
+    Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
+    a_dot_x_prime =  SMALL;
 
-  //   xprime = xprime + diff*a2x/(a2+SMALL);
-  //   yprime = yprime + diff*a2y/(a2+SMALL);
-  //   zprime = zprime + diff*a2z/(a2+SMALL);
-  // }
-  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+    xprime = xprime + diff*a2x/(a2+SMALL);
+    yprime = yprime + diff*a2y/(a2+SMALL);
+    zprime = zprime + diff*a2z/(a2+SMALL);
+  }
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-  //   Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
-  //   a_dot_x_prime =  -SMALL;
+    Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
+    a_dot_x_prime =  -SMALL;
 
-  //   xprime = xprime + diff*a2x/(a2+SMALL);
-  //   yprime = yprime + diff*a2y/(a2+SMALL);
-  //   zprime = zprime + diff*a2z/(a2+SMALL);
-  // } 
+    xprime = xprime + diff*a2x/(a2+SMALL);
+    yprime = yprime + diff*a2y/(a2+SMALL);
+    zprime = zprime + diff*a2z/(a2+SMALL);
+  } 
   
-  // Real thprime,phiprime;
-  // GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
+  Real thprime,phiprime;
+  GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
 
 /// prevent metric from getting nan sqrt(-gdet)
 
-  // Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
-  // if (rprime < rhprime*0.8) {
-  //   rprime = rhprime*0.8;
-  //   convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
-  // }
+  Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
+  if (rprime < rhprime*0.8) {
+    rprime = rhprime*0.8;
+    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+  }
 
   a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
@@ -2155,17 +2155,28 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
 
-  // Set covariant components
-  g(I00) = eta[0]    + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
-  g(I01) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
-  g(I02) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
-  g(I03) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
-  g(I11) = eta[1]    + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
-  g(I12) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
-  g(I13) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
-  g(I22) = eta[2]    + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
-  g(I23) =             fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
-  g(I33) = eta[3]    + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
+  // // Set covariant components
+  // g(I00) = eta[0]    + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
+  // g(I01) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
+  // g(I02) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
+  // g(I03) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
+  // g(I11) = eta[1]    + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
+  // g(I12) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
+  // g(I13) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
+  // g(I22) = eta[2]    + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
+  // g(I23) =             fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
+  // g(I33) = eta[3]    + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
+
+  g(I00) = eta[0]    + fprime * l_lowerprime[0]*l_lowerprime[0];
+  g(I01) =             fprime * l_lowerprime[0]*l_lowerprime[1];
+  g(I02) =             fprime * l_lowerprime[0]*l_lowerprime[2];
+  g(I03) =             fprime * l_lowerprime[0]*l_lowerprime[3];
+  g(I11) = eta[1]    + fprime * l_lowerprime[1]*l_lowerprime[1];
+  g(I12) =             fprime * l_lowerprime[1]*l_lowerprime[2];
+  g(I13) =             fprime * l_lowerprime[1]*l_lowerprime[3];
+  g(I22) = eta[2]    + fprime * l_lowerprime[2]*l_lowerprime[2];
+  g(I23) =             fprime * l_lowerprime[2]*l_lowerprime[3];
+  g(I33) = eta[3]    + fprime * l_lowerprime[3]*l_lowerprime[3];
 
 
   Lambda.DeleteAthenaArray();
