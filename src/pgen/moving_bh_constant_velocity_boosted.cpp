@@ -2137,16 +2137,28 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   // This is the inverse transformation since l_mu is lowered.  This 
   // takes a lowered vector from BH frame to lab frame.   
-  Lambda(I00) =  Lorentz;
-  Lambda(I01) = -Lorentz * v2x;
-  Lambda(I02) = -Lorentz * v2y;
-  Lambda(I03) = -Lorentz * v2z;
-  Lambda(I11) = ( 1.0 + (Lorentz - 1.0) * nx * nx );
-  Lambda(I12) = (       (Lorentz - 1.0) * nx * ny ); 
-  Lambda(I13) = (       (Lorentz - 1.0) * nx * nz );
-  Lambda(I22) = ( 1.0 + (Lorentz - 1.0) * ny * ny ); 
-  Lambda(I23) = (       (Lorentz - 1.0) * ny * nz );
-  Lambda(I33) = ( 1.0 + (Lorentz - 1.0) * nz * nz );
+  // Lambda(I00) =  Lorentz;
+  // Lambda(I01) = -Lorentz * v2x;
+  // Lambda(I02) = -Lorentz * v2y;
+  // Lambda(I03) = -Lorentz * v2z;
+  // Lambda(I11) = ( 1.0 + (Lorentz - 1.0) * nx * nx );
+  // Lambda(I12) = (       (Lorentz - 1.0) * nx * ny ); 
+  // Lambda(I13) = (       (Lorentz - 1.0) * nx * nz );
+  // Lambda(I22) = ( 1.0 + (Lorentz - 1.0) * ny * ny ); 
+  // Lambda(I23) = (       (Lorentz - 1.0) * ny * nz );
+  // Lambda(I33) = ( 1.0 + (Lorentz - 1.0) * nz * nz );
+
+  Lambda(I00) =  1.0;
+  Lambda(I01) = 0.0;
+  Lambda(I02) = 0.0;
+  Lambda(I03) = 0.0;
+  Lambda(I11) = 1.0;
+  Lambda(I12) = 0.0; 
+  Lambda(I13) = 0.0;
+  Lambda(I22) = 1.0; 
+  Lambda(I23) = 0.0;
+  Lambda(I33) = 1.0;
+
 
 
 
@@ -2155,28 +2167,28 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
 
-  // // Set covariant components
-  // g(I00) = eta[0]    + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
-  // g(I01) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
-  // g(I02) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
-  // g(I03) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
-  // g(I11) = eta[1]    + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
-  // g(I12) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
-  // g(I13) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
-  // g(I22) = eta[2]    + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
-  // g(I23) =             fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
-  // g(I33) = eta[3]    + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
+  // Set covariant components
+  g(I00) = eta[0]    + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
+  g(I01) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
+  g(I02) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[2];
+  g(I03) =             fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[3];
+  g(I11) = eta[1]    + fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[1];
+  g(I12) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[2];
+  g(I13) =             fprime * l_lowerprime_transformed[1]*l_lowerprime_transformed[3];
+  g(I22) = eta[2]    + fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[2];
+  g(I23) =             fprime * l_lowerprime_transformed[2]*l_lowerprime_transformed[3];
+  g(I33) = eta[3]    + fprime * l_lowerprime_transformed[3]*l_lowerprime_transformed[3];
 
-  g(I00) = eta[0]    + fprime * l_lowerprime[0]*l_lowerprime[0];
-  g(I01) =             fprime * l_lowerprime[0]*l_lowerprime[1];
-  g(I02) =             fprime * l_lowerprime[0]*l_lowerprime[2];
-  g(I03) =             fprime * l_lowerprime[0]*l_lowerprime[3];
-  g(I11) = eta[1]    + fprime * l_lowerprime[1]*l_lowerprime[1];
-  g(I12) =             fprime * l_lowerprime[1]*l_lowerprime[2];
-  g(I13) =             fprime * l_lowerprime[1]*l_lowerprime[3];
-  g(I22) = eta[2]    + fprime * l_lowerprime[2]*l_lowerprime[2];
-  g(I23) =             fprime * l_lowerprime[2]*l_lowerprime[3];
-  g(I33) = eta[3]    + fprime * l_lowerprime[3]*l_lowerprime[3];
+  // g(I00) = eta[0]    + fprime * l_lowerprime[0]*l_lowerprime[0];
+  // g(I01) =             fprime * l_lowerprime[0]*l_lowerprime[1];
+  // g(I02) =             fprime * l_lowerprime[0]*l_lowerprime[2];
+  // g(I03) =             fprime * l_lowerprime[0]*l_lowerprime[3];
+  // g(I11) = eta[1]    + fprime * l_lowerprime[1]*l_lowerprime[1];
+  // g(I12) =             fprime * l_lowerprime[1]*l_lowerprime[2];
+  // g(I13) =             fprime * l_lowerprime[1]*l_lowerprime[3];
+  // g(I22) = eta[2]    + fprime * l_lowerprime[2]*l_lowerprime[2];
+  // g(I23) =             fprime * l_lowerprime[2]*l_lowerprime[3];
+  // g(I33) = eta[3]    + fprime * l_lowerprime[3]*l_lowerprime[3];
 
 
   Lambda.DeleteAthenaArray();
