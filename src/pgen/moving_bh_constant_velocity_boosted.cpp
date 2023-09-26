@@ -2148,17 +2148,29 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   // Lambda(I23) = (       (Lorentz - 1.0) * ny * nz );
   // Lambda(I33) = ( 1.0 + (Lorentz - 1.0) * nz * nz );
 
+  // Lambda(I00) =  Lorentz;
+  // Lambda(I01) = 0.0;
+  // Lambda(I02) = 0.0;
+  // Lambda(I03) = -Lorentz * v_bh2;
+  // Lambda(I11) = 1.0;
+  // Lambda(I12) = 0.0; 
+  // Lambda(I13) = 0.0;
+  // Lambda(I22) = 1.0; 
+  // Lambda(I23) = 0.0;
+  // Lambda(I33) = Lorentz;
+
+  Lorentz = std::sqrt(1.0/(1.0 - 0.9*0.9));
+
   Lambda(I00) =  Lorentz;
   Lambda(I01) = 0.0;
   Lambda(I02) = 0.0;
-  Lambda(I03) = -Lorentz * v_bh2;
+  Lambda(I03) = -Lorentz * 0.9;
   Lambda(I11) = 1.0;
   Lambda(I12) = 0.0; 
   Lambda(I13) = 0.0;
   Lambda(I22) = 1.0; 
   Lambda(I23) = 0.0;
   Lambda(I33) = Lorentz;
-
 
 
 
