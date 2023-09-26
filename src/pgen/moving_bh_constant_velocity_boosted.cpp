@@ -421,8 +421,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   // r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 11;
-  AllocateUserOutputVariables(N_user_vars);
+  // int N_user_vars = 11;
+  // AllocateUserOutputVariables(N_user_vars);
   AllocateRealUserMeshBlockDataField(2);
   ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+1+NGHOST);
   ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1+NGHOST);
@@ -668,15 +668,19 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real ut,ux,uy,uz,uu1,uu2,uu3;
 
         if (rprime>r_cut){
-            ut = std::sqrt(-1.0/denom);
+            // ut = std::sqrt(-1.0/denom);
 
-            ux = 0.0;
-            uy = 0.0;
-            uz = 0.0;
+            // ux = 0.0;
+            // uy = 0.0;
+            // uz = 0.0;
 
-            uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-            uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-            uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+            // uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+            // uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+            // uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
+          uu1 = 0.0;
+          uu2 = 0.0;
+          uu3 = 0.0;
          }
          else{
           uu1 = 0.0;
@@ -1000,39 +1004,39 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   return;
 }
 
-void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
-  // Prepare scratch arrays
-  AthenaArray<Real> &g = ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+// void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
+//   // Prepare scratch arrays
+//   AthenaArray<Real> &g = ruser_meshblock_data[0];
+//   AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
-  AthenaArray<Real> g_tmp;
-  g_tmp.NewAthenaArray(NMETRIC);
-  // Go through all cells
-  for (int k = ks; k <= ke; ++k) {
-    for (int j = js; j <= je; ++j) {
-      pcoord->CellMetric(k, j, is, ie, g, gi);
-      for (int i = is; i <= ie; ++i) {
-        // Calculate normal-frame Lorentz factor
-        user_out_var(0,k,j,i) = g(I00,i); 
-        user_out_var(1,k,j,i) = g(I01,i); 
-        user_out_var(2,k,j,i) = g(I02,i); 
-        user_out_var(3,k,j,i) = g(I03,i); 
-        user_out_var(4,k,j,i) = g(I11,i); 
-        user_out_var(5,k,j,i) = g(I12,i); 
-        user_out_var(6,k,j,i) = g(I13,i); 
-        user_out_var(7,k,j,i) = g(I22,i); 
-        user_out_var(8,k,j,i) = g(I23,i); 
-        user_out_var(9,k,j,i) = g(I33,i); 
+//   AthenaArray<Real> g_tmp;
+//   g_tmp.NewAthenaArray(NMETRIC);
+//   // Go through all cells
+//   for (int k = ks; k <= ke; ++k) {
+//     for (int j = js; j <= je; ++j) {
+//       pcoord->CellMetric(k, j, is, ie, g, gi);
+//       for (int i = is; i <= ie; ++i) {
+//         // Calculate normal-frame Lorentz factor
+//         user_out_var(0,k,j,i) = g(I00,i); 
+//         user_out_var(1,k,j,i) = g(I01,i); 
+//         user_out_var(2,k,j,i) = g(I02,i); 
+//         user_out_var(3,k,j,i) = g(I03,i); 
+//         user_out_var(4,k,j,i) = g(I11,i); 
+//         user_out_var(5,k,j,i) = g(I12,i); 
+//         user_out_var(6,k,j,i) = g(I13,i); 
+//         user_out_var(7,k,j,i) = g(I22,i); 
+//         user_out_var(8,k,j,i) = g(I23,i); 
+//         user_out_var(9,k,j,i) = g(I33,i); 
 
-        for (int n=0; n<NMETRIC; ++n) g_tmp(n) = g(n,i);
-        user_out_var(10,k,j,i) = Determinant(g_tmp);
-      }
-    }
-  }
+//         for (int n=0; n<NMETRIC; ++n) g_tmp(n) = g(n,i);
+//         user_out_var(10,k,j,i) = Determinant(g_tmp);
+//       }
+//     }
+//   }
 
-  g_tmp.DeleteAthenaArray();
-  return;
-}
+//   g_tmp.DeleteAthenaArray();
+//   return;
+// }
 
 
 
