@@ -421,12 +421,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   // r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 7;
-  if (MAGNETIC_FIELDS_ENABLED) {
-    AllocateUserOutputVariables(N_user_vars);
-  } else {
-    AllocateUserOutputVariables(N_user_vars);
-  }
+  int N_user_vars = 11;
+  AllocateUserOutputVariables(N_user_vars);
   AllocateRealUserMeshBlockDataField(2);
   ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+1+NGHOST);
   ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1+NGHOST);
@@ -1003,6 +999,41 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   orbit_quantities.DeleteAthenaArray();
   return;
 }
+
+void MeshBlock::UserWorkBeforeOutput(ParameterInput *pin) {
+  // Prepare scratch arrays
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+
+  AthenaArray<Real> g_tmp;
+  g_tmp.NewAthenaArray(NMETRIC);
+  // Go through all cells
+  for (int k = ks; k <= ke; ++k) {
+    for (int j = js; j <= je; ++j) {
+      pcoord->CellMetric(k, j, is, ie, g, gi);
+      for (int i = is; i <= ie; ++i) {
+        // Calculate normal-frame Lorentz factor
+        user_out_var(0,k,j,i) = g(I00,i); 
+        user_out_var(1,k,j,i) = g(I01,i); 
+        user_out_var(2,k,j,i) = g(I02,i); 
+        user_out_var(3,k,j,i) = g(I03,i); 
+        user_out_var(4,k,j,i) = g(I11,i); 
+        user_out_var(5,k,j,i) = g(I12,i); 
+        user_out_var(6,k,j,i) = g(I13,i); 
+        user_out_var(7,k,j,i) = g(I22,i); 
+        user_out_var(8,k,j,i) = g(I23,i); 
+        user_out_var(9,k,j,i) = g(I33,i); 
+
+        for (int n=0; n<NMETRIC; ++n) g_tmp(n) = g(n,i);
+        user_out_var(10,k,j,i) = Determinant(g_tmp);
+      }
+    }
+  }
+
+  g_tmp.DeleteAthenaArray();
+  return;
+}
+
 
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
@@ -2159,12 +2190,10 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   // Lambda(I23) = 0.0;
   // Lambda(I33) = Lorentz;
 
-  Lorentz = std::sqrt(1.0/(1.0 - 0.9*0.9));
-
   Lambda(I00) =  Lorentz;
   Lambda(I01) = 0.0;
   Lambda(I02) = 0.0;
-  Lambda(I03) = -Lorentz * 0.9;
+  Lambda(I03) = -Lorentz * v_bh2;
   Lambda(I11) = 1.0;
   Lambda(I12) = 0.0; 
   Lambda(I13) = 0.0;
