@@ -254,10 +254,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
   rho0 = 1.0;
-  press0 = 1e-3;
+  press0 = 5.0 ;
   r_cut = 5.0;
   q = 1.0;
-  if (MAGNETIC_FIELDS_ENABLED) field_norm =  std::sqrt(1.0/5000.0); //pin->GetReal("problem", "field_norm");
+  if (MAGNETIC_FIELDS_ENABLED) field_norm =  std::sqrt(1.0/5000.0) * std::sqrt(press0/1e-3); //pin->GetReal("problem", "field_norm");
 
   // Read problem-specific parameters from input file
   rho_min = pin->GetReal("hydro", "rho_min");
