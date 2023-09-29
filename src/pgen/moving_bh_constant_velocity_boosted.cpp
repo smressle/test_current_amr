@@ -682,7 +682,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Real uyprime = 0.0;
             Real uzprime = -v_bh2 * utprime;
 
-            Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+            Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
             ut = Lorentz * (utprime + v_bh2 * uzprime);
             ux = uxprime;
             uy = uyprime;
