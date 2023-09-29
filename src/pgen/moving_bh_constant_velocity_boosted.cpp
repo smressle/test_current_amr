@@ -665,18 +665,35 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
+       fprime = 2.0 / (rprime);
+       Real g00_prime = -1.0 + fprime;
+
+       Real g33_prime = 1.0 + fprime * SQR(zprime/rprime);
+       Real g03_prime = fprime * (zprime/rprime);
+       Real denom_prime = g00_prime + g33_prime*SQR(v_bh2) - 2.0*v_bh2*g03_prime;
+
         Real ut,ux,uy,uz,uu1,uu2,uu3;
 
         if (rprime>r_cut){
             // ut = std::sqrt(-1.0/denom);
 
+            Real utprime = std::sqrt(-1.0/denom_prime);
+            Real uxprime = 0.0;
+            Real uyprime = 0.0;
+            Real uzprime = -v_bh2 * utprime;
+
+            ut = Lorentz * (utprime + v_bh2 * uzprime);
+            ux = uxprime;
+            uy = uyprime;
+            uz = Lorentz * (uzprime + v_bh2 * utprime);
+
             // ux = 0.0;
             // uy = 0.0;
             // uz = 0.0;
 
-            // uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
-            // uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
-            // uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+            uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+            uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+            uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
           uu1 = 0.0;
           uu2 = 0.0;
@@ -1057,7 +1074,7 @@ void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
 
       orbit_quantities(IX2) = 0.0;
       orbit_quantities(IY2) = 0.0;
-      orbit_quantities(IZ2) = v_bh2 * (t) - 80.0;
+      orbit_quantities(IZ2) = v_bh2 * (t) - 380.0;
 
       orbit_quantities(IA1X) = 0.0;
       orbit_quantities(IA1Y) = 0.0;

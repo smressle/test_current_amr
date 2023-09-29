@@ -228,9 +228,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // Read problem-specific parameters from input file
 
   rho0 = 1.0;
-  press0 = 1e-3;
+  press0 = 5.0; //1e-3;
   r_cut = 5.0;
-  if (MAGNETIC_FIELDS_ENABLED) field_norm =  std::sqrt(1.0/5000.0); //pin->GetReal("problem", "field_norm");
+  if (MAGNETIC_FIELDS_ENABLED) field_norm =  std::sqrt(1.0/5000.0)* std::sqrt(press0/1e-3); //pin->GetReal("problem", "field_norm");
 
   rho_min = pin->GetReal("hydro", "rho_min");
   rho_pow = pin->GetReal("hydro", "rho_pow");
@@ -637,11 +637,26 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
             uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
 
+            // uz = Gammma (uzprime - v_bh2 * utprime0)
+
+            // ut = Gamma (utprime - v_bh1 * uzprime)
+
             // Real uu1 = ux_cks + gi(I01,i)/std::abs(gi(I00,i)) * ut_cks ; // ut = gamma/alpha = sqrt(-gitt)
             // Real uu2 = uy_cks + gi(I02,i)/std::abs(gi(I00,i)) * ut_cks ;
             // Real uu3 = uz_cks + gi(I03,i)/std::abs(gi(I00,i)) * ut_cks ;
          }
          else{
+
+          ut = std::sqrt(-1.0/denom);
+
+          ux = 0.0;
+          uy = 0.0;
+          uz = -v_bh2 * ut;
+
+          uu1 = ux - gi(I01,i) / gi(I00,i) * ut;
+          uu2 = uy - gi(I02,i) / gi(I00,i) * ut;
+          uu3 = uz - gi(I03,i) / gi(I00,i) * ut;
+
           uu1 = 0.0;
           uu2 = 0.0;
           uu3 = 0.0;
@@ -2203,7 +2218,7 @@ void cks_metric(Real x1, Real x2, Real x3,AthenaArray<Real> &g){
   if (std::fabs(z)<SMALL) z= SMALL;
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x=  0.1;
+    x = 0.1;
     y = 0.1;
     z = 0.1;
   }
