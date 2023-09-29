@@ -665,7 +665,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         get_prime_coords(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
-       fprime = 2.0 / (rprime);
+       Real fprime = 2.0 / (rprime);
        Real g00_prime = -1.0 + fprime;
 
        Real g33_prime = 1.0 + fprime * SQR(zprime/rprime);
@@ -682,6 +682,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Real uyprime = 0.0;
             Real uzprime = -v_bh2 * utprime;
 
+            Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
             ut = Lorentz * (utprime + v_bh2 * uzprime);
             ux = uxprime;
             uy = uyprime;
