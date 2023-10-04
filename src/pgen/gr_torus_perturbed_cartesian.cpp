@@ -113,7 +113,7 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray
 
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
 
 void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
@@ -3011,25 +3011,6 @@ void get_bh_acceleration(Real t, Real *axbh, Real *aybh, Real *azbh){
 
 }
 
-void get_primary_spin(Real t, Real *ax, Real *ay, Real *az, Real *a){
-  *ax = 0.0;
-  *ay = 0.0;
-  *az = 0.0;
-
-  *a = np.sqrt( SQR(*ax) + SQR(*ay) + SQR(*az) );
-  return;
-}
-
-void get_secondary_spin(Real t, Real *ax, Real *ay, Real *az, Real *a){
-  *ax = 0.0;
-  *ay = 0.0;
-  *az = 0.0;
-
-  *a = np.sqrt( SQR(*ax) + SQR(*ay) + SQR(*az) );
-  return;
-}
-
-
 void get_prime_coords(Real x, Real y, Real z, Real t, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
 
   Real xbh,ybh,zbh;
@@ -3420,7 +3401,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
   r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
   t0 = pin->GetOrAddReal("problem","t0", 1e4);
 
-  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt);
+  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
   return;
 
@@ -3429,7 +3410,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 #define DEL 1e-7
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
-    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt)
+    AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt,bool take_derivatives)
 {
 
 
@@ -3686,428 +3667,435 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   }
 
 
-  //Compute derivatives of primary BH
-
-  Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
-  Real rsq_p_asq = SQR(r) + SQR(a);
-
-  Real df_dx1 = SQR(f)*x/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real df_dx2 = SQR(f)*y/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
-  Real df_dx3 = SQR(f)*z/(2.0*std::pow(r,5)) * ( ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(a*r)) ;
-  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  Real dl1_dx1 = x*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  Real dl1_dx2 = y*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ a_spin/( rsq_p_asq );
-  Real dl1_dx3 = z/r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  Real dl2_dx1 = x*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - a_spin/( rsq_p_asq );
-  Real dl2_dx2 = y*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
-  Real dl2_dx3 = z/r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( (rsq_p_asq) * ( sqrt_term ) );
-  Real dl3_dx1 = - x*z/(r) /( sqrt_term );
-  Real dl3_dx2 = - y*z/(r) /( sqrt_term );
-  Real dl3_dx3 = - SQR(z)/(SQR(r)*r) * ( rsq_p_asq )/( sqrt_term ) + 1.0/r;
-
-  Real dl0_dx1 = 0.0;
-  Real dl0_dx2 = 0.0;
-  Real dl0_dx3 = 0.0;
-
-  if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
-    fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
-    exit(0);
-  }
-
-
-
-
-
-  //expressioons for a = 0
-
-  // f = 2.0/R;
-  // l_lower[1] = x/R;
-  // l_lower[2] = y/R;
-  // l_lower[3] = z/R;
-  // df_dx1 = -2.0 * x/SQR(R)/R;
-  // df_dx2 = -2.0 * y/SQR(R)/R;
-  // df_dx3 = -2.0 * z/SQR(R)/R;
-
-  // dl1_dx1 = -SQR(x)/SQR(R)/R + 1.0/R;
-  // dl1_dx2 = -x*y/SQR(R)/R; 
-  // dl1_dx3 = -x*z/SQR(R)/R;
-
-  // dl2_dx1 = -x*y/SQR(R)/R;
-  // dl2_dx2 = -SQR(y)/SQR(R)/R + 1.0/R;
-  // dl2_dx3 = -y*z/SQR(R)/R;
-
-  // dl3_dx1 = -x*z/SQR(R)/R;
-  // dl3_dx2 = -y*z/SQR(R)/R;
-  // dl3_dx3 = -SQR(z)/SQR(R)/R;
-
-
-
-  // // Set x-derivatives of covariant components
-  dg_dx1(I00) = df_dx1*l_lower[0]*l_lower[0] + f * dl0_dx1 * l_lower[0] + f * l_lower[0] * dl0_dx1;
-  dg_dx1(I01) = df_dx1*l_lower[0]*l_lower[1] + f * dl0_dx1 * l_lower[1] + f * l_lower[0] * dl1_dx1;
-  dg_dx1(I02) = df_dx1*l_lower[0]*l_lower[2] + f * dl0_dx1 * l_lower[2] + f * l_lower[0] * dl2_dx1;
-  dg_dx1(I03) = df_dx1*l_lower[0]*l_lower[3] + f * dl0_dx1 * l_lower[3] + f * l_lower[0] * dl3_dx1;
-  dg_dx1(I11) = df_dx1*l_lower[1]*l_lower[1] + f * dl1_dx1 * l_lower[1] + f * l_lower[1] * dl1_dx1;
-  dg_dx1(I12) = df_dx1*l_lower[1]*l_lower[2] + f * dl1_dx1 * l_lower[2] + f * l_lower[1] * dl2_dx1;
-  dg_dx1(I13) = df_dx1*l_lower[1]*l_lower[3] + f * dl1_dx1 * l_lower[3] + f * l_lower[1] * dl3_dx1;
-  dg_dx1(I22) = df_dx1*l_lower[2]*l_lower[2] + f * dl2_dx1 * l_lower[2] + f * l_lower[2] * dl2_dx1;
-  dg_dx1(I23) = df_dx1*l_lower[2]*l_lower[3] + f * dl2_dx1 * l_lower[3] + f * l_lower[2] * dl3_dx1;
-  dg_dx1(I33) = df_dx1*l_lower[3]*l_lower[3] + f * dl3_dx1 * l_lower[3] + f * l_lower[3] * dl3_dx1;
-
-  // Set y-derivatives of covariant components
-  dg_dx2(I00) = df_dx2*l_lower[0]*l_lower[0] + f * dl0_dx2 * l_lower[0] + f * l_lower[0] * dl0_dx2;
-  dg_dx2(I01) = df_dx2*l_lower[0]*l_lower[1] + f * dl0_dx2 * l_lower[1] + f * l_lower[0] * dl1_dx2;
-  dg_dx2(I02) = df_dx2*l_lower[0]*l_lower[2] + f * dl0_dx2 * l_lower[2] + f * l_lower[0] * dl2_dx2;
-  dg_dx2(I03) = df_dx2*l_lower[0]*l_lower[3] + f * dl0_dx2 * l_lower[3] + f * l_lower[0] * dl3_dx2;
-  dg_dx2(I11) = df_dx2*l_lower[1]*l_lower[1] + f * dl1_dx2 * l_lower[1] + f * l_lower[1] * dl1_dx2;
-  dg_dx2(I12) = df_dx2*l_lower[1]*l_lower[2] + f * dl1_dx2 * l_lower[2] + f * l_lower[1] * dl2_dx2;
-  dg_dx2(I13) = df_dx2*l_lower[1]*l_lower[3] + f * dl1_dx2 * l_lower[3] + f * l_lower[1] * dl3_dx2;
-  dg_dx2(I22) = df_dx2*l_lower[2]*l_lower[2] + f * dl2_dx2 * l_lower[2] + f * l_lower[2] * dl2_dx2;
-  dg_dx2(I23) = df_dx2*l_lower[2]*l_lower[3] + f * dl2_dx2 * l_lower[3] + f * l_lower[2] * dl3_dx2;
-  dg_dx2(I33) = df_dx2*l_lower[3]*l_lower[3] + f * dl3_dx2 * l_lower[3] + f * l_lower[3] * dl3_dx2;
-
-  // Set z-derivatives of covariant components
-  dg_dx3(I00) = df_dx3*l_lower[0]*l_lower[0] + f * dl0_dx3 * l_lower[0] + f * l_lower[0] * dl0_dx3;
-  dg_dx3(I01) = df_dx3*l_lower[0]*l_lower[1] + f * dl0_dx3 * l_lower[1] + f * l_lower[0] * dl1_dx3;
-  dg_dx3(I02) = df_dx3*l_lower[0]*l_lower[2] + f * dl0_dx3 * l_lower[2] + f * l_lower[0] * dl2_dx3;
-  dg_dx3(I03) = df_dx3*l_lower[0]*l_lower[3] + f * dl0_dx3 * l_lower[3] + f * l_lower[0] * dl3_dx3;
-  dg_dx3(I11) = df_dx3*l_lower[1]*l_lower[1] + f * dl1_dx3 * l_lower[1] + f * l_lower[1] * dl1_dx3;
-  dg_dx3(I12) = df_dx3*l_lower[1]*l_lower[2] + f * dl1_dx3 * l_lower[2] + f * l_lower[1] * dl2_dx3;
-  dg_dx3(I13) = df_dx3*l_lower[1]*l_lower[3] + f * dl1_dx3 * l_lower[3] + f * l_lower[1] * dl3_dx3;
-  dg_dx3(I22) = df_dx3*l_lower[2]*l_lower[2] + f * dl2_dx3 * l_lower[2] + f * l_lower[2] * dl2_dx3;
-  dg_dx3(I23) = df_dx3*l_lower[2]*l_lower[3] + f * dl2_dx3 * l_lower[3] + f * l_lower[2] * dl3_dx3;
-  dg_dx3(I33) = df_dx3*l_lower[3]*l_lower[3] + f * dl3_dx3 * l_lower[3] + f * l_lower[3] * dl3_dx3;
-
 
+  if (take_derivatives){
+
 
-/////Secondary Black hole/////
 
+      //Compute derivatives of primary BH
 
-  //these are derivatives with respect to xprime (or X Y Z)
-  //lab frame is x y z
-  //be careful with difference between X and x, Y and y, Z and z
-  //Note that these derivative are of l_mu pre boost
-  Real dlprime_dX1[4], dlprime_dX2[4], dlprime_dX3[4];
+      Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
+      Real rsq_p_asq = SQR(r) + SQR(a);
+
+      Real df_dx1 = SQR(f)*x/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
+      //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
+      Real df_dx2 = SQR(f)*y/(2.0*std::pow(r,3)) * ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) )/ sqrt_term ;
+      Real df_dx3 = SQR(f)*z/(2.0*std::pow(r,5)) * ( ( ( 3.0*SQR(a*z)-SQR(r)*SQR(r) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(a*r)) ;
+      //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
+      Real dl1_dx1 = x*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
+      // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
+      Real dl1_dx2 = y*r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ a_spin/( rsq_p_asq );
+      Real dl1_dx3 = z/r * ( SQR(a)*x - 2.0*a_spin*r*y - SQR(r)*x )/( (rsq_p_asq) * ( sqrt_term ) ) ;
+      Real dl2_dx1 = x*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - a_spin/( rsq_p_asq );
+      Real dl2_dx2 = y*r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + r/( rsq_p_asq );
+      Real dl2_dx3 = z/r * ( SQR(a)*y + 2.0*a_spin*r*x - SQR(r)*y )/( (rsq_p_asq) * ( sqrt_term ) );
+      Real dl3_dx1 = - x*z/(r) /( sqrt_term );
+      Real dl3_dx2 = - y*z/(r) /( sqrt_term );
+      Real dl3_dx3 = - SQR(z)/(SQR(r)*r) * ( rsq_p_asq )/( sqrt_term ) + 1.0/r;
 
+      Real dl0_dx1 = 0.0;
+      Real dl0_dx2 = 0.0;
+      Real dl0_dx3 = 0.0;
+
+      if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
+        fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
+        exit(0);
+      }
+
+
+
+
+
+      //expressioons for a = 0
+
+      // f = 2.0/R;
+      // l_lower[1] = x/R;
+      // l_lower[2] = y/R;
+      // l_lower[3] = z/R;
+      // df_dx1 = -2.0 * x/SQR(R)/R;
+      // df_dx2 = -2.0 * y/SQR(R)/R;
+      // df_dx3 = -2.0 * z/SQR(R)/R;
 
-  sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
-  rsq_p_asq = SQR(rprime) + SQR(aprime);
+      // dl1_dx1 = -SQR(x)/SQR(R)/R + 1.0/R;
+      // dl1_dx2 = -x*y/SQR(R)/R; 
+      // dl1_dx3 = -x*z/SQR(R)/R;
 
-  Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
+      // dl2_dx1 = -x*y/SQR(R)/R;
+      // dl2_dx2 = -SQR(y)/SQR(R)/R + 1.0/R;
+      // dl2_dx3 = -y*z/SQR(R)/R;
 
+      // dl3_dx1 = -x*z/SQR(R)/R;
+      // dl3_dx2 = -y*z/SQR(R)/R;
+      // dl3_dx3 = -SQR(z)/SQR(R)/R;
 
-  Real dfprime_dX1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
-                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
-  Real dfprime_dX2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
-                      ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
-  Real dfprime_dX3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
-                      ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
-  //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
-  dlprime_dX1[1] = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
-  // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
-  dlprime_dX2[1] = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
-  dlprime_dX3[1] = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
-  dlprime_dX1[2] = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
-  dlprime_dX2[2] = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
-  dlprime_dX3[2] = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
-  dlprime_dX1[3] = - xprime*zprime/(rprime) /( sqrt_term );
-  dlprime_dX2[3] = - yprime*zprime/(rprime) /( sqrt_term );
-  dlprime_dX3[3] = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
 
 
-  dlprime_dX1[0] = 0.0;
-  dlprime_dX2[0] = 0.0;
-  dlprime_dX3[0] = 0.0;
+      // // Set x-derivatives of covariant components
+      dg_dx1(I00) = df_dx1*l_lower[0]*l_lower[0] + f * dl0_dx1 * l_lower[0] + f * l_lower[0] * dl0_dx1;
+      dg_dx1(I01) = df_dx1*l_lower[0]*l_lower[1] + f * dl0_dx1 * l_lower[1] + f * l_lower[0] * dl1_dx1;
+      dg_dx1(I02) = df_dx1*l_lower[0]*l_lower[2] + f * dl0_dx1 * l_lower[2] + f * l_lower[0] * dl2_dx1;
+      dg_dx1(I03) = df_dx1*l_lower[0]*l_lower[3] + f * dl0_dx1 * l_lower[3] + f * l_lower[0] * dl3_dx1;
+      dg_dx1(I11) = df_dx1*l_lower[1]*l_lower[1] + f * dl1_dx1 * l_lower[1] + f * l_lower[1] * dl1_dx1;
+      dg_dx1(I12) = df_dx1*l_lower[1]*l_lower[2] + f * dl1_dx1 * l_lower[2] + f * l_lower[1] * dl2_dx1;
+      dg_dx1(I13) = df_dx1*l_lower[1]*l_lower[3] + f * dl1_dx1 * l_lower[3] + f * l_lower[1] * dl3_dx1;
+      dg_dx1(I22) = df_dx1*l_lower[2]*l_lower[2] + f * dl2_dx1 * l_lower[2] + f * l_lower[2] * dl2_dx1;
+      dg_dx1(I23) = df_dx1*l_lower[2]*l_lower[3] + f * dl2_dx1 * l_lower[3] + f * l_lower[2] * dl3_dx1;
+      dg_dx1(I33) = df_dx1*l_lower[3]*l_lower[3] + f * dl3_dx1 * l_lower[3] + f * l_lower[3] * dl3_dx1;
 
+      // Set y-derivatives of covariant components
+      dg_dx2(I00) = df_dx2*l_lower[0]*l_lower[0] + f * dl0_dx2 * l_lower[0] + f * l_lower[0] * dl0_dx2;
+      dg_dx2(I01) = df_dx2*l_lower[0]*l_lower[1] + f * dl0_dx2 * l_lower[1] + f * l_lower[0] * dl1_dx2;
+      dg_dx2(I02) = df_dx2*l_lower[0]*l_lower[2] + f * dl0_dx2 * l_lower[2] + f * l_lower[0] * dl2_dx2;
+      dg_dx2(I03) = df_dx2*l_lower[0]*l_lower[3] + f * dl0_dx2 * l_lower[3] + f * l_lower[0] * dl3_dx2;
+      dg_dx2(I11) = df_dx2*l_lower[1]*l_lower[1] + f * dl1_dx2 * l_lower[1] + f * l_lower[1] * dl1_dx2;
+      dg_dx2(I12) = df_dx2*l_lower[1]*l_lower[2] + f * dl1_dx2 * l_lower[2] + f * l_lower[1] * dl2_dx2;
+      dg_dx2(I13) = df_dx2*l_lower[1]*l_lower[3] + f * dl1_dx2 * l_lower[3] + f * l_lower[1] * dl3_dx2;
+      dg_dx2(I22) = df_dx2*l_lower[2]*l_lower[2] + f * dl2_dx2 * l_lower[2] + f * l_lower[2] * dl2_dx2;
+      dg_dx2(I23) = df_dx2*l_lower[2]*l_lower[3] + f * dl2_dx2 * l_lower[3] + f * l_lower[2] * dl3_dx2;
+      dg_dx2(I33) = df_dx2*l_lower[3]*l_lower[3] + f * dl3_dx2 * l_lower[3] + f * l_lower[3] * dl3_dx2;
 
-  //Coordinate dependence vectors.  Should be the same as Lambda but 
-  //being explicit to be safe
-  Real dX1_dx1 = 1.0 + (Lorentz-1.0)*nx*nx ;
-  Real dX1_dx2 =       (Lorentz-1.0)*nx*ny ;
-  Real dX1_dx3 =       (Lorentz-1.0)*nx*nz ;
+      // Set z-derivatives of covariant components
+      dg_dx3(I00) = df_dx3*l_lower[0]*l_lower[0] + f * dl0_dx3 * l_lower[0] + f * l_lower[0] * dl0_dx3;
+      dg_dx3(I01) = df_dx3*l_lower[0]*l_lower[1] + f * dl0_dx3 * l_lower[1] + f * l_lower[0] * dl1_dx3;
+      dg_dx3(I02) = df_dx3*l_lower[0]*l_lower[2] + f * dl0_dx3 * l_lower[2] + f * l_lower[0] * dl2_dx3;
+      dg_dx3(I03) = df_dx3*l_lower[0]*l_lower[3] + f * dl0_dx3 * l_lower[3] + f * l_lower[0] * dl3_dx3;
+      dg_dx3(I11) = df_dx3*l_lower[1]*l_lower[1] + f * dl1_dx3 * l_lower[1] + f * l_lower[1] * dl1_dx3;
+      dg_dx3(I12) = df_dx3*l_lower[1]*l_lower[2] + f * dl1_dx3 * l_lower[2] + f * l_lower[1] * dl2_dx3;
+      dg_dx3(I13) = df_dx3*l_lower[1]*l_lower[3] + f * dl1_dx3 * l_lower[3] + f * l_lower[1] * dl3_dx3;
+      dg_dx3(I22) = df_dx3*l_lower[2]*l_lower[2] + f * dl2_dx3 * l_lower[2] + f * l_lower[2] * dl2_dx3;
+      dg_dx3(I23) = df_dx3*l_lower[2]*l_lower[3] + f * dl2_dx3 * l_lower[3] + f * l_lower[2] * dl3_dx3;
+      dg_dx3(I33) = df_dx3*l_lower[3]*l_lower[3] + f * dl3_dx3 * l_lower[3] + f * l_lower[3] * dl3_dx3;
 
-  Real dX2_dx1 =       (Lorentz-1.0)*ny*nx ;
-  Real dX2_dx2 = 1.0 + (Lorentz-1.0)*ny*ny ;  
-  Real dX2_dx3 =       (Lorentz-1.0)*ny*nz ;
 
-  Real dX3_dx1 =       (Lorentz-1.0)*nz*nx ;
-  Real dX3_dx2 =       (Lorentz-1.0)*nz*ny ;  
-  Real dX3_dx3 = 1.0 + (Lorentz-1.0)*nz*nz ;
 
+    /////Secondary Black hole/////
 
-  //derivatives of boosted vectors
-  Real dlprime_dX1_transformed[4], dlprime_dX2_transformed[4], dlprime_dX3_transformed[4];
 
+      //these are derivatives with respect to xprime (or X Y Z)
+      //lab frame is x y z
+      //be careful with difference between X and x, Y and y, Z and z
+      //Note that these derivative are of l_mu pre boost
+      Real dlprime_dX1[4], dlprime_dX2[4], dlprime_dX3[4];
 
-  // dlprime_dx1[1] = dl1prime_dX1 * dX1_dx1 + dl1prime_dX2 * dX2_dx1 + dl1prime_dX3 * dX3_dx1;
-  // dlprime_dx2[1] = dl1prime_dX1 * dX1_dx2 + dl1prime_dX2 * dX2_dx2 + dl1prime_dX3 * dX3_dx2;
-  // dlprime_dx3[1] = dl1prime_dX1 * dX1_dx3 + dl1prime_dX2 * dX2_dx3 + dl1prime_dX3 * dX3_dx3;
-  
-  // dlprime_dx1[2] = dl2prime_dX1 * dX1_dx1 + dl2prime_dX2 * dX2_dx1 + dl2prime_dX3 * dX3_dx1;
-  // dlprime_dx2[2] = dl2prime_dX1 * dX1_dx2 + dl2prime_dX2 * dX2_dx2 + dl2prime_dX3 * dX3_dx2;
-  // dlprime_dx3[2] = dl2prime_dX1 * dX1_dx3 + dl2prime_dX2 * dX2_dx3 + dl2prime_dX3 * dX3_dx3;
 
-  // dlprime_dx1[3] = dl3prime_dX1 * dX1_dx1 + dl3prime_dX2 * dX2_dx1 + dl3prime_dX3 * dX3_dx1;
-  // dlprime_dx2[3] = dl3prime_dX1 * dX1_dx2 + dl3prime_dX2 * dX2_dx2 + dl3prime_dX3 * dX3_dx2;
-  // dlprime_dx3[3] = dl3prime_dX1 * dX1_dx3 + dl3prime_dX2 * dX2_dx3 + dl3prime_dX3 * dX3_dx3;
+      sqrt_term =  2.0*SQR(rprime)-SQR(Rprime) + SQR(aprime);
+      rsq_p_asq = SQR(rprime) + SQR(aprime);
 
+      Real fprime_over_q = 2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(aprime)*SQR(zprime));
 
 
+      Real dfprime_dX1 = q * SQR(fprime_over_q)*xprime/(2.0*std::pow(rprime,3)) * 
+                          ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
+      //4 x/r^2 1/(2r^3) * -r^4/r^2 = 2 x / r^3
+      Real dfprime_dX2 = q * SQR(fprime_over_q)*yprime/(2.0*std::pow(rprime,3)) * 
+                          ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) )/ sqrt_term ;
+      Real dfprime_dX3 = q * SQR(fprime_over_q)*zprime/(2.0*std::pow(rprime,5)) * 
+                          ( ( ( 3.0*SQR(aprime*zprime)-SQR(rprime)*SQR(rprime) ) * ( rsq_p_asq ) )/ sqrt_term - 2.0*SQR(aprime*rprime)) ;
+      //4 z/r^2 * 1/2r^5 * -r^4*r^2 / r^2 = -2 z/r^3
+      dlprime_dX1[1] = xprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+      // x r *(-r^2 x)/(r^6) + 1/r = -x^2/r^3 + 1/r
+      dlprime_dX2[1] = yprime*rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( SQR(rsq_p_asq) * ( sqrt_term ) )+ aprime/( rsq_p_asq );
+      dlprime_dX3[1] = zprime/rprime * ( SQR(aprime)*xprime - 2.0*aprime*rprime*yprime - SQR(rprime)*xprime )/( (rsq_p_asq) * ( sqrt_term ) ) ;
+      dlprime_dX1[2] = xprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) - aprime/( rsq_p_asq );
+      dlprime_dX2[2] = yprime*rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( SQR(rsq_p_asq) * ( sqrt_term ) ) + rprime/( rsq_p_asq );
+      dlprime_dX3[2] = zprime/rprime * ( SQR(aprime)*yprime + 2.0*aprime*rprime*xprime - SQR(rprime)*yprime )/( (rsq_p_asq) * ( sqrt_term ) );
+      dlprime_dX1[3] = - xprime*zprime/(rprime) /( sqrt_term );
+      dlprime_dX2[3] = - yprime*zprime/(rprime) /( sqrt_term );
+      dlprime_dX3[3] = - SQR(zprime)/(SQR(rprime)*rprime) * ( rsq_p_asq )/( sqrt_term ) + 1.0/rprime;
 
-  //Boost spatial derivative vectors
-  //Can do this because Lambda doesn't depend on spatial coordinates
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX1_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,dlprime_dX2_transformed);
-  matrix_multiply_vector_lefthandside(Lambda,dlprime_dX3,dlprime_dX3_transformed);
 
-  // Real dl0_dx1_tmp = dl0prime_dx1;
-  // Real dl0_dx2_tmp = dl0prime_dx2;
-  // Real dl0_dx3_tmp = dl0prime_dx3;
+      dlprime_dX1[0] = 0.0;
+      dlprime_dX2[0] = 0.0;
+      dlprime_dX3[0] = 0.0;
 
-  // Real dl1_dx1_tmp = dl1prime_dx1;
-  // Real dl1_dx2_tmp = dl1prime_dx2;
-  // Real dl1_dx3_tmp = dl1prime_dx3;
 
-  // Real dl2_dx1_tmp = dl2prime_dx1;
-  // Real dl2_dx2_tmp = dl2prime_dx2;
-  // Real dl2_dx3_tmp = dl2prime_dx3;
+      //Coordinate dependence vectors.  Should be the same as Lambda but 
+      //being explicit to be safe
+      Real dX1_dx1 = 1.0 + (Lorentz-1.0)*nx*nx ;
+      Real dX1_dx2 =       (Lorentz-1.0)*nx*ny ;
+      Real dX1_dx3 =       (Lorentz-1.0)*nx*nz ;
 
-  // Real dl3_dx1_tmp = dl3prime_dx1;
-  // Real dl3_dx2_tmp = dl3prime_dx2;
-  // Real dl3_dx3_tmp = dl3prime_dx3;
+      Real dX2_dx1 =       (Lorentz-1.0)*ny*nx ;
+      Real dX2_dx2 = 1.0 + (Lorentz-1.0)*ny*ny ;  
+      Real dX2_dx3 =       (Lorentz-1.0)*ny*nz ;
 
-
-
-
-
-  // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
-  // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
-  // l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
-  // l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
-
-
-  // BoostLowerVector(dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1,
-  //                  dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1);
-  // BoostLowerVector(dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2,
-  //                  dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2);
-  // BoostLowerVector(dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3,
-  //                  dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3);
-
-
-  // dl0prime_dx1 = (dl0_dx1_tmp - dx_bh2_dt * dl1_dx1_tmp - dy_bh2_dt * dl2_dx1_tmp - dz_bh2_dt * dl3_dx1_tmp); 
-  // dl0prime_dx2 = (dl0_dx2_tmp - dx_bh2_dt * dl1_dx2_tmp - dy_bh2_dt * dl2_dx2_tmp - dz_bh2_dt * dl3_dx2_tmp); 
-  // dl0prime_dx3 = (dl0_dx3_tmp - dx_bh2_dt * dl1_dx3_tmp - dy_bh2_dt * dl2_dx3_tmp - dz_bh2_dt * dl3_dx3_tmp);  
-
-
-  // dl1prime_dx1 = (dl1_dx1_tmp - dx_bh2_dt * dl0_dx1_tmp); 
-  // dl1prime_dx2 = (dl1_dx2_tmp - dx_bh2_dt * dl0_dx2_tmp); 
-  // dl1prime_dx3 = (dl1_dx3_tmp - dx_bh2_dt * dl0_dx3_tmp); 
-
-
-  // dl2prime_dx1 = (dl2_dx1_tmp - dy_bh2_dt * dl0_dx1_tmp); 
-  // dl2prime_dx2 = (dl2_dx2_tmp - dy_bh2_dt * dl0_dx2_tmp); 
-  // dl2prime_dx3 = (dl2_dx3_tmp - dy_bh2_dt * dl0_dx3_tmp); 
-
-  // dl3prime_dx1 = (dl3_dx1_tmp - dz_bh2_dt * dl0_dx1_tmp); 
-  // dl3prime_dx2 = (dl3_dx2_tmp - dz_bh2_dt * dl0_dx2_tmp); 
-  // dl3prime_dx3 = (dl3_dx3_tmp - dz_bh2_dt * dl0_dx3_tmp); 
-
-
-  //partial derivatives in t
-  // Real dl0prime_dt = - ax_bh2 * l1 - ay_bh2 * l2 - az_bh2 *l3;
-  // Real dl1prime_dt = - ax_bh2 * l0;
-  // Real dl2prime_dt = - ay_bh2 * l0;
-  // Real dl3prime_dt = - az_bh2 * l0;
-
-
-  AthenaArray<Real> dgprime_dX1, dgprime_dX2, dgprime_dX3;
-  dgprime_dX1.NewAthenaArray(NMETRIC);
-  dgprime_dX2.NewAthenaArray(NMETRIC);
-  dgprime_dX3.NewAthenaArray(NMETRIC);
-
-  // // // Set x-derivatives of covariant components
-  // dgprime_dx1(I00) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[0] ;
-  // dgprime_dx1(I01) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[1];
-  // dgprime_dx1(I02) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[2];
-  // dgprime_dx1(I03) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[3];
-  // dgprime_dx1(I11) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[1];
-  // dgprime_dx1(I12) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[2];
-  // dgprime_dx1(I13) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[3];
-  // dgprime_dx1(I22) = dfprime_dx1*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx1_transformed[2];
-  // dgprime_dx1(I23) = dfprime_dx1*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx1_transformed[3];
-  // dgprime_dx1(I33) = dfprime_dx1*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx1_transformed[3];
-
-  // // Set y-derivatives of covariant components
-  // dgprime_dx2(I00) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[0];
-  // dgprime_dx2(I01) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[1];
-  // dgprime_dx2(I02) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[2];
-  // dgprime_dx2(I03) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[3];
-  // dgprime_dx2(I11) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[1];
-  // dgprime_dx2(I12) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[2];
-  // dgprime_dx2(I13) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[3];
-  // dgprime_dx2(I22) = dfprime_dx2*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx2_transformed[2];
-  // dgprime_dx2(I23) = dfprime_dx2*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx2_transformed[3];
-  // dgprime_dx2(I33) = dfprime_dx2*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx2_transformed[3];
-
-  // // Set z-derivatives of covariant components
-  // dgprime_dx3(I00) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[0];
-  // dgprime_dx3(I01) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[1];
-  // dgprime_dx3(I02) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[2];
-  // dgprime_dx3(I03) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[3];
-  // dgprime_dx3(I11) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[1];
-  // dgprime_dx3(I12) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[2];
-  // dgprime_dx3(I13) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[3];
-  // dgprime_dx3(I22) = dfprime_dx3*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx3_transformed[2];
-  // dgprime_dx3(I23) = dfprime_dx3*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx3_transformed[3];
-  // dgprime_dx3(I33) = dfprime_dx3*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx3_transformed[3];
-
-
-  // Derivatives in primed coordinates (black hole frame)
-  // // Set x-derivatives of covariant components
-  dgprime_dX1(I00) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[0];
-  dgprime_dX1(I01) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[1];
-  dgprime_dX1(I02) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[2];
-  dgprime_dX1(I03) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[3];
-  dgprime_dX1(I11) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[1];
-  dgprime_dX1(I12) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[2];
-  dgprime_dX1(I13) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[3];
-  dgprime_dX1(I22) = dfprime_dX1*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX1_transformed[2];
-  dgprime_dX1(I23) = dfprime_dX1*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX1_transformed[3];
-  dgprime_dX1(I33) = dfprime_dX1*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX1_transformed[3];
-
-  // Set y-derivatives of covariant components
-  dgprime_dX2(I00) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[0];
-  dgprime_dX2(I01) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[1];
-  dgprime_dX2(I02) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[2];
-  dgprime_dX2(I03) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[3];
-  dgprime_dX2(I11) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[1];
-  dgprime_dX2(I12) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[2];
-  dgprime_dX2(I13) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[3];
-  dgprime_dX2(I22) = dfprime_dX2*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX2_transformed[2];
-  dgprime_dX2(I23) = dfprime_dX2*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX2_transformed[3];
-  dgprime_dX2(I33) = dfprime_dX2*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX2_transformed[3];
-
-  // Set z-derivatives of covariant components
-  dgprime_dX3(I00) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[0];
-  dgprime_dX3(I01) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[1];
-  dgprime_dX3(I02) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[2];
-  dgprime_dX3(I03) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[3];
-  dgprime_dX3(I11) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[1];
-  dgprime_dX3(I12) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[2];
-  dgprime_dX3(I13) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[3];
-  dgprime_dX3(I22) = dfprime_dX3*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX3_transformed[2];
-  dgprime_dX3(I23) = dfprime_dX3*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX3_transformed[3];
-  dgprime_dX3(I33) = dfprime_dX3*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX3_transformed[3];
-
-
-
-
-  //Convert derivatives from d/dX to d/dx
-  //Could be a dg/dT * dT/dx term but no dependence on T in g
-
-  // // Set x-derivatives of covariant components
-  dg_dx1(I00) += dgprime_dX1(I00) * dX1_dx1 + dgprime_dX2(I00) * dX2_dx1 + dgprime_dX3(I00) * dX3_dx1 ;
-  dg_dx1(I01) += dgprime_dX1(I01) * dX1_dx1 + dgprime_dX2(I01) * dX2_dx1 + dgprime_dX3(I01) * dX3_dx1 ;
-  dg_dx1(I02) += dgprime_dX1(I02) * dX1_dx1 + dgprime_dX2(I02) * dX2_dx1 + dgprime_dX3(I02) * dX3_dx1 ;
-  dg_dx1(I03) += dgprime_dX1(I03) * dX1_dx1 + dgprime_dX2(I03) * dX2_dx1 + dgprime_dX3(I03) * dX3_dx1 ;
-  dg_dx1(I11) += dgprime_dX1(I11) * dX1_dx1 + dgprime_dX2(I11) * dX2_dx1 + dgprime_dX3(I11) * dX3_dx1 ;
-  dg_dx1(I12) += dgprime_dX1(I12) * dX1_dx1 + dgprime_dX2(I12) * dX2_dx1 + dgprime_dX3(I12) * dX3_dx1 ;
-  dg_dx1(I13) += dgprime_dX1(I13) * dX1_dx1 + dgprime_dX2(I13) * dX2_dx1 + dgprime_dX3(I13) * dX3_dx1 ;
-  dg_dx1(I22) += dgprime_dX1(I22) * dX1_dx1 + dgprime_dX2(I22) * dX2_dx1 + dgprime_dX3(I22) * dX3_dx1 ;
-  dg_dx1(I23) += dgprime_dX1(I23) * dX1_dx1 + dgprime_dX2(I23) * dX2_dx1 + dgprime_dX3(I23) * dX3_dx1 ;
-  dg_dx1(I33) += dgprime_dX1(I33) * dX1_dx1 + dgprime_dX2(I33) * dX2_dx1 + dgprime_dX3(I33) * dX3_dx1 ;
-
-  // Set y-derivatives of covariant components
-  dg_dx2(I00) += dgprime_dX1(I00) * dX1_dx2 + dgprime_dX2(I00) * dX2_dx2 + dgprime_dX3(I00) * dX3_dx2 ;
-  dg_dx2(I01) += dgprime_dX1(I01) * dX1_dx2 + dgprime_dX2(I01) * dX2_dx2 + dgprime_dX3(I01) * dX3_dx2 ;
-  dg_dx2(I02) += dgprime_dX1(I02) * dX1_dx2 + dgprime_dX2(I02) * dX2_dx2 + dgprime_dX3(I02) * dX3_dx2 ;
-  dg_dx2(I03) += dgprime_dX1(I03) * dX1_dx2 + dgprime_dX2(I03) * dX2_dx2 + dgprime_dX3(I03) * dX3_dx2 ;
-  dg_dx2(I11) += dgprime_dX1(I11) * dX1_dx2 + dgprime_dX2(I11) * dX2_dx2 + dgprime_dX3(I11) * dX3_dx2 ;
-  dg_dx2(I12) += dgprime_dX1(I12) * dX1_dx2 + dgprime_dX2(I12) * dX2_dx2 + dgprime_dX3(I12) * dX3_dx2 ;
-  dg_dx2(I13) += dgprime_dX1(I13) * dX1_dx2 + dgprime_dX2(I13) * dX2_dx2 + dgprime_dX3(I13) * dX3_dx2 ;
-  dg_dx2(I22) += dgprime_dX1(I22) * dX1_dx2 + dgprime_dX2(I22) * dX2_dx2 + dgprime_dX3(I22) * dX3_dx2 ;
-  dg_dx2(I23) += dgprime_dX1(I23) * dX1_dx2 + dgprime_dX2(I23) * dX2_dx2 + dgprime_dX3(I23) * dX3_dx2 ;
-  dg_dx2(I33) += dgprime_dX1(I33) * dX1_dx2 + dgprime_dX2(I33) * dX2_dx2 + dgprime_dX3(I33) * dX3_dx2 ;
-
-  // Set z-derivatives of covariant components
-  dg_dx3(I00) += dgprime_dX1(I00) * dX1_dx3 + dgprime_dX2(I00) * dX2_dx3 + dgprime_dX3(I00) * dX3_dx3 ;
-  dg_dx3(I01) += dgprime_dX1(I01) * dX1_dx3 + dgprime_dX2(I01) * dX2_dx3 + dgprime_dX3(I01) * dX3_dx3 ;
-  dg_dx3(I02) += dgprime_dX1(I02) * dX1_dx3 + dgprime_dX2(I02) * dX2_dx3 + dgprime_dX3(I02) * dX3_dx3 ;
-  dg_dx3(I03) += dgprime_dX1(I03) * dX1_dx3 + dgprime_dX2(I03) * dX2_dx3 + dgprime_dX3(I03) * dX3_dx3 ;
-  dg_dx3(I11) += dgprime_dX1(I11) * dX1_dx3 + dgprime_dX2(I11) * dX2_dx3 + dgprime_dX3(I11) * dX3_dx3 ;
-  dg_dx3(I12) += dgprime_dX1(I12) * dX1_dx3 + dgprime_dX2(I12) * dX2_dx3 + dgprime_dX3(I12) * dX3_dx3 ;
-  dg_dx3(I13) += dgprime_dX1(I13) * dX1_dx3 + dgprime_dX2(I13) * dX2_dx3 + dgprime_dX3(I13) * dX3_dx3 ;
-  dg_dx3(I22) += dgprime_dX1(I22) * dX1_dx3 + dgprime_dX2(I22) * dX2_dx3 + dgprime_dX3(I22) * dX3_dx3 ;
-  dg_dx3(I23) += dgprime_dX1(I23) * dX1_dx3 + dgprime_dX2(I23) * dX2_dx3 + dgprime_dX3(I23) * dX3_dx3 ;
-  dg_dx3(I33) += dgprime_dX1(I33) * dX1_dx3 + dgprime_dX2(I33) * dX2_dx3 + dgprime_dX3(I33) * dX3_dx3 ;
-
-
-  Real x_bh2,y_bh2,z_bh2;
-  get_bh_position(t,&x_bh2,&y_bh2,&z_bh2);
-
-
-  //Partial derivatives with respect to T of coordinate relatiosn
-  //Note that Lambda as defined in this function is the inverse transformation, so formally this should
-  //be the derivative of the inverse of that
-  //but only the 0 components are affected by the inverse  (e.g., Lambda(I11) = Lambda_inv(I11))
-  Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
-               dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
-               dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
-
-  Real dY_dt = dLambda_dt(I12) * (x - x_bh2) - Lambda(I12) * dx_bh2_dt + 
-               dLambda_dt(I22) * (y - y_bh2) - Lambda(I22) * dy_bh2_dt + 
-               dLambda_dt(I23) * (z - z_bh2) - Lambda(I23) * dz_bh2_dt ;
-
-  Real dZ_dt = dLambda_dt(I13) * (x - x_bh2) - Lambda(I13) * dx_bh2_dt + 
-               dLambda_dt(I23) * (y - y_bh2) - Lambda(I23) * dy_bh2_dt + 
-               dLambda_dt(I33) * (z - z_bh2) - Lambda(I33) * dz_bh2_dt ;
-
-
-
-
-  // Set t-derivatives of covariant components
-  // d/dt = partial_t + partial_X dX/dt
-  // first do latter part
-  dg_dt(I00) = (dX_dt * dgprime_dX1(I00) + dY_dt * dgprime_dX2(I00) + dZ_dt * dgprime_dX3(I00) );
-  dg_dt(I01) = (dX_dt * dgprime_dX1(I01) + dY_dt * dgprime_dX2(I01) + dZ_dt * dgprime_dX3(I01) );
-  dg_dt(I02) = (dX_dt * dgprime_dX1(I02) + dY_dt * dgprime_dX2(I02) + dZ_dt * dgprime_dX3(I02) );
-  dg_dt(I03) = (dX_dt * dgprime_dX1(I03) + dY_dt * dgprime_dX2(I03) + dZ_dt * dgprime_dX3(I03) );
-  dg_dt(I11) = (dX_dt * dgprime_dX1(I11) + dY_dt * dgprime_dX2(I11) + dZ_dt * dgprime_dX3(I11) );
-  dg_dt(I12) = (dX_dt * dgprime_dX1(I12) + dY_dt * dgprime_dX2(I12) + dZ_dt * dgprime_dX3(I12) );
-  dg_dt(I13) = (dX_dt * dgprime_dX1(I13) + dY_dt * dgprime_dX2(I13) + dZ_dt * dgprime_dX3(I13) );
-  dg_dt(I22) = (dX_dt * dgprime_dX1(I22) + dY_dt * dgprime_dX2(I22) + dZ_dt * dgprime_dX3(I22) );
-  dg_dt(I23) = (dX_dt * dgprime_dX1(I23) + dY_dt * dgprime_dX2(I23) + dZ_dt * dgprime_dX3(I23) );
-  dg_dt(I33) = (dX_dt * dgprime_dX1(I33) + dY_dt * dgprime_dX2(I33) + dZ_dt * dgprime_dX3(I33) );
-
-  Real dlprime_transformed_dt[4];
-
-
-  //Since direct t dependence only shows up through Lambda, can take dLambda_dt and use that
-  //for transforming vectors
-  //Note need to transform lowerprime *before* transformation
-  matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime,dlprime_transformed_dt);
-
-
-
-  dg_dt(I00) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[0];
-  dg_dt(I01) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[1];;
-  dg_dt(I02) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[2];;
-  dg_dt(I03) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[3];;
-  dg_dt(I11) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[1];;
-  dg_dt(I12) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[2];;
-  dg_dt(I13) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[3];;
-  dg_dt(I22) += fprime * dlprime_transformed_dt[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_transformed_dt[2];;
-  dg_dt(I23) += fprime * dlprime_transformed_dt[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_transformed_dt[3];;
-  dg_dt(I33) += fprime * dlprime_transformed_dt[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_transformed_dt[3];;
-
-
-  dgprime_dX1.DeleteAthenaArray();
-  dgprime_dX2.DeleteAthenaArray();
-  dgprime_dX3.DeleteAthenaArray();
+      Real dX3_dx1 =       (Lorentz-1.0)*nz*nx ;
+      Real dX3_dx2 =       (Lorentz-1.0)*nz*ny ;  
+      Real dX3_dx3 = 1.0 + (Lorentz-1.0)*nz*nz ;
 
+
+      //derivatives of boosted vectors
+      Real dlprime_dX1_transformed[4], dlprime_dX2_transformed[4], dlprime_dX3_transformed[4];
+
+
+      // dlprime_dx1[1] = dl1prime_dX1 * dX1_dx1 + dl1prime_dX2 * dX2_dx1 + dl1prime_dX3 * dX3_dx1;
+      // dlprime_dx2[1] = dl1prime_dX1 * dX1_dx2 + dl1prime_dX2 * dX2_dx2 + dl1prime_dX3 * dX3_dx2;
+      // dlprime_dx3[1] = dl1prime_dX1 * dX1_dx3 + dl1prime_dX2 * dX2_dx3 + dl1prime_dX3 * dX3_dx3;
+      
+      // dlprime_dx1[2] = dl2prime_dX1 * dX1_dx1 + dl2prime_dX2 * dX2_dx1 + dl2prime_dX3 * dX3_dx1;
+      // dlprime_dx2[2] = dl2prime_dX1 * dX1_dx2 + dl2prime_dX2 * dX2_dx2 + dl2prime_dX3 * dX3_dx2;
+      // dlprime_dx3[2] = dl2prime_dX1 * dX1_dx3 + dl2prime_dX2 * dX2_dx3 + dl2prime_dX3 * dX3_dx3;
+
+      // dlprime_dx1[3] = dl3prime_dX1 * dX1_dx1 + dl3prime_dX2 * dX2_dx1 + dl3prime_dX3 * dX3_dx1;
+      // dlprime_dx2[3] = dl3prime_dX1 * dX1_dx2 + dl3prime_dX2 * dX2_dx2 + dl3prime_dX3 * dX3_dx2;
+      // dlprime_dx3[3] = dl3prime_dX1 * dX1_dx3 + dl3prime_dX2 * dX2_dx3 + dl3prime_dX3 * dX3_dx3;
+
+
+
+
+      //Boost spatial derivative vectors
+      //Can do this because Lambda doesn't depend on spatial coordinates
+      matrix_multiply_vector_lefthandside(Lambda,dlprime_dX1,dlprime_dX1_transformed);
+      matrix_multiply_vector_lefthandside(Lambda,dlprime_dX2,dlprime_dX2_transformed);
+      matrix_multiply_vector_lefthandside(Lambda,dlprime_dX3,dlprime_dX3_transformed);
+
+      // Real dl0_dx1_tmp = dl0prime_dx1;
+      // Real dl0_dx2_tmp = dl0prime_dx2;
+      // Real dl0_dx3_tmp = dl0prime_dx3;
+
+      // Real dl1_dx1_tmp = dl1prime_dx1;
+      // Real dl1_dx2_tmp = dl1prime_dx2;
+      // Real dl1_dx3_tmp = dl1prime_dx3;
+
+      // Real dl2_dx1_tmp = dl2prime_dx1;
+      // Real dl2_dx2_tmp = dl2prime_dx2;
+      // Real dl2_dx3_tmp = dl2prime_dx3;
+
+      // Real dl3_dx1_tmp = dl3prime_dx1;
+      // Real dl3_dx2_tmp = dl3prime_dx2;
+      // Real dl3_dx3_tmp = dl3prime_dx3;
+
+
+
+
+
+      // l_lowerprime[0] = (l0 - dx_bh2_dt * l1 - dy_bh2_dt * l2 - dz_bh2_dt * l3);
+      // l_lowerprime[1] = (l1 - dx_bh2_dt * l0);
+      // l_lowerprime[2] = (l2 - dy_bh2_dt * l0);
+      // l_lowerprime[3] = (l3 - dz_bh2_dt * l0);
+
+
+      // BoostLowerVector(dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1,
+      //                  dl0prime_dx1,dl1prime_dx1,dl2prime_dx1,dl3prime_dx1);
+      // BoostLowerVector(dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2,
+      //                  dl0prime_dx2,dl1prime_dx2,dl2prime_dx1,dl3prime_dx2);
+      // BoostLowerVector(dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3,
+      //                  dl0prime_dx3,dl1prime_dx3,dl2prime_dx1,dl3prime_dx3);
+
+
+      // dl0prime_dx1 = (dl0_dx1_tmp - dx_bh2_dt * dl1_dx1_tmp - dy_bh2_dt * dl2_dx1_tmp - dz_bh2_dt * dl3_dx1_tmp); 
+      // dl0prime_dx2 = (dl0_dx2_tmp - dx_bh2_dt * dl1_dx2_tmp - dy_bh2_dt * dl2_dx2_tmp - dz_bh2_dt * dl3_dx2_tmp); 
+      // dl0prime_dx3 = (dl0_dx3_tmp - dx_bh2_dt * dl1_dx3_tmp - dy_bh2_dt * dl2_dx3_tmp - dz_bh2_dt * dl3_dx3_tmp);  
+
+
+      // dl1prime_dx1 = (dl1_dx1_tmp - dx_bh2_dt * dl0_dx1_tmp); 
+      // dl1prime_dx2 = (dl1_dx2_tmp - dx_bh2_dt * dl0_dx2_tmp); 
+      // dl1prime_dx3 = (dl1_dx3_tmp - dx_bh2_dt * dl0_dx3_tmp); 
+
+
+      // dl2prime_dx1 = (dl2_dx1_tmp - dy_bh2_dt * dl0_dx1_tmp); 
+      // dl2prime_dx2 = (dl2_dx2_tmp - dy_bh2_dt * dl0_dx2_tmp); 
+      // dl2prime_dx3 = (dl2_dx3_tmp - dy_bh2_dt * dl0_dx3_tmp); 
+
+      // dl3prime_dx1 = (dl3_dx1_tmp - dz_bh2_dt * dl0_dx1_tmp); 
+      // dl3prime_dx2 = (dl3_dx2_tmp - dz_bh2_dt * dl0_dx2_tmp); 
+      // dl3prime_dx3 = (dl3_dx3_tmp - dz_bh2_dt * dl0_dx3_tmp); 
+
+
+      //partial derivatives in t
+      // Real dl0prime_dt = - ax_bh2 * l1 - ay_bh2 * l2 - az_bh2 *l3;
+      // Real dl1prime_dt = - ax_bh2 * l0;
+      // Real dl2prime_dt = - ay_bh2 * l0;
+      // Real dl3prime_dt = - az_bh2 * l0;
+
+
+      AthenaArray<Real> dgprime_dX1, dgprime_dX2, dgprime_dX3;
+      dgprime_dX1.NewAthenaArray(NMETRIC);
+      dgprime_dX2.NewAthenaArray(NMETRIC);
+      dgprime_dX3.NewAthenaArray(NMETRIC);
+
+      // // // Set x-derivatives of covariant components
+      // dgprime_dx1(I00) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[0] ;
+      // dgprime_dx1(I01) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[1];
+      // dgprime_dx1(I02) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[2];
+      // dgprime_dx1(I03) = dfprime_dx1*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx1_transformed[3];
+      // dgprime_dx1(I11) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[1];
+      // dgprime_dx1(I12) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[2];
+      // dgprime_dx1(I13) = dfprime_dx1*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx1_transformed[3];
+      // dgprime_dx1(I22) = dfprime_dx1*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx1_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx1_transformed[2];
+      // dgprime_dx1(I23) = dfprime_dx1*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx1_transformed[3];
+      // dgprime_dx1(I33) = dfprime_dx1*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx1_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx1_transformed[3];
+
+      // // Set y-derivatives of covariant components
+      // dgprime_dx2(I00) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[0];
+      // dgprime_dx2(I01) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[1];
+      // dgprime_dx2(I02) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[2];
+      // dgprime_dx2(I03) = dfprime_dx2*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx2_transformed[3];
+      // dgprime_dx2(I11) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[1];
+      // dgprime_dx2(I12) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[2];
+      // dgprime_dx2(I13) = dfprime_dx2*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx2_transformed[3];
+      // dgprime_dx2(I22) = dfprime_dx2*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx2_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx2_transformed[2];
+      // dgprime_dx2(I23) = dfprime_dx2*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx2_transformed[3];
+      // dgprime_dx2(I33) = dfprime_dx2*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx2_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx2_transformed[3];
+
+      // // Set z-derivatives of covariant components
+      // dgprime_dx3(I00) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[0];
+      // dgprime_dx3(I01) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[1];
+      // dgprime_dx3(I02) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[2];
+      // dgprime_dx3(I03) = dfprime_dx3*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dx3_transformed[3];
+      // dgprime_dx3(I11) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[1];
+      // dgprime_dx3(I12) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[2];
+      // dgprime_dx3(I13) = dfprime_dx3*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dx3_transformed[3];
+      // dgprime_dx3(I22) = dfprime_dx3*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dx3_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dx3_transformed[2];
+      // dgprime_dx3(I23) = dfprime_dx3*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dx3_transformed[3];
+      // dgprime_dx3(I33) = dfprime_dx3*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dx3_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dx3_transformed[3];
+
+
+      // Derivatives in primed coordinates (black hole frame)
+      // // Set x-derivatives of covariant components
+      dgprime_dX1(I00) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[0];
+      dgprime_dX1(I01) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[1];
+      dgprime_dX1(I02) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[2];
+      dgprime_dX1(I03) = dfprime_dX1*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX1_transformed[3];
+      dgprime_dX1(I11) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[1];
+      dgprime_dX1(I12) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[2];
+      dgprime_dX1(I13) = dfprime_dX1*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX1_transformed[3];
+      dgprime_dX1(I22) = dfprime_dX1*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX1_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX1_transformed[2];
+      dgprime_dX1(I23) = dfprime_dX1*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX1_transformed[3];
+      dgprime_dX1(I33) = dfprime_dX1*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX1_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX1_transformed[3];
+
+      // Set y-derivatives of covariant components
+      dgprime_dX2(I00) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[0];
+      dgprime_dX2(I01) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[1];
+      dgprime_dX2(I02) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[2];
+      dgprime_dX2(I03) = dfprime_dX2*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX2_transformed[3];
+      dgprime_dX2(I11) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[1];
+      dgprime_dX2(I12) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[2];
+      dgprime_dX2(I13) = dfprime_dX2*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX2_transformed[3];
+      dgprime_dX2(I22) = dfprime_dX2*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX2_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX2_transformed[2];
+      dgprime_dX2(I23) = dfprime_dX2*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX2_transformed[3];
+      dgprime_dX2(I33) = dfprime_dX2*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX2_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX2_transformed[3];
+
+      // Set z-derivatives of covariant components
+      dgprime_dX3(I00) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[0] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[0];
+      dgprime_dX3(I01) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[1] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[1];
+      dgprime_dX3(I02) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[2];
+      dgprime_dX3(I03) = dfprime_dX3*l_lowerprime_transformed[0]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_dX3_transformed[3];
+      dgprime_dX3(I11) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[1] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[1];
+      dgprime_dX3(I12) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[2];
+      dgprime_dX3(I13) = dfprime_dX3*l_lowerprime_transformed[1]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_dX3_transformed[3];
+      dgprime_dX3(I22) = dfprime_dX3*l_lowerprime_transformed[2]*l_lowerprime_transformed[2] + fprime * dlprime_dX3_transformed[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_dX3_transformed[2];
+      dgprime_dX3(I23) = dfprime_dX3*l_lowerprime_transformed[2]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_dX3_transformed[3];
+      dgprime_dX3(I33) = dfprime_dX3*l_lowerprime_transformed[3]*l_lowerprime_transformed[3] + fprime * dlprime_dX3_transformed[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_dX3_transformed[3];
+
+
+
+
+      //Convert derivatives from d/dX to d/dx
+      //Could be a dg/dT * dT/dx term but no dependence on T in g
+
+      // // Set x-derivatives of covariant components
+      dg_dx1(I00) += dgprime_dX1(I00) * dX1_dx1 + dgprime_dX2(I00) * dX2_dx1 + dgprime_dX3(I00) * dX3_dx1 ;
+      dg_dx1(I01) += dgprime_dX1(I01) * dX1_dx1 + dgprime_dX2(I01) * dX2_dx1 + dgprime_dX3(I01) * dX3_dx1 ;
+      dg_dx1(I02) += dgprime_dX1(I02) * dX1_dx1 + dgprime_dX2(I02) * dX2_dx1 + dgprime_dX3(I02) * dX3_dx1 ;
+      dg_dx1(I03) += dgprime_dX1(I03) * dX1_dx1 + dgprime_dX2(I03) * dX2_dx1 + dgprime_dX3(I03) * dX3_dx1 ;
+      dg_dx1(I11) += dgprime_dX1(I11) * dX1_dx1 + dgprime_dX2(I11) * dX2_dx1 + dgprime_dX3(I11) * dX3_dx1 ;
+      dg_dx1(I12) += dgprime_dX1(I12) * dX1_dx1 + dgprime_dX2(I12) * dX2_dx1 + dgprime_dX3(I12) * dX3_dx1 ;
+      dg_dx1(I13) += dgprime_dX1(I13) * dX1_dx1 + dgprime_dX2(I13) * dX2_dx1 + dgprime_dX3(I13) * dX3_dx1 ;
+      dg_dx1(I22) += dgprime_dX1(I22) * dX1_dx1 + dgprime_dX2(I22) * dX2_dx1 + dgprime_dX3(I22) * dX3_dx1 ;
+      dg_dx1(I23) += dgprime_dX1(I23) * dX1_dx1 + dgprime_dX2(I23) * dX2_dx1 + dgprime_dX3(I23) * dX3_dx1 ;
+      dg_dx1(I33) += dgprime_dX1(I33) * dX1_dx1 + dgprime_dX2(I33) * dX2_dx1 + dgprime_dX3(I33) * dX3_dx1 ;
+
+      // Set y-derivatives of covariant components
+      dg_dx2(I00) += dgprime_dX1(I00) * dX1_dx2 + dgprime_dX2(I00) * dX2_dx2 + dgprime_dX3(I00) * dX3_dx2 ;
+      dg_dx2(I01) += dgprime_dX1(I01) * dX1_dx2 + dgprime_dX2(I01) * dX2_dx2 + dgprime_dX3(I01) * dX3_dx2 ;
+      dg_dx2(I02) += dgprime_dX1(I02) * dX1_dx2 + dgprime_dX2(I02) * dX2_dx2 + dgprime_dX3(I02) * dX3_dx2 ;
+      dg_dx2(I03) += dgprime_dX1(I03) * dX1_dx2 + dgprime_dX2(I03) * dX2_dx2 + dgprime_dX3(I03) * dX3_dx2 ;
+      dg_dx2(I11) += dgprime_dX1(I11) * dX1_dx2 + dgprime_dX2(I11) * dX2_dx2 + dgprime_dX3(I11) * dX3_dx2 ;
+      dg_dx2(I12) += dgprime_dX1(I12) * dX1_dx2 + dgprime_dX2(I12) * dX2_dx2 + dgprime_dX3(I12) * dX3_dx2 ;
+      dg_dx2(I13) += dgprime_dX1(I13) * dX1_dx2 + dgprime_dX2(I13) * dX2_dx2 + dgprime_dX3(I13) * dX3_dx2 ;
+      dg_dx2(I22) += dgprime_dX1(I22) * dX1_dx2 + dgprime_dX2(I22) * dX2_dx2 + dgprime_dX3(I22) * dX3_dx2 ;
+      dg_dx2(I23) += dgprime_dX1(I23) * dX1_dx2 + dgprime_dX2(I23) * dX2_dx2 + dgprime_dX3(I23) * dX3_dx2 ;
+      dg_dx2(I33) += dgprime_dX1(I33) * dX1_dx2 + dgprime_dX2(I33) * dX2_dx2 + dgprime_dX3(I33) * dX3_dx2 ;
+
+      // Set z-derivatives of covariant components
+      dg_dx3(I00) += dgprime_dX1(I00) * dX1_dx3 + dgprime_dX2(I00) * dX2_dx3 + dgprime_dX3(I00) * dX3_dx3 ;
+      dg_dx3(I01) += dgprime_dX1(I01) * dX1_dx3 + dgprime_dX2(I01) * dX2_dx3 + dgprime_dX3(I01) * dX3_dx3 ;
+      dg_dx3(I02) += dgprime_dX1(I02) * dX1_dx3 + dgprime_dX2(I02) * dX2_dx3 + dgprime_dX3(I02) * dX3_dx3 ;
+      dg_dx3(I03) += dgprime_dX1(I03) * dX1_dx3 + dgprime_dX2(I03) * dX2_dx3 + dgprime_dX3(I03) * dX3_dx3 ;
+      dg_dx3(I11) += dgprime_dX1(I11) * dX1_dx3 + dgprime_dX2(I11) * dX2_dx3 + dgprime_dX3(I11) * dX3_dx3 ;
+      dg_dx3(I12) += dgprime_dX1(I12) * dX1_dx3 + dgprime_dX2(I12) * dX2_dx3 + dgprime_dX3(I12) * dX3_dx3 ;
+      dg_dx3(I13) += dgprime_dX1(I13) * dX1_dx3 + dgprime_dX2(I13) * dX2_dx3 + dgprime_dX3(I13) * dX3_dx3 ;
+      dg_dx3(I22) += dgprime_dX1(I22) * dX1_dx3 + dgprime_dX2(I22) * dX2_dx3 + dgprime_dX3(I22) * dX3_dx3 ;
+      dg_dx3(I23) += dgprime_dX1(I23) * dX1_dx3 + dgprime_dX2(I23) * dX2_dx3 + dgprime_dX3(I23) * dX3_dx3 ;
+      dg_dx3(I33) += dgprime_dX1(I33) * dX1_dx3 + dgprime_dX2(I33) * dX2_dx3 + dgprime_dX3(I33) * dX3_dx3 ;
+
+
+      Real x_bh2,y_bh2,z_bh2;
+      get_bh_position(t,&x_bh2,&y_bh2,&z_bh2);
+
+
+      //Partial derivatives with respect to T of coordinate relatiosn
+      //Note that Lambda as defined in this function is the inverse transformation, so formally this should
+      //be the derivative of the inverse of that
+      //but only the 0 components are affected by the inverse  (e.g., Lambda(I11) = Lambda_inv(I11))
+      Real dX_dt = dLambda_dt(I11) * (x - x_bh2) - Lambda(I11) * dx_bh2_dt + 
+                   dLambda_dt(I12) * (y - y_bh2) - Lambda(I12) * dy_bh2_dt + 
+                   dLambda_dt(I13) * (z - z_bh2) - Lambda(I13) * dz_bh2_dt ;
+
+      Real dY_dt = dLambda_dt(I12) * (x - x_bh2) - Lambda(I12) * dx_bh2_dt + 
+                   dLambda_dt(I22) * (y - y_bh2) - Lambda(I22) * dy_bh2_dt + 
+                   dLambda_dt(I23) * (z - z_bh2) - Lambda(I23) * dz_bh2_dt ;
+
+      Real dZ_dt = dLambda_dt(I13) * (x - x_bh2) - Lambda(I13) * dx_bh2_dt + 
+                   dLambda_dt(I23) * (y - y_bh2) - Lambda(I23) * dy_bh2_dt + 
+                   dLambda_dt(I33) * (z - z_bh2) - Lambda(I33) * dz_bh2_dt ;
+
+
+
+
+      // Set t-derivatives of covariant components
+      // d/dt = partial_t + partial_X dX/dt
+      // first do latter part
+      dg_dt(I00) = (dX_dt * dgprime_dX1(I00) + dY_dt * dgprime_dX2(I00) + dZ_dt * dgprime_dX3(I00) );
+      dg_dt(I01) = (dX_dt * dgprime_dX1(I01) + dY_dt * dgprime_dX2(I01) + dZ_dt * dgprime_dX3(I01) );
+      dg_dt(I02) = (dX_dt * dgprime_dX1(I02) + dY_dt * dgprime_dX2(I02) + dZ_dt * dgprime_dX3(I02) );
+      dg_dt(I03) = (dX_dt * dgprime_dX1(I03) + dY_dt * dgprime_dX2(I03) + dZ_dt * dgprime_dX3(I03) );
+      dg_dt(I11) = (dX_dt * dgprime_dX1(I11) + dY_dt * dgprime_dX2(I11) + dZ_dt * dgprime_dX3(I11) );
+      dg_dt(I12) = (dX_dt * dgprime_dX1(I12) + dY_dt * dgprime_dX2(I12) + dZ_dt * dgprime_dX3(I12) );
+      dg_dt(I13) = (dX_dt * dgprime_dX1(I13) + dY_dt * dgprime_dX2(I13) + dZ_dt * dgprime_dX3(I13) );
+      dg_dt(I22) = (dX_dt * dgprime_dX1(I22) + dY_dt * dgprime_dX2(I22) + dZ_dt * dgprime_dX3(I22) );
+      dg_dt(I23) = (dX_dt * dgprime_dX1(I23) + dY_dt * dgprime_dX2(I23) + dZ_dt * dgprime_dX3(I23) );
+      dg_dt(I33) = (dX_dt * dgprime_dX1(I33) + dY_dt * dgprime_dX2(I33) + dZ_dt * dgprime_dX3(I33) );
+
+      Real dlprime_transformed_dt[4];
+
+
+      //Since direct t dependence only shows up through Lambda, can take dLambda_dt and use that
+      //for transforming vectors
+      //Note need to transform lowerprime *before* transformation
+      matrix_multiply_vector_lefthandside(dLambda_dt,l_lowerprime,dlprime_transformed_dt);
+
+
+
+      dg_dt(I00) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[0] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[0];
+      dg_dt(I01) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[1];;
+      dg_dt(I02) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[2];;
+      dg_dt(I03) += fprime * dlprime_transformed_dt[0] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[0] * dlprime_transformed_dt[3];;
+      dg_dt(I11) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[1] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[1];;
+      dg_dt(I12) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[2];;
+      dg_dt(I13) += fprime * dlprime_transformed_dt[1] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[1] * dlprime_transformed_dt[3];;
+      dg_dt(I22) += fprime * dlprime_transformed_dt[2] * l_lowerprime_transformed[2] + fprime * l_lowerprime_transformed[2] * dlprime_transformed_dt[2];;
+      dg_dt(I23) += fprime * dlprime_transformed_dt[2] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[2] * dlprime_transformed_dt[3];;
+      dg_dt(I33) += fprime * dlprime_transformed_dt[3] * l_lowerprime_transformed[3] + fprime * l_lowerprime_transformed[3] * dlprime_transformed_dt[3];;
+
+
+      dgprime_dX1.DeleteAthenaArray();
+      dgprime_dX2.DeleteAthenaArray();
+      dgprime_dX3.DeleteAthenaArray();
+
+
+}
   Lambda.DeleteAthenaArray();
   dLambda_dt.DeleteAthenaArray();
 
