@@ -603,6 +603,43 @@ else return 1;
 }
 
 
+void get_ub(Real xprime, Real yprime, Real zprime, Real rprime, Real *ut, Real *ux, Real *uy, Real *uz, Real *bt, Real *bx, Real *by, Real *bz ){
+
+
+      Real fprime = 2.0 / (rprime);
+      Real g00_prime = -1.0 + fprime;
+
+      Real g33_prime = 1.0 + fprime * SQR(zprime/rprime);
+      Real g03_prime = fprime * (zprime/rprime);
+      Real g02_prime = fprime * (yprime/rprime);
+      Real g23_prime = fprime * (yprime/rprime) * (zprime/rprime);
+      Real denom_prime = g00_prime + g33_prime*SQR(v_bh2) - 2.0*v_bh2*g03_prime;
+
+
+      Real utprime = std::sqrt(-1.0/denom_prime);
+      Real uxprime = 0.0;
+      Real uyprime = 0.0;
+      Real uzprime = -v_bh2 * utprime;
+
+      Real Lorentz = std::sqrt(1.0/(1.0 - SQR(v_bh2)));
+      *ut = Lorentz * (utprime + v_bh2 * uzprime);
+      *ux = uxprime;
+      *uy = uyprime;
+      *uz = Lorentz * (uzprime + v_bh2 * utprime);
+
+      Real Bcc2_prime = field_norm;
+
+      Real btprime = g02_prime *  Bcc2_prime * utprime + g23_prime * Bcc2_prime * uzprime;
+      Real bxprime = (0.0        + btprime * uxprime)  / utprime;
+      Real byprime = (Bcc2_prime + btprime * uyprime)  / utprime;
+      Real bzprime = (0.0        + btprime * uzprime)  / utprime;
+
+      *bt = Lorentz * (btprime + v_bh2 * bzprime);
+      *bx = bxprime;
+      *by = byprime;
+      *bz = Lorentz * (bzprime + v_bh2 * btprime);
+}
+
 //----------------------------------------------------------------------------------------
 // Function for setting initial conditions
 // Inputs:
@@ -670,6 +707,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
        Real g33_prime = 1.0 + fprime * SQR(zprime/rprime);
        Real g03_prime = fprime * (zprime/rprime);
+       Real g02_prime = fprime * (yprime/rprime);
+       Real g23_prime = fprime * (yprime/rprime) * (zprime/rprime);
        Real denom_prime = g00_prime + g33_prime*SQR(v_bh2) - 2.0*v_bh2*g03_prime;
 
         Real ut,ux,uy,uz,uu1,uu2,uu3;
@@ -699,6 +738,22 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           uu1 = 0.0;
           uu2 = 0.0;
           uu3 = 0.0;
+
+            Real Bcc2_prime = field_norm;
+
+            Real btprime = g02_prime *  Bcc2_prime * utprime + g23_prime * Bcc2_prime * uzprime;
+            Real bxprime = (0.0        + btprime * uxprime)  / utprime;
+            Real byprime = (Bcc2_prime + btprime * uyprime)  / utprime;
+            Real bzprime = (0.0        + btprime * uzprime)  / utprime;
+
+            Real bt = Lorentz * (btprime + v_bh2 * bzprime);
+            Real bx = bxprime;
+            Real by = byprime;
+            Real bz = Lorentz * (bzprime + v_bh2 * btprime);
+
+            Real Bcc2 = by*ut - bt*uy;
+            Real Bcc3 = bz*ut - bt*uz;
+
          }
          else{
           uu1 = 0.0;

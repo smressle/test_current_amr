@@ -120,8 +120,6 @@ void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 
-void InitOrbitVariables
-
 
 // Global variables
 static Real m, a;                                  // black hole parameters
