@@ -1261,7 +1261,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
   // int SCALE_DIVERGENCE = false; 
-  SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
+  int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
   if (!SCALE_DIVERGENCE) return;
   fprintf(stderr,"Scaling divergence \n");
