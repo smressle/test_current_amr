@@ -363,6 +363,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   std::string orbit_file_name;
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
   set_orbit_arrays(orbit_file_name);
+
   return;
 }
 
@@ -1259,7 +1260,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; //pin->GetOrAddBoolean("problem","scale_divergence",false);
+  // int SCALE_DIVERGENCE = false; 
+  SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
   if (!SCALE_DIVERGENCE) return;
   fprintf(stderr,"Scaling divergence \n");
