@@ -1711,6 +1711,8 @@ void set_orbit_arrays(std::string orbit_file_name){
 
   fclose(input_file);
 
+  fprintf(stderr,"Done reading orbit file \n");
+
 }
 
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
