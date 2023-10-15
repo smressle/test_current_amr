@@ -364,7 +364,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
   set_orbit_arrays(orbit_file_name);
 
-
+  fprintf(stderr,"Done with set_orbit_arrays \n");
 
   return;
 }
