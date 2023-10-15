@@ -362,7 +362,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   std::string orbit_file_name;
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
-  // set_orbit_arrays(orbit_file_name);
+  set_orbit_arrays(orbit_file_name);
 
   fprintf(stderr,"Done with set_orbit_arrays \n");
 
@@ -1695,22 +1695,22 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
 
-    int iorbit, it;
-    for (it=0; it<nt; it++) {
+  //   int iorbit, it;
+  //   for (it=0; it<nt; it++) {
 
-      fread( &t_orbits(it), sizeof( Real ), 1, input_file );
+  //     fread( &t_orbits(it), sizeof( Real ), 1, input_file );
 
-      for (iorbit=0; iorbit<Norbit; iorbit++){
+  //     for (iorbit=0; iorbit<Norbit; iorbit++){
 
-        fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
-      }
+  //       fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
+  //     }
 
-    }
+  //   }
 
-    for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
+  //   for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
 
-    t0_orbits = t_orbits(0);
-    dt_orbits = t_orbits(1) - t_orbits(0);
+  //   t0_orbits = t_orbits(0);
+  //   dt_orbits = t_orbits(1) - t_orbits(0);
         
 
   fclose(input_file);
