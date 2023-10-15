@@ -738,6 +738,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
+  fprint(stderr,"done with initusermeshdata \n");
 
   // read user Mesh data
   IOWrapperSizeT udsize = 0;
@@ -807,6 +808,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     resfile.Seek(headeroffset);
 
   // rebuild the Block Tree
+  fprintf(stderr,"Creating meshblock list \n");
   tree.CreateRootGrid();
   for (int i=0; i<nbtotal; i++)
     tree.AddMeshBlockWithoutRefine(loclist[i]);
@@ -880,6 +882,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   my_blocks.NewAthenaArray(nblocal);
   for (int i=gids_; i<=gide_; i++) {
     if (i - gids_ < nbmin) {
+      fprintf(stderr,"Reading mesbhlock %d i: %d \n",i-gids_,i);
       // load MeshBlock (parallel)
       if (resfile.Read_at_all(mbdata, datasize, 1, headeroffset+i*datasize) != 1) {
         msg << "### FATAL ERROR in Mesh constructor" << std::endl
