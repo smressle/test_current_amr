@@ -738,7 +738,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
-  fprint(stderr,"done with initusermeshdata \n");
+  fprintf(stderr,"done with initusermeshdata \n");
 
   // read user Mesh data
   IOWrapperSizeT udsize = 0;
