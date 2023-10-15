@@ -513,9 +513,11 @@ if args['cxx'] == 'icpc':
     definitions['COMPILER_COMMAND'] = makefile_options['COMPILER_COMMAND'] = 'icpc'
     makefile_options['PREPROCESSOR_FLAGS'] = ''
     makefile_options['COMPILER_FLAGS'] = (
-      '-O3 -std=c++11 -ipo -xhost -inline-forceinline -qopenmp-simd -qopt-prefetch=4 '
-      '-qoverride-limits'  # -qopt-report-phase=ipo (does nothing without -ipo)
-    )
+      '-O3 -std=c++11 -ipo -mavx2 -fma -inline-forceinline -qopenmp-simd -qopt-prefetch=4')# -qoverride-limits'# qopt-report-phase=ipo'# (does nothing without -ipo)
+    ##makefile_options['COMPILER_FLAGS'] = (
+    ##  '-O3 -std=c++11 -ipo -xhost -inline-forceinline -qopenmp-simd -qopt-prefetch=4 '
+    ##  '-qoverride-limits'  # -qopt-report-phase=ipo (does nothing without -ipo)
+  ##  )
     # -qopt-zmm-usage=high'  # typically harms multi-core performance on Skylake Xeon
     makefile_options['LINKER_FLAGS'] = ''
     makefile_options['LIBRARY_FLAGS'] = ''
