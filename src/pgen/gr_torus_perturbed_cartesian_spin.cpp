@@ -604,6 +604,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
+  fprintf(stderr,"In problem generator \n");
 
   Real a = pin->GetOrAddReal("problem", "a", 0.0);
   Real rh =  ( m + std::sqrt( SQR(m) -SQR(a)) );
