@@ -534,6 +534,8 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   //  if (SELF_GRAVITY_ENABLED == 2 && ...) // independent allocation
   //    gflag = 2;
 
+
+  fprintf(stderr,"Creating meshblock list \n");
   // create MeshBlock list for this process
   gids_ = nslist[Globals::my_rank];
   gide_ = gids_ + nblist[Globals::my_rank] - 1;
@@ -542,6 +544,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   // create MeshBlocks for this node
   for (int i=gids_; i<=gide_; i++) {
     SetBlockSizeAndBoundaries(loclist[i], block_size, block_bcs);
+    fprintf(stderr,"Creating meshblock %d i: %d \n",i-gids_,i);
     my_blocks(i-gids_) = new MeshBlock(i, i-gids_, loclist[i], block_size, block_bcs,
                                        this, pin, gflag);
     my_blocks(i-gids_)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
