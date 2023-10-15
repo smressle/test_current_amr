@@ -325,6 +325,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
 
+  fprintf(stderr,"Done with initusermeshdata \n");
   if (multilevel) {
     if (block_size.nx1 % 2 == 1 || (block_size.nx2 % 2 == 1 && f2)
         || (block_size.nx3 % 2 == 1 && f3)) {
