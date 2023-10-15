@@ -368,6 +368,7 @@ int main(int argc, char *argv[]) {
   try {
 #endif
     pmesh->Initialize(res_flag, pinput);
+    fprintf(stderr,"Mesh Initialization Done\n");
 #ifdef ENABLE_EXCEPTIONS
   }
   catch(std::bad_alloc& ba) {
