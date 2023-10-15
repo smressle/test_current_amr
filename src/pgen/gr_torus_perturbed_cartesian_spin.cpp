@@ -1684,7 +1684,7 @@ void set_orbit_arrays(std::string orbit_file_name){
     q = 0.1;
 
        
-    fprintf(stderr,"q in set_orbit_arrays: %g \n", q);
+    fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
 
     t_orbits.NewAthenaArray(nt);
     orbit_array.NewAthenaArray(Norbit,nt);
