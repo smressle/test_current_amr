@@ -548,8 +548,11 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     fprintf(stderr,"Creating meshblock %d i: %d \n",i-gids_,i);
     my_blocks(i-gids_) = new MeshBlock(i, i-gids_, loclist[i], block_size, block_bcs,
                                        this, pin, gflag);
+    fprintf(stderr,"Done with Creating meshblock %d i: %d \n",i-gids_,i);
     my_blocks(i-gids_)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
   }
+
+  fprintf(stderr,"Resetting Loadbalance \n");
 
   ResetLoadBalanceVariables();
 
