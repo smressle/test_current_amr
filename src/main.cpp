@@ -273,6 +273,8 @@ int main(int argc, char *argv[]) {
     } else {
       pmesh = new Mesh(pinput, restartfile, mesh_flag);
     }
+
+    fprintf(stderr,"MESH INITIZLIZED \n");
 #ifdef ENABLE_EXCEPTIONS
   }
   catch(std::bad_alloc& ba) {
