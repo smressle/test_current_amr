@@ -1678,13 +1678,13 @@ return;
 
 void set_orbit_arrays(std::string orbit_file_name){
       FILE *input_file;
-        // if ((input_file = fopen(orbit_file_name.c_str(), "r")) == NULL)   
-        //        fprintf(stderr, "Cannot open %s, %s\n", "input_file",orbit_file_name.c_str());
+        if ((input_file = fopen(orbit_file_name.c_str(), "r")) == NULL)   
+               fprintf(stderr, "Cannot open %s, %s\n", "input_file",orbit_file_name.c_str());
 
 
 
-    // fscanf(input_file, "%i %f \n", &nt, &q);
-    int nt = 10;
+    fscanf(input_file, "%i %f \n", &nt, &q);
+    // int nt = 10;
     q = 0.1;
 
        
@@ -1695,25 +1695,25 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
 
-  //   int iorbit, it;
-  //   for (it=0; it<nt; it++) {
+    int iorbit, it;
+    for (it=0; it<nt; it++) {
 
-  //     fread( &t_orbits(it), sizeof( Real ), 1, input_file );
+      fread( &t_orbits(it), sizeof( Real ), 1, input_file );
 
-  //     for (iorbit=0; iorbit<Norbit; iorbit++){
+      for (iorbit=0; iorbit<Norbit; iorbit++){
 
-  //       fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
-  //     }
+        fread( &orbit_array(iorbit,it), sizeof( Real ), 1, input_file );
+      }
 
-  //   }
+    }
 
-  //   for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
+    for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
 
-  //   t0_orbits = t_orbits(0);
-  //   dt_orbits = t_orbits(1) - t_orbits(0);
+    t0_orbits = t_orbits(0);
+    dt_orbits = t_orbits(1) - t_orbits(0);
         
 
-  // fclose(input_file);
+  fclose(input_file);
 
   fprintf(stderr,"Done reading orbit file \n");
 
