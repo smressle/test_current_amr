@@ -797,6 +797,31 @@ void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag) {
   }
 }
 
+// //----------------------------------------------------------------------------------------
+// //! \fn void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag)
+// //! \brief scans through singly linked list of OutputTypes and makes any outputs needed.
+
+// bool Outputs::MakeRestartThisTime(Mesh *pm, ParameterInput *pin, Real time, Real ncycle) {
+//   // wtflag = only true for making final outputs due to signal or wall-time/cycle/time
+//   // limit. Used by restart file output to change suffix to .final
+//   OutputType* ptype = pfirst_type_;
+//   while (ptype != nullptr) {
+//     if (ptype->output_params.file_type == "rst") {
+//     if (((time == pm->start_time) // output initial conditions, unless next_time set
+//          && (ptype->output_params.next_time <= pm->start_time ))
+//       || (ptype->output_params.dt > 0.0 && time >= ptype->output_params.next_time)
+//       || (ptype->output_params.dcycle > 0 && ncycle%ptype->output_params.dcycle == 0)
+//       || (time>= pm->tlim)) {
+
+//       return true;
+//     }
+//   }
+//     ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
+//   }
+
+//   return false;
+// }
+
 //----------------------------------------------------------------------------------------
 //! \fn void OutputType::TransformOutputData(MeshBlock *pmb)
 //! \brief Calls sum and slice functions on each direction in turn, in order to allow

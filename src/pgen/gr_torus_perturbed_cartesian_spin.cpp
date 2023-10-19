@@ -364,7 +364,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
   set_orbit_arrays(orbit_file_name);
 
-  fprintf(stderr,"Done with set_orbit_arrays \n");
+  // fprintf(stderr,"Done with set_orbit_arrays \n");
 
   return;
 }
@@ -606,7 +606,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
-  fprintf(stderr,"In problem generator \n");
+  // fprintf(stderr,"In problem generator \n");
 
   Real a = pin->GetOrAddReal("problem", "a", 0.0);
   Real rh =  ( m + std::sqrt( SQR(m) -SQR(a)) );
@@ -1263,7 +1263,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
