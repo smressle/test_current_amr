@@ -1709,6 +1709,12 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     for (it=0; it<nt; it++) t_orbits(it) = t_orbits(it) + t0;
 
+      for (it=0; it<nt; it++){
+        orbit_array(IA2X,it) *= q;
+        orbit_array(IA2Y,it) *= q;
+        orbit_array(IA2Z,it) *= q;
+      }
+
     t0_orbits = t_orbits(0);
     dt_orbits = t_orbits(1) - t_orbits(0);
         
