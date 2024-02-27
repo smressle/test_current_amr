@@ -552,14 +552,14 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     my_blocks(i-gids_)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
   }
 
-  fprintf(stderr,"Resetting Loadbalance \n");
+  // fprintf(stderr,"Resetting Loadbalance \n");
 
   ResetLoadBalanceVariables();
 
   if (turb_flag > 0) // TurbulenceDriver depends on the MeshBlock ctor
     ptrbd = new TurbulenceDriver(this, pin);
 
-fprintf(stderr,"Done in Setting up Mesh \n");
+// fprintf(stderr,"Done in Setting up Mesh \n");
 
 }
 

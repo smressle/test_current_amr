@@ -293,7 +293,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   AllocateUserHistoryOutput(1);
 
-  EnrollUserHistoryOutput(0, DivergenceB, "divB");
+  if (MAGNETIC_FIELDS_ENABLED) EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
   t0 = pin->GetOrAddReal("problem","t0", 0.0);
   m =pin->GetReal("coord", "m");
