@@ -295,7 +295,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 0.0);
   m =pin->GetReal("coord", "m");
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -329,7 +329,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   // aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   // r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 0.0);
 
   // orbit_inclination = pin->GetOrAddReal("problem","orbit_inclination",0.0);
 
@@ -1064,7 +1064,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     fscanf(input_file, "%i %f \n", &nt, &q);
     // int nt = 10;
-    q = 0.1;
+    q = 1.0;
 
        
     fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
@@ -1994,7 +1994,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   //////////////Perturber Black Hole//////////////////
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 0.0);
 
   Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
