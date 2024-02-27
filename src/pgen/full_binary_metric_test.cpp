@@ -113,7 +113,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
 
-void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3,AthenaArray<Real>&orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
+void BoostVector(int BH_INDEX, Real t, Real a0, Real a1, Real a2, Real a3,AthenaArray<Real>&orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 
@@ -1777,36 +1777,110 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 #pragma simd
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-
-         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),a1x,a1y,a1z, &r, &th, &ph);
-
-          if (r < r_inner_boundary){
-              
-
-              //set uu assuming u is zero
-              Real gamma = 1.0;
-              Real alpha = std::sqrt(-1.0/gi(I00,i));
-              Real u0 = gamma/alpha;
-              Real uu1 = - gi(I01,i)/gi(I00,i) * u0;
-              Real uu2 = - gi(I02,i)/gi(I00,i) * u0;
-              Real uu3 = - gi(I03,i)/gi(I00,i) * u0;
-              
-              prim(IDN,k,j,i) = dfloor;
-              prim(IVX,k,j,i) = 0.;
-              prim(IVY,k,j,i) = 0.;
-              prim(IVZ,k,j,i) = 0.;
-              prim(IPR,k,j,i) = pfloor;
-            
-              
-              
-          }
-
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
           Real t = pmb->pmy_mesh->metric_time;
 
           Real xprime,yprime,zprime,rprime,Rprime;
+
+          get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
+          if (rprime < rh){
+
+              Real bsq_over_rho_max = 1.0;
+              Real beta_floor = 0.2;
+              
+
+
+              // Calculate normal frame Lorentz factor
+              Real uu1 = 0.0;
+              Real uu2 = 0.0;
+              Real uu3 = 0.0;
+              Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                       + g(I33,i)*uu3*uu3;
+              Real gamma = std::sqrt(1.0 + tmp);
+
+              // Calculate 4-velocity
+              Real alpha = std::sqrt(-1.0/gi(I00,i));
+              Real u0 = gamma/alpha;
+              Real u1 = uu1 - alpha * gamma * gi(I01,i);
+              Real u2 = uu2 - alpha * gamma * gi(I02,i);
+              Real u3 = uu3 - alpha * gamma * gi(I03,i);
+
+
+
+              Real u0prime,u1prime,u2prime,u3prime;
+              BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
+
+
+
+
+              uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+              uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+              uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+              
+              prim(IDN,k,j,i) = dfloor;
+              prim(IVX,k,j,i) = uu1;
+              prim(IVY,k,j,i) = uu2;
+              prim(IVZ,k,j,i) = uu3;
+              prim(IPR,k,j,i) = pfloor;
+
+
+              uu1 = prim(IVX,k,j,i);
+              uu2 = prim(IVY,k,j,i);
+              uu3 = prim(IVZ,k,j,i);
+              tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                       + g(I33,i)*uu3*uu3;
+              gamma = std::sqrt(1.0 + tmp);
+              // user_out_var(0,k,j,i) = gamma;
+
+              // Calculate 4-velocity
+              alpha = std::sqrt(-1.0/gi(I00,i));
+              u0 = gamma/alpha;
+              u1 = uu1 - alpha * gamma * gi(I01,i);
+              u2 = uu2 - alpha * gamma * gi(I02,i);
+              u3 = uu3 - alpha * gamma * gi(I03,i);
+              Real u_0, u_1, u_2, u_3;
+
+              // user_out_var(1,k,j,i) = u0;
+              // user_out_var(2,k,j,i) = u1;
+              // user_out_var(3,k,j,i) = u2;
+              // user_out_var(4,k,j,i) = u3;
+              if (MAGNETIC_FIELDS_ENABLED) {
+    
+
+                pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+                // Calculate 4-magnetic field
+                Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
+                Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
+                Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
+                Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+                        + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+                        + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+                        + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+                Real b1 = (bb1 + b0 * u1) / u0;
+                Real b2 = (bb2 + b0 * u2) / u0;
+                Real b3 = (bb3 + b0 * u3) / u0;
+                Real b_0, b_1, b_2, b_3;
+                pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+                // Calculate bsq
+                Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+
+                if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
+                if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
+            
+              }
+              
+          }
+
+
 
           get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
@@ -1836,19 +1910,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
-              Real v2x = orbit_quantities(IV2X);
-              Real v2y = orbit_quantities(IV2Y);
-              Real v2z = orbit_quantities(IV2Z);
-
-
-
               Real u0prime,u1prime,u2prime,u3prime;
-              BoostVector(t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
-              // Real u0prime = (u0 + v2x * u1 + v2y * u2 + v2z * u3);
-              // Real u1prime = (u1 + v2x * u0);
-              // Real u2prime = (u2 + v2y * u0);
-              // Real u3prime = (u3 + v2z * u0);
-
+              BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
+ 
 
 
               uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
@@ -3008,12 +3072,25 @@ void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &o
 
 //From BHframe to lab frame
 
-void BoostVector(Real t,Real a0, Real a1, Real a2, Real a3, AthenaArray<Real> &orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
+void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, AthenaArray<Real> &orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
 
 
-  Real vxbh = orbit_quantities(IV2X);
-  Real vybh = orbit_quantities(IV2Y);
-  Real vzbh = orbit_quantities(IV2Z);
+  Real vxbh,vybh,vzbh;
+  if (BH_INDEX==1){
+    vxbh = orbit_quantities(IV1X);
+    vybh = orbit_quantities(IV1Y);
+    vzbh = orbit_quantities(IV1Z);
+
+  }
+  else if (BH_INDEX==2){
+    vxbh = orbit_quantities(IV2X);
+    vybh = orbit_quantities(IV2Y);
+    vzbh = orbit_quantities(IV2Z);
+  }
+  else{
+    fprintf(stderr,"Choose a valid BH_INDEX!!!: %g",BH_INDEX);
+    exit(0);
+  }
 
 
 
