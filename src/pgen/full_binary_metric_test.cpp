@@ -257,6 +257,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pgas_pow = pin->GetReal("hydro", "pgas_pow");
 
 
+  bondi_radius  = pin->GetReal("problem", "bondi_radius");
+
   if (MAGNETIC_FIELDS_ENABLED) beta_min = pin->GetReal("problem", "beta_min");
 
 
@@ -377,7 +379,7 @@ int RefinementCondition(MeshBlock *pmb)
 
   Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
   Real bh2_focus_radius = 3.125*q;
-  //Real bh2_focus_radius = 3.125*0.1;
+  // Real bh1_focus_radius = 3.125;
 
   int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
 
@@ -413,7 +415,8 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real xprime,yprime,zprime,rprime,Rprime;
             get_prime_coords(2,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+            //Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
@@ -459,7 +462,7 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(2,x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(1,x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
           
@@ -467,8 +470,8 @@ int RefinementCondition(MeshBlock *pmb)
              // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
              //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
              //    }
-            if (x<box_radius && x > -box_radius && y<box_radius
-              && y > -box_radius && z<box_radius && z > -box_radius ){
+            if (xprime<box_radius && xprime > -box_radius && yprime<box_radius
+              && yprime > -box_radius && zprime<box_radius && zprime > -box_radius ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
@@ -550,11 +553,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real gam = peos->GetGamma();
   Real P_0 = SQR(cs_0)*rho_0/gam;
 
-
-  rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
-
-
-
   // Prepare scratch arrays
   AthenaArray<Real> g, gi;
   g.NewAthenaArray(NMETRIC, iu+1);
@@ -580,20 +578,20 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         //if (std::fabs(a)<1e-1) amp = 0.01;
         Real rval = amp*(ran2(&iseed) - 0.5);
     
-        if (r<r_cut){
-          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 0.0;
-          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 0.0;
-          phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
-          phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
-          phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
-        }
-        else{ 
-          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho_0 * (1.0 + 2.0*rval);
+        // if (r<r_cut){
+        //   phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 0.0;
+        //   phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 0.0;
+        //   phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
+        //   phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
+        //   phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
+        // }
+        // else{ 
+          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho_0;
           phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = P_0;
           phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
           phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
           phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
-      }
+      // }
       }
     }
   }
@@ -603,420 +601,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
 
 
-  // Initialize magnetic fields
-  if (MAGNETIC_FIELDS_ENABLED) {
-
-
-
-    // Determine limits of sample grid
-    Real r_vals[8], theta_vals[8], phi_vals[8];
-    for (int p = 0; p < 8; ++p) {
-      Real x1_val = (p%2 == 0) ? x1_min : x1_max;
-      Real x2_val = ((p/2)%2 == 0) ? x2_min : x2_max;
-      Real x3_val = ((p/4)%2 == 0) ? x3_min : x3_max;
-      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val, 0.0, 0.0, a,r_vals+p, theta_vals+p,
-          phi_vals+p);
-    }
-    // r_min = *std::min_element(r_vals, r_vals+8);
-    r_max = *std::max_element(r_vals, r_vals+8);
-    // theta_min = *std::min_element(theta_vals, theta_vals+8);
-    // theta_max = *std::max_element(theta_vals, theta_vals+8);
-    // phi_min = *std::min_element(phi_vals, phi_vals+8);
-    // phi_max = *std::max_element(phi_vals, phi_vals+8);
-
-    r_min = rh;
-    theta_min = 0.01; 
-    theta_max = PI-0.01;
-    phi_min = 0.0;
-    phi_max = 2.0*PI;
-
-    // Prepare arrays of vector potential values
-    AthenaArray<Real> a_phi_edges, a_phi_cells;
-    AthenaArray<Real> a_theta_0, a_theta_1, a_theta_2, a_theta_3;
-    AthenaArray<Real> a_phi_0, a_phi_1, a_phi_2, a_phi_3;
-    if (field_config != vertical) {
-      a_phi_edges.NewAthenaArray(ku+2,ju+2, iu+2);
-      a_phi_cells.NewAthenaArray(ku+1,ju+1, iu+1);
-    }
-    Real normalization;
-
-    // Calculate vector potential in normal case
-    if (field_config == normal) {
-
-      // Calculate edge-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku+1; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            if (r >= r_edge) {
-              Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
-              if (log_h >= 0.0) {
-                Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-                Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow);
-              }
-             }
-            }
-          }
-        }
-
-      // Calculate cell-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            if (r >= r_edge) {
-              Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
-              if (log_h >= 0.0) {
-                Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-                Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow);
-              }
-            }
-            }
-          }
-        }
-
-
-
-      // Calculate magnetic field normalization
-      if (beta_min < 0.0) {
-        normalization = 0.0;
-      } else {
-        Real beta_min_actual = CalculateBetaMin();
-        normalization = std::sqrt(beta_min_actual/beta_min);
-      }
-
-    // Calculate vector potential in renormalized case
-    } else if (field_config == vertical) {
-
-      // Calculate magnetic field normalization
-      if (beta_min < 0.0) {
-        normalization = 0.0;
-      } else {
-        Real beta_min_actual = CalculateBetaMin();
-        normalization = std::sqrt(beta_min_actual/beta_min);
-        fprintf(stderr,"norm: %g beta_min_actual: %g beta_min: %g \n",normalization,beta_min_actual,beta_min);
-      }
-
-    // Handle unknown input
-    } 
-    else if (field_config == MAD){
-      // Calculate edge-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku+1; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            if (r >= r_edge) {
-              Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
-              if (log_h >= 0.0) {
-                Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-                Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_edges(k,j,i) = std::max( std::pow(r/20.0, 3.0) * std::pow(std::sin(theta),3.0) 
-                    * rho * std::exp(-r/400.0)-0.2 ,static_cast<Real>(0.0)) ;
-              }
-             }
-            }
-          }
-        }
-
-      // Calculate cell-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            if (r >= r_edge) {
-              Real log_h = LogHAux(r, std::sin(theta)) - log_h_edge;  // (FM 3.6)
-              if (log_h >= 0.0) {
-                Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-                Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_cells(k,j,i) = std::max( std::pow(r/20.0, 3.0) * std::pow(std::sin(theta),3.0) 
-                    * rho * std::exp(-r/400.0)-0.2 ,static_cast<Real>(0.0)) ;
-              }
-            }
-            }
-          }
-        }
-
-
-
-      // // Calculate magnetic field normalization
-      // if (beta_min < 0.0) {
-      //   normalization = 0.0;
-      // } else {
-      //   Real beta_min_actual = CalculateBetaMin();
-      //   normalization = std::sqrt(beta_min_actual/beta_min);
-      // }
-
-      normalization = 0.5715;
-
-    }
-    else {
-      std::stringstream msg;
-      msg << "### FATAL ERROR in Problem Generator\n"
-          << "field_config must be \"normal\" or \"vertical\"" << std::endl;
-      throw std::runtime_error(msg.str().c_str());
-    }
-
-    // Set magnetic fields according to vector potential in vertical case
-    if (field_config == vertical) {
-
-      // Set B^1
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            Real sin_theta = std::sin(theta);
-            Real cos_theta = std::cos(theta);
-            Real rr = r * sin_theta;
-            Real z = r * cos_theta;
-            Real det = (SQR(r) + SQR(a) * SQR(cos_theta)) * sin_theta;
-            Real bbr = rr * z / det;
-            Real bbtheta = -SQR(rr) / (r * det);
-            if (rr < r_edge or det == 0.0 or (bbr == 0.0 and bbtheta == 0.0)) {
-              pfield->b.x1f(k,j,i) = 0.0;
-            } else {
-              Real ut, uphi;
-              CalculateVelocityInTorus(r, sin_theta, &ut, &uphi);
-              Real br = 1.0/ut * bbr;
-              Real btheta = 1.0/ut * bbtheta;
-              Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
-              Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&b0, &b1, &b2, &b3);
-              pfield->b.x1f(k,j,i) = (b1 * u0 - b0 * u1) * normalization;
-            }
-          }
-        }
-      }
-
-      // Set B^2
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            Real sin_theta = std::sin(theta);
-            Real cos_theta = std::cos(theta);
-            Real rr = r * sin_theta;
-            Real z = r * cos_theta;
-            Real det = (SQR(r) + SQR(a) * SQR(cos_theta)) * sin_theta;
-            Real bbr = rr * z / det;
-            Real bbtheta = -SQR(rr) / (r * det);
-            if (rr < r_edge or det == 0.0 or (bbr == 0.0 and bbtheta == 0.0)) {
-              pfield->b.x2f(k,j,i) = 0.0;
-            } else {
-              Real ut, uphi;
-              CalculateVelocityInTorus(r, sin_theta, &ut, &uphi);
-              Real br = 1.0/ut * bbr;
-              Real btheta = 1.0/ut * bbtheta;
-              Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),a, &u0, &u1, &u2, &u3);
-              Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&b0, &b1, &b2, &b3);
-              pfield->b.x2f(k,j,i) = (b2 * u0 - b0 * u2) * normalization;
-            }
-          }
-        }
-      }
-
-      // Set B^3
-      for (int k = kl; k <= ku+1; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k),0.0, 0.0, a,
-                &r, &theta, &phi);
-            Real sin_theta = std::sin(theta);
-            Real cos_theta = std::cos(theta);
-            Real rr = r * sin_theta;
-            Real z = r * cos_theta;
-            Real det = (SQR(r) + SQR(a) * SQR(cos_theta)) * sin_theta;
-            Real bbr = rr * z / det;
-            Real bbtheta = -SQR(rr) / (r * det);
-            if (rr < r_edge or det == 0.0 or (bbr == 0.0 and bbtheta == 0.0)) {
-              pfield->b.x3f(k,j,i) = 0.0;
-            } else {
-              Real ut, uphi;
-              CalculateVelocityInTorus(r, sin_theta, &ut, &uphi);
-              Real br = 1.0/ut * bbr;
-              Real btheta = 1.0/ut * bbtheta;
-              Real u0, u1, u2, u3;
-              TransformVector(ut, 0.0, 0.0, uphi, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
-              Real b0, b1, b2, b3;
-              TransformVector(0.0, br, btheta, 0.0, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),a, &b0, &b1, &b2, &b3);
-              pfield->b.x3f(k,j,i) = (b3 * u0 - b0 * u3) * normalization;
-            }
-          }
-        }
-      }
-
-    // Set magnetic fields according to vector potential for untilted disks
-    } else{
-
-      // Set B^1
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          pcoord->Face1Metric(k, j, il, iu+1,g_, gi_);
-          for (int i = il; i <= iu+1; ++i) {
-
-
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch;
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch); 
-
-            g_scratch.DeleteAthenaArray();
-
-            //d Az /dy
-            Real tmp, Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k), a, 
-                &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k), a, 
-                &tmp,&tmp,&Az_1);
-                  
-
-            pfield->b.x1f(k,j,i) = 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx2f(j) );
-
-            //d Ay/dz
-            Real  Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1), a,
-                &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), a,
-                &tmp,&Ay_1,&tmp);
-
-            pfield->b.x1f(k,j,i) -= 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx3f(k) );
-
-            pfield->b.x1f(k,j,i) *= normalization;
-
-          }
-        }
-      }
-
-      // Set B^2
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          pcoord->Face2Metric(k, j, il, iu,g_, gi_);
-          for (int i = il; i <= iu; ++i) {
-
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch; 
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch);
-
-            g_scratch.DeleteAthenaArray();
-
-            //d Ax /dz
-            Real tmp, Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1), a, 
-                &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), a, 
-                &Ax_1,&tmp,&tmp);
-                  
-
-            pfield->b.x2f(k,j,i) = 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx3f(k) );
-
-            //d Az/dx
-            Real Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k), a, 
-                &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k), a, 
-                &tmp,&tmp,&Az_1);
-
-            pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
-
-            pfield->b.x2f(k,j,i) *= normalization;
-                  
-          }
-        }
-      }
-
-      // Set B^3
-      for (int k = kl; k <= ku+1; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          pcoord->Face3Metric(k, j, il, iu+1,g_, gi_);
-          for (int i = il; i <= iu; ++i) {
-
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch;
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch);
-
-            g_scratch.DeleteAthenaArray();
-
-            //d Ay /dx
-            Real tmp, Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k), a, 
-                &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), a, 
-                &tmp,&Ay_1,&tmp);
-                  
-
-            pfield->b.x3f(k,j,i) = 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx1f(i) );
-
-            //d Ax/dy
-            Real Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k), a, 
-                &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), a, 
-                &Ax_1,&tmp,&tmp);
-
-            pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
-
-            pfield->b.x3f(k,j,i) *= normalization;
-              
-
-          }
-        }
-      }
-
-    }
-
   
-
-    // Free vector potential arrays
-    if (field_config != vertical) {
-      if (psi == 0.0) {
-        a_phi_edges.DeleteAthenaArray();
-        a_phi_cells.DeleteAthenaArray();
-      } else {
-        a_theta_0.DeleteAthenaArray();
-        a_theta_1.DeleteAthenaArray();
-        a_theta_2.DeleteAthenaArray();
-        a_theta_3.DeleteAthenaArray();
-        a_phi_0.DeleteAthenaArray();
-        a_phi_1.DeleteAthenaArray();
-        a_phi_2.DeleteAthenaArray();
-        a_phi_3.DeleteAthenaArray();
-      }
-    }
-  }
 
   // Impose density and pressure floors
   for (int k = kl; k <= ku; ++k) {
