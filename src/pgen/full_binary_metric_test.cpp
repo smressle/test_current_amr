@@ -1833,7 +1833,7 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
 
 void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
 
-  Real xbh,ybh,zbh,ax,ay,az,vxbh,vybh,vzbh
+  Real xbh,ybh,zbh,ax,ay,az,vxbh,vybh,vzbh;
 
   
   if (BH_INDEX ==1){
