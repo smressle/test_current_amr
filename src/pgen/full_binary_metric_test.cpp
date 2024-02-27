@@ -415,8 +415,8 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real xprime,yprime,zprime,rprime,Rprime;
             get_prime_coords(2,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            //Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
-            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
+            Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+            //Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
@@ -692,7 +692,7 @@ void set_orbit_arrays(std::string orbit_file_name){
 
   fclose(input_file);
 
-  fprintf(stderr,"Done reading orbit file \n");
+  // fprintf(stderr,"Done reading orbit file \n");
 
 }
 
