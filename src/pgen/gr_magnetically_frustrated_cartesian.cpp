@@ -61,7 +61,6 @@ int RefinementCondition(MeshBlock *pmb);
 // Global variables
 static Real m, a;          // black hole mass and spin
 static Real dfloor,pfloor;                         // density and pressure floors
-static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
 
 static Real rh;
 static Real r_cut;        // initial condition cut off

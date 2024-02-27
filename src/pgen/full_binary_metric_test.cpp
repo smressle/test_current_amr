@@ -131,6 +131,8 @@ static Real beta_min;                              // min ratio of gas to mag pr
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
 static int sample_n_phi;                           // number of cells in 3D sample grid
 static Real dfloor,pfloor;                         // density and pressure floors
+static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
+
 // static Real rh;                                    // horizon radius
 static Real bondi_radius;  // b^2/rho at inner radius
 
