@@ -1706,6 +1706,7 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 
 
   Lambda.DeleteAthenaArray();
+  return;
 
 }
 
@@ -1741,6 +1742,11 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
   Real eta[4];
+
+  eta[0] = -1.0;
+  eta[1] = 1.0;
+  eta[2] = 1.0;
+  eta[3] = 1.0;
 
   //////////////First Black Hole//////////////////
   Real xprime,yprime,zprime,rprime,Rprime;
