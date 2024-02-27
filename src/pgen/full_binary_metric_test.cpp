@@ -127,27 +127,13 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
-static Real gamma_adi, k_adi;                      // hydro parameters
-static Real r_edge, r_peak, l, rho_max;            // fixed torus parameters
-static Real psi, sin_psi, cos_psi;                 // tilt parameters
-static Real log_h_edge, log_h_peak;                // calculated torus parameters
-static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
-static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
-static b_configs field_config;                     // type of magnetic field
-static Real potential_cutoff;                      // sets region of torus to magnetize
-static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real beta_min;                              // min ratio of gas to mag pressure
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
 static int sample_n_phi;                           // number of cells in 3D sample grid
-static Real sample_r_rat;                          // sample grid geometric spacing ratio
-static Real sample_cutoff;                         // density cutoff for sample grid
-static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
-static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
-static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
-static Real phi_min, phi_max;                      // limits in phi for 3D samples
-static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
 static Real dfloor,pfloor;                         // density and pressure floors
 // static Real rh;                                    // horizon radius
+static Real bondi_radius;  // b^2/rho at inner radius
+
 
 static Real q;          // black hole mass and spin
 //Real q; 
@@ -267,58 +253,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   rho_pow = pin->GetReal("hydro", "rho_pow");
   pgas_min = pin->GetReal("hydro", "pgas_min");
   pgas_pow = pin->GetReal("hydro", "pgas_pow");
-  k_adi = pin->GetReal("problem", "k_adi");
-  r_edge = pin->GetReal("problem", "r_edge");
-  r_peak = pin->GetReal("problem", "r_peak");
-  l = pin->GetReal("problem", "l");
-  rho_max = pin->GetReal("problem", "rho_max");
-  psi = pin->GetOrAddReal("problem", "tilt_angle", 0.0) * PI/180.0;
-  sin_psi = std::sin(psi);
-  cos_psi = std::cos(psi);
-  if (MAGNETIC_FIELDS_ENABLED) {
-    std::string field_config_str = pin->GetString("problem",
-                                                  "field_config");
-    if (field_config_str == "vertical") {
-      field_config = vertical;
-    } else if (field_config_str == "normal") {
-      field_config = normal;
-    } else if (field_config_str == "renorm") {
-      field_config = renorm;
-    } else if (field_config_str == "MAD"){
-      field_config = MAD;
-    } else {
-      std::stringstream msg;
-      msg << "### FATAL ERROR in Problem Generator\n"
-          << "unrecognized field_config="
-          << field_config_str << std::endl;
-      throw std::runtime_error(msg.str().c_str());
-    }
 
-    if (field_config != vertical) {
-      potential_cutoff = pin->GetReal("problem", "potential_cutoff");
-      potential_r_pow = pin->GetReal("problem", "potential_r_pow");
-      potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
-    }
-    beta_min = pin->GetReal("problem", "beta_min");
-    sample_n_r = pin->GetInteger("problem", "sample_n_r");
-    sample_n_theta = pin->GetInteger("problem", "sample_n_theta");
-    if (psi != 0.0) {
-      sample_n_phi = pin->GetInteger("problem", "sample_n_phi");
-    } else {
-      sample_n_phi = 1;
-    }
-    sample_r_rat = pin->GetReal("problem", "sample_r_rat");
-    sample_cutoff = pin->GetReal("problem", "sample_cutoff");
-    x1_min = pin->GetReal("mesh", "x1min");
-    x1_max = pin->GetReal("mesh", "x1max");
-    x2_min = pin->GetReal("mesh", "x2min");
-    x2_max = pin->GetReal("mesh", "x2max");
-    x3_min = pin->GetReal("mesh", "x3min");
-    x3_max = pin->GetReal("mesh", "x3max");
-  }
-  pert_amp = pin->GetOrAddReal("problem", "pert_amp", 0.0);
-  pert_kr = pin->GetOrAddReal("problem", "pert_kr", 0.0);
-  pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
+
+  if (MAGNETIC_FIELDS_ENABLED) beta_min = pin->GetReal("problem", "beta_min");
 
 
   max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
@@ -606,201 +543,58 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
-  // fprintf(stderr,"In problem generator \n");
-
-  Real a = pin->GetOrAddReal("problem", "a", 0.0);
-  Real rh =  ( m + std::sqrt( SQR(m) -SQR(a)) );
-
-  //initialize random numbers
-  std::mt19937_64 generator;
-  std::uniform_real_distribution<Real> uniform(-0.02, std::nextafter(0.02, std::numeric_limits<Real>::max()));
+  Real cs_0 = 1.0/std::sqrt(bondi_radius);
+  Real rho_0 = 1.0;
+  Real gam = peos->GetGamma();
+  Real P_0 = SQR(cs_0)*rho_0/gam;
 
 
-  // Get ratio of specific heats
-  gamma_adi = peos->GetGamma();
+  rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
 
-  // Reset whichever of l,r_peak is not specified
-  if (r_peak >= 0.0) {
-    l = CalculateLFromRPeak(r_peak);
-  } else {
-    r_peak = CalculateRPeakFromL(l);
-  }
 
-  // Prepare global constants describing primitives
-  log_h_edge = LogHAux(r_edge, 1.0);
-  log_h_peak = LogHAux(r_peak, 1.0) - log_h_edge;
-  pgas_over_rho_peak = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h_peak)-1.0);
-  rho_peak = std::pow(pgas_over_rho_peak/k_adi, 1.0/(gamma_adi-1.0)) / rho_max;
 
   // Prepare scratch arrays
-  AthenaArray<Real> g, gi,g_tmp,gi_tmp;
+  AthenaArray<Real> g, gi;
   g.NewAthenaArray(NMETRIC, iu+1);
   gi.NewAthenaArray(NMETRIC, iu+1);
-  g_tmp.NewAthenaArray(NMETRIC);
-  gi_tmp.NewAthenaArray(NMETRIC);
+
+// Ensure a different initial random seed for each meshblock.
+  int64_t iseed = -1 - gid;
+
   // Initialize primitive values
   for (int k = kl; k <= ku; ++k) {
     for (int j = jl; j <= ju; ++j) {
       pcoord->CellMetric(k, j, il, iu, g, gi);
       for (int i = il; i <= iu; ++i) {
-
-        // Calculate Boyer-Lindquist coordinates of cell
         Real r, theta, phi;
-        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), 0.0, 0.0, a, &r,
-            &theta, &phi);
-        Real sin_theta = std::sin(theta);
-        Real cos_theta = std::cos(theta);
-        Real sin_phi = std::sin(phi);
-        Real cos_phi = std::cos(phi);
+        GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
+            &r, &theta, &phi);
+        Real u0 = std::sqrt(-1.0/g(I00,i));
+        Real uu1 = 0.0 - gi(I01,i)/gi(I00,i) * u0;
+        Real uu2 = 0.0 - gi(I02,i)/gi(I00,i) * u0;
+        Real uu3 = 0.0 - gi(I03,i)/gi(I00,i) * u0;
 
-        Real sin_vartheta, cos_vartheta, varphi;
-        sin_vartheta = std::abs(sin_theta);
-        cos_vartheta = cos_theta;
-        varphi = (sin_theta < 0.0) ? phi-PI : phi;
-        Real sin_varphi = std::sin(varphi);
-        Real cos_varphi = std::cos(varphi);
-
-
-        Real g_raised[4][4];
-
-        g_raised[0][0] = g(I00,i)*gi(I00,i) + g(I01,i)*gi(I01,i) + g(I02,i)*gi(I02,i) + g(I03,i)*gi(I03,i);
-        g_raised[0][1] = g(I00,i)*gi(I01,i) + g(I01,i)*gi(I11,i) + g(I02,i)*gi(I12,i) + g(I03,i)*gi(I13,i);
-        g_raised[1][0] = g(I01,i)*gi(I00,i) + g(I11,i)*gi(I01,i) + g(I12,i)*gi(I02,i) + g(I13,i)*gi(I03,i);
-        g_raised[0][2] = g(I00,i)*gi(I02,i) + g(I01,i)*gi(I12,i) + g(I02,i)*gi(I22,i) + g(I03,i)*gi(I23,i);
-        g_raised[2][0] = g(I02,i)*gi(I00,i) + g(I12,i)*gi(I01,i) + g(I22,i)*gi(I02,i) + g(I23,i)*gi(I03,i);
-        g_raised[0][3] = g(I00,i)*gi(I03,i) + g(I01,i)*gi(I13,i) + g(I02,i)*gi(I23,i) + g(I03,i)*gi(I33,i);
-        g_raised[3][0] = g(I03,i)*gi(I00,i) + g(I13,i)*gi(I01,i) + g(I23,i)*gi(I02,i) + g(I33,i)*gi(I03,i);
-        g_raised[1][1] = g(I01,i)*gi(I01,i) + g(I11,i)*gi(I11,i) + g(I12,i)*gi(I12,i) + g(I13,i)*gi(I13,i);
-        g_raised[2][1] = g(I02,i)*gi(I01,i) + g(I12,i)*gi(I11,i) + g(I22,i)*gi(I12,i) + g(I23,i)*gi(I13,i);
-        g_raised[1][2] = g(I01,i)*gi(I02,i) + g(I11,i)*gi(I12,i) + g(I12,i)*gi(I22,i) + g(I13,i)*gi(I23,i);     
-        g_raised[2][2] = g(I02,i)*gi(I02,i) + g(I12,i)*gi(I12,i) + g(I22,i)*gi(I22,i) + g(I23,i)*gi(I23,i);  
-        g_raised[2][3] = g(I02,i)*gi(I03,i) + g(I12,i)*gi(I13,i) + g(I22,i)*gi(I23,i) + g(I23,i)*gi(I33,i);
-        g_raised[3][2] = g(I03,i)*gi(I02,i) + g(I13,i)*gi(I12,i) + g(I23,i)*gi(I22,i) + g(I33,i)*gi(I23,i);
-        g_raised[3][1] = g(I03,i)*gi(I01,i) + g(I13,i)*gi(I11,i) + g(I23,i)*gi(I12,i) + g(I33,i)*gi(I13,i);
-        g_raised[1][3] = g(I01,i)*gi(I03,i) + g(I11,i)*gi(I13,i) + g(I12,i)*gi(I23,i) + g(I13,i)*gi(I33,i);
-        g_raised[3][3] = g(I03,i)*gi(I03,i) + g(I13,i)*gi(I13,i) + g(I23,i)*gi(I23,i) + g(I33,i)*gi(I33,i);
-
-      //   if (i==15 && j==15 && k==15){
-      //   for (int mu =0; mu<=3; ++mu){
-      //     for (int nu = 0; nu<=3; ++nu){
-
-      //       fprintf(stderr,"mu: %d nu: %d g_mu^nu: %g \n",mu, nu ,g_raised[mu][nu]);
-
-
-      //     }
-      //   }
-
-      //   fprintf(stderr,"Determinant: %g \n", Determinant(g));
-      // }
-
-      g_tmp(I00) = g(I00,i);
-      g_tmp(I01) = g(I01,i);
-      g_tmp(I02) = g(I02,i);
-      g_tmp(I03) = g(I03,i);
-      g_tmp(I11) = g(I11,i);
-      g_tmp(I12) = g(I12,i);
-      g_tmp(I13) = g(I13,i);
-      g_tmp(I22) = g(I22,i);
-      g_tmp(I23) = g(I23,i);
-      g_tmp(I33) = g(I33,i);
-      
-      gi_tmp(I00) = gi(I00,i);
-      gi_tmp(I01) = gi(I01,i);
-      gi_tmp(I02) = gi(I02,i);
-      gi_tmp(I03) = gi(I03,i);
-      gi_tmp(I11) = gi(I11,i);
-      gi_tmp(I12) = gi(I12,i);
-      gi_tmp(I13) = gi(I13,i);
-      gi_tmp(I22) = gi(I22,i);
-      gi_tmp(I23) = gi(I23,i);
-      gi_tmp(I33) = gi(I33,i);
-
-      Real det = std::sqrt(-Determinant(g_tmp));
-      Real deti = std::sqrt(-Determinant(gi_tmp));
-      // if (r>rh){
-      //   if (std::fabs(1.0 -det)>1e-4 || std::fabs(1.0-deti) >1e-4 ) 
-      //     fprintf(stderr, "Problem with determinant at r = %g th= %g phi = %g !! \n x y z: %g %g %g \ndet: %g deti: %g \n", 
-      //       r,theta,phi,pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),det,deti );
-      //           for (int mu =0; mu<=3; ++mu){
-      //     for (int nu = 0; nu<=3; ++nu){
-
-      //       if ( (mu==nu) && (std::fabs(g_raised[mu][nu] - 1.0)> 1e-4) ) 
-      //         fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g ", r,mu,nu,g_raised[mu][nu]);
-      //       else if ( ( mu != nu) && (std::fabs(g_raised[mu][nu])>1e-4) )
-      //         fprintf(stderr,"Problem with metric at r = %g !! \n mu = %d nu = %d\n g_raised: %g\n", r,mu,nu, g_raised[mu,nu]);
-
-      //     }
-      //   }
-      // }
-
-        // Determine if we are in the torus
-        Real log_h;
-        bool in_torus = false;
-        if (r >= r_edge) {
-          log_h = LogHAux(r, sin_vartheta) - log_h_edge;  // (FM 3.6)
-          if (log_h >= 0.0) {
-            in_torus = true;
-          }
+        Real amp = 0.00;
+        //if (std::fabs(a)<1e-1) amp = 0.01;
+        Real rval = amp*(ran2(&iseed) - 0.5);
+    
+        if (r<r_cut){
+          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 0.0;
+          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 0.0;
+          phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
+          phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
+          phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
         }
-
-        // Calculate background primitives
-        Real rho = rho_min * std::pow(r, rho_pow);
-        Real pgas = pgas_min * std::pow(r, pgas_pow);
-        Real uu1 = 0.0;
-        Real uu2 = 0.0;
-        Real uu3 = 0.0;
-
-        Real perturbation = 0.0;
-        // Overwrite primitives inside torus
-        if (in_torus) {
-
-          int seed = Globals::my_rank * block_size.nx1*block_size.nx2*block_size.nx3+ (k - ks) * block_size.nx2 * block_size.nx1 + (j - js) * block_size.nx1 + i - is;
-          generator.seed(seed);
-          perturbation = uniform(generator);
-
-          // Calculate thermodynamic variables
-          Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-          rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-          pgas = pgas_over_rho * rho;
-
-          // Calculate velocities in Boyer-Lindquist coordinates
-          Real u0_bl, u1_bl, u2_bl, u3_bl;
-          CalculateVelocityInTiltedTorus(r, theta, phi, &u0_bl, &u1_bl, &u2_bl, &u3_bl);
-
-          // Transform to preferred coordinates
-          Real u0, u1, u2, u3;
-          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
-          uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
-          uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
-          uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
-        }
-
-        // Set primitive values, including cylindrically symmetric radial velocity
-        // perturbations
-        Real rr = r * sin_vartheta;
-        Real z = r * cos_vartheta;
-        Real amp_rel = 0.0;
-        if (in_torus) {
-          amp_rel = pert_amp * std::sin(pert_kr*rr) * std::cos(pert_kz*z);
-        }
-        Real amp_abs = amp_rel * uu3;
-        Real pert_uur = rr/r * amp_abs;
-        Real pert_uutheta = cos_theta/r * amp_abs;
-        //fprintf(stderr,"xyz: %g %g %g \n r th ph: %g %g %g in_torus: %d \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),r,theta,phi, in_torus);
-        phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
-        phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas * (1 + perturbation);
-        phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = uu1 + pert_uur;
-        phydro->w(IVY,k,j,i) = phydro->w1(IM2,k,j,i) = uu2 + pert_uutheta;
-        phydro->w(IVZ,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
+        else{ 
+          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho_0 * (1.0 + 2.0*rval);
+          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = P_0;
+          phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
+          phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
+          phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
+      }
       }
     }
   }
-
-  // Free scratch arrays
-  g.DeleteAthenaArray();
-  gi.DeleteAthenaArray();
-  g_tmp.DeleteAthenaArray();
-  gi_tmp.DeleteAthenaArray();
 
 
   AthenaArray<Real> &g_ = ruser_meshblock_data[0];
