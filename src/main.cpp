@@ -274,7 +274,7 @@ int main(int argc, char *argv[]) {
       pmesh = new Mesh(pinput, restartfile, mesh_flag);
     }
 
-    fprintf(stderr,"MESH INITIZLIZED \n");
+    // fprintf(stderr,"MESH INITIZLIZED \n");
 #ifdef ENABLE_EXCEPTIONS
   }
   catch(std::bad_alloc& ba) {
@@ -370,7 +370,7 @@ int main(int argc, char *argv[]) {
   try {
 #endif
     pmesh->Initialize(res_flag, pinput);
-    fprintf(stderr,"Mesh Initialization Done\n");
+    // fprintf(stderr,"Mesh Initialization Done\n");
 #ifdef ENABLE_EXCEPTIONS
   }
   catch(std::bad_alloc& ba) {

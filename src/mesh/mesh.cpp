@@ -325,7 +325,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
 
-  fprintf(stderr,"Done with initusermeshdata \n");
+  // fprintf(stderr,"Done with initusermeshdata \n");
   if (multilevel) {
     if (block_size.nx1 % 2 == 1 || (block_size.nx2 % 2 == 1 && f2)
         || (block_size.nx3 % 2 == 1 && f3)) {
@@ -536,7 +536,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   //    gflag = 2;
 
 
-  fprintf(stderr,"Creating meshblock list \n");
+  // fprintf(stderr,"Creating meshblock list \n");
   // create MeshBlock list for this process
   gids_ = nslist[Globals::my_rank];
   gide_ = gids_ + nblist[Globals::my_rank] - 1;
@@ -545,10 +545,10 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   // create MeshBlocks for this node
   for (int i=gids_; i<=gide_; i++) {
     SetBlockSizeAndBoundaries(loclist[i], block_size, block_bcs);
-    fprintf(stderr,"Creating meshblock %d i: %d \n",i-gids_,i);
+    // fprintf(stderr,"Creating meshblock %d i: %d \n",i-gids_,i);
     my_blocks(i-gids_) = new MeshBlock(i, i-gids_, loclist[i], block_size, block_bcs,
                                        this, pin, gflag);
-    fprintf(stderr,"Done with Creating meshblock %d i: %d \n",i-gids_,i);
+    // fprintf(stderr,"Done with Creating meshblock %d i: %d \n",i-gids_,i);
     my_blocks(i-gids_)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
   }
 
@@ -744,7 +744,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
   if (EOS_TABLE_ENABLED) peos_table = new EosTable(pin);
   InitUserMeshData(pin);
-  fprintf(stderr,"done with initusermeshdata \n");
+  // fprintf(stderr,"done with initusermeshdata \n");
 
   // read user Mesh data
   IOWrapperSizeT udsize = 0;

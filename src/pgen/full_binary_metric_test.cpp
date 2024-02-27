@@ -2250,6 +2250,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
   if (invertible==false) {
     fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
+    for (int n = 0; n < NMETRIC; ++n) {
+      fprintf(stderr,"nmetric: %d metric: %g \n", n,g(n));
+    }
+    exit(0);
+
   }
 
 
