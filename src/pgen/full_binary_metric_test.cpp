@@ -132,7 +132,7 @@ static Real q;          // black hole mass and spin
 // static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
 static Real orbit_inclination;
-static Real magnetic_field_inclination, r_cut;
+static Real magnetic_field_inclination, r_cut, field_norm;
 
 static Real t0_orbits,dt_orbits;
 
@@ -663,7 +663,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (i<= iu) x_coord = pcoord->x1v(i);
             else x_coord = pcoord->x1v(iu) + pcoord->dx1v(iu);
             //GetBoyerLindquistCoordinates(x_coord,pcoord->x2f(j),pcoord->x3f(k), &r, &theta,&phi);
-            Real radius = std::sqrt( SQR(xcoord) + SQR(pcoord->x2f(j)) + SQR(pcoord->x3f(k)) );
+            Real radius = std::sqrt( SQR(x_coord) + SQR(pcoord->x2f(j)) + SQR(pcoord->x3f(k)) );
 
             pert = delta * std::cos(phi);
             Real x,y,z;
@@ -686,7 +686,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (j<= ju) y_coord = pcoord->x2v(j);
             else y_coord = pcoord->x2v(ju) + pcoord->dx2v(ju);
             // GetBoyerLindquistCoordinates(pcoord->x1f(i),y_coord,pcoord->x3f(k), &r, &theta,&phi);
-            Real radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(ycoord) + SQR(pcoord->x3f(k)) );
+            radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(y_coord) + SQR(pcoord->x3f(k)) );
             pert = delta * std::cos(phi);
             // GetCKSCoordinates(pcoord->x1f(i),y_coord,pcoord->x3f(k),&x,&y,&z);
             x = pcoord->x1f(i);
@@ -703,7 +703,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (k<= ku) z_coord = pcoord->x3v(k);
             else z_coord = pcoord->x3v(ku) + pcoord->dx3v(ku);
             // GetBoyerLindquistCoordinates(pcoord->x1f(i),pcoord->x2f(j),z_coord, &r, &theta,&phi);
-            Real radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(pcoord->x2f(j)) + SQR(zcoord) );
+            radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(pcoord->x2f(j)) + SQR(z_coord) );
             pert = delta * std::cos(phi);
             // GetCKSCoordinates(pcoord->x1f(i),pcoord->x2f(j),z_coord,&x,&y,&z);
             x = pcoord->x1f(i);
