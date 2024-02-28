@@ -115,7 +115,6 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 // Global variables
 static Real m, a;                                  // black hole parameters
-static Real beta_min;                              // min ratio of gas to mag pressure
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
 static int sample_n_phi;                           // number of cells in 3D sample grid
 static Real dfloor,pfloor;                         // density and pressure floors
@@ -251,7 +250,6 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   r_cut = pin->GetReal("problem", "r_cut");
    if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
-  if (MAGNETIC_FIELDS_ENABLED) beta_min = pin->GetReal("problem", "beta_min");
 
 
   max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
