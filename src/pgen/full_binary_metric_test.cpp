@@ -291,9 +291,11 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  AllocateUserHistoryOutput(1);
+  if (MAGNETIC_FIELDS_ENABLED) {
+    AllocateUserHistoryOutput(1);
+    EnrollUserHistoryOutput(0, DivergenceB, "divB");
+  }
 
-  if (MAGNETIC_FIELDS_ENABLED) EnrollUserHistoryOutput(0, DivergenceB, "divB");
 
   t0 = pin->GetOrAddReal("problem","t0", 0.0);
   m =pin->GetReal("coord", "m");
