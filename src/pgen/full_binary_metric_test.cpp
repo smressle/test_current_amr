@@ -76,19 +76,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3);
-static Real CalculateLFromRPeak(Real r);
-static Real CalculateRPeakFromL(Real l_target);
-static Real LogHAux(Real r, Real sin_theta);
-static void CalculateVelocityInTorus(Real r, Real sin_theta, Real *pu0, Real *pu3);
-static void CalculateVelocityInTiltedTorus(Real r, Real theta, Real phi, Real *pu0,
-                                           Real *pu1, Real *pu2, Real *pu3);
-static Real CalculateBetaMin();
-static bool CalculateBeta(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-                          Real theta_p, Real phi_m, Real phi_c, Real phi_p, Real *pbeta);
-static bool CalculateBetaFromA(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-              Real theta_p, Real a_cm, Real a_cp, Real a_mc, Real a_pc, Real *pbeta);
-static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
-                                      Real phi);
+
 
 int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
@@ -144,6 +132,7 @@ static Real q;          // black hole mass and spin
 // static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
 static Real orbit_inclination;
+static Real magnetic_field_inclination, r_cut;
 
 static Real t0_orbits,dt_orbits;
 
@@ -258,6 +247,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
   bondi_radius  = pin->GetReal("problem", "bondi_radius");
+
+  r_cut = pin->GetReal("problem", "r_cut");
+   if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
   if (MAGNETIC_FIELDS_ENABLED) beta_min = pin->GetReal("problem", "beta_min");
 
@@ -417,8 +409,8 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real xprime,yprime,zprime,rprime,Rprime;
             get_prime_coords(2,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
-            //Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
+            //Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
@@ -519,6 +511,23 @@ else return 1;
   // return -1;
 }
 
+    static Real exp_cut_off(Real r){
+
+      if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
+      else return 1.0;
+    }
+
+    static Real Ax_func(Real x,Real y, Real z){
+
+      return 0.0 * field_norm;
+    }
+    static Real Ay_func(Real x, Real y, Real z){
+      return (-z * std::sin(magnetic_field_inclination) + x * std::cos(magnetic_field_inclination) ) * field_norm;  //x 
+    }
+    static Real Az_func(Real x, Real y, Real z){
+      return 0.0 * field_norm;
+    }
+
 
 //----------------------------------------------------------------------------------------
 // Function for setting initial conditions
@@ -571,6 +580,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         // Real r, theta, phi;
         // GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k),
         //     &r, &theta, &phi);
+
+        Real radius = std::sqrt( SQR(pcoord->x1v(i)) + SQR(pcoord->x2v(j)) + SQR(pcoord->x3v(k)) );
         Real u0 = std::sqrt(-1.0/g(I00,i));
         Real uu1 = 0.0 - gi(I01,i)/gi(I00,i) * u0;
         Real uu2 = 0.0 - gi(I02,i)/gi(I00,i) * u0;
@@ -578,20 +589,20 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         //if (std::fabs(a)<1e-1) amp = 0.01;
     
-        // if (r<r_cut){
-        //   phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 0.0;
-        //   phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 0.0;
-        //   phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
-        //   phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
-        //   phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
-        // }
-        // else{ 
+        if (radius<r_cut){
+          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 0.0;
+          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 0.0;
+          phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
+          phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
+          phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
+        }
+        else{ 
           phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho_0;
           phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = P_0;
           phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
           phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
           phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
-      // }
+      }
       }
     }
   }
@@ -608,16 +619,202 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     for (int j = jl; j <= ju; ++j) {
       for (int i = il; i <= iu; ++i) {
         Real r, theta, phi;
-        GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0.0, 0.0, a, &r,
-            &theta, &phi);
+        Real radius = std::sqrt( SQR(pcoord->x1v(i)) + SQR(pcoord->x2v(j)) + SQR(pcoord->x3v(k)) );
         Real &rho = phydro->w(IDN,k,j,i);
         Real &pgas = phydro->w(IEN,k,j,i);
-        rho = std::max(rho, rho_min * std::pow(r, rho_pow));
-        pgas = std::max(pgas, pgas_min * std::pow(r, pgas_pow));
+        rho = std::max(rho, rho_min * std::pow(radius, rho_pow));
+        pgas = std::max(pgas, pgas_min * std::pow(radius, pgas_pow));
         phydro->w1(IDN,k,j,i) = rho;
         phydro->w1(IEN,k,j,i) = pgas;
       }
     }
+  }
+
+    // Initialize magnetic field
+  if (MAGNETIC_FIELDS_ENABLED) {
+
+
+    Real delta =0.0; // 1e-1;  //perturbation in B-field amplitude
+    Real pert = 0.0;
+
+
+    int ncells1 = block_size.nx1 + 2*(NGHOST);
+    int ncells2 = 1, ncells3 = 1;
+    if (block_size.nx2 > 1) ncells2 = block_size.nx2 + 2*(NGHOST);
+    if (block_size.nx3 > 1) ncells3 = block_size.nx3 + 2*(NGHOST);
+
+    AthenaArray<Real> A3,A1,A2;
+
+    A1.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+    A2.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+    A3.NewAthenaArray( ncells3  +1,ncells2 +1, ncells1+2   );
+
+      // Set B^1
+      for (int k = kl; k <= ku+1; ++k) {
+        for (int j = jl; j <= ju+1; ++j) {
+          for (int i = il; i <= iu+1; ++i) {
+
+            //A1 defined at cell center in x1 but face in x2 x3, 
+            //A2 defined at cell center in x2 but face in x1 x3,
+            //A3 defined at cell center in x3 but face in x1 x2
+
+            Real r,theta,phi;
+            Real x_coord;
+            if (i<= iu) x_coord = pcoord->x1v(i);
+            else x_coord = pcoord->x1v(iu) + pcoord->dx1v(iu);
+            //GetBoyerLindquistCoordinates(x_coord,pcoord->x2f(j),pcoord->x3f(k), &r, &theta,&phi);
+            Real radius = std::sqrt( SQR(xcoord) + SQR(pcoord->x2f(j)) + SQR(pcoord->x3f(k)) );
+
+            pert = delta * std::cos(phi);
+            Real x,y,z;
+            // GetCKSCoordinates(x_coord,pcoord->x2f(j),pcoord->x3f(k),&x,&y,&z);
+            x = x_coord;
+            y = pcoord->x2f(j);
+            z = pcoord->x3f(k);
+
+            Real Ax = Ax_func(x,y,z) * (1 + pert);
+            Real Ay = Ay_func(x,y,z) * (1 + pert);
+            Real Az = Az_func(x,y,z) * (1 + pert);
+
+            // Real Ar,Ath,Aphi,A0;;
+
+            // TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
+
+            A1(k,j,i) = Ax * exp_cut_off(radius);
+
+            Real y_coord;
+            if (j<= ju) y_coord = pcoord->x2v(j);
+            else y_coord = pcoord->x2v(ju) + pcoord->dx2v(ju);
+            // GetBoyerLindquistCoordinates(pcoord->x1f(i),y_coord,pcoord->x3f(k), &r, &theta,&phi);
+            Real radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(ycoord) + SQR(pcoord->x3f(k)) );
+            pert = delta * std::cos(phi);
+            // GetCKSCoordinates(pcoord->x1f(i),y_coord,pcoord->x3f(k),&x,&y,&z);
+            x = pcoord->x1f(i);
+            y = y_coord;
+            z = pcoord->x3f(k);
+            Ax = Ax_func(x,y,z) * (1 + pert);
+            Ay = Ay_func(x,y,z) * (1 + pert);
+            Az = Az_func(x,y,z) * (1 + pert);
+            //TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
+
+            A2(k,j,i) = Ay * exp_cut_off(radius);
+
+            Real z_coord;
+            if (k<= ku) z_coord = pcoord->x3v(k);
+            else z_coord = pcoord->x3v(ku) + pcoord->dx3v(ku);
+            // GetBoyerLindquistCoordinates(pcoord->x1f(i),pcoord->x2f(j),z_coord, &r, &theta,&phi);
+            Real radius = std::sqrt( SQR(pcoord->x1f(i)) + SQR(pcoord->x2f(j)) + SQR(zcoord) );
+            pert = delta * std::cos(phi);
+            // GetCKSCoordinates(pcoord->x1f(i),pcoord->x2f(j),z_coord,&x,&y,&z);
+            x = pcoord->x1f(i);
+            y = pcoord->x2f(j);
+            z = z_coord;
+            Ax = Ax_func(x,y,z) * (1 + pert);
+            Ay = Ay_func(x,y,z) * (1 + pert);
+            Az = Az_func(x,y,z) * (1 + pert);
+            //TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
+
+            A3(k,j,i) = Az * exp_cut_off(radius);
+
+
+
+            }
+          }
+        }
+
+
+      // Initialize interface fields
+    AthenaArray<Real> area;
+    area.NewAthenaArray(ncells1+1);
+
+    // for 1,2,3-D
+    for (int k=kl; k<=ku; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        pcoord->Face2Area(k,j,il,iu,area);
+        for (int i=il; i<=iu; ++i) {
+          pfield->b.x2f(k,j,i) = -1.0*(pcoord->dx3f(k)*A3(k,j,i+1) - pcoord->dx3f(k)*A3(k,j,i))/area(i);
+          if (area(i)==0.0) pfield->b.x2f(k,j,i) = 0;
+          //if (j==ju) fprintf(stderr,"B: %g area: %g theta: %g j: %d A3: %g %g \n",pfield->b.x2f(k,j,i), area(i),pcoord->x2f(j),j, 
+           // A3(k,j,i+1), A3(k,j,i));
+
+          if (std::isnan((pfield->b.x2f(k,j,i)))) fprintf(stderr,"isnan in bx2!\n");
+        }
+      }
+    }
+    for (int k=kl; k<=ku+1; ++k) {
+      for (int j=jl; j<=ju; ++j) {
+        pcoord->Face3Area(k,j,il,iu,area);
+        for (int i=il; i<=iu; ++i) {
+          pfield->b.x3f(k,j,i) = (pcoord->dx2f(j)*A2(k,j,i+1) - pcoord->dx2f(j)*A2(k,j,i))/area(i);
+          //if (area(i)==0) pfield->b.x3f(k,j,i) = 0.0;
+
+          if (std::isnan((pfield->b.x3f(k,j,i)))){
+
+           fprintf(stderr,"isnan in bx3!\n A2: %g %g \n area: %g dx2f: %g \n", A2(k,j,i+1),A2(k,j,i),area(i),pcoord->dx2f(j));
+           exit(0);
+         }
+        }
+      }
+    }
+
+    // for 2D and 3D
+    if (block_size.nx2 > 1) {
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face1Area(k,j,il,iu+1,area);
+          for (int i=il; i<=iu+1; ++i) {
+            pfield->b.x1f(k,j,i) = (pcoord->dx3f(k)*A3(k,j+1,i) - pcoord->dx3f(k)*A3(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x1f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x1f(k,j,i)))) fprintf(stderr,"isnan in bx1!\n");
+          }
+        }
+      }
+      for (int k=kl; k<=ku+1; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face3Area(k,j,il,iu,area);
+          for (int i=il; i<=iu; ++i) {
+            pfield->b.x3f(k,j,i) -= (pcoord->dx1f(i)*A1(k,j+1,i) - pcoord->dx1f(i)*A1(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x3f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x3f(k,j,i)))) {
+              fprintf(stderr,"isnan in bx3!\n A1: %g %g \n area: %g dx1f: %g \n", A1(k,j+1,i),A1(k,j,i),area(i),pcoord->dx1f(i));
+              exit(0);
+            }
+          }
+        }
+      }
+    }
+    // for 3D only
+    if (block_size.nx3 > 1) {
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face1Area(k,j,il,iu+1,area);
+          for (int i=il; i<=iu+1; ++i) {
+            pfield->b.x1f(k,j,i) -= (pcoord->dx2f(j)*A2(k+1,j,i) - pcoord->dx2f(j)*A2(k,j,i))/area(i);
+            //if (area(i)==0) pfield->b.x1f(k,j,i) = 0.0;
+            if (std::isnan((pfield->b.x1f(k,j,i)))) fprintf(stderr,"isnan in bx1!\n");
+          }
+        }
+      }
+      for (int k=kl; k<=ku; ++k) {
+        for (int j=jl; j<=ju; ++j) {
+          pcoord->Face2Area(k,j,il,iu,area);
+          for (int i=il; i<=iu; ++i) {
+            pfield->b.x2f(k,j,i) += (pcoord->dx1f(i)*A1(k+1,j,i) - pcoord->dx1f(i)*A1(k,j,i))/area(i);
+            if (area(i)==0.0) pfield->b.x2f(k,j,i) = 0;
+            if (std::isnan((pfield->b.x2f(k,j,i)))) fprintf(stderr,"isnan in bx2!\n");
+            //if ( ju==je && j==je) fprintf(stderr,"B: %g area: %g theta: %g j: %d A1: %g %g \n",pfield->b.x2f(k,j,i), area(i),pcoord->x2f(j),j, 
+            //A1_bound(k+1,j,i), A1_bound(k,j,i));
+          }
+        }
+      }
+    }
+
+    area.DeleteAthenaArray();
+    A1.DeleteAthenaArray();
+    A2.DeleteAthenaArray();
+    A3.DeleteAthenaArray();
+
+
   }
 
   // Calculate cell-centered magnetic field
