@@ -1964,12 +1964,12 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
   for (int k=pmb->ks; k<=pmb->ke; ++k) {
     for (int j=pmb->js; j<=pmb->je; ++j) {
-      pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
       for (int i=pmb->is; i<=pmb->ie; ++i) {
         Real ug = prim(IPR,k,j,i)/(gam-1.0);
-        Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gam);
+        Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gamma_adi);
 
-        Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) )
+        Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
         Real v_kep = std::sqrt((1.0 + q)/radius);
         Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
@@ -1977,7 +1977,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real kappa_0 = 0.01;
         Real delta_kappa = kappa-kappa_0;
 
-        L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::abs(delta_kappa/kappa_0)  );
+        Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::abs(delta_kappa/kappa_0)  );
 
           // Calculate normal frame Lorentz factor
         Real uu1 = prim(IM1,k,j,i);
