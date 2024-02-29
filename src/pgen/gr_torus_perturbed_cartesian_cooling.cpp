@@ -2023,7 +2023,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
 
 
-        if (Be>0) L+cool = 0.0;
+        if (Be>0) L_cool = 0.0;
         cons(IEN,k,j,i) += -dt * L_cool * u_0;
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
