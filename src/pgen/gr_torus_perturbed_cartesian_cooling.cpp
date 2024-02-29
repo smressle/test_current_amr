@@ -1966,7 +1966,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
     for (int j=pmb->js; j<=pmb->je; ++j) {
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
       for (int i=pmb->is; i<=pmb->ie; ++i) {
-        Real ug = prim(IPR,k,j,i)/(gam-1.0);
+        Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
         Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gamma_adi);
 
         Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
@@ -1996,7 +1996,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real u3 = uu3 - alpha * gamma * gi(I03,i);
         Real u_0, u_1, u_2, u_3;
 
-        pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+        pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
 
        Real bsq = 0.0;
@@ -2013,14 +2013,14 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
           Real b2 = (bb2 + b0 * u2) / u0;
           Real b3 = (bb3 + b0 * u3) / u0;
           Real b_0, b_1, b_2, b_3;
-          pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+          pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
           // Calculate magnetic pressure
           bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
         }
 
-        Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+        Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
 
 
         if (Be>0) L_cool = 0.0;
