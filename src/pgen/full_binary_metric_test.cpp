@@ -1116,7 +1116,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // user_out_var(2,k,j,i) = u1;
               // user_out_var(3,k,j,i) = u2;
               // user_out_var(4,k,j,i) = u3;
-              if (MAGNETIC_FIELDS_ENABLED) {
+              // if (MAGNETIC_FIELDS_ENABLED) {
     
 
               //   pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
