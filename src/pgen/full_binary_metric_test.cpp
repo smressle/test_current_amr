@@ -934,7 +934,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
   Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
 
   Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
-  Real r_inner_boundary = rh*0.95;
+  // Real r_inner_boundary = rh*0.95;
 
   Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
 
@@ -1019,32 +1019,32 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // user_out_var(2,k,j,i) = u1;
               // user_out_var(3,k,j,i) = u2;
               // user_out_var(4,k,j,i) = u3;
-              if (MAGNETIC_FIELDS_ENABLED) {
+              // if (MAGNETIC_FIELDS_ENABLED) {
     
 
-                pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+              //   pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
-                // Calculate 4-magnetic field
-                Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
-                Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
-                Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
-                Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                        + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                        + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                        + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-                Real b1 = (bb1 + b0 * u1) / u0;
-                Real b2 = (bb2 + b0 * u2) / u0;
-                Real b3 = (bb3 + b0 * u3) / u0;
-                Real b_0, b_1, b_2, b_3;
-                pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+              //   // Calculate 4-magnetic field
+              //   Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
+              //   Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
+              //   Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
+              //   Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+              //           + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+              //           + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+              //           + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+              //   Real b1 = (bb1 + b0 * u1) / u0;
+              //   Real b2 = (bb2 + b0 * u2) / u0;
+              //   Real b3 = (bb3 + b0 * u3) / u0;
+              //   Real b_0, b_1, b_2, b_3;
+              //   pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-                // Calculate bsq
-                Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+              //   // Calculate bsq
+              //   Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
-                if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
-                if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
+              //   if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
+              //   if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
             
-              }
+              // }
               
           }
 
@@ -1119,29 +1119,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               if (MAGNETIC_FIELDS_ENABLED) {
     
 
-                pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+              //   pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
-                // Calculate 4-magnetic field
-                Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
-                Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
-                Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
-                Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                        + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                        + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                        + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-                Real b1 = (bb1 + b0 * u1) / u0;
-                Real b2 = (bb2 + b0 * u2) / u0;
-                Real b3 = (bb3 + b0 * u3) / u0;
-                Real b_0, b_1, b_2, b_3;
-                pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+              //   // Calculate 4-magnetic field
+              //   Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
+              //   Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
+              //   Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
+              //   Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+              //           + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+              //           + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+              //           + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+              //   Real b1 = (bb1 + b0 * u1) / u0;
+              //   Real b2 = (bb2 + b0 * u2) / u0;
+              //   Real b3 = (bb3 + b0 * u3) / u0;
+              //   Real b_0, b_1, b_2, b_3;
+              //   pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-                // Calculate bsq
-                Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+              //   // Calculate bsq
+              //   Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
-                if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
-                if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
+              //   if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
+              //   if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
             
-              }
+              // }
               
           }
 
@@ -1822,8 +1822,8 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 /// prevent metric from getting nan sqrt(-gdet)
 
   Real rhprime = ( q_rat + std::sqrt(SQR(q_rat)-SQR(a_mag)) );
-  if (rprime < rhprime*0.8) {
-    rprime = rhprime*0.8;
+  if (rprime < rhprime*0.1) {
+    rprime = rhprime*0.1;
     convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, ax,ay,az,&xprime,&yprime,&zprime);
   }
 
@@ -2668,9 +2668,10 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 
 Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
 
-  Real r, th, phi;
-  GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
-  return r;
+  return -1.0;
+  // Real r, th, phi;
+  // GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
+  // return r;
 }
 
 Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
