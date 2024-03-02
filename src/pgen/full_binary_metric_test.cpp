@@ -1822,8 +1822,8 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 /// prevent metric from getting nan sqrt(-gdet)
 
   Real rhprime = ( q_rat + std::sqrt(SQR(q_rat)-SQR(a_mag)) );
-  if (rprime < rhprime*0.1) {
-    rprime = rhprime*0.1;
+  if (rprime < rhprime*0.8) {
+    rprime = rhprime*0.8;
     convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, ax,ay,az,&xprime,&yprime,&zprime);
   }
 
