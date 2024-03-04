@@ -511,8 +511,10 @@ else return 1;
 
     static Real exp_cut_off(Real r){
 
-      if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
-      else return 1.0;
+      return 1.0 / (1.0 + std::exp(-5.0* (r-r_cut) )) 
+
+      // if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
+      // else return 1.0;
     }
 
     static Real Ax_func(Real x,Real y, Real z){
@@ -954,6 +956,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
           get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
+          Real thprime,phiprime;
+          GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+
 
           if (rprime < rh){
 
@@ -961,6 +966,16 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real beta_floor = 0.2;
               
 
+              //u^r partial/partialr   partial/partialr = partial x/partialr partial/partialx + ...
+
+              //light 2g_r_t u^r u^t + g_tt u^t^2 + g_rr u^r^2 = 0
+
+              //v_r^2 g_rr + 2 v_r g_t_r + g_tt  = 0
+
+              // v_r = (- 2 g_tr +/ sqrt(4g_tr^2 - 4g_rr g_tt))/g_rr
+
+              // uu_cks  = (A, B cos(phi)sin(th), B sin(phi)sin(th),Bcos(phi) )
+              // g_munu uu_cks^mu uu_cks^nu = -1
 
               // Calculate normal frame Lorentz factor
               Real uu1 = 0.0;
@@ -1051,6 +1066,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
           get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+          Real thprime,phiprime;
+          GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
 
           if (rprime < rh2){
