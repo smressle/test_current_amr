@@ -295,6 +295,11 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         g_00,g_01,g_02,g_03,g_11,g_12,g_13,g_22,g_23,g_33);
       exit(0);
     }
+
+    if (std::isnan(gamma_l) or std::isnan(gamma_r) or std::isinf(gamma_l) or std::isinf(gamma_r)){
+      fprintf(stderr,"ijk: %d %d %d \n gamma: %g %g \n uu1: %g %g uu2: %g %g uu3: %g %g \n",i,j,k, gamma_l,gamma_r,uu1_l,uu1_r,uu2_l,uu2_r,uu3_l,uu3_r);
+      exit(0);
+    }
   }
 
   return;
