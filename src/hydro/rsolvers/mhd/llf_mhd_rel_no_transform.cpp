@@ -286,15 +286,15 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     wct(k,j,i) =
         GetWeightForCT(flux(IDN,k,j,i), prim_l(IDN,i), prim_r(IDN,i), dxw(i), dt);
 
-    if (std::isnan(wct(k,j,i)) or std::isnan(flux_r[IBY]) or std::isnan(flux_r[IBZ]) or std::isnan(flux_r[IBY]) or std::isnan(flux_l[IBZ]) ){
-      fprintf(stderr,"ijk: %d %d %d ivy: %d ivz: %d\n fluxes: %g %g %g %g \n bcon: %g %g ucon: %g %g \n gamma: %g %g alpha: %g \n bb1: %g %g bb2: %g %g bb3: %g %g \n gi: %g %g %g %g %g \n %g %g %g %g %g\n g: %g %g %g %g %g \n %g %g %g %g %g \n",
-        i,j,k,ivy,ivz,flux_l[IBY],flux_r[IBY],flux_l[IBZ],flux_r[IBZ],
-        bcon_r[ivy],bcon_r[ivz],ucon_r[ivx],ucon_r[ivy],gamma_l,gamma_r,alpha,
-        bb1_l,bb1_r,bb2_l,bb2_r,bb3_l,bb3_r,
-        g00,g01,g02,g03,g11,g12,g13,g22,g23,g33,
-        g_00,g_01,g_02,g_03,g_11,g_12,g_13,g_22,g_23,g_33);
-      exit(0);
-    }
+    // if (std::isnan(wct(k,j,i)) or std::isnan(flux_r[IBY]) or std::isnan(flux_r[IBZ]) or std::isnan(flux_r[IBY]) or std::isnan(flux_l[IBZ]) ){
+    //   fprintf(stderr,"ijk: %d %d %d ivy: %d ivz: %d\n fluxes: %g %g %g %g \n bcon: %g %g ucon: %g %g \n gamma: %g %g alpha: %g \n bb1: %g %g bb2: %g %g bb3: %g %g \n gi: %g %g %g %g %g \n %g %g %g %g %g\n g: %g %g %g %g %g \n %g %g %g %g %g \n",
+    //     i,j,k,ivy,ivz,flux_l[IBY],flux_r[IBY],flux_l[IBZ],flux_r[IBZ],
+    //     bcon_r[ivy],bcon_r[ivz],ucon_r[ivx],ucon_r[ivy],gamma_l,gamma_r,alpha,
+    //     bb1_l,bb1_r,bb2_l,bb2_r,bb3_l,bb3_r,
+    //     g00,g01,g02,g03,g11,g12,g13,g22,g23,g33,
+    //     g_00,g_01,g_02,g_03,g_11,g_12,g_13,g_22,g_23,g_33);
+    //   exit(0);
+    // }
 
     if (std::isnan(gamma_l) or std::isnan(gamma_r) or std::isinf(gamma_l) or std::isinf(gamma_r)){
       fprintf(stderr,"ijk: %d %d %d \n gamma: %g %g \n uu1: %g %g uu2: %g %g uu3: %g %g \n",i,j,k, gamma_l,gamma_r,uu1_l,uu1_r,uu2_l,uu2_r,uu3_l,uu3_r);
