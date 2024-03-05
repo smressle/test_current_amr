@@ -594,8 +594,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         //if (std::fabs(a)<1e-1) amp = 0.01;
     
         if (radius<r_cut){
-          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = 1e-7;
-          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = 1e-10;
+          phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho_0; //1e-7;
+          phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = P_0; //1e-10;
           phydro->w(IM1,k,j,i) = phydro->w1(IM1,k,j,i) = uu1;
           phydro->w(IM2,k,j,i) = phydro->w1(IM2,k,j,i) = uu2;
           phydro->w(IM3,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
