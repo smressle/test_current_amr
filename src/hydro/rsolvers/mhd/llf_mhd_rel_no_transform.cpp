@@ -285,6 +285,11 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
 
     wct(k,j,i) =
         GetWeightForCT(flux(IDN,k,j,i), prim_l(IDN,i), prim_r(IDN,i), dxw(i), dt);
+
+    if (std::isnan(wct(k,j,i)) or std::isnan(flux_r[IBY]) or std::isnan(flux_r[IBZ]) or std::isnan(flux_r[IBY]) or std::isnan(flux_l[IBZ]) ){
+      fprintf(stderr,"ijk: %d %g %d ivy: %d ivz: %d\n fluxes: %g %g %g %g \n",i,j,k,ivy,ivz,flux_l[IBY],flux_r[IBY],flux_l[IBZ],flux_r[IBZ]);
+      exit(0);
+    }
   }
 
   return;

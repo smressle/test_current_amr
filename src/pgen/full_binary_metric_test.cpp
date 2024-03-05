@@ -511,10 +511,10 @@ else return 1;
 
     static Real exp_cut_off(Real r){
 
-      return 1.0 / (1.0 + std::exp(-5.0* (r-r_cut) )) ;
+      // return 1.0 / (1.0 + std::exp(-5.0* (r-r_cut) )) ;
 
-      // if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
-      // else return 1.0;
+      if (r<= r_cut) return std::exp(5 * (r-r_cut)/r);
+      else return 1.0;
     }
 
     static Real Ax_func(Real x,Real y, Real z){
