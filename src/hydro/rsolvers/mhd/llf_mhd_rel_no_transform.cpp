@@ -287,8 +287,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         GetWeightForCT(flux(IDN,k,j,i), prim_l(IDN,i), prim_r(IDN,i), dxw(i), dt);
 
     if (std::isnan(wct(k,j,i)) or std::isnan(flux_r[IBY]) or std::isnan(flux_r[IBZ]) or std::isnan(flux_r[IBY]) or std::isnan(flux_l[IBZ]) ){
-      fprintf(stderr,"ijk: %d %d %d ivy: %d ivz: %d\n fluxes: %g %g %g %g \n bcon: %g %g ucon: %g %g \n gamma: %g alpha: %g \n bb1: %g %g bb2: %g %g bb3: %g %g \n",i,j,k,ivy,ivz,flux_l[IBY],flux_r[IBY],flux_l[IBZ],flux_r[IBZ],
-        bcon_r[ivy],bcon_r[ivz],ucon_r[ivx],ucon_r[ivy],gamma_l,gamma_r,alpha,bb1_l,bb1_r,bb2_l,bb2_r,bb3_l,bb3_r);
+      fprintf(stderr,"ijk: %d %d %d ivy: %d ivz: %d\n fluxes: %g %g %g %g \n bcon: %g %g ucon: %g %g \n gamma: %g alpha: %g \n bb1: %g %g bb2: %g %g bb3: %g %g \n gi: %g %g %g %g %g \n %g %g %g %g %g\n ",i,j,k,ivy,ivz,flux_l[IBY],flux_r[IBY],flux_l[IBZ],flux_r[IBZ],
+        bcon_r[ivy],bcon_r[ivz],ucon_r[ivx],ucon_r[ivy],gamma_l,gamma_r,alpha,bb1_l,bb1_r,bb2_l,bb2_r,bb3_l,bb3_r,g00,g01,g02,g03,g11,g12,g13,g22,g23,g33);
       exit(0);
     }
   }
