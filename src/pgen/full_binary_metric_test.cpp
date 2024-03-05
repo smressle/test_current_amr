@@ -582,10 +582,14 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         //     &r, &theta, &phi);
 
         Real radius = std::sqrt( SQR(pcoord->x1v(i)) + SQR(pcoord->x2v(j)) + SQR(pcoord->x3v(k)) );
-        Real u0 = std::sqrt(-1.0/g(I00,i));
-        Real uu1 = 0.0 - gi(I01,i)/gi(I00,i) * u0;
-        Real uu2 = 0.0 - gi(I02,i)/gi(I00,i) * u0;
-        Real uu3 = 0.0 - gi(I03,i)/gi(I00,i) * u0;
+        // Real u0 = std::sqrt(-1.0/g(I00,i));
+        // Real uu1 = 0.0 - gi(I01,i)/gi(I00,i) * u0;
+        // Real uu2 = 0.0 - gi(I02,i)/gi(I00,i) * u0;
+        // Real uu3 = 0.0 - gi(I03,i)/gi(I00,i) * u0;
+
+        Real uu1 = 0.0;
+        Real uu2 = 0.0;
+        Real uu3 = 0.0;
 
         //if (std::fabs(a)<1e-1) amp = 0.01;
     
