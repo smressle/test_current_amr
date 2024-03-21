@@ -912,6 +912,94 @@ void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
 
 
 
+void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uux1,
+                                         Real *uux2, Real *uux3) {
+   
+    
+    Real ax = ax_;
+    Real ay = ay_;
+    Real az = az_;
+
+    Real amag = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
+
+    Real aperp = std::sqrt( SQR(ax) + SQR(ay) );
+
+    Real a_dot_x = ax * (x1) + ay * (x2) + az * (x3);
+
+
+    // these are in coordinates aligned with spin r,phi
+    Real uur = -std::sqrt(2.0)*std::sqrt( SQR(amag) + SQR(r) ) * std::pow(r,5.0/2.0)/( SQR(SQR(r)) + SQR(a_dot_x));
+    Real uuphi = -2 * amag * SQR(r)*r /(( SQR(SQR(r)) + SQR(a_dot_x))*(std::sqrt(2.0)*std::sqrt( SQR(amag) + SQR(r))*std::sqrt(r) + 2*r));
+    Real u0prime,u1prime,u2prime,u3prime;
+
+
+
+
+    Real dx_du,dx_dv,dx_dw;
+    Real dy_du,dy_dv,dy_dw;
+    Real dz_du,dz_dv,dz_dw;
+    Real u,v,w;
+    if (aperp<1e-4){
+      dx_du = 1.0;
+      dx_dv = 0.0;
+      dx_dw = 0.0;
+
+      dy_du = 0.0;
+      dy_dv = 1.0;
+      dy_dw = 0.0;
+
+      dz_du = 0.0;
+      dz_dv = 0.0; 
+      dz_dw = 1.0;
+
+      u = x1;
+      v = x2;
+      w = x3;
+
+    }
+    else{
+      dx_du = ay/aperp;
+      dx_dv = ax*az/(aperp*amag);
+      dx_dw = ax/amag;
+
+      dy_du = -ax/aperp;
+      dy_dv = ay*az/(aperp*amag);
+      dy_dw = ay/amag;
+
+      dz_du = 0.0;
+      dz_dv = -aperp/amag; 
+      dz_dw = az/amag;
+
+      u = ay*x1/aperp - ax*x2/aperp;
+      v = ax*az*x1/(aperp*amag) + ay*az*x2/(aperp*amag) - aperp*x3/amag;
+      w = ax*x1/amag + ay*x2/amag + az*x3/amag;
+    }
+
+
+    // call u,v,w the coordinates of aligned frame
+    Real rsq_p_asq = ( SQR(a) + SQR(r) );
+    Real du_dr = (r*u + amag*v)/rsq_p_asq;
+    Real dv_dr = (r*v - amag*u)/rsq_p_asq;
+    Real dw_dr =  w/(r + 1e-10);
+
+    Real du_dphi = -v;
+    Real dv_dphi = u;
+    Real dw_dphi = 0.0;
+
+    Real uuu = uur * du_dr + uuphi * du_dphi;
+    Real uuv = uur * dv_dr + uuphi * dv_dphi;
+    Real uuw = uur * dw_dr + uuphi * dw_dphi;
+
+    *uux1 = uuu * dx_du + uuv * dx_dv + uuw * dx_dw;
+    *uus2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
+    *uux3 = uuu * dz_du + uuv * dz_dv + uuw * dz_dw;
+
+    return;
+
+  }
+
+
+
 /* Apply inner "absorbing" boundary conditions */
 
 void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar){
@@ -999,7 +1087,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
-              Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
 

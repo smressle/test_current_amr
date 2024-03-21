@@ -296,12 +296,12 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     //   exit(0);
     // }
 
-    if (std::isnan(gamma_l) or std::isnan(gamma_r) or std::isinf(gamma_l) or std::isinf(gamma_r)){
-      fprintf(stderr,"ivx: %d ijk: %d %d %d il iu: %d %d \n gamma: %g %g \n uu1: %g %g uu2: %g %g uu3: %g %g \n rho: %g %g pgas: %g %g \n",
-        ivx, i,j,k, il, iu,gamma_l,gamma_r,uu1_l,uu1_r,uu2_l,uu2_r,uu3_l,uu3_r,rho_l,rho_r,pgas_l,pgas_r);
-      exit(0);
-    }
-  }
+  //   if (std::isnan(gamma_l) or std::isnan(gamma_r) or std::isinf(gamma_l) or std::isinf(gamma_r)){
+  //     fprintf(stderr,"ivx: %d ijk: %d %d %d il iu: %d %d \n gamma: %g %g \n uu1: %g %g uu2: %g %g uu3: %g %g \n rho: %g %g pgas: %g %g \n",
+  //       ivx, i,j,k, il, iu,gamma_l,gamma_r,uu1_l,uu1_r,uu2_l,uu2_r,uu3_l,uu3_r,rho_l,rho_r,pgas_l,pgas_r);
+  //     exit(0);
+  //   }
+  // }
 
   return;
 }
