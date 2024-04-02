@@ -1099,7 +1099,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               get_free_fall_solution(rprime, xprime,yprime, zprime, a1x,a1y,a1z, &u0, &u1,&u2,&u3);
 
 
-
+              Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
 
@@ -1112,7 +1112,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real a_const = g(I00);
 
-              if (std::fabs(a_const)<numeric_limits<double>::epsilon()){
+              if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
                 u0prime = -c_const/b_const;
 
               }
@@ -1221,7 +1221,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
 
-              
+
               //Make sure four vector is normalized
               Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
                        + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
@@ -1231,7 +1231,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real a_const = g(I00);
 
-              if (std::fabs(a_const)<numeric_limits<double>::epsilon()){
+              if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
                 u0prime = -c_const/b_const;
 
               }
