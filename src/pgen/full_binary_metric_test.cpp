@@ -113,6 +113,9 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
 void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities);
 void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
+void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uut, Real *uux1,
+                                         Real *uux2, Real *uux3);
+
 // Global variables
 static Real m, a;                                  // black hole parameters
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
@@ -912,7 +915,7 @@ void get_orbit_quantities(Real t, AthenaArray<Real>&orbit_quantities){
 
 
 
-void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uux1,
+void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uut, Real *uux1,
                                          Real *uux2, Real *uux3) {
    
     
@@ -991,8 +994,15 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real uuw = uur * dw_dr + uuphi * dw_dphi;
 
     *uux1 = uuu * dx_du + uuv * dx_dv + uuw * dx_dw;
-    *uus2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
+    *uux2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
     *uux3 = uuu * dz_du + uuv * dz_dv + uuw * dz_dw;
+
+
+//(a^2*r^4 + r^6 + a^4*z^2 + a^2*r^2*z^2 + 2*a^2*r^3 - 2*a^2*r*z^2 - 2*sqrt(2)*sqrt(a^2 + r^2)*r^(7/2))/((r^4 + a^2*z^2)*(a^2 + r^2 - 2*r))
+    Real numerator = std::pow(amag, 2) * std::pow(r, 4) + std::pow(r, 6) + std::pow(amag, 2) * std::pow(a_dot_x, 2) +  pow(r, 2) * pow(a_dot_x, 2) 
+                        + 2 * std::pow(amag, 2) * std::pow(r, 3) - 2 *  r * std::pow(a_dot_x, 2) - 2 * std::sqrt(2) * std::sqrt(std::pow(amag, 2) + std::pow(r, 2)) * std::pow(r, 3.5);
+    Real denominator = ( std::pow(r, 4) + SQR(a_dot_x) ) * ( std::pow(amag, 2) + std::pow(r, 2) - 2 * r + 1e-10);
+    *uut =  numerator / denominator;
 
     return;
 
@@ -1086,11 +1096,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real u3 = uu3 - alpha * gamma * gi(I03,i);
 
 
+              get_free_fall_solution(rprime, xprime,yprime, zprime, a1x,a1y,a1z, &u0, &u1,&u2,&u3);
+
+
 
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
 
+              //Make sure four vector is normalized
+              Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
+                       + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
+                       + g(I33,i)*u3prime*u3prime;
 
+              Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
+
+              Real a_const = g(I00);
+
+              if (std::fabs(a_const)<numeric_limits<double>::epsilon()){
+                u0prime = -c_const/b_const;
+
+              }
+              else{
+                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+              }
 
               uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
               uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
@@ -1187,8 +1215,30 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
 
+              get_free_fall_solution(rprime, xprime,yprime, zprime, a2x,a2y,a2z, &u0, &u1,&u2,&u3);
+
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
+
+
+              
+              //Make sure four vector is normalized
+              Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
+                       + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
+                       + g(I33,i)*u3prime*u3prime;
+
+              Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
+
+              Real a_const = g(I00);
+
+              if (std::fabs(a_const)<numeric_limits<double>::epsilon()){
+                u0prime = -c_const/b_const;
+
+              }
+              else{
+                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+              }
+
  
 
 
