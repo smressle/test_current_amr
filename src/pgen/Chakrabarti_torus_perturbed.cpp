@@ -898,7 +898,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
   // Compute Peak Density //
-  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI?2.0) );
+  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
   Real ud_t_c = -1.0/std::sqrt(denom_sq);
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t_c * f(lc,c_const)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) )/rho_peak;
@@ -942,9 +942,16 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
          // Determine if we are in the torus
-        
+        Real rho_sol, ug_sol,pgas_sol;
+        Real uu_t_sol,uu_phi_sol;
         if (eps<0) {
           in_torus(k,j,i) = false;
+
+          rho_sol = 0.0
+          ug_sol = 0.0;
+          pgas_sol = 0.0;
+          uu_t_sol = 1.0;
+          uu_phi_sol = 0.0;
         }
         else{
           in_torus(k,j,i) = true;
