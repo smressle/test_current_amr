@@ -893,7 +893,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real q_pow = 2.0-n_pow;
   Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
 
-  Real ud_t_in = -1.0/np.sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + lin**2.0*giphiphi(rin,a,PI/2.0) ) );
+  Real ud_t_in = -1.0/std::sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + SQR(lin)*giphiphi(rin,a,PI/2.0) ) );
 
 
 
@@ -951,7 +951,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
           Real rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
 
-          Real ug_sol = eps * rho;
+          Real ug_sol = eps * rho_sol;
           Real pgas_sol = ug_sol * (gam-1.0);
 
           Real Omega = l_sol / SQR(  lambda_sol) ;
