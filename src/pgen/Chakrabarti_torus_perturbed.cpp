@@ -785,27 +785,27 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
 
   Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
-  Real Z1 = 1.0 + std::pow( (1.0-a**2.0), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
+  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
   Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
   Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
 
   Real gtphi(Real r, Real a, Real theta){
 
-    Real cos2 =  SQR( std::cos(theta) )
-    Real sin2 = SQR( std::sin(theta) )
-    Real a2 = SQR(a) 
-    Real r2 = SQR(r)
-    Real delta = r2 - 2.0*r + a2
-    Real sigma = r2 + a2 * cos2
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
-    return -2.0*a*r/sigma * sin2
+    return -2.0*a*r/sigma * sin2;
   }
   Real gtt(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) )
-    Real sin2 = SQR( std::sin(theta) )
-    Real a2 = SQR(a) 
-    Real r2 = SQR(r)
-    delta = r2 - 2.0*r + a2
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    delta = r2 - 2.0*r + a2;
     sigma = r2 + a2 * cos2;
 
     return -(1.0 - 2.0*r/sigma)
