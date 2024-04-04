@@ -787,7 +787,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
 
   Real gtphi(Real r, Real a, Real theta){
-
     Real cos2 =  SQR( std::cos(theta) );
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
