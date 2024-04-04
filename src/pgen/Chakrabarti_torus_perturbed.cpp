@@ -947,7 +947,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         if (eps<0) {
           in_torus(k,j,i) = false;
 
-          rho_sol = 0.0
+          rho_sol = 0.0;
           ug_sol = 0.0;
           pgas_sol = 0.0;
           uu_t_sol = 1.0;
@@ -1010,15 +1010,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         // Set primitive values, including cylindrically symmetric radial velocity
         // perturbations
-        Real rr = r * sin_vartheta;
-        Real z = r * cos_vartheta;
+        Real rr = r * std::sin(theta); 
+        Real z = r * std::cos(theta);
         Real amp_rel = 0.0;
-        if (in_torus) {
+        if (in_torus(k,j,i)) {
           amp_rel = pert_amp * std::sin(pert_kr*rr) * std::cos(pert_kz*z);
         }
         Real amp_abs = amp_rel * uu3;
         Real pert_uur = rr/r * amp_abs;
-        Real pert_uutheta = cos_theta/r * amp_abs;
+        Real pert_uutheta = std::cos(theta)/r * amp_abs;
         //fprintf(stderr,"xyz: %g %g %g \n r th ph: %g %g %g in_torus: %d \n",pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),r,theta,phi, in_torus);
         phydro->w(IDN,k,j,i) = phydro->w1(IDN,k,j,i) = rho;
         phydro->w(IPR,k,j,i) = phydro->w1(IPR,k,j,i) = pgas * (1 + perturbation);
