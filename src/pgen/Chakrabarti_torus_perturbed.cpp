@@ -901,7 +901,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
   Real ud_t_c = -1.0/std::sqrt(denom_sq);
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t_c * f(lc,c_const)) -1.0);
-  rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) )/rho_peak;
+  rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
   pgas_over_rho_peak = eps_c * (gam-1.0);
 
 
