@@ -76,8 +76,6 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
-static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
-                                      Real phi);
 
 int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
@@ -2230,58 +2228,6 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
   return;
 }
 
-
-//----------------------------------------------------------------------------------------
-// Function to calculate 1/2 * b^lambda b_lambda
-// Inputs:
-//   bb1,bb2,bb3: components of 3-magnetic field in Boyer-Lindquist coordinates
-//   r,theta,phi: Boyer-Lindquist coordinates
-// Outputs:
-//   returned value: magnetic pressure
-
-static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
-                                      Real phi) {
-  // Calculate Boyer-Lindquist metric
-  Real sin_theta = std::sin(theta);
-  Real cos_theta = std::cos(theta);
-  Real delta = SQR(r) - 2.0*m*r + SQR(a);
-  Real sigma = SQR(r) + SQR(a) * SQR(cos_theta);
-  Real g_00 = -(1.0 - 2.0*m*r/sigma);
-  Real g_01 = 0.0;
-  Real g_02 = 0.0;
-  Real g_03 = -2.0*m*a*r/sigma * SQR(sin_theta);
-  Real g_11 = sigma/delta;
-  Real g_12 = 0.0;
-  Real g_13 = 0.0;
-  Real g_22 = sigma;
-  Real g_23 = 0.0;
-  Real g_33 = (SQR(r) + SQR(a) + 2.0*m*SQR(a)*r/sigma * SQR(sin_theta)) * SQR(sin_theta);
-  Real g_10 = g_01;
-  Real g_20 = g_02;
-  Real g_21 = g_12;
-  Real g_30 = g_03;
-  Real g_31 = g_13;
-  Real g_32 = g_23;
-
-  // Calculate 4-velocity
-  Real u0, u1, u2, u3;
-  CalculateVelocityInTiltedTorus(r, theta, phi, &u0, &u1, &u2, &u3);
-
-  // Calculate 4-magnetic field
-  Real b0 = bb1 * (g_10*u0 + g_11*u1 + g_12*u2 + g_13*u3)
-          + bb2 * (g_20*u0 + g_21*u1 + g_22*u2 + g_23*u3)
-          + bb3 * (g_30*u0 + g_31*u1 + g_32*u2 + g_33*u3);
-  Real b1 = 1.0/u0 * (bb1 + b0 * u1);
-  Real b2 = 1.0/u0 * (bb2 + b0 * u2);
-  Real b3 = 1.0/u0 * (bb3 + b0 * u3);
-
-  // Calculate magnetic pressure
-  Real b_sq = g_00*b0*b0 + g_01*b0*b1 + g_02*b0*b2 + g_03*b0*b3
-            + g_10*b1*b0 + g_11*b1*b1 + g_12*b1*b2 + g_13*b1*b3
-            + g_20*b2*b0 + g_21*b2*b1 + g_22*b2*b2 + g_23*b2*b3
-            + g_30*b3*b0 + g_31*b3*b1 + g_32*b3*b2 + g_33*b3*b3;
-  return 0.5*b_sq;
-}
 
 //----------------------------------------------------------------------------------------
 // Function for returning corresponding Boyer-Lindquist coordinates of point
