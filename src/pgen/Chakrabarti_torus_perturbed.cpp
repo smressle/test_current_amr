@@ -76,17 +76,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
-static Real CalculateLFromRPeak(Real r);
-static Real CalculateRPeakFromL(Real l_target);
-static Real LogHAux(Real r, Real sin_theta);
-static void CalculateVelocityInTorus(Real r, Real sin_theta, Real *pu0, Real *pu3);
-static void CalculateVelocityInTiltedTorus(Real r, Real theta, Real phi, Real *pu0,
-                                           Real *pu1, Real *pu2, Real *pu3);
 static Real CalculateBetaMin();
-static bool CalculateBeta(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-                          Real theta_p, Real phi_m, Real phi_c, Real phi_p, Real *pbeta);
-static bool CalculateBetaFromA(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-              Real theta_p, Real a_cm, Real a_cp, Real a_mc, Real a_pc, Real *pbeta);
 static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
                                       Real phi);
 
@@ -124,7 +114,7 @@ Real DivergenceB(MeshBlock *pmb, int iout);
 // Global variables
 static Real m, a;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
-static Real r_edge, r_peak, l, rho_max;            // fixed torus parameters
+static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
 static Real log_h_edge, log_h_peak;                // calculated torus parameters
 static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
@@ -133,10 +123,6 @@ static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real beta_min;                              // min ratio of gas to mag pressure
-static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
-static int sample_n_phi;                           // number of cells in 3D sample grid
-static Real sample_r_rat;                          // sample grid geometric spacing ratio
-static Real sample_cutoff;                         // density cutoff for sample grid
 static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
 static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
 static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
@@ -144,6 +130,7 @@ static Real phi_min, phi_max;                      // limits in phi for 3D sampl
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
 static Real dfloor,pfloor;                         // density and pressure floors
 static Real rh;                                    // horizon radius
+static Real n_pow;
 
 static Real aprime,q;          // black hole mass and spin
 static Real r_inner_boundary,r_inner_boundary_2;
@@ -467,19 +454,14 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pgas_min = pin->GetReal("hydro", "pgas_min");
   pgas_pow = pin->GetReal("hydro", "pgas_pow");
   k_adi = pin->GetReal("problem", "k_adi");
-  r_edge = pin->GetReal("problem", "r_edge");
+  rin = pin->GetReal("problem", "rin");
   r_peak = pin->GetReal("problem", "r_peak");
-  l = pin->GetReal("problem", "l");
+  n_pow = pin->GetReal("problem", "n_pow");
   rho_max = pin->GetReal("problem", "rho_max");
-  psi = pin->GetOrAddReal("problem", "tilt_angle", 0.0) * PI/180.0;
-  sin_psi = std::sin(psi);
-  cos_psi = std::cos(psi);
   if (MAGNETIC_FIELDS_ENABLED) {
     std::string field_config_str = pin->GetString("problem",
                                                   "field_config");
-    if (field_config_str == "vertical") {
-      field_config = vertical;
-    } else if (field_config_str == "normal") {
+    if (field_config_str == "normal") {
       field_config = normal;
     } else if (field_config_str == "renorm") {
       field_config = renorm;
@@ -493,21 +475,12 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
       throw std::runtime_error(msg.str().c_str());
     }
 
-    if (field_config != vertical) {
-      potential_cutoff = pin->GetReal("problem", "potential_cutoff");
-      potential_r_pow = pin->GetReal("problem", "potential_r_pow");
-      potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
-    }
+    potential_cutoff = pin->GetReal("problem", "potential_cutoff");
+    potential_r_pow = pin->GetReal("problem", "potential_r_pow");
+    potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
+
     beta_min = pin->GetReal("problem", "beta_min");
-    sample_n_r = pin->GetInteger("problem", "sample_n_r");
-    sample_n_theta = pin->GetInteger("problem", "sample_n_theta");
-    if (psi != 0.0) {
-      sample_n_phi = pin->GetInteger("problem", "sample_n_phi");
-    } else {
-      sample_n_phi = 1;
-    }
-    sample_r_rat = pin->GetReal("problem", "sample_r_rat");
-    sample_cutoff = pin->GetReal("problem", "sample_cutoff");
+
     x1_min = pin->GetReal("mesh", "x1min");
     x1_max = pin->GetReal("mesh", "x1max");
     x2_min = pin->GetReal("mesh", "x2min");
@@ -794,9 +767,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   }
 
 
-  rin = 12.0
-  n_pow = 0.45
-  rc = 40.0
+  // rin = 12.0
+  // n_pow = 0.45
+  Real rc = r_peak; //40.0
 
   //initialize random numbers
   std::mt19937_64 generator;
@@ -2256,265 +2229,6 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
   return;
 }
 
-
-
-//----------------------------------------------------------------------------------------
-// Function for finding approximate minimum value of plasma beta expected
-// Inputs: (none)
-// Outputs:
-//   returned value: minimum beta found by sampling grid covering whole domain
-// Notes:
-//   constructs grid over entire mesh, not just block
-//   grid is not necessarily the same as used for the problem proper
-//   calculation is done entirely in Boyer-Lindquist coordinates
-
-static Real CalculateBetaMin() {
-  // Prepare container to hold minimum
-  Real beta_min_actual = std::numeric_limits<Real>::max();
-
-  // Go through sample grid in phi
-  for (int k = 0; k < sample_n_phi; ++k) {
-
-    // Calculate phi values
-    Real phi_m = phi_min + static_cast<Real>(k)/static_cast<Real>(sample_n_phi)
-        * (phi_max-phi_min);
-    Real phi_p = phi_min + static_cast<Real>(k+1)/static_cast<Real>(sample_n_phi)
-        * (phi_max-phi_min);
-    Real phi_c = 0.5 * (phi_m + phi_p);
-
-    // Go through sample grid in theta
-    for (int j = 0; j < sample_n_theta; ++j) {
-
-      // Calculate theta values
-      Real theta_m = theta_min + static_cast<Real>(j)/static_cast<Real>(sample_n_theta)
-          * (theta_max-theta_min);
-      Real theta_p = theta_min + static_cast<Real>(j+1)/static_cast<Real>(sample_n_theta)
-          * (theta_max-theta_min);
-      Real theta_c = 0.5 * (theta_m + theta_p);
-
-      // Go through sample grid in r
-      Real r_m, delta_r;
-      Real r_p = 0.0;
-      for (int i = 0; i < sample_n_r; ++i) {
-
-        // Calculate r values
-        if (i == 0) {
-          r_m = r_min;
-          Real ratio_power = 1.0;
-          Real ratio_sum = 1.0;
-          for (int ii = 1; ii < sample_n_r; ++ii) {
-            ratio_power *= sample_r_rat;
-            ratio_sum += ratio_power;
-          }
-          delta_r = (r_max-r_min) / ratio_sum;
-        } else {
-          r_m = r_p;
-          delta_r *= sample_r_rat;
-        }
-        r_p = r_m + delta_r;
-        Real r_c = 0.5 * (r_m + r_p);
-
-        // Calculate beta
-        Real beta;
-        //fprintf(stderr,"r: %g %g %g\n theta: %g %g %g \n phi: %g %g %g \n r_min: %g r_max: %g \n theta_min: %g theta_max: %g \n phi_min : %g phi_max: %g \n",
-          //r_m,r_c,r_p,theta_m,theta_c,theta_p,phi_m,phi_c,phi_p,r_min,r_max,theta_min,theta_max,phi_min,phi_max);
-        
-        bool value_set = CalculateBeta(r_m, r_c, r_p, theta_m, theta_c, theta_p, phi_m,
-            phi_c, phi_p, &beta);
-        if (value_set) {
-          beta_min_actual = std::min(beta_min_actual, beta);
-        }
-      }
-    }
-  }
-  return beta_min_actual;
-}
-
-//----------------------------------------------------------------------------------------
-// Function for calculating beta from four nearby points
-// Inputs:
-//   r_m,r_c,r_p: inner, center, and outer radii
-//   theta_m,theta_c,theta_p: upper, center, and lower polar angles
-// Outputs:
-//   pbeta: value set to plasma beta at cell center
-//   returned value: true if pbeta points to meaningful number (inside torus)
-// Notes:
-//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
-
-static bool CalculateBeta(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-                          Real theta_p, Real phi_m, Real phi_c, Real phi_p, Real *pbeta) {
-  // Assemble arrays of points
-  Real r_vals[7], theta_vals[7], phi_vals[7];
-  r_vals[0] = r_c; theta_vals[0] = theta_c; phi_vals[0] = phi_c;
-  r_vals[1] = r_m; theta_vals[1] = theta_c; phi_vals[1] = phi_c;
-  r_vals[2] = r_p; theta_vals[2] = theta_c; phi_vals[2] = phi_c;
-  r_vals[3] = r_c; theta_vals[3] = theta_m; phi_vals[3] = phi_c;
-  r_vals[4] = r_c; theta_vals[4] = theta_p; phi_vals[4] = phi_c;
-  r_vals[5] = r_c; theta_vals[5] = theta_c; phi_vals[5] = phi_m;
-  r_vals[6] = r_c; theta_vals[6] = theta_c; phi_vals[6] = phi_p;
-
-  // Account for tilt
-  Real sin_theta_vals[7], cos_theta_vals[7];
-  Real sin_phi_vals[7], cos_phi_vals[7];
-  Real sin_vartheta_vals[7], cos_vartheta_vals[7];
-  Real sin_varphi_vals[7], cos_varphi_vals[7];
-  for (int p = 0; p < 7; ++p) {
-    sin_theta_vals[p] = std::sin(theta_vals[p]);
-    cos_theta_vals[p] = std::cos(theta_vals[p]);
-    sin_phi_vals[p] = std::sin(phi_vals[p]);
-    cos_phi_vals[p] = std::cos(phi_vals[p]);
-    Real varphi;
-    if (psi != 0.0) {
-      Real x = sin_theta_vals[p] * cos_phi_vals[p];
-      Real y = sin_theta_vals[p] * sin_phi_vals[p];
-      Real z = cos_theta_vals[p];
-      Real varx = cos_psi * x - sin_psi * z;
-      Real vary = y;
-      Real varz = sin_psi * x + cos_psi * z;
-      sin_vartheta_vals[p] = std::sqrt(SQR(varx) + SQR(vary));
-      if (field_config == vertical) {
-        break;
-      }
-      cos_vartheta_vals[p] = varz;
-      varphi = std::atan2(vary, varx);
-    } else {
-      sin_vartheta_vals[p] = std::abs(sin_theta_vals[p]);
-      if (field_config == vertical) {
-        break;
-      }
-      cos_vartheta_vals[p] = cos_theta_vals[p];
-      varphi = (sin_theta_vals[p] < 0.0) ? phi_vals[p]-PI : phi_vals[p];
-    }
-    sin_varphi_vals[p] = std::sin(varphi);
-    cos_varphi_vals[p] = std::cos(varphi);
-  }
-
-  // Determine if we are in the torus (FM 3.6)
-  if (r_m < r_edge) {
-    return false;
-  }
-  Real log_h_vals[7];
-  for (int p = 0; p < 7; ++p) {
-    log_h_vals[p] = LogHAux(r_vals[p], sin_vartheta_vals[p]) - log_h_edge;
-    if (log_h_vals[p] < 0.0) {
-      return false;
-    }
-    if (field_config == vertical) {
-      break;
-    }
-  }
-
-  // Calculate vector potential values in torus coordinates
-  Real a_varphi_vals[7];
-  Real pgas;
-  for (int p = 0; p < 7; ++p) {
-    Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h_vals[p])-1.0);
-    Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-    if (p == 0 and rho < sample_cutoff) {
-      return false;
-    }
-    if (p == 0) {
-      pgas = pgas_over_rho * rho;
-    }
-    if (field_config == vertical) {
-      break;
-    }
-    Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-    a_varphi_vals[p] =
-        std::pow(r_vals[p], potential_r_pow) * std::pow(rho_cutoff, potential_rho_pow);
-    if (a_varphi_vals[p] == 0.0) {
-      return false;
-    }
-  }
-
-  // Account for tilt
-  Real a_theta_vals[7], a_phi_vals[7];
-  if (field_config != vertical) {
-    for (int p = 0; p < 7; ++p) {
-      if (psi != 0.0) {
-        Real dvarphi_dtheta = -sin_psi * sin_phi_vals[p] / SQR(sin_vartheta_vals[p]);
-        Real dvarphi_dphi = sin_theta_vals[p] / SQR(sin_vartheta_vals[p])
-            * (cos_psi * sin_theta_vals[p]
-            - sin_psi * cos_theta_vals[p] * cos_phi_vals[p]);
-        a_theta_vals[p] = dvarphi_dtheta * a_varphi_vals[p];
-        a_phi_vals[p] = dvarphi_dphi * a_varphi_vals[p];
-      } else {
-        a_theta_vals[p] = 0.0;
-        a_phi_vals[p] = a_varphi_vals[p];
-      }
-    }
-  }
-
-  // Calculate cell-centered 3-magnetic field
-  Real det = (SQR(r_c) + SQR(a) * SQR(cos_theta_vals[0])) * std::abs(sin_theta_vals[0]);
-  Real bb1, bb2, bb3;
-  if (field_config != vertical) {
-    bb1 = 1.0/det * ((a_phi_vals[4]-a_phi_vals[3]) / (theta_p-theta_m)
-        - (a_theta_vals[6]-a_theta_vals[5]) / (phi_p-phi_m));
-    bb2 = -1.0/det * (a_phi_vals[2]-a_phi_vals[1]) / (r_p-r_m);
-    bb3 = 1.0/det * (a_theta_vals[2]-a_theta_vals[1]) / (r_p-r_m);
-  } else {
-    Real rr = r_c * std::sin(theta_c);
-    Real z = r_c * std::cos(theta_c);
-    bb1 = rr * z / det;
-    bb2 = -SQR(rr) / (r_c * det);
-    bb3 = 0.0;
-  }
-
-  // Calculate beta
-  Real pmag = CalculateMagneticPressure(bb1, bb2, bb3, r_c, theta_c, phi_c);
-  *pbeta = pgas/pmag;
-  return true;
-}
-
-//----------------------------------------------------------------------------------------
-// Function for calculating beta given vector potential
-// Inputs:
-//   r_m,r_c,r_p: inner, center, and outer radii
-//   theta_m,theta_c,theta_p: upper, center, and lower polar angles
-//   a_cm,a_cp,a_mc,a_pc: A_phi offset by theta (down,up) and r (down,up)
-// Outputs:
-//   pbeta: value set to plasma beta at cell center
-//   returned value: true if pbeta points to meaningful number (inside torus)
-// Notes:
-//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
-
-static bool CalculateBetaFromA(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-              Real theta_p, Real a_cm, Real a_cp, Real a_mc, Real a_pc, Real *pbeta) {
-  // Calculate trigonometric functions of theta
-  Real sin_theta_c = std::sin(theta_c);
-  Real cos_theta_c = std::cos(theta_c);
-
-  // Determine if we are in the torus (FM 3.6)
-  if (r_m < r_edge) {
-    return false;
-  }
-  Real log_h = LogHAux(r_c, sin_theta_c) - log_h_edge;
-  if (log_h < 0.0) {
-    return false;
-  }
-
-  // Calculate primitives
-  Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-  Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-  Real pgas = pgas_over_rho * rho;
-
-  // Check A_phi
-  if (a_cm == 0.0 or a_cp == 0.0 or a_mc == 0.0 or a_pc == 0.0) {
-    return false;
-  }
-
-  // Calculate 3-magnetic field
-  Real det = (SQR(r_c) + SQR(a) * SQR(cos_theta_c)) * std::abs(sin_theta_c);
-  Real bb1 = 1.0/det * (a_cp-a_cm) / (theta_p-theta_m);
-  Real bb2 = -1.0/det * (a_pc-a_mc) / (r_p-r_m);
-  Real bb3 = 0.0;
-
-  // Calculate beta
-  Real pmag = CalculateMagneticPressure(bb1, bb2, bb3, r_c, theta_c, 0.0);
-  *pbeta = pgas/pmag;
-  return true;
-}
 
 //----------------------------------------------------------------------------------------
 // Function to calculate 1/2 * b^lambda b_lambda
