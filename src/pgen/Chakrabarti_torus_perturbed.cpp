@@ -746,46 +746,6 @@ else return 1;
 //              Fishbone 1977, ApJ 215 323 (F)
 //   assumes x3 is axisymmetric direction
 
-void MeshBlock::ProblemGenerator(ParameterInput *pin) {
-  // Prepare index bounds
-  int il = is - NGHOST;
-  int iu = ie + NGHOST;
-  int jl = js;
-  int ju = je;
-  if (block_size.nx2 > 1) {
-    jl -= (NGHOST);
-    ju += (NGHOST);
-  }
-  int kl = ks;
-  int ku = ke;
-  if (block_size.nx3 > 1) {
-    kl -= (NGHOST);
-    ku += (NGHOST);
-  }
-
-
-  // rin = 12.0
-  // n_pow = 0.45
-  Real rc = r_peak; //40.0
-
-  //initialize random numbers
-  std::mt19937_64 generator;
-  std::uniform_real_distribution<Real> uniform(-0.02, std::nextafter(0.02, std::numeric_limits<Real>::max()));
-
-
-  // Get ratio of specific heats
-  gamma_adi = peos->GetGamma();
-  Real gam = gamma_adi;
-
-
-
-  //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
-
-  Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
-  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
-  Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
-  Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
-
   Real gtphi(Real r, Real a, Real theta){
     Real cos2 =  SQR( std::cos(theta) );
     Real sin2 = SQR( std::sin(theta) );
@@ -866,6 +826,47 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     Real l = - (gtphi(r,a,Pi/2.0) + Omega * gphiphi(r,a,Pi/2.0) ) / ( Omega * gtphi(r,a,Pi/2.0) + gtt(r,a,Pi/2.0) );
     return l;
   }
+
+
+void MeshBlock::ProblemGenerator(ParameterInput *pin) {
+  // Prepare index bounds
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= (NGHOST);
+    ju += (NGHOST);
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= (NGHOST);
+    ku += (NGHOST);
+  }
+
+
+  // rin = 12.0
+  // n_pow = 0.45
+  Real rc = r_peak; //40.0
+
+  //initialize random numbers
+  std::mt19937_64 generator;
+  std::uniform_real_distribution<Real> uniform(-0.02, std::nextafter(0.02, std::numeric_limits<Real>::max()));
+
+
+  // Get ratio of specific heats
+  gamma_adi = peos->GetGamma();
+  Real gam = gamma_adi;
+
+
+
+  //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
+
+  Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
+  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
+  Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
+  Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
 
 
   Real lmb = l_kep(a,rmb);
