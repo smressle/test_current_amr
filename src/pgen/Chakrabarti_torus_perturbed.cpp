@@ -801,8 +801,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
     Real r2 = SQR(r);
-    delta = r2 - 2.0*r + a2;
-    sigma = r2 + a2 * cos2;
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
     return -(1.0 - 2.0*r/sigma);
   }
@@ -811,32 +811,31 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
     Real r2 = SQR(r);
-    delta = r2 - 2.0*r + a2;
-    sigma = r2 + a2 * cos2;
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
     return (r2 + a2 + 2.0*a2*r/sigma * sin2) * sin2;
   }
 
 
   Real gitphi(Real r, Real a, Real theta){
-
     Real cos2 =  SQR( std::cos(theta) );
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
     Real r2 = SQR(r);
-    delta = r2 - 2.0*r + a2;
-    sigma = r2 + a2 * cos2;
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
     return -2.0*r/(sigma*delta)*a;
    } 
 
-  Real  gitt(Real r, Real a, Real theta){
+  Real gitt(Real r, Real a, Real theta){
     Real cos2 =  SQR( std::cos(theta) );
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
     Real r2 = SQR(r);
-    delta = r2 - 2.0*r + a2;
-    sigma = r2 + a2 * cos2;
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
     return -1.0/delta * (r2 + a2 +2*r*a2/sigma*sin2);
   }
@@ -846,8 +845,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     Real sin2 = SQR( std::sin(theta) );
     Real a2 = SQR(a) ;
     Real r2 = SQR(r);
-    delta = r2 - 2.0*r + a2;
-    sigma = r2 + a2 * cos2;
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
 
     return (delta - a2*sin2)/(sigma*delta*sin2);
   }
