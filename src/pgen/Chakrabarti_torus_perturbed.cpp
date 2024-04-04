@@ -76,7 +76,6 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
-static Real CalculateBetaMin();
 static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
                                       Real phi);
 
@@ -808,7 +807,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     delta = r2 - 2.0*r + a2;
     sigma = r2 + a2 * cos2;
 
-    return -(1.0 - 2.0*r/sigma)
+    return -(1.0 - 2.0*r/sigma);
   }
   Real gphiphi(Real r, Real a, Real theta){
     Real cos2 =  SQR( std::cos(theta) );
@@ -1113,12 +1112,14 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
       // Calculate magnetic field normalization
-      if (beta_min < 0.0) {
-        normalization = 0.0;
-      } else {
-        Real beta_min_actual = CalculateBetaMin();
-        normalization = std::sqrt(beta_min_actual/beta_min);
-      }
+      // if (beta_min < 0.0) {
+      //   normalization = 0.0;
+      // } else {
+      //   Real beta_min_actual = CalculateBetaMin();
+      //   normalization = std::sqrt(beta_min_actual/beta_min);
+      // }
+
+        normalization = 1.0;
 
     // Calculate vector potential in renormalized case
     } else if (field_config == MAD){
