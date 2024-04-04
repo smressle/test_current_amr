@@ -823,13 +823,13 @@ else return 1;
     //l (Omega gtphi + gtt) = -gtphi - Omega gphiphi
     // l = - (gtphi + Omega gphiphi)/(Omega gtphi + gtt)
     // Equation 2.4a in Chakrabarti
-    Real l = - (gtphi(r,a,Pi/2.0) + Omega * gphiphi(r,a,PI/2.0) ) / ( Omega * gtphi(r,a,PI/2.0) + gtt(r,a,PI/2.0) );
+    Real l = - (gtphi(r,a,PI/2.0) + Omega * gphiphi(r,a,PI/2.0) ) / ( Omega * gtphi(r,a,PI/2.0) + gtt(r,a,PI/2.0) );
     return l;
   }
 
 
   Real f(Real l, Real c_const){
-    Real alpha_pow = (2.0*n_pow-2.0)/n_pow //q_pow/(q_pow-2.0);
+    Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
     return std::pow( abs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
   }
 
@@ -891,7 +891,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real c_const = lc/std::pow(lambda_c,n_pow);
 
   Real q_pow = 2.0-n_pow;
-  Real alpha_pow = (2.0*n_pow-2.0)/n_pow //q_pow/(q_pow-2.0);
+  Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
 
   Real ud_t_in = -1.0/np.sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + lin**2.0*giphiphi(rin,a,PI/2.0) ) );
 
@@ -934,7 +934,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real ud_t,eps; 
         if (denom_sq>0){
           ud_t = -1.0/std::sqrt(denom_sq);
-          eps = 1.0/gam * (ud_t_in * f(li,c_const)/(ud_t * f(l_sol,c_const)) -1.0);
+          eps = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t * f(l_sol,c_const)) -1.0);
         }
         else{
           ud_t = -1.0;
