@@ -1049,10 +1049,6 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real dv_dphi = u;
     Real dw_dphi = 0.0;
 
-    Real uuu = uur * du_dr + uuphi * du_dphi;
-    Real uuv = uur * dv_dr + uuphi * dv_dphi;
-    Real uuw = uur * dw_dr + uuphi * dw_dphi;
-
 
     AthenaArray<Real> g_cks_unrotated;
     g_cks_unrotated.NewAthenaArray(NMETRIC);
@@ -1091,8 +1087,8 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     if (r> 0.8*rh){
       if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
-        fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g thprime: %g \n u: %g %g %g %g \n",
-          E,L,udotu,r,th_temp, (*uut),uur,0,uuphi );
+        fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g th: %g \n u: %g %g %g %g \n a: %g %g %g \n uvw: %g %g %g \n xyz: %g %g %g \n",
+          E,L,udotu,r,th_temp, (*uut),uuu,uuv,uuw,ax,ay,az,u,v,w,x1,x2,x3 );
         exit(0);
 
       }
