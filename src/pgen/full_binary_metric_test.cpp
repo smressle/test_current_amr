@@ -94,8 +94,6 @@ void get_prime_coords(int BH_INDEX,Real x, Real y, Real z, AthenaArray<Real> &or
 
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
-void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
-
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
@@ -117,7 +115,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
                                          Real *uux2, Real *uux3);
 
 // Global variables
-static Real m, a;                                  // black hole parameters
+static Real m;                                  // black hole parameters
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
 static int sample_n_phi;                           // number of cells in 3D sample grid
 static Real dfloor,pfloor;                         // density and pressure floors
@@ -980,7 +978,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 
     // call u,v,w the coordinates of aligned frame
-    Real rsq_p_asq = ( SQR(a) + SQR(r) );
+    Real rsq_p_asq = ( SQR(amag) + SQR(r) );
     Real du_dr = (r*u + amag*v)/rsq_p_asq;
     Real dv_dr = (r*v - amag*u)/rsq_p_asq;
     Real dw_dr =  w/(r + 1e-10);
@@ -1098,6 +1096,48 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               get_free_fall_solution(rprime, xprime,yprime, zprime, a1x,a1y,a1z, &u0, &u1,&u2,&u3);
 
+              AthenaArray<Real> g_unboosted;
+              g_unboosted.NewAthenaArray(NMETRIC);
+              unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV1X), orbit_quantities(IV1Y), orbit_quantities(IV1Z),a1x,a1y,a1z,g_unboosted );
+
+              // Extract metric coefficients
+              const Real &g_00 = g_unboosted(I00);
+              const Real &g_01 = g_unboosted(I01);
+              const Real &g_02 = g_unboosted(I02);
+              const Real &g_03 = g_unboosted(I03);
+              const Real &g_10 = g_unboosted(I01);
+              const Real &g_11 = g_unboosted(I11);
+              const Real &g_12 = g_unboosted(I12);
+              const Real &g_13 = g_unboosted(I13);
+              const Real &g_20 = g_unboosted(I02);
+              const Real &g_21 = g_unboosted(I12);
+              const Real &g_22 = g_unboosted(I22);
+              const Real &g_23 = g_unboosted(I23);
+              const Real &g_30 = g_unboosted(I03);
+              const Real &g_31 = g_unboosted(I13);
+              const Real &g_32 = g_unboosted(I23);
+              const Real &g_33 = g_unboosted(I33);
+
+              // Set lowered components
+              Real ud_0 = g_00*u0 + g_01*u1 + g_02*u2 + g_03*u3;
+              Real ud_1 = g_10*u0 + g_11*u1 + g_12*u2 + g_13*u3;
+              Real ud_2 = g_20*u0 + g_21*u1 + g_22*u2 + g_23*u3;
+              Real ud_3 = g_30*u0 + g_31*u1 + g_32*u2 + g_33*u3;
+
+              Real E = ud_0;
+              Real L = ud_3;
+              Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
+
+              if (rprime > 0.8){
+                if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
+
+                  fprintf(stderr, "E: %g L: 5g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+                    E,L,udotdu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+                  exit(0);
+
+                }
+
+              g_unboosted.DeleteAthenaArray();
 
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
@@ -2066,6 +2106,87 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 
 }
 
+
+void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted ){
+
+  Real a_dot_x_prime = ax * xprime + ay * yprime + az * zprime;
+  Real a_mag = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+
+    Real diff = SMALL - a_dot_x_prime/(a_mag+SMALL);
+    a_dot_x_prime =  SMALL;
+
+    xprime = xprime + diff*ax/(a_mag+SMALL);
+    yprime = yprime + diff*ay/(a_mag+SMALL);
+    zprime = zprime + diff*az/(a_mag+SMALL);
+  }
+  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+
+    Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);
+    a_dot_x_prime =  -SMALL;
+
+    xprime = xprime + diff*ax/(a_mag+SMALL);
+    yprime = yprime + diff*ay/(a_mag+SMALL);
+    zprime = zprime + diff*az/(a_mag+SMALL);
+  } 
+  
+  Real thprime,phiprime;
+  GetBoyerLindquistCoordinates(xprime,yprime,zprime,ax,ay,az, &rprime, &thprime, &phiprime);
+
+
+/// prevent metric from getting nan sqrt(-gdet)
+
+  Real rhprime = ( q_rat + std::sqrt(SQR(q_rat)-SQR(a_mag)) );
+  if (rprime < rhprime*0.8) {
+    rprime = rhprime*0.8;
+    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, ax,ay,az,&xprime,&yprime,&zprime);
+  }
+
+  a_dot_x_prime = ax * xprime + ay * yprime + az * zprime;
+
+  Real a_cross_x_prime[3];
+
+
+  a_cross_x_prime[0] = ay * zprime - az * yprime;
+  a_cross_x_prime[1] = az * xprime - ax * zprime;
+  a_cross_x_prime[2] = ax * yprime - ay * xprime;
+
+
+  Real rsq_p_asq_prime = SQR(rprime) + SQR(a_mag);
+
+  //First calculated all quantities in BH rest (primed) frame
+
+  Real l_lowerprime[4],l_upperprime[4];
+
+  Real fprime = q_rat *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(a_dot_x_prime));
+  l_upperprime[0] = -1.0;
+  l_upperprime[1] = (rprime * xprime - a_cross_x_prime[0] + a_dot_x_prime * ax/rprime)/(rsq_p_asq_prime);
+  l_upperprime[2] = (rprime * yprime - a_cross_x_prime[1] + a_dot_x_prime * ay/rprime)/(rsq_p_asq_prime);
+  l_upperprime[3] = (rprime * zprime - a_cross_x_prime[2] + a_dot_x_prime * az/rprime)/(rsq_p_asq_prime);
+
+  l_lowerprime[0] = 1.0;
+  l_lowerprime[1] = l_upperprime[1];
+  l_lowerprime[2] = l_upperprime[2];
+  l_lowerprime[3] = l_upperprime[3];
+
+
+  // Set covariant components
+  g_unboosted(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
+  g_unboosted(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
+  g_unboosted(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
+  g_unboosted(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
+  g_unboosted(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
+  g_unboosted(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
+  g_unboosted(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
+  g_unboosted(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
+  g_unboosted(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
+  g_unboosted(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
+
+
+  return;
+
+}
+
 void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &orbit_quantities,
     AthenaArray<Real> &g)
 {
@@ -2758,71 +2879,6 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
     return true;
 }
 #define DEL 1e-7
-void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
-    AthenaArray<Real> &g)
-{
-  // Extract inputs
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
-  Real a = pin->GetReal("coord", "a");
-  Real a_spin = a;
-
-  if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
-  if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
-
-  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
-    x = 0.1;
-    y = 0.1;
-    z = 0.1;
-  }
-
-  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
-  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
-  r = std::sqrt(r/2.0);
-
-
-  //if (r<0.01) r = 0.01;
-
-
-  Real eta[4],l_lower[4],l_upper[4];
-
-  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
-  l_upper[0] = -1.0;
-  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
-  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
-  l_upper[3] = z/r;
-
-  l_lower[0] = 1.0;
-  l_lower[1] = l_upper[1];
-  l_lower[2] = l_upper[2];
-  l_lower[3] = l_upper[3];
-
-  eta[0] = -1.0;
-  eta[1] = 1.0;
-  eta[2] = 1.0;
-  eta[3] = 1.0;
-
-
-
-
-  // Set covariant components
-  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] ;
-  g(I01) =          f * l_lower[0]*l_lower[1] ;
-  g(I02) =          f * l_lower[0]*l_lower[2] ;
-  g(I03) =          f * l_lower[0]*l_lower[3] ;
-  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] ;
-  g(I12) =          f * l_lower[1]*l_lower[2] ;
-  g(I13) =          f * l_lower[1]*l_lower[3] ;
-  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] ;
-  g(I23) =          f * l_lower[2]*l_lower[3] ;
-  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] ;
-
-
-
-  return;
-}
 
 
 Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
