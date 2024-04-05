@@ -114,6 +114,7 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uut, Real *uux1,
                                          Real *uux2, Real *uux3);
 void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted );
+void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks );
 
 // Global variables
 static Real m;                                  // black hole parameters
@@ -930,9 +931,68 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 
     // these are in coordinates aligned with spin r,phi
+
+    //(a^2*r^4 + r^6 + a^4*z^2 + a^2*r^2*z^2 + 2*a^2*r^3 - 2*a^2*r*z^2 - 2*sqrt(2)*sqrt(a^2 + r^2)*r^(7/2))/((r^4 + a^2*z^2)*(a^2 + r^2 - 2*r))
+    Real numerator = std::pow(amag, 2) * std::pow(r, 4) + std::pow(r, 6) + std::pow(amag, 2) * std::pow(a_dot_x, 2) +  pow(r, 2) * pow(a_dot_x, 2) 
+                        + 2 * std::pow(amag, 2) * std::pow(r, 3) - 2 *  r * std::pow(a_dot_x, 2) - 2 * std::sqrt(2) * std::sqrt(std::pow(amag, 2) + std::pow(r, 2)) * std::pow(r, 3.5);
+    Real denominator = ( std::pow(r, 4) + SQR(a_dot_x) ) * ( std::pow(amag, 2) + std::pow(r, 2) - 2 * r + 1e-10);
+    *uut =  numerator / denominator;
+
     Real uur = -std::sqrt(2.0)*std::sqrt( SQR(amag) + SQR(r) ) * std::pow(r,5.0/2.0)/( SQR(SQR(r)) + SQR(a_dot_x));
     Real uuphi = -2 * amag * SQR(r)*r /(( SQR(SQR(r)) + SQR(a_dot_x))*(std::sqrt(2.0)*std::sqrt( SQR(amag) + SQR(r))*std::sqrt(r) + 2*r));
-    Real u0prime,u1prime,u2prime,u3prime;
+    
+
+    Real th_temp = std::acos( a_dot_x/ (amag * r) );
+
+    AthenaArray<Real> g_ks;
+    g_ks.NewAthenaArray(NMETRIC);
+    ks_metric(r,th_temp,amag,g_ks);
+
+        // Extract metric coefficients
+    const Real &g_00 = g_ks(I00);
+    const Real &g_01 = g_ks(I01);
+    const Real &g_02 = g_ks(I02);
+    const Real &g_03 = g_ks(I03);
+    const Real &g_10 = g_ks(I01);
+    const Real &g_11 = g_ks(I11);
+    const Real &g_12 = g_ks(I12);
+    const Real &g_13 = g_ks(I13);
+    const Real &g_20 = g_ks(I02);
+    const Real &g_21 = g_ks(I12);
+    const Real &g_22 = g_ks(I22);
+    const Real &g_23 = g_ks(I23);
+    const Real &g_30 = g_ks(I03);
+    const Real &g_31 = g_ks(I13);
+    const Real &g_32 = g_ks(I23);
+    const Real &g_33 = g_ks(I33);
+
+    // Set lowered components
+    Real ud_0 = g_00*( *uut) + g_01*uur  + g_03*uuphi;
+    Real ud_1 = g_10*( *uut) + g_11*uur  + g_13*uuphi;
+    Real ud_2 = g_20*( *uut) + g_21*uur  + g_23*uuphi;
+    Real ud_3 = g_30*( *uut) + g_31*uur  + g_33*uuphi;
+
+    Real E = ud_0;
+    Real L = ud_3;
+    Real udotu = (*uut)*ud_0 + uur*ud_1 + uuphii*ud_3;
+
+
+    //  CHECK if this is actually a free fall solution!! //
+    if (rprime > 0.8*rh){
+      if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
+
+        fprintf(stderr, "Original KS coordinates \n E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+          E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+        exit(0);
+
+      }
+    }
+
+    g_ks.DeleteAthenaArray();
+
+
+
+
 
 
 
@@ -996,12 +1056,6 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     *uux2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
     *uux3 = uuu * dz_du + uuv * dz_dv + uuw * dz_dw;
 
-
-//(a^2*r^4 + r^6 + a^4*z^2 + a^2*r^2*z^2 + 2*a^2*r^3 - 2*a^2*r*z^2 - 2*sqrt(2)*sqrt(a^2 + r^2)*r^(7/2))/((r^4 + a^2*z^2)*(a^2 + r^2 - 2*r))
-    Real numerator = std::pow(amag, 2) * std::pow(r, 4) + std::pow(r, 6) + std::pow(amag, 2) * std::pow(a_dot_x, 2) +  pow(r, 2) * pow(a_dot_x, 2) 
-                        + 2 * std::pow(amag, 2) * std::pow(r, 3) - 2 *  r * std::pow(a_dot_x, 2) - 2 * std::sqrt(2) * std::sqrt(std::pow(amag, 2) + std::pow(r, 2)) * std::pow(r, 3.5);
-    Real denominator = ( std::pow(r, 4) + SQR(a_dot_x) ) * ( std::pow(amag, 2) + std::pow(r, 2) - 2 * r + 1e-10);
-    *uut =  numerator / denominator;
 
     return;
 
@@ -1131,7 +1185,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
               //  CHECK if this is actually a free fall solution!! //
-              if (rprime > 0.8){
+              if (rprime > 0.8*rh){
                 if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
                   fprintf(stderr, "E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
@@ -2186,6 +2240,37 @@ void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real
   g_unboosted(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
   g_unboosted(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
 
+
+  return;
+
+}
+
+
+void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks ){
+
+  Real m = 1.0;
+
+  Real a2 = SQR(a);
+  Real sin2 = SQR( std::sin(th) ) ;
+  Real cos2 = SQR( std::cos(th) );
+
+  // Go through 1D block of cells
+
+    // Extract remaining useful quantities
+  Real r2 = SQR(r);
+  Real delta = r2 - 2.0*m*r + a2;
+  Real sigma = r2 + a2 * cos2;
+
+  // Set covariant metric coefficients
+  g_ks(I00) = -(1.0 - 2.0*m*r/sigma);
+  g_ks(I01) = 2.0*m*r/sigma;
+  g_ks(I03) = -2.0*m*a*r/sigma * sin2;
+  g_ks(I11) = 1.0 + 2.0*m*r/sigma;
+  g_ks(I13) = -(1.0 + 2.0*m*r/sigma) * a * sin2;
+  g_ks(I22) = sigma;
+  g_ks(I33) = (r2 + a2 + 2.0*m*a2*r/sigma * sin2) * sin2;
+
+  //First calculated all quantities in BH rest (primed) frame
 
   return;
 

@@ -878,7 +878,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real lmb = l_kep(a,rmb);
   Real lms = l_kep(a,rms);
 
-  Real  lc = l_kep(a,rc);
+  Real lc = l_kep(a,rc);
 
 
     // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
