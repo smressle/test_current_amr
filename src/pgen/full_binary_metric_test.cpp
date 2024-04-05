@@ -1053,6 +1053,53 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real uuv = uur * dv_dr + uuphi * dv_dphi;
     Real uuw = uur * dw_dr + uuphi * dw_dphi;
 
+
+    AthenaArray<Real> g_cks_unrotated;
+    g_cks_unrotated.NewAthenaArray(NMETRIC);
+    unboosted_cks_metric(1.0,u,v,w, r, std::sqrt( SQR(u) + SQR(v) + SQR(w) ) , 0,0,0,0,0,amag,g_cks_unrotated);
+
+        // Extract metric coefficients
+    const Real &g00 = g_cks_unrotated(I00);
+    const Real &g01 = g_cks_unrotated(I01);
+    const Real &g02 = g_cks_unrotated(I02);
+    const Real &g03 = g_cks_unrotated(I03);
+    const Real &g10 = g_cks_unrotated(I01);
+    const Real &g11 = g_cks_unrotated(I11);
+    const Real &g12 = g_cks_unrotated(I12);
+    const Real &g13 = g_cks_unrotated(I13);
+    const Real &g20 = g_cks_unrotated(I02);
+    const Real &g21 = g_cks_unrotated(I12);
+    const Real &g22 = g_cks_unrotated(I22);
+    const Real &g23 = g_cks_unrotated(I23);
+    const Real &g30 = g_cks_unrotated(I03);
+    const Real &g31 = g_cks_unrotated(I13);
+    const Real &g32 = g_cks_unrotated(I23);
+    const Real &g33 = g_cks_unrotated(I33);
+
+    // Set lowered components
+    ud_0 = g00*(*uut)  + g01*uuu + g02*uuv + g03*uuw;
+    ud_1 = g10*(*uut)  + g11*uuu + g12*uuv + g13*uuw;
+    ud_2 = g20*(*uut)  + g21*uuu + g22*uuv + g23*uuw;
+    ud_3 = g30*(*uut)  + g31*uuu + g32*uuv + g33*uuw;
+
+    E = ud_0;
+    L = ud_3;
+    udotu = (*uut)*ud_0 + uuu*ud_1 + uuv*ud_2 + uuw*ud_3;
+
+
+    //  CHECK if this is actually a free fall solution!! //
+    if (r> 0.8*rh){
+      if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
+
+        fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g thprime: %g \n u: %g %g %g %g \n",
+          E,L,udotu,r,th_temp, (*uut),uur,0,uuphi );
+        exit(0);
+
+      }
+    }
+
+    g_cks_unrotated.DeleteAthenaArray();
+
     *uux1 = uuu * dx_du + uuv * dx_dv + uuw * dx_dw;
     *uux2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
     *uux3 = uuu * dz_du + uuv * dz_dv + uuw * dz_dw;
