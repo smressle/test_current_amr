@@ -1049,6 +1049,10 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real dv_dphi = u;
     Real dw_dphi = 0.0;
 
+    Real uuu = uur * du_dr + uuphi * du_dphi;
+    Real uuv = uur * dv_dr + uuphi * dv_dphi;
+    Real uuw = uur * dw_dr + uuphi * dw_dphi;
+
 
     AthenaArray<Real> g_cks_unrotated;
     g_cks_unrotated.NewAthenaArray(NMETRIC);
@@ -1093,7 +1097,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
       }
     }
-
+    
     g_cks_unrotated.DeleteAthenaArray();
 
     *uux1 = uuu * dx_du + uuv * dx_dv + uuw * dx_dw;
