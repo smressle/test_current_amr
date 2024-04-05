@@ -1094,8 +1094,8 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 
     //  CHECK if this is actually a free fall solution!! //
-    if (r> 0.8*rh){
-      if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
+    if (r_tmp> 0.8*rh){
+      if ( ( std::fabs(E+1)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
         fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g th: %g \n u: %g %g %g %g \n a: %g %g %g \n uvw: %g %g %g \n xyz: %g %g %g \ng: %g %g %g %g \n",
           E,L,udotu,r_tmp,th_temp, (*uut),uuu,uuv,uuw,ax,ay,az,u,v,w,x1,x2,x3,g_cks_unrotated(I00), g_cks_unrotated(I01),g_cks_unrotated(I02),g_cks_unrotated(I03));
@@ -1240,7 +1240,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               //  CHECK if this is actually a free fall solution!! //
               if (rprime > 0.8*rh){
-                if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
+                if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
                   fprintf(stderr, "E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
                     E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
@@ -2283,16 +2283,16 @@ void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real
 
 
   // Set covariant components
-  g_unboosted(I00) = fprime * l_lowerprime[0]*l_lowerprime[0];
+  g_unboosted(I00) = -1.0 + fprime * l_lowerprime[0]*l_lowerprime[0];
   g_unboosted(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
   g_unboosted(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
   g_unboosted(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
-  g_unboosted(I11) = fprime * l_lowerprime[1]*l_lowerprime[1];
+  g_unboosted(I11) = 1.0 + fprime * l_lowerprime[1]*l_lowerprime[1];
   g_unboosted(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
   g_unboosted(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
-  g_unboosted(I22) = fprime * l_lowerprime[2]*l_lowerprime[2];
+  g_unboosted(I22) = 1.0 + fprime * l_lowerprime[2]*l_lowerprime[2];
   g_unboosted(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
-  g_unboosted(I33) = fprime * l_lowerprime[3]*l_lowerprime[3];
+  g_unboosted(I33) = 1.0 + fprime * l_lowerprime[3]*l_lowerprime[3];
 
 
   return;
