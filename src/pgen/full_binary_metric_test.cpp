@@ -113,6 +113,7 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uut, Real *uux1,
                                          Real *uux2, Real *uux3);
+void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted );
 
 // Global variables
 static Real m;                                  // black hole parameters
@@ -1128,14 +1129,17 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real L = ud_3;
               Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
 
+
+              //  CHECK if this is actually a free fall solution!! //
               if (rprime > 0.8){
                 if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "E: %g L: 5g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-                    E,L,udotdu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+                  fprintf(stderr, "E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
                   exit(0);
 
                 }
+              }
 
               g_unboosted.DeleteAthenaArray();
 
