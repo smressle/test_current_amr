@@ -978,12 +978,12 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 
     //  CHECK if this is actually a free fall solution!! //
-    Real rh = ( 1.0 + std::sqrt(SQR(1.0)-SQR(a_mag)) );
+    Real rh = ( 1.0 + std::sqrt(SQR(1.0)-SQR(amag)) );
     if (r> 0.8*rh){
       if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
         fprintf(stderr, "Original KS coordinates \n E: %g L: %g udotu: %g \n  r: %g thprime: %g \n u: %g %g %g %g \n",
-          E,L,udotu,r,th_tmp, (*uut),uur,0,uuphi );
+          E,L,udotu,r,th_temp, (*uut),uur,0,uuphi );
         exit(0);
 
       }
