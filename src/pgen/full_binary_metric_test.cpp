@@ -1061,6 +1061,8 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real r_tmp = std::sqrt( SQR(R_tmp) - SQR(amag) + std::sqrt( SQR(SQR(R_tmp) - SQR(amag)) + 4.0*SQR(amag*w) )  )/std::sqrt(2.0);
 
     unboosted_cks_metric(1.0,u,v,w, r_tmp, R_tmp , 0,0,0,0,0,amag,g_cks_unrotated);
+    //unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted ){
+
 
         // Extract metric coefficients
     const Real &g00 = g_cks_unrotated(I00);
@@ -1096,7 +1098,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
       if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
         fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g th: %g \n u: %g %g %g %g \n a: %g %g %g \n uvw: %g %g %g \n xyz: %g %g %g \ng: %g %g %g %g \n",
-          E,L,udotu,r,th_temp, (*uut),uuu,uuv,uuw,ax,ay,az,u,v,w,x1,x2,x3,g_cks_unrotated(I00), g_cks_unrotated(I01),g_cks_unrotated(I02),g_cks_unrotated(I03));
+          E,L,udotu,r_tmp,th_temp, (*uut),uuu,uuv,uuw,ax,ay,az,u,v,w,x1,x2,x3,g_cks_unrotated(I00), g_cks_unrotated(I01),g_cks_unrotated(I02),g_cks_unrotated(I03));
         exit(0);
 
       }
