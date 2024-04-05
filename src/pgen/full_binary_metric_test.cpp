@@ -1056,7 +1056,11 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
     AthenaArray<Real> g_cks_unrotated;
     g_cks_unrotated.NewAthenaArray(NMETRIC);
-    unboosted_cks_metric(1.0,u,v,w, r, std::sqrt( SQR(u) + SQR(v) + SQR(w) ) , 0,0,0,0,0,amag,g_cks_unrotated);
+
+    Real R_tmp = std::sqrt( SQR(u) + SQR(v) + SQR(w) );
+    Real r_tmp = std::sqrt( SQR(R_tmp) - SQR(amag) + std::sqrt( SQR(SQR(R_tmp) - SQR(amag)) + 4.0*SQR(amag*w) )  )/std::sqrt(2.0);
+
+    unboosted_cks_metric(1.0,u,v,w, r_tmp, R_tmp , 0,0,0,0,0,amag,g_cks_unrotated);
 
         // Extract metric coefficients
     const Real &g00 = g_cks_unrotated(I00);
