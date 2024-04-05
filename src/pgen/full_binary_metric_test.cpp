@@ -974,15 +974,16 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
     Real E = ud_0;
     Real L = ud_3;
-    Real udotu = (*uut)*ud_0 + uur*ud_1 + uuphii*ud_3;
+    Real udotu = (*uut)*ud_0 + uur*ud_1 + uuphi*ud_3;
 
 
     //  CHECK if this is actually a free fall solution!! //
-    if (rprime > 0.8*rh){
+    Real rh = ( 1.0 + std::sqrt(SQR(1.0)-SQR(a_mag)) );
+    if (r> 0.8*rh){
       if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
 
-        fprintf(stderr, "Original KS coordinates \n E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-          E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+        fprintf(stderr, "Original KS coordinates \n E: %g L: %g udotu: %g \n  r: %g thprime: %g \n u: %g %g %g %g \n",
+          E,L,udotu,r,th_tmp, (*uut),uur,0,uuphi );
         exit(0);
 
       }
