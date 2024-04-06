@@ -1369,9 +1369,94 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               get_free_fall_solution(rprime, xprime,yprime, zprime, a2x,a2y,a2z, &u0, &u1,&u2,&u3);
 
+              g_unboosted.NewAthenaArray(NMETRIC);
+              unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z,g_unboosted );
+
+              // Extract metric coefficients
+              const Real &g00 = g_unboosted(I00);
+              const Real &g01 = g_unboosted(I01);
+              const Real &g02 = g_unboosted(I02);
+              const Real &g03 = g_unboosted(I03);
+              const Real &g10 = g_unboosted(I01);
+              const Real &g11 = g_unboosted(I11);
+              const Real &g12 = g_unboosted(I12);
+              const Real &g13 = g_unboosted(I13);
+              const Real &g20 = g_unboosted(I02);
+              const Real &g21 = g_unboosted(I12);
+              const Real &g22 = g_unboosted(I22);
+              const Real &g23 = g_unboosted(I23);
+              const Real &g30 = g_unboosted(I03);
+              const Real &g31 = g_unboosted(I13);
+              const Real &g32 = g_unboosted(I23);
+              const Real &g33 = g_unboosted(I33);
+
+              // Set lowered components
+              ud_0 = g00*u0 + g01*u1 + g02*u2 + g03*u3;
+              ud_1 = g10*u0 + g11*u1 + g12*u2 + g13*u3;
+              ud_2 = g20*u0 + g21*u1 + g22*u2 + g23*u3;
+              ud_3 = g30*u0 + g31*u1 + g32*u2 + g33*u3;
+
+              E = ud_0;
+              L = ud_3;
+              udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
+
+
+              //  CHECK if this is actually a free fall solution!! //
+              if (rprime > 0.8*rh){
+                if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+
+                  fprintf(stderr, "Second BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+                  exit(0);
+
+                }
+              }
+
+              g_unboosted.DeleteAthenaArray();
+
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
+
+          
+              // Extract metric coefficients
+              const Real &g00_ = g(I00);
+              const Real &g01_ = g(I01);
+              const Real &g02_ = g(I02);
+              const Real &g03_ = g(I03);
+              const Real &g10_ = g(I01);
+              const Real &g11_  = g(I11);
+              const Real &g12_  = g(I12);
+              const Real &g13_  = g(I13);
+              const Real &g20_  = g(I02);
+              const Real &g21_  = g(I12);
+              const Real &g22_  = g(I22);
+              const Real &g23_  = g(I23);
+              const Real &g30_  = g(I03);
+              const Real &g31_  = g(I13);
+              const Real &g32_  = g(I23);
+              const Real &g33_  = g(I33);
+
+              // Set lowered components
+              ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
+              ud_1 = g10_ *u0prime + g11_ *u1prime + g12_ *u2prime + g13_ *u3prime;
+              ud_2 = g20_ *u0prime + g21_ *u1prime + g22_ *u2prime + g23_ *u3prime;
+              ud_3 = g30_ *u0prime + g31_ *u1prime + g32_ *u2prime + g33_ *u3prime;
+
+              E = ud_0;
+              L = ud_3;
+              udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
+
+
+              //  CHECK if this is actually a free fall solution!! //
+              if (rprime > 0.8*rh){
+                // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+
+                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+
+                // }
+              }
 
 
               //Make sure four vector is normalized
