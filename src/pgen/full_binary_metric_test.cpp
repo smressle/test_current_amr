@@ -1260,7 +1260,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                        + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
                        + g(I33,i)*u3prime*u3prime;
 
-              Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
+              Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
 
               Real a_const = g(I00,i);
 
@@ -1424,7 +1424,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                        + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
                        + g(I33,i)*u3prime*u3prime;
 
-              Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
+              Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
 
               Real a_const = g(I00,i);
 
