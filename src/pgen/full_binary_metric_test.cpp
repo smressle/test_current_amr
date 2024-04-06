@@ -1262,7 +1262,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
 
-              Real a_const = g(I00);
+              Real a_const = g(I00,i);
 
               if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
                 u0prime = -c_const/b_const;
@@ -1426,7 +1426,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real b_const = 2.0 * ( g(I01)*u1prime + g(I02)*u2prime + g(I03)*u3prime );
 
-              Real a_const = g(I00);
+              Real a_const = g(I00,i);
 
               if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
                 u0prime = -c_const/b_const;
