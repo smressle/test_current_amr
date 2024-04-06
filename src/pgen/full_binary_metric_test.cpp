@@ -1459,15 +1459,15 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
               //  CHECK if this is actually a free fall solution!! //
-              if (rprime > 0.8*rh2){
-                if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+              // if (rprime > 0.8*rh2){
+              //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "Second BH boosted and isolated E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
-                  exit(0);
+              //     fprintf(stderr, "Second BH boosted and isolated E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime );
+              //     exit(0);
 
-                }
-              }
+              //   }
+              // }
               g_boosted.DeleteAthenaArray();
 
               //Make sure four vector is normalized
@@ -1479,13 +1479,13 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               Real a_const = g(I00,i);
 
-              if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
-                u0prime = -c_const/b_const;
+              // if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
+              //   u0prime = -c_const/b_const;
 
-              }
-              else{
-                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
-              }
+              // }
+              // else{
+              //   u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+              // }
 
  
 
