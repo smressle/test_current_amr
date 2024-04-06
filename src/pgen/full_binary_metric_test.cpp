@@ -1369,6 +1369,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               get_free_fall_solution(rprime, xprime,yprime, zprime, a2x,a2y,a2z, &u0, &u1,&u2,&u3);
 
+              AthenaArray<Real> g_unboosted;
               g_unboosted.NewAthenaArray(NMETRIC);
               unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z,g_unboosted );
 
@@ -1391,18 +1392,18 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               const Real &g33 = g_unboosted(I33);
 
               // Set lowered components
-              ud_0 = g00*u0 + g01*u1 + g02*u2 + g03*u3;
-              ud_1 = g10*u0 + g11*u1 + g12*u2 + g13*u3;
-              ud_2 = g20*u0 + g21*u1 + g22*u2 + g23*u3;
-              ud_3 = g30*u0 + g31*u1 + g32*u2 + g33*u3;
+              Real ud_0 = g00*u0 + g01*u1 + g02*u2 + g03*u3;
+              Real ud_1 = g10*u0 + g11*u1 + g12*u2 + g13*u3;
+              Real ud_2 = g20*u0 + g21*u1 + g22*u2 + g23*u3;
+              Real ud_3 = g30*u0 + g31*u1 + g32*u2 + g33*u3;
 
-              E = ud_0;
-              L = ud_3;
-              udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
+              Real E = ud_0;
+              Real L = ud_3;
+              Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
 
 
               //  CHECK if this is actually a free fall solution!! //
-              if (rprime > 0.8*rh){
+              if (rprime > 0.8*rh2){
                 if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
                   fprintf(stderr, "Second BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
