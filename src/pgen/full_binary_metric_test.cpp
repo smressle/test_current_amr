@@ -1433,28 +1433,28 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               }
               else{
-                u0prime = (-b_const - std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
               }
 
  
 
                // Extract metric coefficients
-              const Real &g00_ = g(I00);
-              const Real &g01_ = g(I01);
-              const Real &g02_ = g(I02);
-              const Real &g03_ = g(I03);
-              const Real &g10_ = g(I01);
-              const Real &g11_  = g(I11);
-              const Real &g12_  = g(I12);
-              const Real &g13_  = g(I13);
-              const Real &g20_  = g(I02);
-              const Real &g21_  = g(I12);
-              const Real &g22_  = g(I22);
-              const Real &g23_  = g(I23);
-              const Real &g30_  = g(I03);
-              const Real &g31_  = g(I13);
-              const Real &g32_  = g(I23);
-              const Real &g33_  = g(I33);
+              const Real &g00_ = g(I00,i);
+              const Real &g01_ = g(I01,i);
+              const Real &g02_ = g(I02,i);
+              const Real &g03_ = g(I03,i);
+              const Real &g10_ = g(I01,i);
+              const Real &g11_  = g(I11,i);
+              const Real &g12_  = g(I12,i);
+              const Real &g13_  = g(I13,i);
+              const Real &g20_  = g(I02,i);
+              const Real &g21_  = g(I12,i);
+              const Real &g22_  = g(I22,i);
+              const Real &g23_  = g(I23,i);
+              const Real &g30_  = g(I03,i);
+              const Real &g31_  = g(I13,i);
+              const Real &g32_  = g(I23,i);
+              const Real &g33_  = g(I33,i);
 
               // Set lowered components
               ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
@@ -1471,8 +1471,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               if (rprime > 0.8*rh){
                 // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g std::numeric_limits<double>::epsilon(): %g\n ",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3,a_const,b_const,c_const,std::numeric_limits<double>::epsilon() );
 
                 // }
               }
