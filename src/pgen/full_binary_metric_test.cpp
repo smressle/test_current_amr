@@ -1418,6 +1418,55 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
+              AthenaArray<Real> g_boosted;
+              g_boosted.NewAthenaArray(NMETRIC);
+              boosted_BH_metric_addition(1.0,xprime,yprime,zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z, g_boosted );
+
+              g_boosted(I00) += -1.0;
+              g_boosted(I11) += 1.0;
+              g_boosted(I22) += 1.0;
+              g_boosted(I33) += 1.0;
+
+                            // Extract metric coefficients
+              const Real &g_00 = g_boosted(I00);
+              const Real &g_01 = g_boosted(I01);
+              const Real &g_02 = g_boosted(I02);
+              const Real &g_03 = g_boosted(I03);
+              const Real &g_10 = g_boosted(I01);
+              const Real &g_11 = g_boosted(I11);
+              const Real &g_12 = g_boosted(I12);
+              const Real &g_13 = g_boosted(I13);
+              const Real &g_20 = g_boosted(I02);
+              const Real &g_21 = g_boosted(I12);
+              const Real &g_22 = g_boosted(I22);
+              const Real &g_23 = g_boosted(I23);
+              const Real &g_30 = g_boosted(I03);
+              const Real &g_31 = g_boosted(I13);
+              const Real &g_32 = g_boosted(I23);
+              const Real &g_33 = g_boosted(I33);
+
+              // Set lowered components
+              ud_0 = g_00*u0prime + g_01*u1prime + g_02*u2prime + g_03*u3prime;
+              ud_1 = g_10*u0prime + g_11*u1prime + g_12*u2prime + g_13*u3prime;
+              ud_2 = g_20*u0prime + g_21*u1prime + g_22*u2prime + g_23*u3prime;
+              ud_3 = g_30*u0prime + g_31*u1prime + g_32*u2prime + g_33*u3prime;
+
+              E = ud_0;
+              L = ud_3;
+              udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
+
+
+              //  CHECK if this is actually a free fall solution!! //
+              if (rprime > 0.8*rh2){
+                if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+
+                  fprintf(stderr, "Second BH boosted and isolated E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
+                  exit(0);
+
+                }
+              }
+              g_boosted.DeleteAthenaArray();
 
               //Make sure four vector is normalized
               Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
