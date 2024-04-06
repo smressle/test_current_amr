@@ -1433,7 +1433,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               }
               else{
-                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+                u0prime = (-b_const - std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
               }
 
  
