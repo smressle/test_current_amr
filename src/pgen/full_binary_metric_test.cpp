@@ -1221,28 +1221,28 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // prim(IPR,k,j,i) = pfloor;
 
 
-              uu1 = prim(IVX,k,j,i);
-              uu2 = prim(IVY,k,j,i);
-              uu3 = prim(IVZ,k,j,i);
-              tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                       + g(I33,i)*uu3*uu3;
-              gamma = std::sqrt(1.0 + tmp);
-              // user_out_var(0,k,j,i) = gamma;
-
-              // Calculate 4-velocity
-              alpha = std::sqrt(-1.0/gi(I00,i));
-              u0 = gamma/alpha;
-              u1 = uu1 - alpha * gamma * gi(I01,i);
-              u2 = uu2 - alpha * gamma * gi(I02,i);
-              u3 = uu3 - alpha * gamma * gi(I03,i);
-              Real u_0, u_1, u_2, u_3;
-
               // user_out_var(1,k,j,i) = u0;
               // user_out_var(2,k,j,i) = u1;
               // user_out_var(3,k,j,i) = u2;
               // user_out_var(4,k,j,i) = u3;
               if (MAGNETIC_FIELDS_ENABLED) {
+
+                uu1 = prim(IVX,k,j,i);
+                uu2 = prim(IVY,k,j,i);
+                uu3 = prim(IVZ,k,j,i);
+                tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                  + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                  + g(I33,i)*uu3*uu3;
+                gamma = std::sqrt(1.0 + tmp);
+                // user_out_var(0,k,j,i) = gamma;
+
+                // Calculate 4-velocity
+                alpha = std::sqrt(-1.0/gi(I00,i));
+                u0 = gamma/alpha;
+                u1 = uu1 - alpha * gamma * gi(I01,i);
+                u2 = uu2 - alpha * gamma * gi(I02,i);
+                u3 = uu3 - alpha * gamma * gi(I03,i);
+                Real u_0, u_1, u_2, u_3;
     
 
                 pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
@@ -1325,6 +1325,23 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // user_out_var(3,k,j,i) = u2;
               // user_out_var(4,k,j,i) = u3;
               if (MAGNETIC_FIELDS_ENABLED) {
+
+                uu1 = prim(IVX,k,j,i);
+                uu2 = prim(IVY,k,j,i);
+                uu3 = prim(IVZ,k,j,i);
+                tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                         + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                         + g(I33,i)*uu3*uu3;
+                gamma = std::sqrt(1.0 + tmp);
+                // user_out_var(0,k,j,i) = gamma;
+
+                // Calculate 4-velocity
+                alpha = std::sqrt(-1.0/gi(I00,i));
+                u0 = gamma/alpha;
+                u1 = uu1 - alpha * gamma * gi(I01,i);
+                u2 = uu2 - alpha * gamma * gi(I02,i);
+                u3 = uu3 - alpha * gamma * gi(I03,i);
+                Real u_0, u_1, u_2, u_3;
     
 
                 pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
