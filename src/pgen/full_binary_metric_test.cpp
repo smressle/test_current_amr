@@ -1433,7 +1433,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               }
               else{
-                u0prime = (-b_const - std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
               }
 
  
@@ -1464,7 +1464,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               E = ud_0;
               L = ud_3;
-              udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
+              udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
 
 
               //  CHECK if this is actually a free fall solution!! //
