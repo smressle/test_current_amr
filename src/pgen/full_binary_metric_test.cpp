@@ -1783,7 +1783,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               // Real a_const = 
 
-              u0prime *= 1.0/std::sqrt(-udotu) *0.1 ;
+              u0prime *= 1.0/std::sqrt(-udotu) ;
               u1prime *= 1.0/std::sqrt(-udotu) ;
               u2prime *= 1.0/std::sqrt(-udotu) ;
               u3prime *= 1.0/std::sqrt(-udotu) ;
