@@ -1789,7 +1789,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
               Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0);
 
-              Real A_const = (- b_const + std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
+              Real A_const = (- b_const - std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
               Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
 
               u0prime *= 1.0/std::sqrt(-udotu) ;
