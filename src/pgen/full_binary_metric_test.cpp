@@ -1781,7 +1781,16 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
 
 
-              // Real a_const = 
+              Real git_ui = g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
+              Real gij_ui_uj = g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prprime + 2.0*g(I13,i)*u1prime*u3prime
+                       + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
+                       + g(I33,i)*u3prime*u3prime;
+              Real a_const = g00_ -2.0*g00_*SQR(u0prime) + SQR(g00_*u0prime) * gij_ui_uj/SQR(git_ui);
+              Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
+              Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0)
+
+              Real A_const = (- b_const + std::sqr( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
+              Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
 
               u0prime *= 1.0/std::sqrt(-udotu) ;
               u1prime *= 1.0/std::sqrt(-udotu) ;
@@ -1803,8 +1812,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               if (rprime > 0.8*rh){
                 // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g std::numeric_limits<double>::epsilon(): %g\n ",
-                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,0,0,0,std::numeric_limits<double>::epsilon() );
+                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g A_const: %g B_const: %g \n ",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,a_const,b_const,c_const,A_const,B_const );
 
                 // }
               }
