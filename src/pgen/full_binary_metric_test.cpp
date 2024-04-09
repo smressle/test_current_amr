@@ -1733,22 +1733,22 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               // }
               g_boosted.DeleteAthenaArray();
 
-              //Make sure four vector is normalized
-              Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
-                       + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
-                       + g(I33,i)*u3prime*u3prime;
+              // //Make sure four vector is normalized
+              // Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
+              //          + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
+              //          + g(I33,i)*u3prime*u3prime;
 
-              Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
+              // Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
 
-              Real a_const = g(I00,i);
+              // Real a_const = g(I00,i);
 
-              if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
-                u0prime = -c_const/b_const;
+              // if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
+              //   u0prime = -c_const/b_const;
 
-              }
-              else{
-                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
-              }
+              // }
+              // else{
+              //   u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
+              // }
 
  
 
@@ -1780,7 +1780,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               L = ud_3;
               udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
 
-              u0prime *= 1.0/std::sqrt(-udotu) *0.1 ;
+
+              // Real a_const = 
+
+              u0prime *= 1.0/std::sqrt(-udotu) ;
               u1prime *= 1.0/std::sqrt(-udotu) ;
               u2prime *= 1.0/std::sqrt(-udotu) ;
               u3prime *= 1.0/std::sqrt(-udotu) ;
