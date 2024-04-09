@@ -1785,14 +1785,14 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real gij_ui_uj = g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime + 2.0*g(I13,i)*u1prime*u3prime
                        + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
                        + g(I33,i)*u3prime*u3prime;
-              Real a_const = g00_ -2.0*g00_*SQR(u0prime) + SQR(g00_*u0prime) * gij_ui_uj/SQR(git_ui);
+              Real a_const = g00_*SQR(u0prime) -2.0*g00_*SQR(u0prime) + SQR(g00_*u0prime) * gij_ui_uj/SQR(git_ui);
               Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
               Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0);
 
               Real A_const = (- b_const - std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
               Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
 
-              Real constant = g00_*SQR(A_const) + 2.0*A_const*B_const *git_ui*u0prime + SQR(B_const)*gij_ui_uj;
+              Real constant = g00_*SQR(A_const*u0prime) + 2.0*A_const*B_const *git_ui*u0prime + SQR(B_const)*gij_ui_uj;
 
               u0prime *= A_const; //1.0/std::sqrt(-udotu) ;
               u1prime *= B_const; //1.0/std::sqrt(-udotu) ;
