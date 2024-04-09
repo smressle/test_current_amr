@@ -1519,23 +1519,76 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
+              // Extract metric coefficients
+              const Real &g00_ = g(I00,i);
+              const Real &g01_ = g(I01,i);
+              const Real &g02_ = g(I02,i);
+              const Real &g03_ = g(I03,i);
+              const Real &g10_ = g(I01,i);
+              const Real &g11_  = g(I11,i);
+              const Real &g12_  = g(I12,i);
+              const Real &g13_  = g(I13,i);
+              const Real &g20_  = g(I02,i);
+              const Real &g21_  = g(I12,i);
+              const Real &g22_  = g(I22,i);
+              const Real &g23_  = g(I23,i);
+              const Real &g30_  = g(I03,i);
+              const Real &g31_  = g(I13,i);
+              const Real &g32_  = g(I23,i);
+              const Real &g33_  = g(I33,i);
 
-              //Make sure four vector is normalized
-              Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
+              // Set lowered components
+              ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
+              ud_1 = g10_ *u0prime + g11_ *u1prime + g12_ *u2prime + g13_ *u3prime;
+              ud_2 = g20_ *u0prime + g21_ *u1prime + g22_ *u2prime + g23_ *u3prime;
+              ud_3 = g30_ *u0prime + g31_ *u1prime + g32_ *u2prime + g33_ *u3prime;
+
+              E = ud_0;
+              L = ud_3;
+              udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
+
+
+              Real git_ui = g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
+              Real gij_ui_uj = g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime + 2.0*g(I13,i)*u1prime*u3prime
                        + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
                        + g(I33,i)*u3prime*u3prime;
+              Real a_const = g00_*SQR(u0prime) -2.0*g00_*SQR(u0prime) + SQR(g00_*u0prime) * gij_ui_uj/SQR(git_ui);
+              Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
+              Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0);
 
-              Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
+              Real A_const = (- b_const - std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
+              Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
 
-              Real a_const = g(I00,i);
+              Real constant = g00_*SQR(A_const*u0prime) + 2.0*A_const*B_const *git_ui*u0prime + SQR(B_const)*gij_ui_uj;
 
-              if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
-                u0prime = -c_const/b_const;
+              u0prime *= A_const; //1.0/std::sqrt(-udotu) ;
+              u1prime *= B_const; //1.0/std::sqrt(-udotu) ;
+              u2prime *= B_const; //1.0/std::sqrt(-udotu) ;
+              u3prime *= B_const; //1.0/std::sqrt(-udotu) ;
 
+
+              ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
+              ud_1 = g10_ *u0prime + g11_ *u1prime + g12_ *u2prime + g13_ *u3prime;
+              ud_2 = g20_ *u0prime + g21_ *u1prime + g22_ *u2prime + g23_ *u3prime;
+              ud_3 = g30_ *u0prime + g31_ *u1prime + g32_ *u2prime + g33_ *u3prime;
+
+
+              E = ud_0;
+              L = ud_3;
+              udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
+
+
+              //  CHECK if this is actually a free fall solution!! //
+              if (rprime > 0.8*rh){
+                // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+
+                  fprintf(stderr, "First Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g A_const: %g B_const: %g Equation_constant: %g \n ",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,a_const,b_const,c_const,A_const,B_const ,constant);
+
+                // }
               }
-              else{
-                u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
-              }
+
+
 
               uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
               uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
