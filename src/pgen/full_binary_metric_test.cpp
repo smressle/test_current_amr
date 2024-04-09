@@ -1856,15 +1856,15 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
 
 
-              //  CHECK if this is actually a free fall solution!! //
-              if (rprime > 0.8*rh){
-                // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
+              // //  CHECK if this is actually a free fall solution!! //
+              // if (rprime > 0.8*rh){
+              //   // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "Resulting velocities! E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n gamma: %g vxyz: %g %g %g\n ",
-                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3,gamma,u1/u0,u2/u0,u3/u0 );
+              //     fprintf(stderr, "Resulting velocities! E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n gamma: %g vxyz: %g %g %g\n ",
+              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3,gamma,u1/u0,u2/u0,u3/u0 );
 
-                // }
-              }
+              //   // }
+              // }
 
 
               // user_out_var(1,k,j,i) = u0;
