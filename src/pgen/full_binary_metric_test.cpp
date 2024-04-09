@@ -1789,8 +1789,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
               Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0);
 
-              Real A_const = (- b_const + std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
+              Real A_const = (- b_const - std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
               Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
+
+              Real constant = g00_*SQR(A_const) + 2.0*A_const*B_const *git_ui*u0prime + SQR(B_const)*gij_ui_uj;
 
               u0prime *= A_const; //1.0/std::sqrt(-udotu) ;
               u1prime *= B_const; //1.0/std::sqrt(-udotu) ;
@@ -1812,8 +1814,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               if (rprime > 0.8*rh){
                 // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
 
-                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g A_const: %g B_const: %g \n ",
-                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,a_const,b_const,c_const,A_const,B_const );
+                  fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g A_const: %g B_const: %g Equation_constant: %g \n ",
+                    E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,a_const,b_const,c_const,A_const,B_const ,constant);
 
                 // }
               }
