@@ -828,7 +828,7 @@ else return 1;
   }
 
 
-  Real f(Real l, Real c_const){
+  Real f(Real l, Real c_const,Real n_pow){
     Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
     return std::pow( abs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
   }
@@ -900,7 +900,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Compute Peak Density //
   Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
   Real ud_t_c = -1.0/std::sqrt(denom_sq);
-  Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t_c * f(lc,c_const)) -1.0);
+  Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
   pgas_over_rho_peak = eps_c * (gam-1.0);
 
@@ -934,10 +934,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real ud_t,eps; 
         if (denom_sq>0){
           ud_t = -1.0/std::sqrt(denom_sq);
-          eps = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t * f(l_sol,c_const)) -1.0);
+          eps = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t * f(l_sol,c_const,n_pow)) -1.0);
 
           if (std::isnan(eps)){
-            fprintf(stderr,"eps is NAN! \n r theta phi: %g %g %g \n ud_t_in: %g f_in: %g ud_t: %g f: %g \n n_pow: %g c_const: %g",r,theta,phi, ud_t_in,f(lin,c_const),ud_t,f(l_sol,c_const),n_pow,c_const);
+            fprintf(stderr,"eps is NAN! \n r theta phi: %g %g %g \n ud_t_in: %g f_in: %g ud_t: %g f: %g \n n_pow: %g c_const: %g",r,theta,phi, ud_t_in,f(lin,c_const,n_pow),ud_t,f(l_sol,c_const,n_pow),n_pow,c_const);
             exit(0);
           }
         }
