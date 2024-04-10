@@ -949,7 +949,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
          // Determine if we are in the torus
         Real rho_sol, ug_sol,pgas_sol;
         Real uu_t_sol,uu_phi_sol;
-        if (eps<0) {
+        if (eps<0 or r<rin) {
           in_torus(k,j,i) = false;
 
           rho_sol = 0.0;
