@@ -1185,7 +1185,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-      normalization = 0.5715*7.8780470912524105 ;
+      normalization = 0.5715/7.8780470912524105 ;
 
     }
     else {
