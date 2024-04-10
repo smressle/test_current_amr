@@ -1133,7 +1133,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-        normalization = 1.0;
+        normalization = 1.0*7.8780470912524105;
 
     // Calculate vector potential in renormalized case
     } else if (field_config == MAD){
