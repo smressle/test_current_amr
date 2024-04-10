@@ -935,6 +935,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         if (denom_sq>0){
           ud_t = -1.0/std::sqrt(denom_sq);
           eps = 1.0/gam * (ud_t_in * f(lin,c_const)/(ud_t * f(l_sol,c_const)) -1.0);
+
+          if (std::isnan(eps)){
+            fprintf(stderr,"eps is NAN! \n r theta phi: %g %g %g \nud_t_in: %g f_in: %g ud_t: %g f: %g \n",r,theta,phi, ud_t_in,f(lin,c_const),ud_t,f(l_sol,c_const));
+            exit(0):
+          }
         }
         else{
           ud_t = -1.0;
