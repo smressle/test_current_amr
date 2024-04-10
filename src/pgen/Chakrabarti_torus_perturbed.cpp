@@ -961,10 +961,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         else{
           in_torus(k,j,i) = true;
 
-          Real rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
+          rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
 
-          Real ug_sol = eps * rho_sol;
-          Real pgas_sol = ug_sol * (gam-1.0);
+          ug_sol = eps * rho_sol;
+          pgas_sol = ug_sol * (gam-1.0);
 
           Real Omega = l_sol / SQR(  lambda_sol) ;
 
@@ -973,8 +973,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           // g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2 = -1/u^t^2 
           // u^t = sqrt( -1/ (g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2)  )
 
-          Real uu_t_sol = std::sqrt( -1.0/ (gtt(r,a,theta) + 2.0*gtphi(r,a,theta) * Omega + gphiphi(r,a,theta) * SQR( Omega) )  );
-          Real uu_phi_sol = uu_t_sol * Omega;
+          uu_t_sol = std::sqrt( -1.0/ (gtt(r,a,theta) + 2.0*gtphi(r,a,theta) * Omega + gphiphi(r,a,theta) * SQR( Omega) )  );
+          uu_phi_sol = uu_t_sol * Omega;
         }
 
         // Calculate background primitives
