@@ -1904,7 +1904,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               u3 = uu3 - alpha * gamma * gi(I03,i);
               Real u_0, u_1, u_2, u_3;
 
-              pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &ud_0, &ud_1, &ud_2, &ud_3);
+              // pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &ud_0, &ud_1, &ud_2, &ud_3);
 
               // E = ud_0;
               // L = ud_3;
