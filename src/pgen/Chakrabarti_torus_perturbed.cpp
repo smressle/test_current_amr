@@ -956,6 +956,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         else{
           in_torus(k,j,i) = true;
 
+          fprintf(stderr, "IN TORUS! \n" );
+
           Real rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
 
           Real ug_sol = eps * rho_sol;
