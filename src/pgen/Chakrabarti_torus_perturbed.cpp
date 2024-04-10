@@ -1012,7 +1012,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
           uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
 
-          fprintf(stderr,"In Torus\n r theta phi: %g %g %g \n rho %g press: %g uu: %g %g %g %g \n v: %g %g %g \n eps: %g rho_peak: %g \n ",r,theta,phi,rho,pgas,u0,u1,u2,u3,uu1,uu2,uu3,eps,rho_peak);
+          // fprintf(stderr,"In Torus\n r theta phi: %g %g %g \n rho %g press: %g uu: %g %g %g %g \n v: %g %g %g \n eps: %g rho_peak: %g \n ",r,theta,phi,rho,pgas,u0,u1,u2,u3,uu1,uu2,uu3,eps,rho_peak);
         }
 
         // Set primitive values, including cylindrically symmetric radial velocity
