@@ -830,7 +830,7 @@ else return 1;
 
   Real f(Real l, Real c_const,Real n_pow){
     Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
-    return std::pow( abs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
+    return std::pow( std::fabs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
   }
 
 
