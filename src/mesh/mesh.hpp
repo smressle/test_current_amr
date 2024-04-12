@@ -380,7 +380,7 @@ class Mesh {
   void EnrollUserMeshGenerator(CoordinateDirection dir, MeshGenFunc my_mg);
   void EnrollUserExplicitSourceFunction(SrcTermFunc my_func);
   void EnrollUserRadSourceFunction(RadSrcTermFunc my_func);
-  void EnrollUserExplicitEMFSourceFunction(EMFSrcTermFunc my_func)
+  void EnrollUserExplicitEMFSourceFunction(EMFSrcTermFunc my_func);
 
   void EnrollUserTimeStepFunction(TimeStepFunc my_func);
   // void EnrollUserMetricUpdateFunction(MetricUpdateFunc my_func);
