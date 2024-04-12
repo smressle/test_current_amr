@@ -190,6 +190,8 @@ using RadSrcTermFunc = void (*)(MeshBlock *pmb, const Real time, const Real dt, 
   const FaceField &bb_old,const FaceField &b,
   const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
   const AthenaArray<Real> &prim_scalar_half, AthenaArray<Real> &prim_scalar);
+using EMFSrcTermFunc = void (*)(MeshBlock *pmb, const Real time, const Real dt,
+  const AthenaArray<Real> &prim, const AthenaArray<Real> &bcc, const AthenaArray<Real> &cons, EdgeField &e);
 using TimeStepFunc = Real (*)(MeshBlock *pmb);
 using MetricUpdateFunc = void (*)(const Real metric_t, MeshBlock *pmb);
 using HistoryOutputFunc = Real (*)(MeshBlock *pmb, int iout);

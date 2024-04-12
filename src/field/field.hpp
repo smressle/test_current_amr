@@ -59,6 +59,12 @@ class Field {
   FaceCenteredBoundaryVariable fbvar;
   FieldDiffusion fdif;
 
+  bool emf_sourceterms_defined;
+  void AddEMFSourceTerms(const Real time, const Real dt, const AthenaArray<Real> *flx,
+    const AthenaArray<Real> &p, const AthenaArray<Real> &bcc, const AthenaArray<Real> &c, EdgeField &e);
+  void EnrollEMFrcTermFunction(EMFSrcTermFunc my_func);
+  EMFSrcTermFunc UserEMFSourceTerm;
+
   void CalculateCellCenteredField(
       const FaceField &bf, AthenaArray<Real> &bc,
       Coordinates *pco, int il, int iu, int jl, int ju, int kl, int ku);

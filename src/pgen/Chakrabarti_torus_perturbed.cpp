@@ -107,6 +107,12 @@ void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 
+void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
+              const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
+              const AthenaArray<Real> &bcc, AthenaArray<Real> &cons,
+              AthenaArray<Real> &cons_scalar);
+
+
 
 // Global variables
 static Real m, a;                                  // black hole parameters
@@ -1985,6 +1991,100 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
 
   return;
 }
+
+
+
+void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
+              const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
+              const AthenaArray<Real> &bcc, AthenaArray<Real> &cons,
+              AthenaArray<Real> &cons_scalar){
+
+
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+
+  // // Go through all cells
+  // for (int k = ks; k <= ke; ++k) {
+  //   for (int j = js; j <= je; ++j) {
+  //     pcoord->CellMetric(k, j, is, ie, g, gi);
+
+  for (int k=pmb->ks; k<=pmb->ke; ++k) {
+    for (int j=pmb->js; j<=pmb->je; ++j) {
+      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+      for (int i=pmb->is; i<=pmb->ie; ++i) {
+        Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
+        Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gamma_adi);
+
+        Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
+        Real v_kep = std::sqrt((1.0 + q)/radius);
+        Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
+
+
+        Real kappa_0 = 0.01;
+        Real delta_kappa = kappa-kappa_0;
+
+        Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::abs(delta_kappa/kappa_0)  );
+
+          // Calculate normal frame Lorentz factor
+        Real uu1 = prim(IM1,k,j,i);
+        Real uu2 = prim(IM2,k,j,i);
+        Real uu3 = prim(IM3,k,j,i);
+        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                 + g(I33,i)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi(I00,i));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi(I01,i);
+        Real u2 = uu2 - alpha * gamma * gi(I02,i);
+        Real u3 = uu3 - alpha * gamma * gi(I03,i);
+        Real u_0, u_1, u_2, u_3;
+
+        pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+
+       Real bsq = 0.0;
+       if (MAGNETIC_FIELDS_ENABLED){
+            // Calculate 4-magnetic field
+          Real bb1 = bcc(IB1,k,j,i);
+          Real bb2 = bcc(IB2,k,j,i);
+          Real bb3 = bcc(IB3,k,j,i);
+          Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+                  + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+                  + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+                  + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+          Real b1 = (bb1 + b0 * u1) / u0;
+          Real b2 = (bb2 + b0 * u2) / u0;
+          Real b3 = (bb3 + b0 * u3) / u0;
+          Real b_0, b_1, b_2, b_3;
+          pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+          // Calculate magnetic pressure
+          bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+
+        }
+
+        Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+
+
+        if (Be>0) L_cool = 0.0;
+        cons(IEN,k,j,i) += -dt * L_cool * u_0;
+        cons(IM1,k,j,i) += -dt * L_cool * u_1;
+        cons(IM2,k,j,i) += -dt * L_cool * u_2;
+        cons(IM3,k,j,i) += -dt * L_cool * u_3;
+
+      }
+    }
+  }
+
+
+ return;
+}
+
 
 
 

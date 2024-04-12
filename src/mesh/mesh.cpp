@@ -113,7 +113,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     MeshGenerator_{UniformMeshGeneratorX1, UniformMeshGeneratorX2,
                    UniformMeshGeneratorX3},
     BoundaryFunction_{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{}, UserTimeStep_{}, 
+    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{},UserEMFSourceTerm_{}, UserTimeStep_{}, 
     //UserUpdateMetric_{},
     ViscosityCoeff_{},
     ConductionCoeff_{}, FieldDiffusivity_{},
@@ -1269,6 +1269,17 @@ void Mesh::EnrollUserExplicitSourceFunction(SrcTermFunc my_func) {
 void Mesh::EnrollUserRadSourceFunction(RadSrcTermFunc my_func)
 {
   UserRadSourceTerm_ = my_func;
+  return;
+}
+
+
+//----------------------------------------------------------------------------------------
+//! \fn void Mesh::EnrollUserEMFExplicitSourceFunction(EMFSrcTermFunc_t my_func)
+//  \brief Enroll a user-defined source function for B-field
+
+void Mesh::EnrollUserExplicitEMFSourceFunction(EMFSrcTermFunc my_func)
+{
+  UserEMFSourceTerm_ = my_func;
   return;
 }
 

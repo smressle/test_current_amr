@@ -102,6 +102,12 @@ Field::Field(MeshBlock *pmb, ParameterInput *pin) :
       pmb->pbval->bvars_sts.push_back(&fbvar);
     }
   }
+
+
+
+    emf_sourceterms_defined = false;
+    UserEMFSourceTerm = pmy_block->pmy_mesh->UserEMFSourceTerm_;
+    if(UserEMFSourceTerm != NULL) emf_sourceterms_defined = true;
 }
 
 
@@ -178,3 +184,23 @@ void Field::CalculateCellCenteredField(
   }
   return;
 }
+
+
+//----------------------------------------------------------------------------------------
+//! \fn void Field::AddEMFSourceTerms
+//  \brief Adds source terms to emf (i.e. edge centered e)
+
+void Field::AddEMFSourceTerms(const Real time, const Real dt,
+     const AthenaArray<Real> *flux, const AthenaArray<Real> &prim,
+     const AthenaArray<Real> &bcc, const AthenaArray<Real> &cons, EdgeField &e)
+{
+  MeshBlock *pmb = pmy_block;
+
+
+  //  user-defined source terms
+  if (UserEMFSourceTerm != NULL)
+    UserEMFSourceTerm(pmb, time,dt,prim,bcc,cons,e);
+
+  return;
+}
+
