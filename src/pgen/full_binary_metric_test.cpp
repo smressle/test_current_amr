@@ -1984,16 +1984,16 @@ void emf_source(MeshBlock *pmb,const Real time, const Real dt,const AthenaArray<
 
 
     // Prepare index bounds
-    int il = is - NGHOST;
-    int iu = ie + NGHOST;
-    int jl = js;
-    int ju = je;
+    int il = pmb->is - NGHOST;
+    int iu = pmb->ie + NGHOST;
+    int jl = pmb->js;
+    int ju = pmb->je;
     if (block_size.nx2 > 1) {
       jl -= (NGHOST);
       ju += (NGHOST);
     }
-    int kl = ks;
-    int ku = ke;
+    int kl = pmb->ks;
+    int ku = pmb->ke;
     if (block_size.nx3 > 1) {
       kl -= (NGHOST);
       ku += (NGHOST);
