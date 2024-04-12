@@ -995,7 +995,7 @@ TimeIntegratorTaskList::TimeIntegratorTaskList(ParameterInput *pin, Mesh *pm) {
     if (MAGNETIC_FIELDS_ENABLED) { // MHD
       // compute MHD fluxes, integrate field
       AddTask(CALC_FLDFLX,CALC_HYDFLX);
-      AddTimeIntegratorTask(SRCTERM_EMF,(CALC_FLDFLX));
+      AddTask(SRCTERM_EMF,(CALC_FLDFLX));
       AddTask(SEND_FLDFLX,SRCTERM_EMF);
       AddTask(RECV_FLDFLX,SEND_FLDFLX);
       if (SHEAR_PERIODIC) {
@@ -1802,7 +1802,8 @@ TaskStatus TimeIntegratorTaskList::EMFSourceTerms(MeshBlock *pmb, int stage)
   // *** this must be changed for the RK3 integrator
   if (stage <= nstages) {
     // Time at beginning of stage for u()
-    Real t_start_stage = pmb->pmy_mesh->time + pmb->stage_abscissae[stage-1][0];
+    Real t_start_stage = pmb->pmy_mesh->time
+                           + stage_wghts[(stage-1)].sbeta*pmb->pmy_mesh->dt;
     // Scaled coefficient for RHS update
     Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
     pf->AddEMFSourceTerms(t_start_stage,dt,ph->flux,ph->w,pf->bcc,ph->u,pf->e);
