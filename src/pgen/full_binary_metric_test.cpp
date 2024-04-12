@@ -285,7 +285,6 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  if (MAGNETIC_FIELDS_ENABLED) EnrollUserExplicitEMFSourceFunction(emf_source);
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
@@ -304,6 +303,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   std::string orbit_file_name;
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
   set_orbit_arrays(orbit_file_name);
+
+
+  if (MAGNETIC_FIELDS_ENABLED) EnrollUserExplicitEMFSourceFunction(emf_source);
 
   // fprintf(stderr,"Done with set_orbit_arrays \n");
 
