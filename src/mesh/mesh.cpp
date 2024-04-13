@@ -620,7 +620,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     MeshGenerator_{UniformMeshGeneratorX1, UniformMeshGeneratorX2,
                    UniformMeshGeneratorX3},
     BoundaryFunction_{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-    AMRFlag_{}, UserSourceTerm_{}, UserTimeStep_{}, ViscosityCoeff_{},
+    AMRFlag_{}, UserSourceTerm_{}, UserRadSourceTerm_{},UserEMFSourceTerm_{}, UserTimeStep_{}, ViscosityCoeff_{},
     //UserUpdateMetric_{},
     ConductionCoeff_{}, FieldDiffusivity_{},
     OrbitalVelocity_{}, OrbitalVelocityDerivative_{nullptr, nullptr},
@@ -814,7 +814,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     resfile.Seek(headeroffset);
 
   // rebuild the Block Tree
-  fprintf(stderr,"Creating meshblock list \n");
+  // fprintf(stderr,"Creating meshblock list \n");
   tree.CreateRootGrid();
   for (int i=0; i<nbtotal; i++)
     tree.AddMeshBlockWithoutRefine(loclist[i]);
@@ -888,7 +888,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   my_blocks.NewAthenaArray(nblocal);
   for (int i=gids_; i<=gide_; i++) {
     if (i - gids_ < nbmin) {
-      fprintf(stderr,"Reading mesbhlock %d i: %d \n",i-gids_,i);
+      // fprintf(stderr,"Reading mesbhlock %d i: %d \n",i-gids_,i);
       // load MeshBlock (parallel)
       if (resfile.Read_at_all(mbdata, datasize, 1, headeroffset+i*datasize) != 1) {
         msg << "### FATAL ERROR in Mesh constructor" << std::endl
