@@ -1388,108 +1388,108 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 // }
 
 
-bool is_face_in_boundary(int dir, int i, int j, int k, Real a1x, Real a1y, Real a1z,Real a2x,Real a2y, Real a2z,Real rh,Real rh2,MeshBlock *pmb ){
+// bool is_face_in_boundary(int dir, int i, int j, int k, Real a1x, Real a1y, Real a1z,Real a2x,Real a2y, Real a2z,Real rh,Real rh2,MeshBlock *pmb ){
 
-  Real x,y,z;
-  Real xm,ym,zm;
-  Real xp,yp,zp;
-  Real xprime,yprime,zprime;
-  Real rprimem,Rprime,thprime,phiprime;
-  Real rprimep;
-  if (dir==1 and (j<pmb->je+1 and k<pmb->ke+1) ){
-    x = pmb->pcoord->x1f(i);
-    ym = pmb->pcoord->x2f(j);
-    zm = pmb->pcoord->x3f(k);
-
-
-    yp = pmb->pcoord->x2f(j+1);
-    zp = pmb->pcoord->x3f(k+1);
+//   Real x,y,z;
+//   Real xm,ym,zm;
+//   Real xp,yp,zp;
+//   Real xprime,yprime,zprime;
+//   Real rprimem,Rprime,thprime,phiprime;
+//   Real rprimep;
+//   if (dir==1 and (j<pmb->je+1 and k<pmb->ke+1) ){
+//     x = pmb->pcoord->x1f(i);
+//     ym = pmb->pcoord->x2f(j);
+//     zm = pmb->pcoord->x3f(k);
 
 
-    get_prime_coords(1,x,ym,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(1,x,yp,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh and rprimep<=rh)return true;
-
-    get_prime_coords(2,x,ym,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(2,x,yp,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh2 and rprimep<=rh2) return true;
-    else return false;
+//     yp = pmb->pcoord->x2f(j+1);
+//     zp = pmb->pcoord->x3f(k+1);
 
 
-  }
+//     get_prime_coords(1,x,ym,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
 
-  if (dir==2 and (i<pmb->ie+1 and k<pmb->ke+1) ){
-    xm = pmb->pcoord->x1f(i);
-    y = pmb->pcoord->x2f(j);
-    zm = pmb->pcoord->x3f(k);
+//     get_prime_coords(1,x,yp,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
 
+//     if (rprimem<=rh and rprimep<=rh)return true;
 
-    xp = pmb->pcoord->x1f(i+1);
-    zp = pmb->pcoord->x3f(k+1);
+//     get_prime_coords(2,x,ym,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
 
+//     get_prime_coords(2,x,yp,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
 
-    get_prime_coords(1,xm,y,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(1,xp,y,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh and rprimep<=rh)return true;
-
-    get_prime_coords(2,xm,y,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(2,xp,y,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh2 and rprimep<=rh2)return true;
-    else return false;
+//     if (rprimem<=rh2 and rprimep<=rh2) return true;
+//     else return false;
 
 
-  }
+//   }
 
-  if (dir==3 and (i<pmb->ie+1 and j<pmb->je+1) ){
-    xm = pmb->pcoord->x1f(i);
-    ym = pmb->pcoord->x2f(j);
-    z = pmb->pcoord->x3f(k);
-
-
-    xp = pmb->pcoord->x1f(i+1);
-    yp = pmb->pcoord->x2f(j+1);
+//   if (dir==2 and (i<pmb->ie+1 and k<pmb->ke+1) ){
+//     xm = pmb->pcoord->x1f(i);
+//     y = pmb->pcoord->x2f(j);
+//     zm = pmb->pcoord->x3f(k);
 
 
-    get_prime_coords(1,xm,ym,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(1,xp,yp,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh and rprimep<=rh)return true;
-
-    get_prime_coords(2,xm,ym,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
-
-    get_prime_coords(2,xp,yp,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
-
-    if (rprimem<=rh2 and rprimep<=rh2)return true;
-    else return false;
+//     xp = pmb->pcoord->x1f(i+1);
+//     zp = pmb->pcoord->x3f(k+1);
 
 
-  }
+//     get_prime_coords(1,xm,y,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
+
+//     get_prime_coords(1,xp,y,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
+
+//     if (rprimem<=rh and rprimep<=rh)return true;
+
+//     get_prime_coords(2,xm,y,zm, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
+
+//     get_prime_coords(2,xp,y,zp, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
+
+//     if (rprimem<=rh2 and rprimep<=rh2)return true;
+//     else return false;
 
 
-  return false;
+//   }
 
-}
+//   if (dir==3 and (i<pmb->ie+1 and j<pmb->je+1) ){
+//     xm = pmb->pcoord->x1f(i);
+//     ym = pmb->pcoord->x2f(j);
+//     z = pmb->pcoord->x3f(k);
+
+
+//     xp = pmb->pcoord->x1f(i+1);
+//     yp = pmb->pcoord->x2f(j+1);
+
+
+//     get_prime_coords(1,xm,ym,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimem, &thprime, &phiprime);
+
+//     get_prime_coords(1,xp,yp,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprimep, &thprime, &phiprime);
+
+//     if (rprimem<=rh and rprimep<=rh)return true;
+
+//     get_prime_coords(2,xm,ym,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimem, &thprime, &phiprime);
+
+//     get_prime_coords(2,xp,yp,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+//     GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprimep, &thprime, &phiprime);
+
+//     if (rprimem<=rh2 and rprimep<=rh2)return true;
+//     else return false;
+
+
+//   }
+
+
+//   return false;
+
+// }
 
 /* Apply inner "absorbing" boundary conditions */
 
@@ -1545,15 +1545,15 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
 
 
-          if is_face_in_boundary(1, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-            pmb->pfield->b.x1f(k,j,i) = bb_old.x1f(k,j,i);
-          }
-          if is_face_in_boundary(2, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-            pmb->pfield->b.x2f(k,j,i) = bb_old.x2f(k,j,i);
-          }
-          if is_face_in_boundary(3, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-            pmb->pfield->b.x3f(k,j,i) = bb_old.x3f(k,j,i);
-          }
+          // if is_face_in_boundary(1, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
+          //   pmb->pfield->b.x1f(k,j,i) = bb_old.x1f(k,j,i);
+          // }
+          // if is_face_in_boundary(2, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
+          //   pmb->pfield->b.x2f(k,j,i) = bb_old.x2f(k,j,i);
+          // }
+          // if is_face_in_boundary(3, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
+          //   pmb->pfield->b.x3f(k,j,i) = bb_old.x3f(k,j,i);
+          // }
 
 
 
@@ -1718,11 +1718,18 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
 
               
-              prim(IDN,k,j,i) = dfloor;
+              // prim(IDN,k,j,i) = dfloor;
+
+              Real dceiling = 1e3;
+              Real Pceiling = 1e3;
+
+              if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
+              if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
+
               prim(IVX,k,j,i) = uu1;
               prim(IVY,k,j,i) = uu2;
               prim(IVZ,k,j,i) = uu3;
-              prim(IPR,k,j,i) = pfloor;
+              // prim(IPR,k,j,i) = pfloor;
 
 
               uu1 = prim(IVX,k,j,i);
@@ -2003,11 +2010,17 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
 
               
-              prim(IDN,k,j,i) = dfloor;
+
+              Real dceiling = 1e3;
+              Real Pceiling = 1e3;
+
+              if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
+              if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
+              // prim(IDN,k,j,i) = dfloor;
               prim(IVX,k,j,i) = uu1;
               prim(IVY,k,j,i) = uu2;
               prim(IVZ,k,j,i) = uu3;
-              prim(IPR,k,j,i) = pfloor;
+              // prim(IPR,k,j,i) = pfloor;
 
 
               uu1 = prim(IVX,k,j,i);
