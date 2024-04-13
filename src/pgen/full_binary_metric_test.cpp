@@ -1493,7 +1493,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 /* Apply inner "absorbing" boundary conditions */
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, FaceField &bb_old){
+void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const FaceField &bb_old){
 
 
   Real r,th,ph;
