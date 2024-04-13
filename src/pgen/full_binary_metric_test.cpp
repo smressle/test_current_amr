@@ -1718,18 +1718,18 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
               uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
 
               
-              // prim(IDN,k,j,i) = dfloor;
+              prim(IDN,k,j,i) = dfloor;
 
-              Real dceiling = 1e3;
-              Real Pceiling = 1e3;
+              // Real dceiling = 1e3;
+              // Real Pceiling = 1e3;
 
-              if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
-              if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
+              // if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
+              // if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
 
               prim(IVX,k,j,i) = uu1;
               prim(IVY,k,j,i) = uu2;
               prim(IVZ,k,j,i) = uu3;
-              // prim(IPR,k,j,i) = pfloor;
+              prim(IPR,k,j,i) = pfloor;
 
 
               uu1 = prim(IVX,k,j,i);
@@ -2011,16 +2011,16 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
               
 
-              Real dceiling = 1e3;
-              Real Pceiling = 1e3;
+              // Real dceiling = 1e3;
+              // Real Pceiling = 1e3;
 
-              if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
-              if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
-              // prim(IDN,k,j,i) = dfloor;
+              // if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
+              // if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
+              prim(IDN,k,j,i) = dfloor;
               prim(IVX,k,j,i) = uu1;
               prim(IVY,k,j,i) = uu2;
               prim(IVZ,k,j,i) = uu3;
-              // prim(IPR,k,j,i) = pfloor;
+              prim(IPR,k,j,i) = pfloor;
 
 
               uu1 = prim(IVX,k,j,i);
