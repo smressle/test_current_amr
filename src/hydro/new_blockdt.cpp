@@ -75,9 +75,9 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   // Calculate 4-velocity
   Real alpha = std::sqrt(-1.0/gi_(I00,i));
   Real u0 = gamma/alpha;
-  Real u1 = uu1 - alpha * gamma * gi(I01,i);
-  Real u2 = uu2 - alpha * gamma * gi(I02,i);
-  Real u3 = uu3 - alpha * gamma * gi(I03,i);
+  Real u1 = uu1 - alpha * gamma * gi_(I01,i);
+  Real u2 = uu2 - alpha * gamma * gi_(I02,i);
+  Real u3 = uu3 - alpha * gamma * gi_(I03,i);
 
   Real Au = u0*Acov[0] + u1*Acov[1] + u2*Acov[2] + u3*Acov[3];
 
@@ -95,6 +95,7 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   if (MAGNETIC_FIELDS_ENABLED) {
 
 
+    Real u_0,u_1,u_2,u_3;
     pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
     // Calculate 4-magnetic field
