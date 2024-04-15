@@ -36,7 +36,7 @@
 #endif
 
 
-Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
+Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
   Real Acov[4],Acon[4],Bcon[4],Bcov[4];
 
   for (int mu=0; mu<=4; ++mu){
@@ -239,7 +239,7 @@ void Hydro::NewBlockTimeStep() {
 
 
       if (RELATIVISTIC_DYNAMICS){
-        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
+        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_,bcc,b); 
         #pragma ivdep
         for (int i=is; i<=ie; ++i) {
 
@@ -248,9 +248,9 @@ void Hydro::NewBlockTimeStep() {
           // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
           // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-          Real cl1 = max_wave_speed_gr(1,pmb,w,g_,gi_);
-          Real cl2 = max_wave_speed_gr(2,pmb,w,g_,gi_);
-          Real cl3 = max_wave_speed_gr(3,pmb,w,g_,gi_);
+          Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
 
           dt1(i) /= cl1;
           dt2(i) /= cl2;
