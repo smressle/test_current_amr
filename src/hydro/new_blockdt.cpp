@@ -36,7 +36,7 @@
 #endif
 
 
-Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_) {
+Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
   Real Acov[4],Acon[4],Bcon[4],Bcov[4];
 
   for (int mu=0; mu<=4; ++mu){
@@ -64,7 +64,7 @@ Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<R
   Real Bsq = Bcon[0]*Bcov[0] + Bcon[1]*Bcov[1] + Bcon[2]*Bcov[2] + Bcon[3]*Bcov[3];
 
 
-    eal uu1 = w(IVX,k,j,i);
+  Real uu1 = w(IVX,k,j,i);
   Real uu2 = w(IVY,k,j,i);
   Real uu3 = w(IVZ,k,j,i);
   Real tmp = g_(I11,i)*uu1*uu1 + 2.0*g_(I12,i)*uu1*uu2 + 2.0*g_(I13,i)*uu1*uu3
@@ -98,9 +98,14 @@ Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<R
     pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
     // Calculate 4-magnetic field
-    Real bb1 = bcc(IB1,k,j,i) + std::abs(b_x1f(k,j,i) - bcc(IB1,k,j,i));
+    Real bb1 = bcc(IB1,k,j,i); /// + std::abs(b_x1f(k,j,i) - bcc(IB1,k,j,i));
     Real bb2 = bcc(IB2,k,j,i);
     Real bb3 = bcc(IB3,k,j,i);
+
+    if (DIR==1) bb1 += std::abs(b.x1f(k,j,i) - bcc(IB1,k,j,i));
+    if (DIR==2) bb2 += std::abs(b.x2f(k,j,i) - bcc(IB2,k,j,i));
+    if (DIR==3) bb3 += std::abs(b.x3f(k,j,i) - bcc(IB3,k,j,i));
+
     Real b0 = g_(I01,i)*u0*bb1 + g_(I02,i)*u0*bb2 + g_(I03,i)*u0*bb3
             + g_(I11,i)*u1*bb1 + g_(I12,i)*u1*bb2 + g_(I13,i)*u1*bb3
             + g_(I12,i)*u2*bb1 + g_(I22,i)*u2*bb2 + g_(I23,i)*u2*bb3
@@ -129,14 +134,16 @@ Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<R
 
   Real cms2 = cs2 + va2 - cs2*va2;
 
+  Real SMALL = 1e-10;
+
   cms2 = (cms2 < 0) ? SMALL : cms2;
   cms2 = (cms2 > 1) ? 1 : cms2;
 
   // Require that speed of wave measured by observer q->ucon is cms2
 
-  A = Bu2 - (Bsq + Bu2)*cms2;
-  B = 2.*(AuBu - (AB + AuBu)*cms2);
-  C = Au2 - (Asq + Au2)*cms2;
+  Real A = Bu2 - (Bsq + Bu2)*cms2;
+  Real B = 2.*(AuBu - (AB + AuBu)*cms2);
+  Real C = Au2 - (Asq + Au2)*cms2;
 
   Real discr = B*B - 4.*A*C;
   discr = (discr < 0.) ? 0. : discr;
