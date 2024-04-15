@@ -239,7 +239,7 @@ void Hydro::NewBlockTimeStep() {
 
 
       if (RELATIVISTIC_DYNAMICS){
-        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_,bcc,b); 
+        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
         #pragma ivdep
         for (int i=is; i<=ie; ++i) {
 
