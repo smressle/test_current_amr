@@ -82,7 +82,7 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   Real Au = u0*Acov[0] + u1*Acov[1] + u2*Acov[2] + u3*Acov[3];
 
 
-  Real Bu = u0*ABov[0] + u1*Bcov[1] + u2*Bcov[2] + u3*Bcov[3];
+  Real Bu = u0*Bcov[0] + u1*Bcov[1] + u2*Bcov[2] + u3*Bcov[3];
 
   Real AB = Acon[0]*Bcov[0] + Acon[1]*Bcov[1] + Acon[2]*Bcov[2] + Acon[3]*Bcov[3];
 
