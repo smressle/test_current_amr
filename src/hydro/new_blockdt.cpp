@@ -35,6 +35,127 @@
 #include <omp.h>
 #endif
 
+
+Real max_wave_speed_gr(int DIR,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_) {
+  Real Acov[4],Acon[4],Bcon[4],Bcov[4];
+
+  for (int mu=0; mu<=4; ++mu){
+    Acov[mu] = 0.0;
+    Bcov[mu] = 0.0;
+    Acon[mu] = 0.0;
+    Bcon[mu] = 0.0;
+  }
+
+  Acov[DIR] = 1.0;
+  Bcov[0] = 1.0;
+
+
+  Acon[0] = gi_(I00)*Acov[0] + gi_(I01)*Acov[1] + gi_(I02)*Acov[2] + gi_(I03)*Acov[3];
+  Acon[1] = gi_(I01)*Acov[0] + gi_(I11)*Acov[1] + gi_(I12)*Acov[2] + gi_(I13)*Acov[3];
+  Acon[2] = gi_(I02)*Acov[0] + gi_(I12)*Acov[1] + gi_(I22)*Acov[2] + gi_(I23)*Acov[3];
+  Acon[3] = gi_(I03)*Acov[0] + gi_(I13)*Acov[1] + gi_(I23)*Acov[2] + gi_(I33)*Acov[3];
+
+  Bcon[0] = gi_(I00)*Bcov[0] + gi_(I01)*Bcov[1] + gi_(I02)*Bcov[2] + gi_(I03)*Bcov[3];
+  Bcon[1] = gi_(I01)*Bcov[0] + gi_(I11)*Bcov[1] + gi_(I12)*Bcov[2] + gi_(I13)*Bcov[3];
+  Bcon[2] = gi_(I02)*Bcov[0] + gi_(I12)*Bcov[1] + gi_(I22)*Bcov[2] + gi_(I23)*Bcov[3];
+  Bcon[3] = gi_(I03)*Bcov[0] + gi_(I13)*Bcov[1] + gi_(I23)*Bcov[2] + gi_(I33)*Bcov[3];
+
+  Real Asq = Acon[0]*Acov[0] + Acon[1]*Acov[1] + Acon[2]*Acov[2] + Acon[3]*Acov[3];
+  Real Bsq = Bcon[0]*Bcov[0] + Bcon[1]*Bcov[1] + Bcon[2]*Bcov[2] + Bcon[3]*Bcov[3];
+
+
+    eal uu1 = w(IVX,k,j,i);
+  Real uu2 = w(IVY,k,j,i);
+  Real uu3 = w(IVZ,k,j,i);
+  Real tmp = g_(I11,i)*uu1*uu1 + 2.0*g_(I12,i)*uu1*uu2 + 2.0*g_(I13,i)*uu1*uu3
+           + g_(I22,i)*uu2*uu2 + 2.0*g_(I23,i)*uu2*uu3
+           + g_(I33,i)*uu3*uu3;
+  Real gamma = std::sqrt(1.0 + tmp);
+
+  // Calculate 4-velocity
+  Real alpha = std::sqrt(-1.0/gi_(I00,i));
+  Real u0 = gamma/alpha;
+  Real u1 = uu1 - alpha * gamma * gi(I01,i);
+  Real u2 = uu2 - alpha * gamma * gi(I02,i);
+  Real u3 = uu3 - alpha * gamma * gi(I03,i);
+
+  Real Au = u0*Acov[0] + u1*Acov[1] + u2*Acov[2] + u3*Acov[3];
+
+
+  Real Bu = u0*ABov[0] + u1*Bcov[1] + u2*Bcov[2] + u3*Bcov[3];
+
+  Real AB = Acon[0]*Bcov[0] + Acon[1]*Bcov[1] + Acon[2]*Bcov[2] + Acon[3]*Bcov[3];
+
+  Real Au2 = Au*Au;
+  Real Bu2 = Bu*Bu;
+  Real AuBu = Au*Bu;
+
+  Real b_sq;
+
+  if (MAGNETIC_FIELDS_ENABLED) {
+
+
+    pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+    // Calculate 4-magnetic field
+    Real bb1 = bcc(IB1,k,j,i) + std::abs(b_x1f(k,j,i) - bcc(IB1,k,j,i));
+    Real bb2 = bcc(IB2,k,j,i);
+    Real bb3 = bcc(IB3,k,j,i);
+    Real b0 = g_(I01,i)*u0*bb1 + g_(I02,i)*u0*bb2 + g_(I03,i)*u0*bb3
+            + g_(I11,i)*u1*bb1 + g_(I12,i)*u1*bb2 + g_(I13,i)*u1*bb3
+            + g_(I12,i)*u2*bb1 + g_(I22,i)*u2*bb2 + g_(I23,i)*u2*bb3
+            + g_(I13,i)*u3*bb1 + g_(I23,i)*u3*bb2 + g_(I33,i)*u3*bb3;
+    Real b1 = (bb1 + b0 * u1) / u0;
+    Real b2 = (bb2 + b0 * u2) / u0;
+    Real b3 = (bb3 + b0 * u3) / u0;
+    Real b_0, b_1, b_2, b_3;
+    pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+    // Calculate bsq
+    b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+
+  }
+  else{
+    b_sq = 0.0;
+  }
+  Real gam = pmb->peos->GetGamma();
+  // Find fast magnetosonic speed
+  Real rho = w(IDN,k,j,i);
+  Real u = w(IPR,k,j,i) / (gam-1.0); 
+  Real ef = rho + gam*u;
+  Real ee = b_sq + ef;
+  Real va2 = b_sq/ee;
+  Real cs2 = gam*(gam - 1.)*u/ef;
+
+  Real cms2 = cs2 + va2 - cs2*va2;
+
+  cms2 = (cms2 < 0) ? SMALL : cms2;
+  cms2 = (cms2 > 1) ? 1 : cms2;
+
+  // Require that speed of wave measured by observer q->ucon is cms2
+
+  A = Bu2 - (Bsq + Bu2)*cms2;
+  B = 2.*(AuBu - (AB + AuBu)*cms2);
+  C = Au2 - (Asq + Au2)*cms2;
+
+  Real discr = B*B - 4.*A*C;
+  discr = (discr < 0.) ? 0. : discr;
+  discr = std::sqrt(discr);
+
+  Real vp = -(-B + discr)/(2.*A);
+  Real vm = -(-B - discr)/(2.*A);
+
+  Real cmax = (vp > vm) ? vp : vm;
+  Real cmin = (vp > vm) ? vm : vp;
+
+  Real ctop = std::max(cmax,cmin);
+
+  return ctop;
+
+
+
+}
+
 //----------------------------------------------------------------------------------------
 //! \fn void Hydro::NewBlockTimeStep()
 //! \brief calculate the minimum timestep within a MeshBlock
@@ -110,20 +231,25 @@ void Hydro::NewBlockTimeStep() {
       }
 
 
-      // if (RELATIVISTIC_DYNAMICS){
-      //   pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
-      //   #pragma ivdep
-      //   for (int i=is; i<=ie; ++i) {
+      if (RELATIVISTIC_DYNAMICS){
+        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
+        #pragma ivdep
+        for (int i=is; i<=ie; ++i) {
 
-      //     Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
-      //     Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
-      //     Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-      //     dt1(i) /= (std::abs(cl1));
-      //     dt2(i) /= (std::abs(cl2));
-      //     dt3(i) /= (std::abs(cl3));
-      //   }
-      // }
+          // Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
+          // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
+          // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
+
+          Real cl1 = max_wave_speed_gr(1,pmb,w,g_,gi_);
+          Real cl2 = max_wave_speed_gr(2,pmb,w,g_,gi_);
+          Real cl3 = max_wave_speed_gr(3,pmb,w,g_,gi_);
+
+          dt1(i) /= cl1;
+          dt2(i) /= cl2;
+          dt3(i) /= cl3;
+        }
+      }
 
       // compute minimum of (v1 +/- C)
       for (int i=is; i<=ie; ++i) {
