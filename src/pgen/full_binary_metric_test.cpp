@@ -4070,9 +4070,24 @@ Real MyTimeStep(MeshBlock *pmb)
           Real xprime2,yprime2,zprime2,rprime2,Rprime2;
           get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-          if (rprime1<1.3 or rprime2<1.3)
-          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n",
-          pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2 );
+          Real a1x = orbit_quantities(IA1X);
+          Real a1y = orbit_quantities(IA1Y);
+          Real a1z = orbit_quantities(IA1Z);
+
+          Real a2x = orbit_quantities(IA2X);
+          Real a2y = orbit_quantities(IA2Y);
+          Real a2z = orbit_quantities(IA2Z);
+
+          Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
+          Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
+
+
+          Real rh1 =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
+          Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
+          if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
+          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n",
+          pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
+           gi(I01,i),gi(I00,i),gi(I11,i));
 
 
           orbit_quantities.DeleteAthenaArray();
