@@ -4052,9 +4052,9 @@ Real MyTimeStep(MeshBlock *pmb)
 
           Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
 
-          dt1(i) /= speed1;
-          dt2(i) /= speed2;
-          dt3(i) /= speed3;
+          dt1(i) = pmb->pcoord->dx1f(i) /speed1;
+          dt2(i) = pmb->pcoord->dx2f(j) /speed2;
+          dt3(i) = pmb->pcoord->dx3f(k) /speed3;
 
           //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
           // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
