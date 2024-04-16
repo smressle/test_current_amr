@@ -162,7 +162,7 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   Real ctop = std::max(std::fabs(cmax),std::fabs(cmin));
 
   if (ctop>2)
-  fprintf(stderr,"ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g \n",i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop);
+  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g \n",DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop);
 
   return ctop;
 
@@ -255,13 +255,13 @@ void Hydro::NewBlockTimeStep() {
           // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
           // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-          Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
-          Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
-          Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
 
-          dt1(i) /= cl1;
-          dt2(i) /= cl2;
-          dt3(i) /= cl3;
+          // dt1(i) /= cl1;
+          // dt2(i) /= cl2;
+          // dt3(i) /= cl3;
         }
       }
 

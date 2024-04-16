@@ -119,6 +119,9 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 
  void emf_source(MeshBlock *pmb,const Real time, const Real dt,const AthenaArray<Real> &prim,  const AthenaArray<Real> &bcc, const AthenaArray<Real> &cons, EdgeField &e);
 
+Real MyTimeStep(MeshBlock *pmb);
+
+
 // Global variables
 static Real m;                                  // black hole parameters
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
@@ -284,6 +287,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserMetric(Cartesian_GR);
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
+
+  EnrollUserTimeStepFunction(MyTimeStep);
 
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
@@ -3826,3 +3831,243 @@ Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
 
   // return rprime;
 }
+Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
+  Real Acov[4],Acon[4],Bcon[4],Bcov[4];
+
+  for (int mu=0; mu<=4; ++mu){
+    Acov[mu] = 0.0;
+    Bcov[mu] = 0.0;
+    Acon[mu] = 0.0;
+    Bcon[mu] = 0.0;
+  }
+
+  Acov[DIR] = 1.0;
+  Bcov[0] = 1.0;
+
+
+  Acon[0] = gi_(I00,i)*Acov[0] + gi_(I01,i)*Acov[1] + gi_(I02)*Acov[2] + gi_(I03)*Acov[3];
+  Acon[1] = gi_(I01,i)*Acov[0] + gi_(I11,i)*Acov[1] + gi_(I12)*Acov[2] + gi_(I13)*Acov[3];
+  Acon[2] = gi_(I02,i)*Acov[0] + gi_(I12,i)*Acov[1] + gi_(I22)*Acov[2] + gi_(I23)*Acov[3];
+  Acon[3] = gi_(I03,i)*Acov[0] + gi_(I13,i)*Acov[1] + gi_(I23)*Acov[2] + gi_(I33)*Acov[3];
+
+  Bcon[0] = gi_(I00,i)*Bcov[0] + gi_(I01,i)*Bcov[1] + gi_(I02,i)*Bcov[2] + gi_(I03,i)*Bcov[3];
+  Bcon[1] = gi_(I01,i)*Bcov[0] + gi_(I11,i)*Bcov[1] + gi_(I12,i)*Bcov[2] + gi_(I13,i)*Bcov[3];
+  Bcon[2] = gi_(I02,i)*Bcov[0] + gi_(I12,i)*Bcov[1] + gi_(I22,i)*Bcov[2] + gi_(I23,i)*Bcov[3];
+  Bcon[3] = gi_(I03,i)*Bcov[0] + gi_(I13,i)*Bcov[1] + gi_(I23,i)*Bcov[2] + gi_(I33,i)*Bcov[3];
+
+  Real Asq = Acon[0]*Acov[0] + Acon[1]*Acov[1] + Acon[2]*Acov[2] + Acon[3]*Acov[3];
+  Real Bsq = Bcon[0]*Bcov[0] + Bcon[1]*Bcov[1] + Bcon[2]*Bcov[2] + Bcon[3]*Bcov[3];
+
+
+  Real uu1 = w(IVX,k,j,i);
+  Real uu2 = w(IVY,k,j,i);
+  Real uu3 = w(IVZ,k,j,i);
+  Real tmp = g_(I11,i)*uu1*uu1 + 2.0*g_(I12,i)*uu1*uu2 + 2.0*g_(I13,i)*uu1*uu3
+           + g_(I22,i)*uu2*uu2 + 2.0*g_(I23,i)*uu2*uu3
+           + g_(I33,i)*uu3*uu3;
+  Real gamma = std::sqrt(1.0 + tmp);
+
+  // Calculate 4-velocity
+  Real alpha = std::sqrt(-1.0/gi_(I00,i));
+  Real u0 = gamma/alpha;
+  Real u1 = uu1 - alpha * gamma * gi_(I01,i);
+  Real u2 = uu2 - alpha * gamma * gi_(I02,i);
+  Real u3 = uu3 - alpha * gamma * gi_(I03,i);
+
+  Real Au = u0*Acov[0] + u1*Acov[1] + u2*Acov[2] + u3*Acov[3];
+
+
+  Real Bu = u0*Bcov[0] + u1*Bcov[1] + u2*Bcov[2] + u3*Bcov[3];
+
+  Real AB = Acon[0]*Bcov[0] + Acon[1]*Bcov[1] + Acon[2]*Bcov[2] + Acon[3]*Bcov[3];
+
+  Real Au2 = Au*Au;
+  Real Bu2 = Bu*Bu;
+  Real AuBu = Au*Bu;
+
+  Real b_sq;
+
+  if (MAGNETIC_FIELDS_ENABLED) {
+
+
+    Real u_0,u_1,u_2,u_3;
+    pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+    // Calculate 4-magnetic field
+    Real bb1 = bcc(IB1,k,j,i); /// + std::abs(b_x1f(k,j,i) - bcc(IB1,k,j,i));
+    Real bb2 = bcc(IB2,k,j,i);
+    Real bb3 = bcc(IB3,k,j,i);
+
+    if (DIR==1) bb1 += std::abs(b.x1f(k,j,i) - bcc(IB1,k,j,i));
+    if (DIR==2) bb2 += std::abs(b.x2f(k,j,i) - bcc(IB2,k,j,i));
+    if (DIR==3) bb3 += std::abs(b.x3f(k,j,i) - bcc(IB3,k,j,i));
+
+    Real b0 = g_(I01,i)*u0*bb1 + g_(I02,i)*u0*bb2 + g_(I03,i)*u0*bb3
+            + g_(I11,i)*u1*bb1 + g_(I12,i)*u1*bb2 + g_(I13,i)*u1*bb3
+            + g_(I12,i)*u2*bb1 + g_(I22,i)*u2*bb2 + g_(I23,i)*u2*bb3
+            + g_(I13,i)*u3*bb1 + g_(I23,i)*u3*bb2 + g_(I33,i)*u3*bb3;
+    Real b1 = (bb1 + b0 * u1) / u0;
+    Real b2 = (bb2 + b0 * u2) / u0;
+    Real b3 = (bb3 + b0 * u3) / u0;
+    Real b_0, b_1, b_2, b_3;
+    pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+    // Calculate bsq
+    b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+
+  }
+  else{
+    b_sq = 0.0;
+  }
+  Real gam = pmb->peos->GetGamma();
+  // Find fast magnetosonic speed
+  Real rho = w(IDN,k,j,i);
+  Real u = w(IPR,k,j,i) / (gam-1.0); 
+  Real ef = rho + gam*u;
+  Real ee = b_sq + ef;
+  Real va2 = b_sq/ee;
+  Real cs2 = gam*(gam - 1.)*u/ef;
+
+  Real cms2 = cs2 + va2 - cs2*va2;
+
+  Real SMALL = 1e-10;
+
+  cms2 = (cms2 < 0) ? SMALL : cms2;
+  cms2 = (cms2 > 1) ? 1 : cms2;
+
+  // Require that speed of wave measured by observer q->ucon is cms2
+
+  Real A = Bu2 - (Bsq + Bu2)*cms2;
+  Real B = 2.*(AuBu - (AB + AuBu)*cms2);
+  Real C = Au2 - (Asq + Au2)*cms2;
+
+  Real discr = B*B - 4.*A*C;
+  discr = (discr < 0.) ? 0. : discr;
+  discr = std::sqrt(discr);
+
+  Real vp = -(-B + discr)/(2.*A);
+  Real vm = -(-B - discr)/(2.*A);
+
+  Real cmax = (vp > vm) ? vp : vm;
+  Real cmin = (vp > vm) ? vm : vp;
+
+    // (*cmax)[k][j][i] = fabs(MY_MAX(MY_MAX(0., (*cmaxL)[k][j][i]), (*cmaxR)[k][j][i]));
+    // (*cmin)[k][j][i] = fabs(MY_MAX(MY_MAX(0., -(*cminL)[k][j][i]), -(*cminR)[k][j][i]));
+    // (*ctop)[dir][k][j][i] = MY_MAX((*cmax)[k][j][i], (*cmin)[k][j][i]);
+  Real ctop = std::max(std::fabs(cmax),std::fabs(cmin));
+
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
+
+  Real x = pmb->pcoord->x1v(i);
+  Real y = pmb->pcoord->x2v(j);
+  Real z = pmb->pcoord->x3v(k);
+  Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+  get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+  Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+  get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+
+  if (ctop>2)
+  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n",
+    DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2);
+
+
+  orbit_quantities.DeleteAthenaArray();
+  return ctop;
+
+
+
+}
+
+
+Real MyTimeStep(MeshBlock *pmb)
+{
+  Real min_dt=FLT_MAX;
+
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= (NGHOST);
+    ju += (NGHOST);
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= (NGHOST);
+    ku += (NGHOST);
+  }
+
+  AthenaArray<Real> g, gi,dt1,dt2,dt3;
+  g.NewAthenaArray(NMETRIC, iu+1);
+  gi.NewAthenaArray(NMETRIC, iu+1);
+  dt1.NewAthenaArray(pmb->ncells1);
+  dt2.NewAthenaArray(pmb->ncells1);
+  dt3.NewAthenaArray(pmb->ncells1);
+  for (int k=pmb->ks; k<=pmb->ke; ++k) {
+    for (int j=pmb->js; j<=pmb->je; ++j) {
+      pmb->pcoord->CenterWidth1(k, j, pmb->is, pmb->ie, dt1);
+      pmb->pcoord->CenterWidth2(k, j, pmb->is, pmb->ie, dt2);
+      pmb->pcoord->CenterWidth3(k, j, pmb->is, pmb->ie, dt3);
+        pmb->pcoord->CellMetric(k,j,is,ie,g,gi); 
+        for (int i=pmb->is; i<=pmb->ie; ++i) {
+
+
+          // Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
+          // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
+          // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
+
+          Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+
+          //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
+          dt1(i) = pmb->pcoord->dx1f(i) * cl1;
+          dt2(i) = pmb->pcoord->dx2f(j) * cl2;
+          dt3(i) = pmb->pcoord->dx3f(k) * cl3;
+      }
+
+            // compute minimum of (v1 +/- C)
+      for (int i=pmb->is; i<=pmb->ie; ++i) {
+        Real& dt_1 = dt1(i);
+        min_dt = std::min(min_dt, dt_1);
+      }
+
+      // if grid is 2D/3D, compute minimum of (v2 +/- C)
+      if (pmb->block_size.nx2 > 1) {
+        for (int i=pmb->is; i<=pmb->ie; ++i) {
+          Real& dt_2 = dt2(i);
+          min_dt= std::min(min_dt, dt_2);
+        }
+      }
+
+      // if grid is 3D, compute minimum of (v3 +/- C)
+      if (pmb->block_size.nx3 > 1) {
+        for (int i=pmb->is; i<=pmb->ie; ++i) {
+          Real& dt_3 = dt3(i);
+          min_dt = std::min(min_dt, dt_3);
+        }
+      }
+    }
+  }
+
+  // calculate the timestep limited by the diffusion processes
+
+
+  min_dt *= pmb->pmy_mesh->cfl_number;
+  // scale the theoretical stability limit by a safety factor = the hyperbolic CFL limit
+  // (user-selected or automaticlaly enforced). May add independent parameter "cfl_diff"
+  // in the future (with default = cfl_number).
+
+  g.DeleteAthenaArray();
+  gi.DeleteAthenaArray();
+  dt1.DeleteAthenaArray();
+  dt2.DeleteAthenaArray();
+  dt3.DeleteAthenaArray();
+  return min_dt;
+}
+
