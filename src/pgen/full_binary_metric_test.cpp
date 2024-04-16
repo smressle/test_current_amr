@@ -3935,8 +3935,6 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   cms2 = (cms2 < 0) ? SMALL : cms2;
   cms2 = (cms2 > 1) ? 1 : cms2;
 
-
-  cms2 = 1.0;
   // Require that speed of wave measured by observer q->ucon is cms2
 
   Real A = Bu2 - (Bsq + Bu2)*cms2;
