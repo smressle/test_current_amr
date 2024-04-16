@@ -3834,7 +3834,7 @@ Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
 Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
   Real Acov[4],Acon[4],Bcon[4],Bcov[4];
 
-  for (int mu=0; mu<=4; ++mu){
+  for (int mu=0; mu<=3; ++mu){
     Acov[mu] = 0.0;
     Bcov[mu] = 0.0;
     Acon[mu] = 0.0;
@@ -4021,9 +4021,9 @@ Real MyTimeStep(MeshBlock *pmb)
           // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
           // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-          // Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
 
 
            // SR case: do nothing (assume maximum characteristic is c = 1)
@@ -4052,9 +4052,9 @@ Real MyTimeStep(MeshBlock *pmb)
 
           Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
 
-          dt1(i) = pmb->pcoord->dx1f(i) /speed1;
-          dt2(i) = pmb->pcoord->dx2f(j) /speed2;
-          dt3(i) = pmb->pcoord->dx3f(k) /speed3;
+          // dt1(i) = pmb->pcoord->dx1f(i) /speed1;
+          // dt2(i) = pmb->pcoord->dx2f(j) /speed2;
+          // dt3(i) = pmb->pcoord->dx3f(k) /speed3;
 
 
           AthenaArray<Real> orbit_quantities;
@@ -4100,18 +4100,18 @@ Real MyTimeStep(MeshBlock *pmb)
           Real u1 = uu1 - alpha * gamma * gi(I01,i);
           Real u2 = uu2 - alpha * gamma * gi(I02,i);
           Real u3 = uu3 - alpha * gamma * gi(I03,i);
-          if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
-          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
-          pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
-           gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
+          // if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
+          // fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
+          // pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
+          //  gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
 
 
           orbit_quantities.DeleteAthenaArray();
 
           //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
-          // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
-          // dt2(i) = pmb->pcoord->dx2f(j) / cl2;
-          // dt3(i) = pmb->pcoord->dx3f(k) / cl3;
+          dt1(i) = pmb->pcoord->dx1f(i) / cl1;
+          dt2(i) = pmb->pcoord->dx2f(j) / cl2;
+          dt3(i) = pmb->pcoord->dx3f(k) / cl3;
       }
 
             // compute minimum of (v1 +/- C)
