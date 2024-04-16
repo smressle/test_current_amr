@@ -4029,12 +4029,29 @@ Real MyTimeStep(MeshBlock *pmb)
            // SR case: do nothing (assume maximum characteristic is c = 1)
       // GR case: divide cell widths by coordinate speed of light (not necessarily unity)
 
-          Real speed1 = -(std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
-              + std::abs(gi(I01,i))) / gi(I00,i);
-          Real speed2 = -(std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
-              + std::abs(gi(I02,i))) / gi(I00,i);
-          Real speed3 = -(std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
-              + std::abs(gi(I03,i))) / gi(I00,i);
+          Real speed1a = -(std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
+              - gi(I01,i)) / gi(I00,i);
+
+          Real speed1b = (std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
+              - gi(I01,i)) / gi(I00,i);
+
+          Real speed1 = np.amax(std::abs(speed1a),std::abs(speed1b));
+
+          Real speed2a = -(std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
+              - gi(I02,i)) / gi(I00,i);
+          Real speed2b = (std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
+              - gi(I02,i)) / gi(I00,i);
+
+          Real speed2 = np.amax(std::abs(speed2a),std::abs(speed2b));
+
+          Real speed3a = -(std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
+              - gi(I03,i)) / gi(I00,i);
+          Real speed3b = (std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
+              - gi(I03,i)) / gi(I00,i);
+
+
+          Real speed3 = np.amax(std::abs(speed3a),std::abs(speed3b));
+          
           dt1(i) /= speed1;
           dt2(i) /= speed2;
           dt3(i) /= speed3;
