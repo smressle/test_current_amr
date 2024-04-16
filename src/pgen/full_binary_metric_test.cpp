@@ -3997,7 +3997,7 @@ Real MyTimeStep(MeshBlock *pmb)
   }
   int kl = pmb->ks;
   int ku = pmb->ke;
-  if (block_size.nx3 > 1) {
+  if (pmb->block_size.nx3 > 1) {
     kl -= (NGHOST);
     ku += (NGHOST);
   }
@@ -4013,7 +4013,7 @@ Real MyTimeStep(MeshBlock *pmb)
       pmb->pcoord->CenterWidth1(k, j, pmb->is, pmb->ie, dt1);
       pmb->pcoord->CenterWidth2(k, j, pmb->is, pmb->ie, dt2);
       pmb->pcoord->CenterWidth3(k, j, pmb->is, pmb->ie, dt3);
-        pmb->pcoord->CellMetric(k,j,is,ie,g,gi); 
+        pmb->pcoord->CellMetric(k,j,pmb->is,pmb->ie,g,gi); 
         for (int i=pmb->is; i<=pmb->ie; ++i) {
 
 
