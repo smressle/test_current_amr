@@ -4084,10 +4084,26 @@ Real MyTimeStep(MeshBlock *pmb)
 
           Real rh1 =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
           Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
+
+
+          Real uu1 = pmb->w(IVX,k,j,i);
+          Real uu2 = pmb->w(IVY,k,j,i);
+          Real uu3 = pmb->w(IVZ,k,j,i);
+          Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                   + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                   + g(I33,i)*uu3*uu3;
+          Real gamma = std::sqrt(1.0 + tmp);
+
+          // Calculate 4-velocity
+          Real alpha = std::sqrt(-1.0/gi(I00,i));
+          Real u0 = gamma/alpha;
+          Real u1 = uu1 - alpha * gamma * gi(I01,i);
+          Real u2 = uu2 - alpha * gamma * gi(I02,i);
+          Real u3 = uu3 - alpha * gamma * gi(I03,i);
           if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
-          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n",
+          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
           pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
-           gi(I01,i),gi(I00,i),gi(I11,i));
+           gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
 
 
           orbit_quantities.DeleteAthenaArray();
