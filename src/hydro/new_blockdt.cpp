@@ -158,6 +158,8 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
 
   Real ctop = std::max(cmax,cmin);
 
+  fprintf(stderr,"ijk: %d %d %d \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n",i,j,k, cms2,A,B,C,Bu2,Au2,vp,vm);
+
   return ctop;
 
 
