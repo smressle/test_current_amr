@@ -4086,9 +4086,9 @@ Real MyTimeStep(MeshBlock *pmb)
           Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
 
 
-          Real uu1 = pmb->w(IVX,k,j,i);
-          Real uu2 = pmb->w(IVY,k,j,i);
-          Real uu3 = pmb->w(IVZ,k,j,i);
+          Real uu1 = pmb->phydro->w(IVX,k,j,i);
+          Real uu2 = pmb->phydro->w(IVY,k,j,i);
+          Real uu3 = pmb->phydro->w(IVZ,k,j,i);
           Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
                    + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                    + g(I33,i)*uu3*uu3;
