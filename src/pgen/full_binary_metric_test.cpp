@@ -4070,7 +4070,7 @@ Real MyTimeStep(MeshBlock *pmb)
           Real xprime2,yprime2,zprime2,rprime2,Rprime2;
           get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-          if (rprime1<2.0 or rprime2<2.0)
+          if (rprime1<1.3 or rprime2<1.3)
           fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n",
           pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2 );
 
