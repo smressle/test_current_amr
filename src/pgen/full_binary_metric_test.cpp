@@ -4035,14 +4035,14 @@ Real MyTimeStep(MeshBlock *pmb)
           Real speed1b = (std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
               - gi(I01,i)) / gi(I00,i);
 
-          Real speed1 = np.amax(std::abs(speed1a),std::abs(speed1b));
+          Real speed1 = std::max(std::abs(speed1a),std::abs(speed1b));
 
           Real speed2a = -(std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
               - gi(I02,i)) / gi(I00,i);
           Real speed2b = (std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
               - gi(I02,i)) / gi(I00,i);
 
-          Real speed2 = np.amax(std::abs(speed2a),std::abs(speed2b));
+          Real speed2 = std::max(std::abs(speed2a),std::abs(speed2b));
 
           Real speed3a = -(std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
               - gi(I03,i)) / gi(I00,i);
@@ -4050,8 +4050,8 @@ Real MyTimeStep(MeshBlock *pmb)
               - gi(I03,i)) / gi(I00,i);
 
 
-          Real speed3 = np.amax(std::abs(speed3a),std::abs(speed3b));
-          
+          Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
+
           dt1(i) /= speed1;
           dt2(i) /= speed2;
           dt3(i) /= speed3;
