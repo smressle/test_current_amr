@@ -262,6 +262,10 @@ void Hydro::NewBlockTimeStep() {
           // dt1(i) /= cl1;
           // dt2(i) /= cl2;
           // dt3(i) /= cl3;
+
+          dt1(i) = 1e3;
+          dt2(i) = 1e2;
+          dt3(i) = 1e2;
         }
       }
 
