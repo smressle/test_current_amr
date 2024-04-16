@@ -3973,10 +3973,11 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
   if (ctop>2)
-  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n gis: %g %g %g %g %g %g %g \n Acov: %g %g %g %g \n Acon: %g %g %g %g \n",
+  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n gis: %g %g %g %g %g %g %g \n Acov: %g %g %g %g \n Acon: %g %g %g %g \n Bcov: %g %g %g %g \n Bcon: %g %g %g %g \n",
     DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB,Asq,Bsq,
     gi_(I00,i),gi_(I01,i),gi_(I11,i),gi_(I02,i),gi_(I22,i),gi_(I03,i),gi_(I33,i),
-    Acov[0],Acov[1],Acov[2],Acov[3], Acon[0],Acon[1],Acon[2],Acon[3]);
+    Acov[0],Acov[1],Acov[2],Acov[3], Acon[0],Acon[1],Acon[2],Acon[3],
+    Bcov[0],Bcov[1],Bcov[2],Bcov[3], Bcon[0],Bcon[1],Bcon[2],Bcon[3]);
 
 
   orbit_quantities.DeleteAthenaArray();
