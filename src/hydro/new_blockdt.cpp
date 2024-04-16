@@ -50,15 +50,15 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   Bcov[0] = 1.0;
 
 
-  Acon[0] = gi_(I00)*Acov[0] + gi_(I01)*Acov[1] + gi_(I02)*Acov[2] + gi_(I03)*Acov[3];
-  Acon[1] = gi_(I01)*Acov[0] + gi_(I11)*Acov[1] + gi_(I12)*Acov[2] + gi_(I13)*Acov[3];
-  Acon[2] = gi_(I02)*Acov[0] + gi_(I12)*Acov[1] + gi_(I22)*Acov[2] + gi_(I23)*Acov[3];
-  Acon[3] = gi_(I03)*Acov[0] + gi_(I13)*Acov[1] + gi_(I23)*Acov[2] + gi_(I33)*Acov[3];
+  Acon[0] = gi_(I00,i)*Acov[0] + gi_(I01,i)*Acov[1] + gi_(I02)*Acov[2] + gi_(I03)*Acov[3];
+  Acon[1] = gi_(I01,i)*Acov[0] + gi_(I11,i)*Acov[1] + gi_(I12)*Acov[2] + gi_(I13)*Acov[3];
+  Acon[2] = gi_(I02,i)*Acov[0] + gi_(I12,i)*Acov[1] + gi_(I22)*Acov[2] + gi_(I23)*Acov[3];
+  Acon[3] = gi_(I03,i)*Acov[0] + gi_(I13,i)*Acov[1] + gi_(I23)*Acov[2] + gi_(I33)*Acov[3];
 
-  Bcon[0] = gi_(I00)*Bcov[0] + gi_(I01)*Bcov[1] + gi_(I02)*Bcov[2] + gi_(I03)*Bcov[3];
-  Bcon[1] = gi_(I01)*Bcov[0] + gi_(I11)*Bcov[1] + gi_(I12)*Bcov[2] + gi_(I13)*Bcov[3];
-  Bcon[2] = gi_(I02)*Bcov[0] + gi_(I12)*Bcov[1] + gi_(I22)*Bcov[2] + gi_(I23)*Bcov[3];
-  Bcon[3] = gi_(I03)*Bcov[0] + gi_(I13)*Bcov[1] + gi_(I23)*Bcov[2] + gi_(I33)*Bcov[3];
+  Bcon[0] = gi_(I00,i)*Bcov[0] + gi_(I01,i)*Bcov[1] + gi_(I02,i)*Bcov[2] + gi_(I03,i)*Bcov[3];
+  Bcon[1] = gi_(I01,i)*Bcov[0] + gi_(I11,i)*Bcov[1] + gi_(I12,i)*Bcov[2] + gi_(I13,i)*Bcov[3];
+  Bcon[2] = gi_(I02,i)*Bcov[0] + gi_(I12,i)*Bcov[1] + gi_(I22,i)*Bcov[2] + gi_(I23,i)*Bcov[3];
+  Bcon[3] = gi_(I03,i)*Bcov[0] + gi_(I13,i)*Bcov[1] + gi_(I23,i)*Bcov[2] + gi_(I33,i)*Bcov[3];
 
   Real Asq = Acon[0]*Acov[0] + Acon[1]*Acov[1] + Acon[2]*Acov[2] + Acon[3]*Acov[3];
   Real Bsq = Bcon[0]*Bcov[0] + Bcon[1]*Bcov[1] + Bcon[2]*Bcov[2] + Bcon[3]*Bcov[3];
