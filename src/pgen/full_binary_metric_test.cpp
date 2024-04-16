@@ -3935,6 +3935,8 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   cms2 = (cms2 < 0) ? SMALL : cms2;
   cms2 = (cms2 > 1) ? 1 : cms2;
 
+
+  cms2 = 1.0;
   // Require that speed of wave measured by observer q->ucon is cms2
 
   Real A = Bu2 - (Bsq + Bu2)*cms2;
@@ -3971,8 +3973,8 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
   if (ctop>2)
-  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g \n",
-    DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB);
+  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n",
+    DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB,Bsq,Asq);
 
 
   orbit_quantities.DeleteAthenaArray();
