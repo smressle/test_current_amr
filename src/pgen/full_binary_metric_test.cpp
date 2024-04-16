@@ -4025,10 +4025,24 @@ Real MyTimeStep(MeshBlock *pmb)
           Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
           Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
 
+
+           // SR case: do nothing (assume maximum characteristic is c = 1)
+      // GR case: divide cell widths by coordinate speed of light (not necessarily unity)
+
+          Real speed1 = -(std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
+              + std::abs(gi(I01,i))) / gi(I00,i);
+          Real speed2 = -(std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
+              + std::abs(gi(I02,i))) / gi(I00,i);
+          Real speed3 = -(std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
+              + std::abs(gi(I03,i))) / gi(I00,i);
+          dt1(i) /= speed1;
+          dt2(i) /= speed2;
+          dt3(i) /= speed3;
+
           //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
-          dt1(i) = pmb->pcoord->dx1f(i) * cl1;
-          dt2(i) = pmb->pcoord->dx2f(j) * cl2;
-          dt3(i) = pmb->pcoord->dx3f(k) * cl3;
+          // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
+          // dt2(i) = pmb->pcoord->dx2f(j) / cl2;
+          // dt3(i) = pmb->pcoord->dx3f(k) / cl3;
       }
 
             // compute minimum of (v1 +/- C)
