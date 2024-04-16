@@ -4056,6 +4056,27 @@ Real MyTimeStep(MeshBlock *pmb)
           dt2(i) = pmb->pcoord->dx2f(j) /speed2;
           dt3(i) = pmb->pcoord->dx3f(k) /speed3;
 
+
+          AthenaArray<Real> orbit_quantities;
+          orbit_quantities.NewAthenaArray(Norbit);
+
+          get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
+
+          Real x = pmb->pcoord->x1v(i);
+          Real y = pmb->pcoord->x2v(j);
+          Real z = pmb->pcoord->x3v(k);
+          Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+          get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+          Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+          get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+
+          if (rprime1<2.0 or rprime2<2.0)
+          fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n",
+          pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)) );
+
+
+          orbit_quantities.DeleteAthenaArray();
+
           //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
           // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
           // dt2(i) = pmb->pcoord->dx2f(j) / cl2;
