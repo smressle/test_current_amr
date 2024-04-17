@@ -126,7 +126,7 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
               x3flux(n,k,j,i),x3flux(n,k+1,j,i),
               x1area(i), x1area(i+1),
               x2area(i), x2area_p1(i),
-              x3area(i), x3area_p1(i) 
+              x3area(i), x3area_p1(i) ,
               u_out(n,k,j,i+1),u_out(n,k,j,i-1),
               u_out(n,k,j+1,i),u_out(n,k,j-1,i),
               u_out(n,k+1,j,i),u_out(n,k-1,j,i));
