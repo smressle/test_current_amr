@@ -182,6 +182,7 @@ int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement f
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
 static Real SMALL = 1e-7;
+#define DEL 1e-4;
 
 
 //This function performs L * A = A_new 
@@ -3239,7 +3240,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
-#define DEL 1e-5
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
@@ -3813,7 +3813,6 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 
     return true;
 }
-#define DEL 1e-7
 
 
 Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
