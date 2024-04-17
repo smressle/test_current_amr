@@ -3401,7 +3401,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
       // }
       for (int n = 0; n < NMETRIC; ++n) {
-         dg_dt(n) = (gp(n)-g(n))/(tp-tm);
+         dg_dt(n) = 0; //(gp(n)-g(n))/(tp-tm);
 
         if (std::fabs(dg_dt(n))>1e2 ){
           fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
