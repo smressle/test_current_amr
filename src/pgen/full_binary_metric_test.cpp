@@ -3363,7 +3363,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
          dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
 
         if (std::fabs(dg_dx2(n))>1e4 ){
-          fprintf(stderr,"large dg_dx2!: %g for n= %g\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
+          fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
          }
       }
       
@@ -3381,7 +3381,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
         for (int n = 0; n < NMETRIC; ++n) {
          dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
         if (std::fabs(dg_dx3(n))>1e4 ){
-          fprintf(stderr,"large dg_dx2!: %g for n= %g\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
+          fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
          }
       }
 
@@ -3402,7 +3402,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
         if (std::fabs(dg_dt(n))>1e4 ){
-          fprintf(stderr,"large dg_dt!: %g for n= %g\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
+          fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
          }
       }
 
