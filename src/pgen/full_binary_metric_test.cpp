@@ -181,7 +181,7 @@ int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR *
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
-static Real SMALL = 1e-9;
+static Real SMALL = 1e-7;
 
 
 //This function performs L * A = A_new 
@@ -2807,6 +2807,7 @@ void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &o
   // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(a_mag) + std::sqrt( SQR( SQR(*Rprime) - SQR(a_mag) ) + 4.0*SQR(a_dot_x_prime) );
+  if (std::fabs(a_dot_x_prime))
   *rprime = std::sqrt(*rprime/2.0);
 
 
@@ -3238,7 +3239,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
-#define DEL 1e-7
+#define DEL 1e-5
 void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
