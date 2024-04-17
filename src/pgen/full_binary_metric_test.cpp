@@ -1592,7 +1592,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
               fprintf(stderr,"u_rho: %g %g %g %g %g %g %g u_en: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_Msq: %g %g %g %g %g %g %g \n",
-              pmb->phydro->(IDN,k,j,i),pmb->phydro->(IDN,k+1,j,i),pmb->phydro->u(IDN,k-1,j,i),pmb->phydro->u(IDN,k,j+1,i),pmb->phydro->u(IDN,k,j-1,i),
+              pmb->phydro->u(IDN,k,j,i),pmb->phydro->u(IDN,k+1,j,i),pmb->phydro->u(IDN,k-1,j,i),pmb->phydro->u(IDN,k,j+1,i),pmb->phydro->u(IDN,k,j-1,i),
               pmb->phydro->u(IDN,k,j,i+1),pmb->phydro->u(IDN,k,j,i-1),
               pmb->phydro->u(IPR,k,j,i),pmb->phydro->u(IPR,k+1,j,i),pmb->phydro->u(IPR,k-1,j,i),pmb->phydro->u(IPR,k,j+1,i),pmb->phydro->u(IPR,k,j-1,i),
               pmb->phydro->u(IPR,k,j,i+1),pmb->phydro->u(IPR,k,j,i-1),
