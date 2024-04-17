@@ -1561,7 +1561,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
           if (prim(IPR,k,j,i)>1e7){
-            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n",
+            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n",
               prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
               prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
               prim(IPR,k,j,i),prim(IPR,k+1,j,i),prim(IPR,k-1,j,i),prim(IPR,k,j+1,i),prim(IPR,k,j-1,i),
@@ -1580,7 +1580,14 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               SQR(pmb->pfield->bcc(IB1,k-1,j,i)) + SQR(pmb->pfield->bcc(IB2,k-1,j,i)) + SQR(pmb->pfield->bcc(IB3,k-1,j,i)),
               SQR(pmb->pfield->bcc(IB1,k+1,j,i)) + SQR(pmb->pfield->bcc(IB2,k+1,j,i)) + SQR(pmb->pfield->bcc(IB3,k+1,j,i)),
               g(I00,i),g(I01,i),g(I02,i),g(I03,i),g(I11,i),g(I12,i),g(I13,i),g(I22,i),g(I23,i), g(I33,i),
-              gi(I00,i),gi(I01,i),gi(I02,i),gi(I03,i),gi(I11,i),gi(I12,i),gi(I13,i),gi(I22,i),gi(I23,i), gi(I33,i)
+              gi(I00,i),gi(I01,i),gi(I02,i),gi(I03,i),gi(I11,i),gi(I12,i),gi(I13,i),gi(I22,i),gi(I23,i), gi(I33,i),
+              SQR(pmb->prim(IVX,k,j,i)) + SQR(pmb->prim(IVY,k,j,i)) + SQR(pmb->prim(IVZ,k,j,i)),
+              SQR(pmb->prim(IVX,k+1,j,i)) + SQR(pmb->prim(IVY,k+1,j,i)) + SQR(pmb->prim(IVZ,k+1,j,i)),
+              SQR(pmb->prim(IVX,k-1,j,i)) + SQR(pmb->prim(IVY,k-1,j,i)) + SQR(pmb->prim(IVZ,k-1,j,i)),
+              SQR(pmb->prim(IVX,k,j+1,i)) + SQR(pmb->prim(IVY,k,j+1,i)) + SQR(pmb->prim(IVZ,k,j+1,i)),
+              SQR(pmb->prim(IVX,k,j-1,i)) + SQR(pmb->prim(IVY,k,j-1,i)) + SQR(pmb->prim(IVZ,k,j-1,i)),
+              SQR(pmb->prim(IVX,k,j,i+1)) + SQR(pmb->prim(IVY,k,j,i+1)) + SQR(pmb->prim(IVZ,k,j,i+1)),
+              SQR(pmb->prim(IVX,k,j,i-1)) + SQR(pmb->prim(IVY,k,j,i-1)) + SQR(pmb->prim(IVZ,k,j,i-1))
               );
             exit(0);
           }
