@@ -62,7 +62,7 @@ void CustomOuterX3(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &prim,
 void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                     FaceField &bb, Real time, Real dt,
                     int is, int ie, int js, int je, int ks, int ke, int ngh);
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const FaceField &bb_old);
+void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const FaceField &bb_old);
 void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
   const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
   const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
@@ -1499,7 +1499,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
 /* Apply inner "absorbing" boundary conditions */
 
-void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const FaceField &bb_old){
+void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim,AthenaArray<Real> &prim_scalar, const FaceField &bb_old){
 
 
   Real r,th,ph;
@@ -1561,11 +1561,15 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
 
           if (prim(IPR,k,j,i)>1e7){
-            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n",
+            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n",
               prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
               prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
               prim(IPR,k,j,i),prim(IPR,k+1,j,i),prim(IPR,k-1,j,i),prim(IPR,k,j+1,i),prim(IPR,k,j-1,i),
               prim(IPR,k,j,i+1),prim(IPR,k,j,i-1),
+              prim_old(IDN,k,j,i),prim_old(IDN,k+1,j,i),prim_old(IDN,k-1,j,i),prim_old(IDN,k,j+1,i),prim_old(IDN,k,j-1,i),
+              prim_old(IDN,k,j,i+1),prim_old(IDN,k,j,i-1),
+              prim_old(IPR,k,j,i),prim_old(IPR,k+1,j,i),prim_old(IPR,k-1,j,i),prim_old(IPR,k,j+1,i),prim_old(IPR,k,j-1,i),
+              prim_old(IPR,k,j,i+1),prim_old(IPR,k,j,i-1),
               x,y,z,xprime,yprime,zprime,rprime,
               xprime2,yprime2,zprime2,rprime2,
               SQR(pmb->pfield->bcc(IB1,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)),
@@ -2301,7 +2305,7 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int is, ie, js, je, ks, ke;
 
 
-  apply_inner_boundary_condition(pmb,prim,prim_scalar,bb_half);
+  apply_inner_boundary_condition(pmb,prim_old,prim,prim_scalar,bb_half);
 
   return;
 }
@@ -3344,7 +3348,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dx1(n) = (gp(n)-gm(n))/(x1p-x1m);
       // }
         for (int n = 0; n < NMETRIC; ++n) {
-         dg_dx1(n) = 0; //(gp(n)-g(n))/(x1p-x1m);
+         dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
 
          if (std::fabs(dg_dx1(n))>1e2 ){
           fprintf(stderr,"large dg_dx1!: %g for n= %d\n x: %g %g y: %g z: %g t: %g \n",dg_dx1(n),n,x1,x1p,x2,x3,t);
@@ -3362,7 +3366,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dx2(n) = (gp(n)-gm(n))/(x2p-x2m);
       // }
       for (int n = 0; n < NMETRIC; ++n) {
-         dg_dx2(n) = 0; //(gp(n)-g(n))/(x2p-x2m);
+         dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
 
         if (std::fabs(dg_dx2(n))>1e2 ){
           fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
@@ -3381,7 +3385,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dx3(n) = (gp(n)-gm(n))/(x3p-x3m);
       // }
         for (int n = 0; n < NMETRIC; ++n) {
-         dg_dx3(n) = 0; //(gp(n)-g(n))/(x3p-x3m);
+         dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
         if (std::fabs(dg_dx3(n))>1e2 ){
           fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
          }
@@ -3401,7 +3405,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
       // }
       for (int n = 0; n < NMETRIC; ++n) {
-         dg_dt(n) = 0; //(gp(n)-g(n))/(tp-tm);
+         dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
         if (std::fabs(dg_dt(n))>1e2 ){
           fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
