@@ -181,7 +181,7 @@ int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR *
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
-static Real SMALL = 1e-12;
+static Real SMALL = 1e-9;
 
 
 //This function performs L * A = A_new 
@@ -4016,7 +4016,7 @@ Real MyTimeStep(MeshBlock *pmb)
       pmb->pcoord->CenterWidth1(k, j, pmb->is, pmb->ie, dt1);
       pmb->pcoord->CenterWidth2(k, j, pmb->is, pmb->ie, dt2);
       pmb->pcoord->CenterWidth3(k, j, pmb->is, pmb->ie, dt3);
-        pmb->pcoord->CellMetric(k,j,pmb->is,pmb->ie,g,gi); 
+      pmb->pcoord->CellMetric(k,j,pmb->is,pmb->ie,g,gi); 
         for (int i=pmb->is; i<=pmb->ie; ++i) {
 
 
@@ -4055,9 +4055,13 @@ Real MyTimeStep(MeshBlock *pmb)
 
           Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
 
-          dt1(i) = pmb->pcoord->dx1f(i) /speed1;
-          dt2(i) = pmb->pcoord->dx2f(j) /speed2;
-          dt3(i) = pmb->pcoord->dx3f(k) /speed3;
+          // dt1(i) = pmb->pcoord->dx1f(i) /speed1;
+          // dt2(i) = pmb->pcoord->dx2f(j) /speed2;
+          // dt3(i) = pmb->pcoord->dx3f(k) /speed3;
+
+          dt1(i) /= speed1;
+          dt2(i) /=speed2;
+          dt3(i) /=speed3;
 
 
           // AthenaArray<Real> orbit_quantities;
