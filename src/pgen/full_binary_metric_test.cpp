@@ -1560,8 +1560,29 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           GetBoyerLindquistCoordinates(xprime2,yprime2,zprime2,a2x,a2y,a2z, &rprime2, &thprime2, &phiprime2);
 
 
+          const Real &a11 = g(I00,i);
+          const Real &a12 = g(I01,i);
+          const Real &a13 = g(I02,i);
+          const Real &a14 = g(I03,i);
+          const Real &a21 = g(I01,i);
+          const Real &a22 = g(I11,i);
+          const Real &a23 = g(I12,i);
+          const Real &a24 = g(I13,i);
+          const Real &a31 = g(I02,i);
+          const Real &a32 = g(I12,i);
+          const Real &a33 = g(I22,i);
+          const Real &a34 = g(I23,i);
+          const Real &a41 = g(I03,i);
+          const Real &a42 = g(I13,i);
+          const Real &a43 = g(I23,i);
+          const Real &a44 = g(I33,i);
+          Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
+                   - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
+                   + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
+                   - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
+
           if (prim(IPR,k,j,i)>1e7){
-            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n",
+            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n DETERMINANT: %g \n",
               prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
               prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
               prim(IPR,k,j,i),prim(IPR,k+1,j,i),prim(IPR,k-1,j,i),prim(IPR,k,j+1,i),prim(IPR,k,j-1,i),
@@ -1587,7 +1608,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               SQR(prim(IVX,k,j+1,i)) + SQR(prim(IVY,k,j+1,i)) + SQR(prim(IVZ,k,j+1,i)),
               SQR(prim(IVX,k,j-1,i)) + SQR(prim(IVY,k,j-1,i)) + SQR(prim(IVZ,k,j-1,i)),
               SQR(prim(IVX,k,j,i+1)) + SQR(prim(IVY,k,j,i+1)) + SQR(prim(IVZ,k,j,i+1)),
-              SQR(prim(IVX,k,j,i-1)) + SQR(prim(IVY,k,j,i-1)) + SQR(prim(IVZ,k,j,i-1))
+              SQR(prim(IVX,k,j,i-1)) + SQR(prim(IVY,k,j,i-1)) + SQR(prim(IVZ,k,j,i-1)),
+              det
               );
 
 
