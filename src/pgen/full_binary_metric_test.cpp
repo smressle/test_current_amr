@@ -181,7 +181,7 @@ int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR *
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
-static Real SMALL = 1e-5;
+static Real SMALL = 1e-12;
 
 
 //This function performs L * A = A_new 
@@ -3930,7 +3930,7 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
 
   Real cms2 = cs2 + va2 - cs2*va2;
 
-  Real SMALL = 1e-10;
+  // Real SMALL = 1e-10;
 
   cms2 = (cms2 < 0) ? SMALL : cms2;
   cms2 = (cms2 > 1) ? 1 : cms2;
