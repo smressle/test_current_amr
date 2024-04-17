@@ -1538,6 +1538,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 #pragma simd
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
+
+
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
@@ -1549,6 +1551,33 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
           Real thprime,phiprime;
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+
+          Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+
+          get_prime_coords(2,x,y,z, orbit_quantities,&xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+
+          Real thprime2,phiprime2;
+          GetBoyerLindquistCoordinates(xprime2,yprime2,zprime2,a2x,a2y,a2z, &rprime2, &thprime2, &phiprime2);
+
+
+          if (prim(IPR,k,j,i)>1e7){
+            fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n",
+              prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
+              prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
+              prim(IPR,k,j,i),prim(IPR,k+1,j,i),prim(IPR,k-1,j,i),prim(IPR,k,j+1,i),prim(IPR,k,j-1,i),
+              prim(IPR,k,j,i+1),prim(IPR,k,j,i-1),
+              x,y,z,xprime,yprime,zprime,rprime,
+              xprime2,yprime2,zprime2,rprime2,
+              SQR(pmb->pfield->bcc(IB1,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)),
+              SQR(pmb->pfield->bcc(IB1,k,j,i+1)) + SQR(pmb->pfield->bcc(IB2,k,j,i+1)) + SQR(pmb->pfield->bcc(IB3,k,j,i+1)),
+              SQR(pmb->pfield->bcc(IB1,k,j,i-1)) + SQR(pmb->pfield->bcc(IB2,k,j,i-1)) + SQR(pmb->pfield->bcc(IB3,k,j,i-1)),
+              SQR(pmb->pfield->bcc(IB1,k,j+1,i)) + SQR(pmb->pfield->bcc(IB2,k,j+1,i)) + SQR(pmb->pfield->bcc(IB3,k,j+1,i)),
+              SQR(pmb->pfield->bcc(IB1,k,j-1,i)) + SQR(pmb->pfield->bcc(IB2,k,j-1,i)) + SQR(pmb->pfield->bcc(IB3,k,j-1,i)),
+              SQR(pmb->pfield->bcc(IB1,k-1,j,i)) + SQR(pmb->pfield->bcc(IB2,k-1,j,i)) + SQR(pmb->pfield->bcc(IB3,k-1,j,i)),
+              SQR(pmb->pfield->bcc(IB1,k+1,j,i)) + SQR(pmb->pfield->bcc(IB2,k+1,j,i)) + SQR(pmb->pfield->bcc(IB3,k+1,j,i))
+              );
+            exit(0);
+          }
 
 
           // if is_face_in_boundary(1, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
@@ -3314,6 +3343,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // }
         for (int n = 0; n < NMETRIC; ++n) {
          dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
+
+         if (std::fabs(dg_dx1(n))>100 ){
+          fprintf(stderr,"large dg_dx1!: %g for n= %g\n x: %g %g y: %g z: %g t: %g \n",dg_dx1(n),n,x1,x1p,x2,x3,t);
+         }
       }
 
       Real x2p = x2 + DEL; // * rprime;
@@ -3328,6 +3361,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // }
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
+
+        if (std::fabs(dg_dx2(n))>100 ){
+          fprintf(stderr,"large dg_dx2!: %g for n= %g\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
+         }
       }
       
       Real x3p = x3 + DEL; // * rprime;
@@ -3343,6 +3380,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // }
         for (int n = 0; n < NMETRIC; ++n) {
          dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
+        if (std::fabs(dg_dx3(n))>100 ){
+          fprintf(stderr,"large dg_dx2!: %g for n= %g\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
+         }
       }
 
       Real tp = t + DEL ;
@@ -3360,6 +3400,10 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // }
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
+
+        if (std::fabs(dg_dt(n))>100 ){
+          fprintf(stderr,"large dg_dt!: %g for n= %g\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
+         }
       }
 
       gp.DeleteAthenaArray();
