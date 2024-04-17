@@ -118,7 +118,7 @@ void Hydro::AddFluxDivergence(const Real wght, AthenaArray<Real> &u_out) {
         for (int i=is; i<=ie; ++i) {
           u_out(n,k,j,i) -= wght*dflx(n,i)/vol(i);
 
-          if (std::fabs(u_out(n,k,j,i))>1e7){
+          if (std::fabs(u_out(n,k,j,i))>1e10){
             fprintf(stderr, "u_out: %g n: %d \n wght: %g dflx; %g vol: %g \n x1flux: %g %g x2flux: %g %g x3flux: %g %g \n x1area: %g %g x2area: %g %g x3area: %g %g \n neighbors: %g %g %g %g %g %g \n",
               u_out(n,k,j,i),n,wght,dflx(n,i),vol(i),
               x1flux(n,k,j,i),x1flux(n,k,j,i+1),
