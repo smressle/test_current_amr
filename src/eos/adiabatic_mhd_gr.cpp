@@ -329,7 +329,7 @@ void EquationOfState::ConservedToPrimitive(
         }
 
         if (prim(IPR,k,j,i)>1e10){
-          fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n",prim(IPR,k,j,i),cons(IEN,k,j,i),prim(IDN,k,j,i),cons(IDN,k,j,i),fixed*1,sucess*1,velocity_ceiling*1,rho_add,pgas_add );
+          fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n",prim(IPR,k,j,i),cons(IEN,k,j,i),prim(IDN,k,j,i),cons(IDN,k,j,i),fixed*1,success*1,velocity_ceiling*1,rho_add,pgas_add );
           exit(0);
         }
       }
