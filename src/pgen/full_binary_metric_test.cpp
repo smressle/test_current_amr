@@ -4024,9 +4024,9 @@ Real MyTimeStep(MeshBlock *pmb)
           // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
           // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
 
-          Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
+          // Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
 
 
            // SR case: do nothing (assume maximum characteristic is c = 1)
@@ -4055,66 +4055,66 @@ Real MyTimeStep(MeshBlock *pmb)
 
           Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
 
-          // dt1(i) = pmb->pcoord->dx1f(i) /speed1;
-          // dt2(i) = pmb->pcoord->dx2f(j) /speed2;
-          // dt3(i) = pmb->pcoord->dx3f(k) /speed3;
+          dt1(i) = pmb->pcoord->dx1f(i) /speed1;
+          dt2(i) = pmb->pcoord->dx2f(j) /speed2;
+          dt3(i) = pmb->pcoord->dx3f(k) /speed3;
 
 
-          AthenaArray<Real> orbit_quantities;
-          orbit_quantities.NewAthenaArray(Norbit);
+          // AthenaArray<Real> orbit_quantities;
+          // orbit_quantities.NewAthenaArray(Norbit);
 
-          get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
+          // get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
 
-          Real x = pmb->pcoord->x1v(i);
-          Real y = pmb->pcoord->x2v(j);
-          Real z = pmb->pcoord->x3v(k);
-          Real xprime1,yprime1,zprime1,rprime1,Rprime1;
-          get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
-          Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-          get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+          // Real x = pmb->pcoord->x1v(i);
+          // Real y = pmb->pcoord->x2v(j);
+          // Real z = pmb->pcoord->x3v(k);
+          // Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+          // get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+          // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+          // get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-          Real a1x = orbit_quantities(IA1X);
-          Real a1y = orbit_quantities(IA1Y);
-          Real a1z = orbit_quantities(IA1Z);
+          // Real a1x = orbit_quantities(IA1X);
+          // Real a1y = orbit_quantities(IA1Y);
+          // Real a1z = orbit_quantities(IA1Z);
 
-          Real a2x = orbit_quantities(IA2X);
-          Real a2y = orbit_quantities(IA2Y);
-          Real a2z = orbit_quantities(IA2Z);
+          // Real a2x = orbit_quantities(IA2X);
+          // Real a2y = orbit_quantities(IA2Y);
+          // Real a2z = orbit_quantities(IA2Z);
 
-          Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
-          Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
-
-
-          Real rh1 =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
-          Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
+          // Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
+          // Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
 
 
-          Real uu1 = pmb->phydro->w(IVX,k,j,i);
-          Real uu2 = pmb->phydro->w(IVY,k,j,i);
-          Real uu3 = pmb->phydro->w(IVZ,k,j,i);
-          Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                   + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                   + g(I33,i)*uu3*uu3;
-          Real gamma = std::sqrt(1.0 + tmp);
-
-          // Calculate 4-velocity
-          Real alpha = std::sqrt(-1.0/gi(I00,i));
-          Real u0 = gamma/alpha;
-          Real u1 = uu1 - alpha * gamma * gi(I01,i);
-          Real u2 = uu2 - alpha * gamma * gi(I02,i);
-          Real u3 = uu3 - alpha * gamma * gi(I03,i);
-          // if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
-          // fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
-          // pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
-          //  gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
+          // Real rh1 =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
+          // Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
 
 
-          orbit_quantities.DeleteAthenaArray();
+          // Real uu1 = pmb->phydro->w(IVX,k,j,i);
+          // Real uu2 = pmb->phydro->w(IVY,k,j,i);
+          // Real uu3 = pmb->phydro->w(IVZ,k,j,i);
+          // Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+          //          + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+          //          + g(I33,i)*uu3*uu3;
+          // Real gamma = std::sqrt(1.0 + tmp);
 
-          //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
-          dt1(i) = pmb->pcoord->dx1f(i) / cl1;
-          dt2(i) = pmb->pcoord->dx2f(j) / cl2;
-          dt3(i) = pmb->pcoord->dx3f(k) / cl3;
+          // // Calculate 4-velocity
+          // Real alpha = std::sqrt(-1.0/gi(I00,i));
+          // Real u0 = gamma/alpha;
+          // Real u1 = uu1 - alpha * gamma * gi(I01,i);
+          // Real u2 = uu2 - alpha * gamma * gi(I02,i);
+          // Real u3 = uu3 - alpha * gamma * gi(I03,i);
+          // // if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
+          // // fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
+          // // pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
+          // //  gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
+
+
+          // orbit_quantities.DeleteAthenaArray();
+
+          // //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
+          // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
+          // dt2(i) = pmb->pcoord->dx2f(j) / cl2;
+          // dt3(i) = pmb->pcoord->dx3f(k) / cl3;
       }
 
             // compute minimum of (v1 +/- C)
