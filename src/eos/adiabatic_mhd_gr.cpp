@@ -127,11 +127,11 @@ void EquationOfState::ConservedToPrimitive(
         // Set flag indicating conserved values need adjusting at end
         bool fixed = false;
 
-        if (std::fabs(normal_ee_(i))>1e10){
-        fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
-        normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
-        exit(0);
-      }
+      //   if (std::fabs(normal_ee_(i))>1e10){
+      //   fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
+      //   normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
+      //   exit(0);
+      // }
 
 
         Real r = GetRadius(time,pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
@@ -245,12 +245,12 @@ void EquationOfState::ConservedToPrimitive(
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
 
 
-            if (std::fabs(normal_ee_(i))>1e10){
-              fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g w_gas_add: %g gamma: %g \n p_add: %g rho_add: %g gam: %g pre_ee: %g \n",
-              normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i),
-              wgas_add,gamma,pgas_add,rho_add,gamma_adi ,pre_ee);
-              exit(0);
-            }
+            // if (std::fabs(normal_ee_(i))>1e10){
+            //   fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g w_gas_add: %g gamma: %g \n p_add: %g rho_add: %g gam: %g pre_ee: %g \n",
+            //   normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i),
+            //   wgas_add,gamma,pgas_add,rho_add,gamma_adi ,pre_ee);
+            //   exit(0);
+            // }
 
 
           // Recalculate primitives
@@ -366,14 +366,14 @@ void EquationOfState::ConservedToPrimitive(
                                      pco);
         }
 
-        if (prim(IPR,k,j,i)>1e10){
-          fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n p_floor: %g d_floor: %g pmag: %g gamma: %g \n old press; %g old den: %g normal dd: %g normal ee: %g ee_min: %g dd_min: %g \n ",
-            prim(IPR,k,j,i),cons(IEN,k,j,i),prim(IDN,k,j,i),cons(IDN,k,j,i),fixed*1,success*1,velocity_ceiling*1,rho_add,pgas_add,
-            pressure_floor_local,density_floor_local,pmag,gamma,
-            prim_old(IPR,k,j,i),prim_old(IDN,k,j,i), normal_dd_(i),normal_ee_(i),
-            ee_min,dd_min);
-          exit(0);
-        }
+        // if (prim(IPR,k,j,i)>1e10){
+        //   fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n p_floor: %g d_floor: %g pmag: %g gamma: %g \n old press; %g old den: %g normal dd: %g normal ee: %g ee_min: %g dd_min: %g \n ",
+        //     prim(IPR,k,j,i),cons(IEN,k,j,i),prim(IDN,k,j,i),cons(IDN,k,j,i),fixed*1,success*1,velocity_ceiling*1,rho_add,pgas_add,
+        //     pressure_floor_local,density_floor_local,pmag,gamma,
+        //     prim_old(IPR,k,j,i),prim_old(IDN,k,j,i), normal_dd_(i),normal_ee_(i),
+        //     ee_min,dd_min);
+        //   exit(0);
+        // }
       }
     }
   }

@@ -757,11 +757,11 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
         E += dt * s_E;
 
 
-        if (std::fabs(E)>1e10){
-          fprintf(stderr,"LARGE E in coord_sources! \n E: %g dt: %g s_E: %g \n sourceterms: %g %g %g %g \n tt: %g %g %g %g \n",
-            E,dt,s_E,coord_src_kji_(3,I00,k,j,i),coord_src_kji_(3,I11,k,j,i),coord_src_kji_(3,I22,k,j,i),
-            coord_src_kji_(3,I33,k,j,i),tt[I00],tt[I11],tt[I22],tt[I33]);
-        }
+        // if (std::fabs(E)>1e10){
+        //   fprintf(stderr,"LARGE E in coord_sources! \n E: %g dt: %g s_E: %g \n sourceterms: %g %g %g %g \n tt: %g %g %g %g \n",
+        //     E,dt,s_E,coord_src_kji_(3,I00,k,j,i),coord_src_kji_(3,I11,k,j,i),coord_src_kji_(3,I22,k,j,i),
+        //     coord_src_kji_(3,I33,k,j,i),tt[I00],tt[I11],tt[I22],tt[I33]);
+        // }
       }
     }
   }
