@@ -227,12 +227,15 @@ void EquationOfState::ConservedToPrimitive(
           // Adjust conserved density and energy
           Real wgas_add = rho_add + gamma_adi/(gamma_adi-1.0) * pgas_add;
           normal_dd_(i) += rho_add * gamma;
+
+          Real pre_ee = normal_ee_(i);
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
 
 
             if (std::fabs(normal_ee_(i))>1e10){
-              fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
-              normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
+              fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g w_gas_add: %g gamma: %g \n p_add: %g rho_add: %g gam: %g pre_ee: %g \n",
+              normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i),
+              wgas_add,gamma,pgas_add,rho_add,gamma_adi ,pre_ee);
               exit(0);
             }
 
