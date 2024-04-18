@@ -123,7 +123,6 @@ void __attribute__((weak)) HydroSourceTerms::ApplyBondiBoundaries(Real time,Mesh
 //========================================================================================
 
 void __attribute__((weak)) EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3, Real a, Real *r1, Real *r2) {
-  // do nothing
 
   if (COORDINATE_SYSTEM=="cartesian"){
     (*r) =std::sqrt( SQR(x1) + SQR(x2) + SQR(x3) );
