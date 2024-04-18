@@ -3419,9 +3419,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
         for (int n = 0; n < NMETRIC; ++n) {
          dg_dx1(n) = (gp(n)-g(n))/(x1p-x1m);
 
-         if (std::fabs(dg_dx1(n))>1e2 ){
-          fprintf(stderr,"large dg_dx1!: %g for n= %d\n x: %g %g y: %g z: %g t: %g \n",dg_dx1(n),n,x1,x1p,x2,x3,t);
-         }
+         // if (std::fabs(dg_dx1(n))>1e2 ){
+         //  fprintf(stderr,"large dg_dx1!: %g for n= %d\n x: %g %g y: %g z: %g t: %g \n",dg_dx1(n),n,x1,x1p,x2,x3,t);
+         // }
       }
 
       Real x2p = x2 + DEL; // * rprime;
@@ -3437,9 +3437,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dx2(n) = (gp(n)-g(n))/(x2p-x2m);
 
-        if (std::fabs(dg_dx2(n))>1e2 ){
-          fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
-         }
+        // if (std::fabs(dg_dx2(n))>1e2 ){
+        //   fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g y: %g %g z: %g t: %g \n",dg_dx2(n),n,x1,x2,x2p,x3,t);
+        //  }
       }
       
       Real x3p = x3 + DEL; // * rprime;
@@ -3455,9 +3455,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // }
         for (int n = 0; n < NMETRIC; ++n) {
          dg_dx3(n) = (gp(n)-g(n))/(x3p-x3m);
-        if (std::fabs(dg_dx3(n))>1e2 ){
-          fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
-         }
+        // if (std::fabs(dg_dx3(n))>1e2 ){
+        //   fprintf(stderr,"large dg_dx2!: %g for n= %d\n x: %g  y: %g z: %g %g t: %g \n",dg_dx3(n),n,x1,x2,x3,x3p,t);
+        //  }
       }
 
       Real tp = t + DEL ;
@@ -3476,9 +3476,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
-        if (std::fabs(dg_dt(n))>1e2 ){
-          fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
-         }
+        // if (std::fabs(dg_dt(n))>1e2 ){
+        //   fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
+        //  }
       }
 
       gp.DeleteAthenaArray();

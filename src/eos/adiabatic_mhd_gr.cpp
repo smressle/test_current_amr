@@ -204,14 +204,16 @@ void EquationOfState::ConservedToPrimitive(
                                                   prim_old(IPR,k,j,i), k, j, i, prim,
                                                   &gamma, &pmag);
 
-        if (gamma>1e5){
-          fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n consrho: %g consm: %g %g %g cons_en: %g \n",
-            gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm_(0,i),
-            normal_mm_(1,i),normal_mm_(2,i),normal_mm_(3,i),
-            normal_bb_(0,i),normal_bb_(1,i),normal_bb_(2,i),normal_bb_(3,i), normal_tt_(i),
-            cons(IDN,k,j,i),cons(IM1,k,j,i),cons(IM2,k,j,i),cons(IM3,k,j,i),cons(IPR,k,j,i));
-          exit(0);
-        }
+        // if (gamma>1e5){
+        //   fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n consrho: %g consm: %g %g %g cons_en: %g \n",
+        //     gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm_(0,i),
+        //     normal_mm_(1,i),normal_mm_(2,i),normal_mm_(3,i),
+        //     normal_bb_(0,i),normal_bb_(1,i),normal_bb_(2,i),normal_bb_(3,i), normal_tt_(i),
+        //     cons(IDN,k,j,i),cons(IM1,k,j,i),cons(IM2,k,j,i),cons(IM3,k,j,i),cons(IPR,k,j,i));
+        //   exit(0);
+        // }
+
+        if (gamma>1e2) success=false;
 
         // Handle failures
         if (!success) {
