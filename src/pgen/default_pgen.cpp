@@ -122,17 +122,17 @@ void __attribute__((weak)) HydroSourceTerms::ApplyBondiBoundaries(Real time,Mesh
 //! \brief Function called before generating output files
 //========================================================================================
 
-Real __attribute__((weak)) EquationOfState::GetRadius(Real t, Real x1, Real x2, Real x3, Real a) {
+void __attribute__((weak)) EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3, Real a, Real *r1, Real *r2) {
   // do nothing
 
   if (COORDINATE_SYSTEM=="cartesian"){
-    return std::sqrt( SQR(x1) + SQR(x2) + SQR(x3) );
+    (*r) =std::sqrt( SQR(x1) + SQR(x2) + SQR(x3) );
   }
   else if (COORDINATE_SYSTEM=="spherical_polar" or COORDINATE_SYSTEM=="schwarzschild" or COORDINATE_SYSTEM=="kerr-schild"){
-    return x1;
+    (*r) = x1;
   }
   else if (COORDINATE_SYSTEM=="cylindrical"){
-    return std::sqrt( SQR(x1) + SQR(x3));
+    (*r) =std::sqrt( SQR(x1) + SQR(x3));
   }
   else if (COORDINATE_SYSTEM=="gr_user"){
       Real x = x1;
@@ -140,11 +140,15 @@ Real __attribute__((weak)) EquationOfState::GetRadius(Real t, Real x1, Real x2, 
       Real z = x3;
       Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
       Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a)*SQR(z) )  )/std::sqrt(2.0);
-      return r;
+      (*r1)=r;
+      (*r2)=-1.0;
   }
-  else return std::abs(x1);
+  else (*r) = std::abs(x1);
+
+  (*r2)=-1.0;
+  return;
 }
-Real __attribute__((weak)) EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3) {
-  // do nothing
-  return -1.0;
-}
+// Real __attribute__((weak)) EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3) {
+//   // do nothing
+//   return -1.0;
+// }

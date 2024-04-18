@@ -154,8 +154,8 @@ class EquationOfState {
 #else // not GENERAL_EOS
   Real GetGamma() const {return gamma_;}
 #endif
-  Real GetRadius(Real t,Real x1, Real x2, Real x3, Real a);
-  Real GetRadius2(Real t,Real x1,Real x2, Real x3);
+  Real GetRadii(Real t,Real x1, Real x2, Real x3, Real a, Real *r1, Real *r2);
+  // Real GetRadius2(Real t,Real x1,Real x2, Real x3);
 
 
  private:

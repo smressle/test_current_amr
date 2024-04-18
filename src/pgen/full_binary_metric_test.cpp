@@ -1568,34 +1568,34 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           Real thprime,phiprime;
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
 
-          Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+          // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
 
-          get_prime_coords(2,x,y,z, orbit_quantities,&xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+          // get_prime_coords(2,x,y,z, orbit_quantities,&xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-          Real thprime2,phiprime2;
-          GetBoyerLindquistCoordinates(xprime2,yprime2,zprime2,a2x,a2y,a2z, &rprime2, &thprime2, &phiprime2);
+          // Real thprime2,phiprime2;
+          // GetBoyerLindquistCoordinates(xprime2,yprime2,zprime2,a2x,a2y,a2z, &rprime2, &thprime2, &phiprime2);
 
 
-          const Real &a11 = g(I00,i);
-          const Real &a12 = g(I01,i);
-          const Real &a13 = g(I02,i);
-          const Real &a14 = g(I03,i);
-          const Real &a21 = g(I01,i);
-          const Real &a22 = g(I11,i);
-          const Real &a23 = g(I12,i);
-          const Real &a24 = g(I13,i);
-          const Real &a31 = g(I02,i);
-          const Real &a32 = g(I12,i);
-          const Real &a33 = g(I22,i);
-          const Real &a34 = g(I23,i);
-          const Real &a41 = g(I03,i);
-          const Real &a42 = g(I13,i);
-          const Real &a43 = g(I23,i);
-          const Real &a44 = g(I33,i);
-          Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
-                   - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
-                   + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
-                   - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
+          // const Real &a11 = g(I00,i);
+          // const Real &a12 = g(I01,i);
+          // const Real &a13 = g(I02,i);
+          // const Real &a14 = g(I03,i);
+          // const Real &a21 = g(I01,i);
+          // const Real &a22 = g(I11,i);
+          // const Real &a23 = g(I12,i);
+          // const Real &a24 = g(I13,i);
+          // const Real &a31 = g(I02,i);
+          // const Real &a32 = g(I12,i);
+          // const Real &a33 = g(I22,i);
+          // const Real &a34 = g(I23,i);
+          // const Real &a41 = g(I03,i);
+          // const Real &a42 = g(I13,i);
+          // const Real &a43 = g(I23,i);
+          // const Real &a44 = g(I33,i);
+          // Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
+          //          - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
+          //          + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
+          //          - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
 
           // if (prim(IPR,k,j,i)>1e10){
           //   fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n DETERMINANT: %g \n",
@@ -1857,9 +1857,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               gamma = std::sqrt(1.0 + tmp);
 
 
-              if (gamma>1e3){
-                fprintf(stderr, "HUGE gamma in horizon 1: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
-              }
+              // if (gamma>1e3){
+              //   fprintf(stderr, "HUGE gamma in horizon 1: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
+              // }
               // user_out_var(0,k,j,i) = gamma;
 
               // Calculate 4-velocity
@@ -2153,9 +2153,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               gamma = std::sqrt(1.0 + tmp);
 
 
-              if (gamma>1e3){
-                fprintf(stderr, "HUGE gamma in horizon 2: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
-              }
+              // if (gamma>1e3){
+              //   fprintf(stderr, "HUGE gamma in horizon 2: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
+              // }
               // user_out_var(0,k,j,i) = gamma;
 
               // Calculate 4-velocity
@@ -3950,7 +3950,7 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 }
 
 
-Real EquationOfState::GetRadius(Real t, Real x1, Real x2, Real x3,  Real a){
+void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real *r, Real *r2){
 
 
   AthenaArray<Real> orbit_quantities;
@@ -3964,35 +3964,42 @@ Real EquationOfState::GetRadius(Real t, Real x1, Real x2, Real x3,  Real a){
   Real xprime1,yprime1,zprime1,rprime1,Rprime1;
   get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
 
-  orbit_quantities.DeleteAthenaArray();
-
-  return rprime1;
-  // Real r, th, phi;
-  // GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
-  // return r;
-}
-
-Real EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3){
-
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
-
-  get_orbit_quantities(t,orbit_quantities);
-
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
   Real xprime2,yprime2,zprime2,rprime2,Rprime2;
   get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
   orbit_quantities.DeleteAthenaArray();
 
-  return rprime2;
-  // Real xprime,yprime,zprime,rprime,Rprime;
-  // get_prime_coords(2,x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
+  (*r) = rprime1;
+  (*r2) = rprime2;
 
-  // return rprime;
+
+  return;
+  // Real r, th, phi;
+  // GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
+  // return r;
 }
+
+// Real EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3){
+
+//   AthenaArray<Real> orbit_quantities;
+//   orbit_quantities.NewAthenaArray(Norbit);
+
+//   get_orbit_quantities(t,orbit_quantities);
+
+//   Real x = x1;
+//   Real y = x2;
+//   Real z = x3;
+//   Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+//   get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+
+//   orbit_quantities.DeleteAthenaArray();
+
+//   return rprime2;
+//   // Real xprime,yprime,zprime,rprime,Rprime;
+//   // get_prime_coords(2,x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
+
+//   // return rprime;
+// }
 Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
   Real Acov[4],Acon[4],Bcon[4],Bcov[4];
 
