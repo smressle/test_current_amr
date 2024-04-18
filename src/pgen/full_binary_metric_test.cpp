@@ -3934,17 +3934,44 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 }
 
 
-Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
+Real EquationOfState::GetRadius(Real t, Real x1, Real x2, Real x3,  Real a){
 
-  return -1.0;
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
+  Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+  get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+
+  orbit_quantities.DeleteAthenaArray();
+
+  return rprime1;
   // Real r, th, phi;
   // GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
   // return r;
 }
 
-Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
+Real EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3){
 
-  return -1.0;
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
+  Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+  get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+
+  orbit_quantities.DeleteAthenaArray();
+
+  return rprime2;
   // Real xprime,yprime,zprime,rprime,Rprime;
   // get_prime_coords(2,x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
 

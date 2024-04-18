@@ -122,7 +122,7 @@ void __attribute__((weak)) HydroSourceTerms::ApplyBondiBoundaries(Real time,Mesh
 //! \brief Function called before generating output files
 //========================================================================================
 
-Real __attribute__((weak)) EquationOfState::GetRadius(Real x1, Real x2, Real x3, Real a) {
+Real __attribute__((weak)) EquationOfState::GetRadius(Real t, Real x1, Real x2, Real x3, Real a) {
   // do nothing
 
   if (COORDINATE_SYSTEM=="cartesian"){
@@ -144,7 +144,7 @@ Real __attribute__((weak)) EquationOfState::GetRadius(Real x1, Real x2, Real x3,
   }
   else return std::abs(x1);
 }
-Real __attribute__((weak)) EquationOfState::GetRadius2(Real x1, Real x2, Real x3) {
+Real __attribute__((weak)) EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3) {
   // do nothing
   return -1.0;
 }

@@ -106,6 +106,8 @@ void EquationOfState::ConservedToPrimitive(
   // Extract ratio of specific heats
   const Real &gamma_adi = gamma_;
 
+  Real time = pco->pmy_mesh->metric_time;
+
   // Interpolate magnetic field from faces to cell centers
   pmy_block_->pfield->CalculateCellCenteredField(bb, bb_cc, pco, il, iu, jl, ju, kl, ku);
 
@@ -132,8 +134,8 @@ void EquationOfState::ConservedToPrimitive(
       }
 
 
-        Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
-        Real r2 = GetRadius2(pco->x1v(i),pco->x2v(j),pco->x3v(k));
+        Real r = GetRadius(time,pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
+        Real r2 = GetRadius2(time,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         // Calculate floors for density and pressure
         Real density_floor_local = density_floor_;
         if (rho_pow_ != 0.0 && r>0.0) {
@@ -203,10 +205,11 @@ void EquationOfState::ConservedToPrimitive(
                                                   &gamma, &pmag);
 
         if (gamma>1e5){
-          fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n",
+          fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n consrho: %g consm: %g %g %g cons_en: %g \n",
             gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm_(0,i),
             normal_mm_(1,i),normal_mm_(2,i),normal_mm_(3,i),
-            normal_bb_(0,i),normal_bb_(1,i),normal_bb_(2,i),normal_bb_(3,i), normal_tt_(i));
+            normal_bb_(0,i),normal_bb_(1,i),normal_bb_(2,i),normal_bb_(3,i), normal_tt_(i),
+            cons(IDN,k,j,i),cons(IM1,k,j,i),cons(IM2,k,j,i),cons(IM3,k,j,i),cons(IPR,k,j,i));
           exit(0);
         }
 
@@ -302,8 +305,8 @@ void EquationOfState::ConservedToPrimitive(
           pmag = 0.5 * (normal_bb_(0,i)/SQR(gamma) + SQR(b0/u0));
         }
         density_floor_local = density_floor_;
-        r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
-        r2 = GetRadius2(pco->x1v(i),pco->x2v(j),pco->x3v(k));
+        r = GetRadius(time,pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
+        r2 = GetRadius2(time,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         if (rho_pow_ != 0.0 && r>0.0) {
           density_floor_local =
               std::max(density_floor_local, rho_min_ * std::pow(r, rho_pow_));
