@@ -119,10 +119,17 @@ void EquationOfState::ConservedToPrimitive(
       CalculateNormalConserved(cons, bb_cc, g_, g_inv_, k, j, il, iu, normal_dd_,
                                normal_ee_, normal_mm_, normal_bb_, normal_tt_);
 
+
       // Go through cells
       for (int i=il; i<=iu; ++i) {
         // Set flag indicating conserved values need adjusting at end
         bool fixed = false;
+
+        if (std::fabs(normal_ee_(i))>1e10){
+        fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
+        normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv(I00,i) );
+        exit(0);
+      }
 
 
         Real r = GetRadius(pco->x1v(i),pco->x2v(j),pco->x3v(k),pco->GetSpin());
