@@ -1839,6 +1839,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                        + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                        + g(I33,i)*uu3*uu3;
               gamma = std::sqrt(1.0 + tmp);
+
+
+              if (gamma>1e3){
+                fprintf(stderr, "HUGE gamma in horizon 1: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
+              }
               // user_out_var(0,k,j,i) = gamma;
 
               // Calculate 4-velocity
@@ -2130,6 +2135,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                        + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                        + g(I33,i)*uu3*uu3;
               gamma = std::sqrt(1.0 + tmp);
+
+
+              if (gamma>1e3){
+                fprintf(stderr, "HUGE gamma in horizon 2: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
+              }
               // user_out_var(0,k,j,i) = gamma;
 
               // Calculate 4-velocity

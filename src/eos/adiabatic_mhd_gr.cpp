@@ -202,6 +202,11 @@ void EquationOfState::ConservedToPrimitive(
                                                   prim_old(IPR,k,j,i), k, j, i, prim,
                                                   &gamma, &pmag);
 
+        if (gamma>1e5){
+          fprintf("Huge Gamma after ConstoPrimNormal!: %g \n",gamma)
+          exit(0);
+        }
+
         // Handle failures
         if (!success) {
           for (int n = 0; n < NHYDRO; ++n) {
