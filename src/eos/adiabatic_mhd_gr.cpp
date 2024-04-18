@@ -127,7 +127,7 @@ void EquationOfState::ConservedToPrimitive(
 
         if (std::fabs(normal_ee_(i))>1e10){
         fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
-        normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv(I00,i) );
+        normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
         exit(0);
       }
 
