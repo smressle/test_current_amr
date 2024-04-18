@@ -106,7 +106,7 @@ void EquationOfState::ConservedToPrimitive(
   // Extract ratio of specific heats
   const Real &gamma_adi = gamma_;
 
-  Real time = pco->pmy_mesh->metric_time;
+  Real time = pmy_block_->pmy_mesh->metric_time;
 
   // Interpolate magnetic field from faces to cell centers
   pmy_block_->pfield->CalculateCellCenteredField(bb, bb_cc, pco, il, iu, jl, ju, kl, ku);
