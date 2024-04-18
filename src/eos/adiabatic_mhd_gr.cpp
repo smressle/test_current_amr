@@ -203,7 +203,7 @@ void EquationOfState::ConservedToPrimitive(
                                                   &gamma, &pmag);
 
         if (gamma>1e5){
-          fprintf("Huge Gamma after ConstoPrimNormal!: %g \n",gamma)
+          fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n",gamma);
           exit(0);
         }
 
