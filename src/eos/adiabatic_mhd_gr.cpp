@@ -204,8 +204,8 @@ void EquationOfState::ConservedToPrimitive(
 
         if (gamma>1e5){
           fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n",
-            gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm(0,i),
-            normal_mm(1,i),normal_mm(2,i),normal_mm(3,i),
+            gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm_(0,i),
+            normal_mm_(1,i),normal_mm_(2,i),normal_mm_(3,i),
             normal_bb_(0,i),normal_bb_(1,i),normal_bb_(2,i),normal_bb_(3,i), normal_tt_(i));
           exit(0);
         }
