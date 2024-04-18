@@ -170,6 +170,13 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_ee_(i) < ee_min) {
           normal_ee_(i) = ee_min;
           fixed = true;
+
+        if (std::fabs(normal_ee_(i))>1e10){
+          fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
+          normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
+          exit(0);
+        }
+
           // fprintf(stderr,"Energy too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -221,6 +228,14 @@ void EquationOfState::ConservedToPrimitive(
           Real wgas_add = rho_add + gamma_adi/(gamma_adi-1.0) * pgas_add;
           normal_dd_(i) += rho_add * gamma;
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
+
+
+            if (std::fabs(normal_ee_(i))>1e10){
+              fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
+              normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
+              exit(0);
+            }
+
 
           // Recalculate primitives
           success = ConservedToPrimitiveNormal(normal_dd_, normal_ee_, normal_mm_,
