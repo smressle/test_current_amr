@@ -1581,7 +1581,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                    + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
                    - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
 
-          if (prim(IPR,k,j,i)>1e7){
+          if (prim(IPR,k,j,i)>1e10){
             fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n DETERMINANT: %g \n",
               prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
               prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
