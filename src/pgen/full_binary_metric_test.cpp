@@ -3950,28 +3950,32 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 }
 
 
+//THIS IS SUPER INEFFICIENT 
 void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real *r, Real *r2){
 
 
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
+  // AthenaArray<Real> orbit_quantities;
+  // orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(t,orbit_quantities);
+  // get_orbit_quantities(t,orbit_quantities);
 
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-  Real xprime1,yprime1,zprime1,rprime1,Rprime1;
-  get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+  // Real x = x1;
+  // Real y = x2;
+  // Real z = x3;
+  // Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+  // get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
 
-  Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-  get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+  // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+  // get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-  orbit_quantities.DeleteAthenaArray();
+  // orbit_quantities.DeleteAthenaArray();
 
-  (*r) = rprime1;
-  (*r2) = rprime2;
+  // (*r) = rprime1;
+  // (*r2) = rprime2;
 
+
+  (*r) = -1.0;
+  (*r2) = -1.0;
 
   return;
   // Real r, th, phi;
@@ -4126,28 +4130,28 @@ Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<R
   Real ctop = std::max(std::fabs(cmax),std::fabs(cmin));
 
 
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
+  // AthenaArray<Real> orbit_quantities;
+  // orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
+  // get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
 
-  Real x = pmb->pcoord->x1v(i);
-  Real y = pmb->pcoord->x2v(j);
-  Real z = pmb->pcoord->x3v(k);
-  Real xprime1,yprime1,zprime1,rprime1,Rprime1;
-  get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
-  Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-  get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
+  // Real x = pmb->pcoord->x1v(i);
+  // Real y = pmb->pcoord->x2v(j);
+  // Real z = pmb->pcoord->x3v(k);
+  // Real xprime1,yprime1,zprime1,rprime1,Rprime1;
+  // get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
+  // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
+  // get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
 
-  if (ctop>2)
-  fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n gis: %g %g %g %g %g %g %g \n Acov: %g %g %g %g \n Acon: %g %g %g %g \n Bcov: %g %g %g %g \n Bcon: %g %g %g %g \n",
-    DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB,Asq,Bsq,
-    gi_(I00,i),gi_(I01,i),gi_(I11,i),gi_(I02,i),gi_(I22,i),gi_(I03,i),gi_(I33,i),
-    Acov[0],Acov[1],Acov[2],Acov[3], Acon[0],Acon[1],Acon[2],Acon[3],
-    Bcov[0],Bcov[1],Bcov[2],Bcov[3], Bcon[0],Bcon[1],Bcon[2],Bcon[3]);
+  // if (ctop>2)
+  // fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n gis: %g %g %g %g %g %g %g \n Acov: %g %g %g %g \n Acon: %g %g %g %g \n Bcov: %g %g %g %g \n Bcon: %g %g %g %g \n",
+  //   DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB,Asq,Bsq,
+  //   gi_(I00,i),gi_(I01,i),gi_(I11,i),gi_(I02,i),gi_(I22,i),gi_(I03,i),gi_(I33,i),
+  //   Acov[0],Acov[1],Acov[2],Acov[3], Acon[0],Acon[1],Acon[2],Acon[3],
+  //   Bcov[0],Bcov[1],Bcov[2],Bcov[3], Bcon[0],Bcon[1],Bcon[2],Bcon[3]);
 
 
-  orbit_quantities.DeleteAthenaArray();
+  // orbit_quantities.DeleteAthenaArray();
   return ctop;
 
 
