@@ -575,7 +575,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     ku += (NGHOST);
   }
 
-  Real cs_0 = 1.0/std::sqrt(bondi_radius);
+  Real cs_0 = std::sqrt(2.0 * (1.0+q)/bondi_radius);
   Real rho_0 = 1.0;
   Real gam = peos->GetGamma();
   Real P_0 = SQR(cs_0)*rho_0/gam;
