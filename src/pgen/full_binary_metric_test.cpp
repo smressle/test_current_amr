@@ -483,9 +483,9 @@ int RefinementCondition(MeshBlock *pmb)
             get_prime_coords(1,x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
-            fake_xprime = x1 - orbit_quantities(IX1);
-            fake_yprime = y1 - orbit_quantities(IY1);
-            fake_zprime = z1 - orbit_quantities(IZ1);
+            Real fake_xprime = x - orbit_quantities(IX1);
+            Real fake_yprime = y - orbit_quantities(IY1);
+            Real fake_zprime = z - orbit_quantities(IZ1);
           
 
              // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
