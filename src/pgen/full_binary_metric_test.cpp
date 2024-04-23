@@ -483,13 +483,16 @@ int RefinementCondition(MeshBlock *pmb)
             get_prime_coords(1,x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
+            fake_xprime = x1 - orbit_quantities(IX1);
+            fake_yprime = y1 - orbit_quantities(IY1);
+            fake_zprime = z1 - orbit_quantities(IZ1);
           
 
              // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
              //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
              //    }
-            if (xprime<box_radius && xprime > -box_radius && yprime<box_radius
-              && yprime > -box_radius && zprime<box_radius && zprime > -box_radius ){
+            if (fake_xprime<box_radius && fake_xprime > -box_radius && fake_yprime<box_radius
+              && fake_yprime > -box_radius && fake_zprime<box_radius && fake_zprime > -box_radius ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
