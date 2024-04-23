@@ -531,8 +531,6 @@ int RefinementCondition(MeshBlock *pmb)
             Real y = pmb->pcoord->x2v(j);
             Real z = pmb->pcoord->x3v(k);
 
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
           
