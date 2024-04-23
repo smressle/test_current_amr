@@ -406,7 +406,7 @@ int RefinementCondition(MeshBlock *pmb)
 
   get_orbit_quantities(pmb->pmy_mesh->time,orbit_quantities);
 
-  Real binary_separation_distance = std:sqrt( 
+  Real binary_separation_distance = std::sqrt( 
                                               SQR(orbit_quantities(IX1)-orbit_quantities(IX2)) + 
                                               SQR(orbit_quantities(IY1)-orbit_quantities(IY2)) +
                                               SQR(orbit_quantities(IZ1)-orbit_quantities(IZ2)) );
