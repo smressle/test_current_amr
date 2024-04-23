@@ -435,12 +435,18 @@ int RefinementCondition(MeshBlock *pmb)
             //Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
+            
+            Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
+            Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
+            Real mesh_block_widthz = pmb->block_size.nx3 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
+
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
             // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
             // }
-            if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
-              && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+            if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+              yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+              zprime<(box_radius-mesh_block_widthz/2.0) && zprime > -(box_radius-mesh_block_widthz/2.0) ){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
