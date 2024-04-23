@@ -423,8 +423,8 @@ int RefinementCondition(MeshBlock *pmb)
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
 
-          if (n_max_for_smr+1>max_second_bh_refinement_level) break;
-          for (int n_level = n_max_for_smr+1; n_level<=max_second_bh_refinement_level; n_level++){
+          if (n_max_for_smr+2>max_second_bh_refinement_level) break;
+          for (int n_level = n_max_for_smr+2; n_level<=max_second_bh_refinement_level; n_level++){
           
             Real x = pmb->pcoord->x1v(i);
             Real y = pmb->pcoord->x2v(j);
@@ -472,8 +472,8 @@ int RefinementCondition(MeshBlock *pmb)
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
           
-          if (n_max_for_smr+1>max_smr_refinement_level) break;
-          for (int n_level = n_max_for_smr+1; n_level<=max_smr_refinement_level; n_level++){
+          if (n_max_for_smr+2>max_smr_refinement_level) break;
+          for (int n_level = n_max_for_smr+2; n_level<=max_smr_refinement_level; n_level++){
           
             Real x = pmb->pcoord->x1v(i);
             Real y = pmb->pcoord->x2v(j);
