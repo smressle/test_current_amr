@@ -444,9 +444,9 @@ int RefinementCondition(MeshBlock *pmb)
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
             // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
             // }
-            if (xprime<(box_radius-mesh_block_widthx) && xprime > -(box_radius-mesh_block_widthx) && 
-              yprime<(box_radius-mesh_block_widthy) && yprime > -(box_radius-mesh_block_widthy) && 
-              zprime<(box_radius-mesh_block_widthz) && zprime > -(box_radius-mesh_block_widthz) ){
+            if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+              yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+              zprime<(box_radius-mesh_block_widthz/2.0) && zprime > -(box_radius-mesh_block_widthz/2.0) ){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
