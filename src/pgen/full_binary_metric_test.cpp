@@ -775,7 +775,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             // TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
 
-            A1(k,j,i) = Ax * exp_cut_off(radius);
+            A1(k,j,i) = Ax; //# * exp_cut_off(radius);
 
             Real y_coord;
             if (j<= ju) y_coord = pcoord->x2v(j);
@@ -792,7 +792,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Az = Az_func(x,y,z) * (1 + pert);
             //TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
 
-            A2(k,j,i) = Ay * exp_cut_off(radius);
+            A2(k,j,i) = Ay; // * exp_cut_off(radius);
 
             Real z_coord;
             if (k<= ku) z_coord = pcoord->x3v(k);
@@ -809,7 +809,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             Az = Az_func(x,y,z) * (1 + pert);
             //TransformCKSLowerVector(0.0,Ax,Ay,Az,r,theta,phi,x,y,z,&A0,&Ar,&Ath,&Aphi);
 
-            A3(k,j,i) = Az * exp_cut_off(radius);
+            A3(k,j,i) = Az; // * exp_cut_off(radius);
 
 
 
