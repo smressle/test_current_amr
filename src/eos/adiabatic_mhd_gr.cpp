@@ -173,11 +173,11 @@ void EquationOfState::ConservedToPrimitive(
           normal_ee_(i) = ee_min;
           fixed = true;
 
-        if (std::fabs(normal_ee_(i))>1e10){
-          fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
-          normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
-          exit(0);
-        }
+        // if (std::fabs(normal_ee_(i))>1e10){
+        //   fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
+        //   normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
+        //   exit(0);
+        // }
 
           // fprintf(stderr,"Energy too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
