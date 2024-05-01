@@ -2019,13 +2019,20 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
         Real v_kep = std::sqrt((1.0 + q)/radius);
+
+        Real Omega = 1.0/std;;sqrt( std::pow(radius,1.5) + a);
         Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
+        Real H_over_r_target = 0.1;
+        Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
 
-        Real kappa_0 = 0.01;
-        Real delta_kappa = kappa-kappa_0;
+        Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
+        // Real kappa_0 = 0.01;
+        // Real delta_kappa = kappa-kappa_0;
 
-        Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::abs(delta_kappa/kappa_0)  );
+        Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+
+        // Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::fabs(delta_kappa/kappa_0)  );
 
           // Calculate normal frame Lorentz factor
         Real uu1 = prim(IM1,k,j,i);
