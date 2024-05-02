@@ -532,6 +532,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
+  EnrollUserExplicitSourceFunction(NobleCooling);
+
 
   //init_orbit_tables();
   return;
