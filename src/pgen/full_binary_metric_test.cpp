@@ -3444,8 +3444,6 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives)
 {
 
-
-  Real time = 0;
   Real x = x1;
   Real y = x2;
   Real z = x3;
@@ -3453,9 +3451,9 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> orbit_quantities;
   orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(time,orbit_quantities);
+  get_orbit_quantities(t,orbit_quantities);
 
-  metric_for_derivatives(time,x1,x2,x3,orbit_quantities,g);
+  metric_for_derivatives(t,x1,x2,x3,orbit_quantities,g);
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
@@ -3506,7 +3504,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x1m = x1 - DEL; // * rprime;
       Real x1m = x1;
 
-      metric_for_derivatives(time,x1p,x2,x3,orbit_quantities,gp);
+      metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
       // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
 
         // // Set x-derivatives of covariant components
@@ -3525,7 +3523,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x2m = x2 - DEL; // * rprime;
       Real x2m = x2;
 
-      metric_for_derivatives(time,x1,x2p,x3,orbit_quantities,gp);
+      metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
       // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
         // // Set y-derivatives of covariant components
       // for (int n = 0; n < NMETRIC; ++n) {
@@ -3543,7 +3541,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x3m = x3 - DEL; // * rprime;
       Real x3m = x3;
 
-      metric_for_derivatives(time,x1,x2,x3p,orbit_quantities,gp);
+      metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
       // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
         // // Set z-derivatives of covariant components
@@ -3557,8 +3555,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
         //  }
       }
 
-      Real tp = time + DEL ;
-      Real tm = time;
+      Real tp = t + DEL ;
+      Real tm = t;
       // Real tm = t - DEL ;
 
       get_orbit_quantities(tp,orbit_quantities);
