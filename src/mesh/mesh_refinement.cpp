@@ -352,7 +352,7 @@ void MeshRefinement::RestrictFieldX3(
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x3_[0][0](i) + sarea_x3_[0][0](i+1) +
                        sarea_x3_[0][1](i) + sarea_x3_[0][1](i+1);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") tarea = csarea_x3_(i);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user")) tarea = csarea_x3_(i);
           coarse(ck,cj,ci)  =
               (fine(k,j  ,i)*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
                + fine(k,j+1,i)*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1)
