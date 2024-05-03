@@ -210,13 +210,13 @@ void MeshRefinement::RestrictFieldX1(
         pco->Face1Area(k+1, j,   si, ei, sarea_x1_[1][0]);
         pco->Face1Area(k+1, j+1, si, ei, sarea_x1_[1][1]);
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-          pcoarsec->Face1Area(k, j, si, ei, csarea_x1_);
+          pcoarsec->Face1Area(ck, cj, csi, cei, csarea_x1_);
          }
         for (int ci=csi; ci<=cei; ci++) {
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x1_[0][0](i) + sarea_x1_[0][1](i) +
                        sarea_x1_[1][0](i) + sarea_x1_[1][1](i);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x1_(i);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x1_(ci);
           coarse(ck,cj,ci) =
               (fine(k  ,j,i)*sarea_x1_[0][0](i) + fine(k  ,j+1,i)*sarea_x1_[0][1](i)
                + fine(k+1,j,i)*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i)
@@ -277,13 +277,13 @@ void MeshRefinement::RestrictFieldX2(
           }
         }
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-          pcoarsec->Face2Area(k, j, si, ei, csarea_x2_);
+          pcoarsec->Face2Area(ck, cj, csi, cei, csarea_x2_);
          }
         for (int ci=csi; ci<=cei; ci++) {
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x2_[0][0](i) + sarea_x2_[0][0](i+1) +
                        sarea_x2_[1][0](i) + sarea_x2_[1][0](i+1);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x2_(i);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x2_(ci);
           coarse(ck,cj,ci) =
               (fine(k  ,j,i)*sarea_x2_[0][0](i) + fine(k  ,j,i+1)*sarea_x2_[0][0](i+1)
                +fine(k+1,j,i)*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1))
@@ -346,13 +346,13 @@ void MeshRefinement::RestrictFieldX3(
         pco->Face3Area(k,   j,  si, ei, sarea_x3_[0][0]);
         pco->Face3Area(k, j+1,  si, ei, sarea_x3_[0][1]);
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-          pcoarsec->Face3Area(k, j, si, ei, csarea_x3_);
+          pcoarsec->Face3Area(ck, cj, csi, cei, csarea_x3_);
         }
         for (int ci=csi; ci<=cei; ci++) {
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x3_[0][0](i) + sarea_x3_[0][0](i+1) +
                        sarea_x3_[0][1](i) + sarea_x3_[0][1](i+1);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user")) tarea = csarea_x3_(i);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user")) tarea = csarea_x3_(ci);
           coarse(ck,cj,ci)  =
               (fine(k,j  ,i)*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
                + fine(k,j+1,i)*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1)
