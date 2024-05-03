@@ -63,7 +63,7 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
 
   int qx1;
 
-  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
     qx1 = 2;
   }else{
     qx1 = 1;
@@ -90,7 +90,7 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
   sarea_x3_[2][0].NewAthenaArray(nc1);
   sarea_x3_[2][1].NewAthenaArray(nc1);
 
-  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
     csarea_x1_.NewAthenaArray(nc1);
     csarea_x2_.NewAthenaArray(nc1);
     csarea_x3_.NewAthenaArray(nc1);
@@ -209,14 +209,14 @@ void MeshRefinement::RestrictFieldX1(
         pco->Face1Area(k,   j+1, si, ei, sarea_x1_[0][1]);
         pco->Face1Area(k+1, j,   si, ei, sarea_x1_[1][0]);
         pco->Face1Area(k+1, j+1, si, ei, sarea_x1_[1][1]);
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
           pcoarsec->Face1Area(ck, cj, csi, cei, csarea_x1_);
          }
         for (int ci=csi; ci<=cei; ci++) {
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x1_[0][0](i) + sarea_x1_[0][1](i) +
                        sarea_x1_[1][0](i) + sarea_x1_[1][1](i);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0) tarea = csarea_x1_(ci);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x1_(ci);
           coarse(ck,cj,ci) =
               (fine(k  ,j,i)*sarea_x1_[0][0](i) + fine(k  ,j+1,i)*sarea_x1_[0][1](i)
                + fine(k+1,j,i)*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i)
@@ -276,14 +276,14 @@ void MeshRefinement::RestrictFieldX2(
             sarea_x2_[1][0](i) = pco->dx1f(i);
           }
         }
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
           pcoarsec->Face2Area(ck, cj, csi, cei, csarea_x2_);
          }
         for (int ci=csi; ci<=cei; ci++) {
           int i = (ci - pmb->cis)*2 + pmb->is;
           Real tarea = sarea_x2_[0][0](i) + sarea_x2_[0][0](i+1) +
                        sarea_x2_[1][0](i) + sarea_x2_[1][0](i+1);
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0) tarea = csarea_x2_(ci);
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tarea = csarea_x2_(ci);
           coarse(ck,cj,ci) =
               (fine(k  ,j,i)*sarea_x2_[0][0](i) + fine(k  ,j,i+1)*sarea_x2_[0][0](i+1)
                +fine(k+1,j,i)*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1))
@@ -345,7 +345,7 @@ void MeshRefinement::RestrictFieldX3(
         int j = (cj - pmb->cjs)*2 + pmb->js;
         pco->Face3Area(k,   j,  si, ei, sarea_x3_[0][0]);
         pco->Face3Area(k, j+1,  si, ei, sarea_x3_[0][1]);
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
           pcoarsec->Face3Area(ck, cj, csi, cei, csarea_x3_);
         }
         for (int ci=csi; ci<=cei; ci++) {
@@ -573,7 +573,7 @@ void MeshRefinement::ProlongateSharedFieldX1(
         Real dx2p = x2p - x2c;
         const Real& fx2m = pco->x2s1(fj);
         const Real& fx2p = pco->x2s1(fj+1);
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
           pco->Face1Area(fk,   fj,   fsi, fei, sarea_x1_[0][0]);
           pco->Face1Area(fk,   fj+1, fsi, fei, sarea_x1_[0][1]);
           pco->Face1Area(fk+1, fj,   fsi, fei, sarea_x1_[1][0]);
@@ -593,7 +593,7 @@ void MeshRefinement::ProlongateSharedFieldX1(
           Real gx3c = 0.5*(SIGN(gx3m) + SIGN(gx3p))*std::min(std::abs(gx3m),
                                                              std::abs(gx3p));
 
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx2 = fx2p - fx2m;
             Real dfx3 = fx3p - fx3m;
             fine(fk  ,fj  ,fi) = ccval - gx2c*dfx2*(sarea_x1_[0][1](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i)
@@ -671,7 +671,7 @@ void MeshRefinement::ProlongateSharedFieldX2(
       const Real& fx3p = pco->x3s2(fk+1);
       for (int j=sj; j<=ej; j++) {
         int fj = (j - pmb->cjs)*2 + pmb->js;
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
           pco->Face2Area(fk,   fj,  fsi, fei, sarea_x2_[0][0]);
           pco->Face2Area(fk+1, fj,  fsi, fei, sarea_x2_[1][0]);
           pcoarsec->Face2Area(k, j, si, ei, csarea_x2_);
@@ -695,7 +695,7 @@ void MeshRefinement::ProlongateSharedFieldX2(
           Real gx3p = (coarse(k+1,j,i) - ccval)/dx3p;
           Real gx3c = 0.5*(SIGN(gx3m) + SIGN(gx3p))*std::min(std::abs(gx3m),
                                                              std::abs(gx3p));
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx1 = fx1p - fx1m;
             Real dfx3 = fx3p - fx3m;
             fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x2_[0][0](fi+1) + sarea_x2_[1][0](fi+1))/csarea_x2_(i) 
@@ -779,7 +779,7 @@ void MeshRefinement::ProlongateSharedFieldX3(
         Real dx2p = x2p - x2c;
         const Real& fx2m = pco->x2s3(fj);
         const Real& fx2p = pco->x2s3(fj+1);
-        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+        if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             pco->Face3Area(fk,   fj,  fsi, fei, sarea_x3_[0][0]);
             pco->Face3Area(fk, fj+1,  fsi, fei, sarea_x3_[0][1]);
             pcoarsec->Face3Area(k, j, si, ei, csarea_x3_);
@@ -804,7 +804,7 @@ void MeshRefinement::ProlongateSharedFieldX3(
           Real gx2c = 0.5*(SIGN(gx2m) + SIGN(gx2p))*std::min(std::abs(gx2m),
                                                              std::abs(gx2p));
 
-          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 and 0){
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx1 = fx1p - fx1m;
             Real dfx2 = fx2p - fx2m;
             fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
