@@ -1069,6 +1069,11 @@ void MeshRefinement::ProlongateInternalField(
             }
           }
           Real Sdx1 = SQR(pco->dx1f(fi) + pco->dx1f(fi+1));
+
+          if (GENERAL_RELATIVITY){
+            Sdx1 = SQR(   pco->GetEdge1Length(fk+1,fj+1,fi) +
+                          pco->GetEdge1Length(fk+1,fj+1,fi+1));
+          }
           Real Sdx2 = SQR(pco->GetEdge2Length(fk+1,fj,fi+1) +
                           pco->GetEdge2Length(fk+1,fj+1,fi+1));
           Real Sdx3 = SQR(pco->GetEdge3Length(fk,fj+1,fi+1) +
