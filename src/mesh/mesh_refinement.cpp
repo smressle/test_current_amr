@@ -1310,7 +1310,7 @@ void MeshRefinement::UpdateCoarseMetric(Real t, MeshBlock *pmb) {
 }
 
 
-void CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceField &coarse,
+void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceField &coarse,
                        int csi, int cei, int csj, int cej, int csk, int cek){
   MeshBlock *pmb = pmy_block_;
   Coordinates *pco = pmb->pcoord;
@@ -1395,7 +1395,7 @@ void CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceField &coarse,
 
 }
 
-  void CheckFieldDivergenceAfterProlongate(FaceField &coarse, FaceField &fine,
+  void MeshRefinement::CheckFieldDivergenceAfterProlongate(FaceField &coarse, FaceField &fine,
                                int si, int ei, int sj, int ej, int sk, int ek){
     return;
   }
