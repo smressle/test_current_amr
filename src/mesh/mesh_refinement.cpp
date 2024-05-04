@@ -1367,9 +1367,9 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
 
-          Real coarse_flux = coarse.x1f(ck,cj,ci+1)*csarea_x1(ci+1) - coarse.x1f(ck,cj,ci)*csarea_x1(ci) +
-                        coarse.x2f(ck,cj+1,ci)*csarea_x2p(ci)  - coarse.x2f(ck,cj,ci)*csarea_x2(ci) +
-                        coarse.x3f(ck+1,cj,ci)*csarea_x3p(ci)  - coarse.x3f(ck,cj,ci)*csarea_x3(ci);
+          Real coarse_flux = coarse.x1f(ck,cj,ci+1)*csarea_x1_(ci+1) - coarse.x1f(ck,cj,ci)*csarea_x1_(ci) +
+                        coarse.x2f(ck,cj+1,ci)*csarea_x2p_(ci)  - coarse.x2f(ck,cj,ci)*csarea_x2_(ci) +
+                        coarse.x3f(ck+1,cj,ci)*csarea_x3p_(ci)  - coarse.x3f(ck,cj,ci)*csarea_x3_(ci);
 
           Real fine_flux = 0;
           for (int di=0; di<=1; di++){
