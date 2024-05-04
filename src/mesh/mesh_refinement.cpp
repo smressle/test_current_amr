@@ -1470,6 +1470,8 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
             fprintf(stderr,"Prolong Violates DivB!! \n new_flux: %g old_flux: %g \n",fine_flux,coarse_flux );
           }
 
+          fprintf(stderr,"Coarse flux: %g fine_flux: %g \n",coarse_flux,fine_flux);
+
           // fine.x1f(fk  ,fj  ,fi+1) =
           //     (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
           //           fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
