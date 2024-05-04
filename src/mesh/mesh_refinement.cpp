@@ -1079,10 +1079,10 @@ void MeshRefinement::ProlongateInternalField(
           Wxyz *= 0.125/(Sdx1 + Sdx2);
 
 
-          Uxx  *= 0; Vyy *= 0; Wzz *= 0;
-          Uxyz *= 0/(Sdx2 + Sdx3);
-          Vxyz *= 0/(Sdx1 + Sdx3);
-          Wxyz *= 0/(Sdx1 + Sdx2);
+          // Uxx  *= 0; Vyy *= 0; Wzz *= 0;
+          // Uxyz *= 0/(Sdx2 + Sdx3);
+          // Vxyz *= 0/(Sdx1 + Sdx3);
+          // Wxyz *= 0/(Sdx1 + Sdx2);
           fine.x1f(fk  ,fj  ,fi+1) =
               (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
                     fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
