@@ -606,13 +606,13 @@ void MeshRefinement::ProlongateSharedFieldX1(
             //                                  + gx3c*dfx3*(sarea_x1_[0][0](fi) + sarea_x1_[0][1](fi))/csarea_x1_(i);
          
 
-            fine(fk  ,fj,  fi) = csarea_x1_(i)/sarea_x1_[0][0](fi) * 
+            fine(fk  ,fj,  fi) = 0.25*csarea_x1_(i)/sarea_x1_[0][0](fi) * 
                                   (ccval - gx2c*(x2c - fx2m) - gx3c*(x3c - fx3m));
-            fine(fk,fj+1  ,fi) = csarea_x1_(i)/sarea_x1_[0][1](fi) * 
+            fine(fk,fj+1  ,fi) = 0.25*csarea_x1_(i)/sarea_x1_[0][1](fi) * 
                                   (ccval + gx2c*(fx2p - x2c) - gx3c*(x3c - fx3m) );
-            fine(fk+1,fj  ,fi) = csarea_x1_(i)/sarea_x1_[1][0](fi) * 
+            fine(fk+1,fj  ,fi) = 0.25*csarea_x1_(i)/sarea_x1_[1][0](fi) * 
                                   (ccval - gx2c*(x2c - fx2m) + gx3c*(fx3p - x3c) );
-            fine(fk+1,fj+1,fi) = csarea_x1_(i)/sarea_x1_[1][1](fi) * 
+            fine(fk+1,fj+1,fi) = 0.25*csarea_x1_(i)/sarea_x1_[1][1](fi) * 
                                   (ccval + gx2c*(fx2p - x2c) + gx3c*(fx3p - x3c) );
 
           }
@@ -719,13 +719,13 @@ void MeshRefinement::ProlongateSharedFieldX2(
             //                                  + gx3c*dfx3*(sarea_x2_[0][0](fi) + sarea_x2_[0][0](fi+1))/csarea_x2_(i);
 
 
-            fine(fk,fj  ,fi  ) = csarea_x2_(i)/sarea_x2_[0][0](fi) * 
+            fine(fk,fj  ,fi  ) = 0.25*csarea_x2_(i)/sarea_x2_[0][0](fi) * 
                                   (ccval - gx1c*(x1c - fx1m) - gx3c*(x3c - fx3m));
-            fine(fk,fj  ,fi+1) = csarea_x2_(i)/sarea_x2_[0][0](fi+1) * 
+            fine(fk,fj  ,fi+1) = 0.25*csarea_x2_(i)/sarea_x2_[0][0](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) - gx3c*(x3c - fx3m) );
-            fine(fk+1,fj,fi  ) = csarea_x2_(i)/sarea_x2_[1][0](fi) * 
+            fine(fk+1,fj,fi  ) = 0.25*csarea_x2_(i)/sarea_x2_[1][0](fi) * 
                                   (ccval - gx1c*(x1c - fx1m) + gx3c*(fx3p - x3c) );
-            fine(fk+1,fj,fi+1) = csarea_x2_(i)/sarea_x2_[1][0](fi+1) * 
+            fine(fk+1,fj,fi+1) = 0.25*csarea_x2_(i)/sarea_x2_[1][0](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx3c*(fx3p - x3c) );
 
           }
@@ -852,13 +852,13 @@ void MeshRefinement::ProlongateSharedFieldX3(
             //                                  + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
 
 
-            fine(fk,fj  ,fi  ) = csarea_x3_(i)/sarea_x3_[0][0](fi) * 
+            fine(fk,fj  ,fi  ) = 0.25*csarea_x3_(i)/sarea_x3_[0][0](fi) * 
                                   (ccval - gx1c*(x1c - fx1m) - gx2c*(x2c - fx2m));
-            fine(fk,fj  ,fi+1) = csarea_x3_(i)/sarea_x3_[0][0](fi+1) * 
+            fine(fk,fj  ,fi+1) = 0.25*csarea_x3_(i)/sarea_x3_[0][0](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) - gx2c*(x2c - fx2m) );
-            fine(fk,fj+1,fi  ) = csarea_x3_(i)/sarea_x3_[0][1](fi) * 
+            fine(fk,fj+1,fi  ) = 0.25*csarea_x3_(i)/sarea_x3_[0][1](fi) * 
                                   (ccval - gx1c*(x1c - fx1m) + gx2c*(fx2p - x2c) );
-            fine(fk,fj+1,fi+1) = csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
+            fine(fk,fj+1,fi+1) = 0.25*csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx2c*(fx2p - x2c) );
           }
           else{
