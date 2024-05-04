@@ -1375,9 +1375,9 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
           for (int di=0; di<=1; di++){
             for (int dj=0; dj<=1; dj++){
               for (int dk=0; dk<=1; dk++){
-                fine_flux += fine.x1f(dk+k,dj+j,di+i+1)*sarea_x1[0+dk][0+dj](di+i+1) - fine.x1f(dk+k,dj+j,di+i)*sarea_x1[0+dk][0+dj](di+i) +
-                             fine.x2f(dk+k,dj+j+1,di+i)*sarea_x2[0+dk][1+dj](di+i)   - fine.x2f(dk+k,dj+j,di+i)*sarea_x2[0+dk][0+dj](di+i) +
-                             fine.x3f(dk+k+1,dj+j,di+i)*sarea_x3[1+dk][0+dj](di+i)   - fine.x3f(dk+k,dj+j,di+i)*sarea_x3[0+dk][0+dj](di+i) + 
+                fine_flux += fine.x1f(dk+k,dj+j,di+i+1)*sarea_x1_[0+dk][0+dj](di+i+1) - fine.x1f(dk+k,dj+j,di+i)*sarea_x1_[0+dk][0+dj](di+i) +
+                             fine.x2f(dk+k,dj+j+1,di+i)*sarea_x2_[0+dk][1+dj](di+i)   - fine.x2f(dk+k,dj+j,di+i)*sarea_x2_[0+dk][0+dj](di+i) +
+                             fine.x3f(dk+k+1,dj+j,di+i)*sarea_x3_[1+dk][0+dj](di+i)   - fine.x3f(dk+k,dj+j,di+i)*sarea_x3_[0+dk][0+dj](di+i) ;
               }
             }
           }
