@@ -859,11 +859,10 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                          pob->cks, pob->cke+f3);
 
 
-    
-    CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        pb->cis, pb->cie,
-                         pb->cjs, pb->cje,
-                         pb->cks, pb->cke);
+    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+                        pob->cis, pob->cie,
+                         pob->cjs, pob->cje,
+                         pob->cks, pob->cke);
     FaceField &src_b = *coarse_fc;
     FaceField &dst_b = *std::get<0>(*pmb_fc_it); // pmb->pfield->b;
     for (int k=kl, fk=pob->cks; fk<=pob->cke; k++, fk++) {
