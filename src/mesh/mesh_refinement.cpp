@@ -1368,8 +1368,8 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
           Real coarse_flux = coarse.x1f(ck,cj,ci+1)*csarea_x1_(ci+1) - coarse.x1f(ck,cj,ci)*csarea_x1_(ci) +
-                        coarse.x2f(ck,cj+1,ci)*csarea_x2p_(ci)  - coarse.x2f(ck,cj,ci)*csarea_x2_(ci) +
-                        coarse.x3f(ck+1,cj,ci)*csarea_x3p_(ci)  - coarse.x3f(ck,cj,ci)*csarea_x3_(ci);
+                             coarse.x2f(ck,cj+1,ci)*csarea_x2p_(ci)  - coarse.x2f(ck,cj,ci)*csarea_x2_(ci) +
+                             coarse.x3f(ck+1,cj,ci)*csarea_x3p_(ci)  - coarse.x3f(ck,cj,ci)*csarea_x3_(ci);
 
           Real fine_flux = 0;
           for (int di=0; di<=1; di++){
@@ -1397,5 +1397,116 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
   void MeshRefinement::CheckFieldDivergenceAfterProlongate(FaceField &coarse, FaceField &fine,
                                int si, int ei, int sj, int ej, int sk, int ek){
+
+    MeshBlock *pmb = pmy_block_;
+  Coordinates *pco = pmb->pcoord;
+  int fsi = (si - pmb->cis)*2 + pmb->is, fei = (ei - pmb->cis)*2 + pmb->is + 1;
+    for (int k=sk; k<=ek; k++) {
+      int fk = (k - pmb->cks)*2 + pmb->ks;
+      for (int j=sj; j<=ej; j++) {
+        int fj = (j - pmb->cjs)*2 + pmb->js;
+        pco->Face1Area(fk,   fj,   fsi, fei+1, sarea_x1_[0][0]);
+        pco->Face1Area(fk,   fj+1, fsi, fei+1, sarea_x1_[0][1]);
+        pco->Face1Area(fk+1, fj,   fsi, fei+1, sarea_x1_[1][0]);
+        pco->Face1Area(fk+1, fj+1, fsi, fei+1, sarea_x1_[1][1]);
+        pco->Face2Area(fk,   fj,   fsi, fei,   sarea_x2_[0][0]);
+        pco->Face2Area(fk,   fj+1, fsi, fei,   sarea_x2_[0][1]);
+        pco->Face2Area(fk,   fj+2, fsi, fei,   sarea_x2_[0][2]);
+        pco->Face2Area(fk+1, fj,   fsi, fei,   sarea_x2_[1][0]);
+        pco->Face2Area(fk+1, fj+1, fsi, fei,   sarea_x2_[1][1]);
+        pco->Face2Area(fk+1, fj+2, fsi, fei,   sarea_x2_[1][2]);
+        pco->Face3Area(fk,   fj,   fsi, fei,   sarea_x3_[0][0]);
+        pco->Face3Area(fk,   fj+1, fsi, fei,   sarea_x3_[0][1]);
+        pco->Face3Area(fk+1, fj,   fsi, fei,   sarea_x3_[1][0]);
+        pco->Face3Area(fk+1, fj+1, fsi, fei,   sarea_x3_[1][1]);
+        pco->Face3Area(fk+2, fj,   fsi, fei,   sarea_x3_[2][0]);
+        pco->Face3Area(fk+2, fj+1, fsi, fei,   sarea_x3_[2][1]);
+
+
+        pcoarsec->Face1Area(k, j, si, ei+1, csarea_x1_);
+        pcoarsec->Face2Area(k, j, si, ei, csarea_x2_);
+        pcoarsec->Face2Area(k, j+1, si, ei, csarea_x2p_);
+        pcoarsec->Face3Area(k, j, si, ei, csarea_x3_);
+        pcoarsec->Face3Area(k+1, j, si, ei, csarea_x3p_);
+        for (int i=si; i<=ei; i++) {
+          int fi = (i - pmb->cis)*2 + pmb->is;
+
+
+          Real coarse_flux = coarse.x1f(k,j,i+1)*csarea_x1_(i+1) - coarse.x1f(k,j,i)*csarea_x1_(i) +
+                          coarse.x2f(k,j+1,i)*csarea_x2p_(i)  - coarse.x2f(k,j,i)*csarea_x2_(i) +
+                          coarse.x3f(k+1,j,i)*csarea_x3p_(i)  - coarse.x3f(k,j,i)*csarea_x3_(i);
+
+
+          Real fine_flux = 0;
+          for (int di=0; di<=1; di++){
+            for (int dj=0; dj<=1; dj++){
+              for (int dk=0; dk<=1; dk++){
+                fine_flux += fine.x1f(dk+fk,dj+fj,di+fi+1)*sarea_x1_[0+dk][0+dj](di+fi+1) - fine.x1f(dk+fk,dj+fj,di+fi)*sarea_x1_[0+dk][0+dj](di+fi) +
+                             fine.x2f(dk+fk,dj+fj+1,di+fi)*sarea_x2_[0+dk][1+dj](di+fi)   - fine.x2f(dk+fk,dj+fj,di+fi)*sarea_x2_[0+dk][0+dj](di+fi) +
+                             fine.x3f(dk+fk+1,dj+fj,di+fi)*sarea_x3_[1+dk][0+dj](di+fi)   - fine.x3f(dk+fk,dj+fj,di+fi)*sarea_x3_[0+dk][0+dj](di+fi) ;
+              }
+            }
+          }
+
+
+
+
+          if (fabs(coarse_flux-fine_flux)>1e-14){
+            fprintf(stderr,"Prolong Violates DivB!! \n new_flux: %g old_flux: %g \n",fine_flux,coarse_flux );
+          }
+
+          // fine.x1f(fk  ,fj  ,fi+1) =
+          //     (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
+          //           fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
+          //      + Uxx - Sdx3*Vxyz - Sdx2*Wxyz) /sarea_x1_[0][0](fi+1);
+          // fine.x1f(fk  ,fj+1,fi+1) =
+          //     (0.5*(fine.x1f(fk  ,fj+1,fi  )*sarea_x1_[0][1](fi  ) +
+          //           fine.x1f(fk  ,fj+1,fi+2)*sarea_x1_[0][1](fi+2))
+          //      + Uxx - Sdx3*Vxyz + Sdx2*Wxyz) /sarea_x1_[0][1](fi+1);
+          // fine.x1f(fk+1,fj  ,fi+1) =
+          //     (0.5*(fine.x1f(fk+1,fj  ,fi  )*sarea_x1_[1][0](fi  ) +
+          //           fine.x1f(fk+1,fj  ,fi+2)*sarea_x1_[1][0](fi+2))
+          //      + Uxx + Sdx3*Vxyz - Sdx2*Wxyz) /sarea_x1_[1][0](fi+1);
+          // fine.x1f(fk+1,fj+1,fi+1) =
+          //     (0.5*(fine.x1f(fk+1,fj+1,fi  )*sarea_x1_[1][1](fi  ) +
+          //           fine.x1f(fk+1,fj+1,fi+2)*sarea_x1_[1][1](fi+2))
+          //      + Uxx + Sdx3*Vxyz + Sdx2*Wxyz) /sarea_x1_[1][1](fi+1);
+
+          // fine.x2f(fk  ,fj+1,fi  ) =
+          //     (0.5*(fine.x2f(fk  ,fj  ,fi  )*sarea_x2_[0][0](fi  ) +
+          //           fine.x2f(fk  ,fj+2,fi  )*sarea_x2_[0][2](fi  ))
+          //      + Vyy - Sdx3*Uxyz - Sdx1*Wxyz) /sarea_x2_[0][1](fi  );
+          // fine.x2f(fk  ,fj+1,fi+1) =
+          //     (0.5*(fine.x2f(fk  ,fj  ,fi+1)*sarea_x2_[0][0](fi+1) +
+          //           fine.x2f(fk  ,fj+2,fi+1)*sarea_x2_[0][2](fi+1))
+          //      + Vyy - Sdx3*Uxyz + Sdx1*Wxyz) /sarea_x2_[0][1](fi+1);
+          // fine.x2f(fk+1,fj+1,fi  ) =
+          //     (0.5*(fine.x2f(fk+1,fj  ,fi  )*sarea_x2_[1][0](fi  ) +
+          //           fine.x2f(fk+1,fj+2,fi  )*sarea_x2_[1][2](fi  ))
+          //      + Vyy + Sdx3*Uxyz - Sdx1*Wxyz) /sarea_x2_[1][1](fi  );
+          // fine.x2f(fk+1,fj+1,fi+1) =
+          //     (0.5*(fine.x2f(fk+1,fj  ,fi+1)*sarea_x2_[1][0](fi+1) +
+          //           fine.x2f(fk+1,fj+2,fi+1)*sarea_x2_[1][2](fi+1))
+          //      + Vyy + Sdx3*Uxyz + Sdx1*Wxyz) /sarea_x2_[1][1](fi+1);
+
+          // fine.x3f(fk+1,fj  ,fi  ) =
+          //     (0.5*(fine.x3f(fk+2,fj  ,fi  )*sarea_x3_[2][0](fi  ) +
+          //           fine.x3f(fk  ,fj  ,fi  )*sarea_x3_[0][0](fi  ))
+          //      + Wzz - Sdx2*Uxyz - Sdx1*Vxyz) /sarea_x3_[1][0](fi  );
+          // fine.x3f(fk+1,fj  ,fi+1) =
+          //     (0.5*(fine.x3f(fk+2,fj  ,fi+1)*sarea_x3_[2][0](fi+1) +
+          //           fine.x3f(fk  ,fj  ,fi+1)*sarea_x3_[0][0](fi+1))
+          //      + Wzz - Sdx2*Uxyz + Sdx1*Vxyz) /sarea_x3_[1][0](fi+1);
+          // fine.x3f(fk+1,fj+1,fi  ) =
+          //     (0.5*(fine.x3f(fk+2,fj+1,fi  )*sarea_x3_[2][1](fi  ) +
+          //           fine.x3f(fk  ,fj+1,fi  )*sarea_x3_[0][1](fi  ))
+          //      + Wzz + Sdx2*Uxyz - Sdx1*Vxyz) /sarea_x3_[1][1](fi  );
+          // fine.x3f(fk+1,fj+1,fi+1) =
+          //     (0.5*(fine.x3f(fk+2,fj+1,fi+1)*sarea_x3_[2][1](fi+1) +
+          //           fine.x3f(fk  ,fj+1,fi+1)*sarea_x3_[0][1](fi+1))
+          //      + Wzz + Sdx2*Uxyz + Sdx1*Vxyz) /sarea_x3_[1][1](fi+1);
+        }
+      }
+    }
     return;
   }
