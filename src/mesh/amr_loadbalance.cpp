@@ -793,7 +793,7 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cks, pb->cke+f3, p);
 
 
-    CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+    pmr-CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
                         pb->cis, pb->cie,
                          pb->cjs, pb->cje,
                          pb->cks, pb->cke);
