@@ -91,9 +91,13 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
   sarea_x3_[2][1].NewAthenaArray(nc1);
 
   if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-    csarea_x1_.NewAthenaArray(nc1);
-    csarea_x2_.NewAthenaArray(nc1);
-    csarea_x3_.NewAthenaArray(nc1);
+    csarea_x1_.NewAthenaArray(nc1+1);
+    csarea_x2_.NewAthenaArray(nc1+1);
+    csarea_x3_.NewAthenaArray(nc1+1);
+
+    csarea_x2p_.NewAthenaArray(nc1+1);
+    csarea_x3p_.NewAthenaArray(nc1+1);
+
   }
 
   // KGF: probably don't need to preallocate space for pointers in these vectors
@@ -224,12 +228,12 @@ void MeshRefinement::RestrictFieldX1(
 
 
 
-            Real new_flux = coarse(ck,cj,ci) * csarea_x1_(ci); 
+            // Real new_flux = coarse(ck,cj,ci) * csarea_x1_(ci); 
 
-            Real old_flux = fine(k,j,i  )*sarea_x1_[0][0](i) + fine(k,j+1  ,i)*sarea_x1_[0][1](i)
-                          + fine(k+1,j,i  )*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i);
+            // Real old_flux = fine(k,j,i  )*sarea_x1_[0][0](i) + fine(k,j+1  ,i)*sarea_x1_[0][1](i)
+            //               + fine(k+1,j,i  )*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i);
 
-            fprintf(stderr,"RestrictFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"RestrictFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -300,12 +304,12 @@ void MeshRefinement::RestrictFieldX2(
 
 
 
-            Real new_flux = coarse(ck,cj,ci) * csarea_x2_(ci); 
+            // Real new_flux = coarse(ck,cj,ci) * csarea_x2_(ci); 
 
-            Real old_flux = fine(k,j,i  )*sarea_x2_[0][0](i) + fine(k,j  ,i+1)*sarea_x2_[0][1](i+1)
-                          + fine(k+1,j,i  )*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1);
+            // Real old_flux = fine(k,j,i  )*sarea_x2_[0][0](i) + fine(k,j  ,i+1)*sarea_x2_[0][1](i+1)
+            //               + fine(k+1,j,i  )*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1);
 
-            fprintf(stderr,"RestrictFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"RestrictFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -378,12 +382,12 @@ void MeshRefinement::RestrictFieldX3(
 
 
 
-            Real new_flux = coarse(ck,cj,ci) * csarea_x3_(ci); 
+            // Real new_flux = coarse(ck,cj,ci) * csarea_x3_(ci); 
 
-            Real old_flux = fine(k,j,i  )*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
-                          + fine(k,j+1,i  )*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1);
+            // Real old_flux = fine(k,j,i  )*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
+            //               + fine(k,j+1,i  )*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1);
 
-            fprintf(stderr,"RestrictFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"RestrictFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -646,11 +650,11 @@ void MeshRefinement::ProlongateSharedFieldX1(
 
 
 
-            Real new_flux = fine(fk,fj  ,fi  )*sarea_x1_[0][0](fi) + fine(fk,fj+1  ,fi)*sarea_x1_[0][1](fi)
-                          + fine(fk+1,fj,fi  )*sarea_x1_[1][0](fi) + fine(fk+1,fj+1,fi)*sarea_x1_[1][1](fi);
-            Real old_flux = coarse(k,j,i) * csarea_x1_(i);
+            // Real new_flux = fine(fk,fj  ,fi  )*sarea_x1_[0][0](fi) + fine(fk,fj+1  ,fi)*sarea_x1_[0][1](fi)
+            //               + fine(fk+1,fj,fi  )*sarea_x1_[1][0](fi) + fine(fk+1,fj+1,fi)*sarea_x1_[1][1](fi);
+            // Real old_flux = coarse(k,j,i) * csarea_x1_(i);
 
-            fprintf(stderr,"ProlongateSharedFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"ProlongateSharedFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
 
           }
           else{
@@ -768,11 +772,11 @@ void MeshRefinement::ProlongateSharedFieldX2(
                                   (ccval + gx1c*(fx1p - x1c) + gx3c*(fx3p - x3c) );
 
 
-            Real new_flux = fine(fk,fj  ,fi  )*sarea_x2_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x2_[0][0](fi+1)
-                          + fine(fk+1,fj,fi  )*sarea_x2_[1][0](fi) + fine(fk+1,fj,fi+1)*sarea_x2_[1][0](fi+1);
-            Real old_flux = coarse(k,j,i) * csarea_x2_(i);
+            // Real new_flux = fine(fk,fj  ,fi  )*sarea_x2_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x2_[0][0](fi+1)
+            //               + fine(fk+1,fj,fi  )*sarea_x2_[1][0](fi) + fine(fk+1,fj,fi+1)*sarea_x2_[1][0](fi+1);
+            // Real old_flux = coarse(k,j,i) * csarea_x2_(i);
 
-            fprintf(stderr,"ProlongateSharedFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"ProlongateSharedFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
 
           }
           else{
@@ -910,11 +914,11 @@ void MeshRefinement::ProlongateSharedFieldX3(
 
 
 
-            Real new_flux = fine(fk,fj  ,fi  )*sarea_x3_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x3_[0][0](fi+1)
-                          + fine(fk,fj+1,fi  )*sarea_x3_[0][1](fi) + fine(fk,fj+1,fi+1)*sarea_x3_[0][1](fi+1);
-            Real old_flux = coarse(k,j,i) * csarea_x3_(i);
+            // Real new_flux = fine(fk,fj  ,fi  )*sarea_x3_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x3_[0][0](fi+1)
+            //               + fine(fk,fj+1,fi  )*sarea_x3_[0][1](fi) + fine(fk,fj+1,fi+1)*sarea_x3_[0][1](fi+1);
+            // Real old_flux = coarse(k,j,i) * csarea_x3_(i);
 
-            fprintf(stderr,"ProlongateSharedFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+            // fprintf(stderr,"ProlongateSharedFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
 
           }
           else{
@@ -1288,3 +1292,94 @@ void MeshRefinement::UpdateCoarseMetric(Real t, MeshBlock *pmb) {
 
   return;
 }
+
+
+void CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceField &coarse,
+                       int csi, int cei, int csj, int cej, int csk, int cek){
+  MeshBlock *pmb = pmy_block_;
+  Coordinates *pco = pmb->pcoord;
+  int si = (csi - pmb->cis)*2 + pmb->is, ei = (cei - pmb->cis)*2 + pmb->is;
+
+  // store the restricted data in the prolongation buffer for later use
+    for (int ck=csk; ck<=cek; ck++) {
+      int k = (ck - pmb->cks)*2 + pmb->ks;
+      for (int cj=csj; cj<=cej; cj++) {
+        int j = (cj - pmb->cjs)*2 + pmb->js;
+        pco->Face1Area(k,   j,   si, ei+2, sarea_x1_[0][0]);
+        pco->Face1Area(k,   j+1, si, ei+2, sarea_x1_[0][1]);
+        pco->Face1Area(k+1, j,   si, ei+2, sarea_x1_[1][0]);
+        pco->Face1Area(k+1, j+1, si, ei+2, sarea_x1_[1][1]);
+
+        pco->Face1Area(k,   j+2, si, ei+2, sarea_x1_[0][2]);
+        pco->Face1Area(k+2,   j, si, ei+2, sarea_x1_[2][0]);
+        pco->Face1Area(k+1, j+2, si, ei+2, sarea_x1_[1][2]);
+        pco->Face1Area(k+2, j+1, si, ei+2, sarea_x1_[2][1]);
+        pco->Face1Area(k+2, j+2, si, ei+2, sarea_x1_[2][2]);
+
+
+        pco->Face2Area(k,   j,   si, ei+1, sarea_x2_[0][0]);
+        pco->Face2Area(k,   j+1, si, ei+1, sarea_x2_[0][1]);
+        pco->Face2Area(k+1, j,   si, ei+1, sarea_x2_[1][0]);
+        pco->Face2Area(k+1, j+1, si, ei+1, sarea_x2_[1][1]);
+
+        pco->Face2Area(k,   j+2, si, ei+1, sarea_x2_[0][2]);
+        pco->Face2Area(k+2,   j, si, ei+1, sarea_x2_[2][0]);
+        pco->Face2Area(k+1, j+2, si, ei+1, sarea_x2_[1][2]);
+        pco->Face2Area(k+2, j+1, si, ei+1, sarea_x2_[2][1]);
+        pco->Face2Area(k+2, j+2, si, ei+1, sarea_x2_[2][2]);
+
+
+        pco->Face3Area(k,   j,   si, ei+1, sarea_x3_[0][0]);
+        pco->Face3Area(k,   j+1, si, ei+1, sarea_x3_[0][1]);
+        pco->Face3Area(k+1, j,   si, ei+1, sarea_x3_[1][0]);
+        pco->Face3Area(k+1, j+1, si, ei+1, sarea_x3_[1][1]);
+
+        pco->Face3Area(k,   j+2, si, ei+1, sarea_x3_[0][2]);
+        pco->Face3Area(k+2,   j, si, ei+1, sarea_x3_[2][0]);
+        pco->Face3Area(k+1, j+2, si, ei+1, sarea_x3_[1][2]);
+        pco->Face3Area(k+2, j+1, si, ei+1, sarea_x3_[2][1]);
+        pco->Face3Area(k+2, j+2, si, ei+1, sarea_x3_[2][2]);
+
+
+        pcoarsec->Face1Area(ck, cj, csi, cei+1, csarea_x1_);
+        pcoarsec->Face2Area(ck, cj, csi, cei, csarea_x2_);
+        pcoarsec->Face2Area(ck, cj+1, csi, cei, csarea_x2p_);
+        pcoarsec->Face3Area(ck, cj, csi, cei, csarea_x3_);
+        pcoarsec->Face3Area(ck+1, cj, csi, cei, csarea_x3p_);
+        for (int ci=csi; ci<=cei; ci++) {
+          int i = (ci - pmb->cis)*2 + pmb->is;
+
+
+
+          Real coarse_flux = coarse.x1f(ck,cj,ci+1)*csarea_x1(ci+1) - coarse.x1f(ck,cj,ci)*csarea_x1(ci) +
+                        coarse.x2f(ck,cj+1,ci)*csarea_x2p(ci)  - coarse.x2f(ck,cj,ci)*csarea_x2(ci) +
+                        coarse.x3f(ck+1,cj,ci)*csarea_x3p(ci)  - coarse.x3f(ck,cj,ci)*csarea_x3(ci);
+
+          Real fine_flux = 0;
+          for (int di=0; di<=1; di++){
+            for (int dj=0; dj<=1; dj++){
+              for (int dk=0; dk<=1; dk++){
+                fine_flux += fine.x1f(dk+k,dj+j,di+i+1)*sarea_x1[0+dk][0+dj](di+i+1) - fine.x1f(dk+k,dj+j,di+i)*sarea_x1[0+dk][0+dj](di+i) +
+                             fine.x2f(dk+k,dj+j+1,di+i)*sarea_x2[0+dk][1+dj](di+i)   - fine.x2f(dk+k,dj+j,di+i)*sarea_x2[0+dk][0+dj](di+i) +
+                             fine.x3f(dk+k+1,dj+j,di+i)*sarea_x3[1+dk][0+dj](di+i)   - fine.x3f(dk+k,dj+j,di+i)*sarea_x3[0+dk][0+dj](di+i) + 
+              }
+            }
+          }
+
+          if (fabs(coarse_flux-fine_flux)>1e-14){
+            fprintf(stderr,"Restrict Violates DivB!! \n new_flux: %g old_flux: %g \n",coarse_flux,fine_flux );
+          }
+
+        }
+      }
+    }
+
+    return;
+
+
+}
+
+  void CheckFieldDivergenceAfterProlongate(FaceField &coarse, FaceField &fine,
+                               int si, int ei, int sj, int ej, int sk, int ek){
+    return;
+  }

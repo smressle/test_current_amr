@@ -791,6 +791,12 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cis, pb->cie,
                             pb->cjs, pb->cje,
                             pb->cks, pb->cke+f3, p);
+
+
+    CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+                        pb->cis, pb->cie,
+                         pb->cjs, pb->cje,
+                         pb->cks, pb->cke);
   }
   return;
 }
@@ -851,6 +857,13 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                          pob->cis, pob->cie,
                          pob->cjs, pob->cje,
                          pob->cks, pob->cke+f3);
+
+
+    
+    CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+                        pb->cis, pb->cie,
+                         pb->cjs, pb->cje,
+                         pb->cks, pb->cke);
     FaceField &src_b = *coarse_fc;
     FaceField &dst_b = *std::get<0>(*pmb_fc_it); // pmb->pfield->b;
     for (int k=kl, fk=pob->cks; fk<=pob->cke; k++, fk++) {
@@ -965,6 +978,8 @@ void Mesh::FillSameRankCoarseToFineAMR(MeshBlock* pob, MeshBlock* pmb,
     pmr->ProlongateInternalField(
         *var_fc, pob->cis, pob->cie,
         pob->cjs, pob->cje, pob->cks, pob->cke);
+
+    pmr->CheckFieldDivergenceAfterProlongate(dst_b,*var_fc,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
     pob_fc_it++;
   }
   return;
@@ -1095,6 +1110,11 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
     pmr->ProlongateInternalField(
         *var_fc, pb->cis, pb->cie,
         pb->cjs, pb->cje, pb->cks, pb->cke);
+
+
+    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,b->cis, pb->cie,
+        pb->cjs, pb->cje, pb->cks, pb->cke);
+
   }
   return;
 }
