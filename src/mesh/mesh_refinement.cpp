@@ -596,14 +596,25 @@ void MeshRefinement::ProlongateSharedFieldX1(
           if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx2 = fx2p - fx2m;
             Real dfx3 = fx3p - fx3m;
-            fine(fk  ,fj  ,fi) = ccval - gx2c*dfx2*(sarea_x1_[0][1](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i)
-                                             - gx3c*dfx3*(sarea_x1_[1][0](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i); 
-            fine(fk  ,fj+1,fi) = ccval + gx2c*dfx2*(sarea_x1_[0][0](fi) + sarea_x1_[1][0](fi))/csarea_x1_(i) 
-                                             - gx3c*dfx3*(sarea_x1_[1][0](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i);
-            fine(fk+1,fj  ,fi) = ccval - gx2c*dfx2*(sarea_x1_[0][1](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i) 
-                                             + gx3c*dfx3*(sarea_x1_[0][0](fi) + sarea_x1_[0][1](fi))/csarea_x1_(i);
-            fine(fk+1,fj+1,fi) = ccval + gx2c*dfx2*(sarea_x1_[0][0](fi) + sarea_x1_[1][0](fi))/csarea_x1_(i)
-                                             + gx3c*dfx3*(sarea_x1_[0][0](fi) + sarea_x1_[0][1](fi))/csarea_x1_(i);
+            // fine(fk  ,fj  ,fi) = ccval - gx2c*dfx2*(sarea_x1_[0][1](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i)
+            //                                  - gx3c*dfx3*(sarea_x1_[1][0](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i); 
+            // fine(fk  ,fj+1,fi) = ccval + gx2c*dfx2*(sarea_x1_[0][0](fi) + sarea_x1_[1][0](fi))/csarea_x1_(i) 
+            //                                  - gx3c*dfx3*(sarea_x1_[1][0](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i);
+            // fine(fk+1,fj  ,fi) = ccval - gx2c*dfx2*(sarea_x1_[0][1](fi) + sarea_x1_[1][1](fi))/csarea_x1_(i) 
+            //                                  + gx3c*dfx3*(sarea_x1_[0][0](fi) + sarea_x1_[0][1](fi))/csarea_x1_(i);
+            // fine(fk+1,fj+1,fi) = ccval + gx2c*dfx2*(sarea_x1_[0][0](fi) + sarea_x1_[1][0](fi))/csarea_x1_(i)
+            //                                  + gx3c*dfx3*(sarea_x1_[0][0](fi) + sarea_x1_[0][1](fi))/csarea_x1_(i);
+         
+
+            fine(fk  ,fj,  fi) = csarea_x1_(i)/sarea_x1_[0][0](fi) * 
+                                  (ccval - gx2c*(x2c - fx2m) - gx3c*(x3c - fx3m));
+            fine(fk,fj+1  ,fi) = csarea_x1_(i)/sarea_x1_[0][1](fi) * 
+                                  (ccval + gx2c*(fx2p - x2c) - gx3c*(x3c - fx3m) );
+            fine(fk+1,fj  ,fi) = csarea_x1_(i)/sarea_x1_[1][0](fi) * 
+                                  (ccval - gx2c*(x2c - fx2m) + gx3c*(fx3p - x3c) );
+            fine(fk+1,fj+1,fi) = csarea_x1_(i)/sarea_x1_[1][1](fi) * 
+                                  (ccval + gx2c*(fx2p - x2c) + gx3c*(fx3p - x3c) );
+
           }
           else{
 
@@ -698,14 +709,25 @@ void MeshRefinement::ProlongateSharedFieldX2(
           if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx1 = fx1p - fx1m;
             Real dfx3 = fx3p - fx3m;
-            fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x2_[0][0](fi+1) + sarea_x2_[1][0](fi+1))/csarea_x2_(i) 
-                                             - gx3c*dfx3*(sarea_x2_[1][0](fi) + sarea_x2_[1][0](fi+1))/csarea_x2_(i); 
-            fine(fk  ,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x2_[0][0](fi) + sarea_x2_[1][0](fi))/csarea_x2_(i)
-                                             - gx3c*dfx3*(sarea_x2_[1][0](fi) + sarea_x2_[1][0](fi+1))/csarea_x2_(i);
-            fine(fk+1,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x2_[0][0](fi+1) + sarea_x2_[1][0](fi+1))/csarea_x2_(i)
-                                             + gx3c*dfx3*(sarea_x2_[0][0](fi) + sarea_x2_[0][0](fi+1))/csarea_x2_(i);
-            fine(fk+1,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x2_[0][0](fi) + sarea_x2_[1][0](fi))/csarea_x2_(i) 
-                                             + gx3c*dfx3*(sarea_x2_[0][0](fi) + sarea_x2_[0][0](fi+1))/csarea_x2_(i);
+            // fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x2_[0][0](fi+1) + sarea_x2_[1][0](fi+1))/csarea_x2_(i) 
+            //                                  - gx3c*dfx3*(sarea_x2_[1][0](fi) + sarea_x2_[1][0](fi+1))/csarea_x2_(i); 
+            // fine(fk  ,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x2_[0][0](fi) + sarea_x2_[1][0](fi))/csarea_x2_(i)
+            //                                  - gx3c*dfx3*(sarea_x2_[1][0](fi) + sarea_x2_[1][0](fi+1))/csarea_x2_(i);
+            // fine(fk+1,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x2_[0][0](fi+1) + sarea_x2_[1][0](fi+1))/csarea_x2_(i)
+            //                                  + gx3c*dfx3*(sarea_x2_[0][0](fi) + sarea_x2_[0][0](fi+1))/csarea_x2_(i);
+            // fine(fk+1,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x2_[0][0](fi) + sarea_x2_[1][0](fi))/csarea_x2_(i) 
+            //                                  + gx3c*dfx3*(sarea_x2_[0][0](fi) + sarea_x2_[0][0](fi+1))/csarea_x2_(i);
+
+
+            fine(fk,fj  ,fi  ) = csarea_x2_(i)/sarea_x2_[0][0](fi) * 
+                                  (ccval - gx1c*(x1c - fx1m) - gx3c*(x3c - fx3m));
+            fine(fk,fj  ,fi+1) = csarea_x2_(i)/sarea_x2_[0][0](fi+1) * 
+                                  (ccval + gx1c*(fx1p - x1c) - gx3c*(x3c - fx3m) );
+            fine(fk+1,fj,fi  ) = csarea_x2_(i)/sarea_x2_[1][0](fi) * 
+                                  (ccval - gx1c*(x1c - fx1m) + gx3c*(fx3p - x3c) );
+            fine(fk+1,fj,fi+1) = csarea_x2_(i)/sarea_x2_[1][0](fi+1) * 
+                                  (ccval + gx1c*(fx1p - x1c) + gx3c*(fx3p - x3c) );
+
           }
           else{
             fine(fk  ,fj,fi  ) = ccval - gx1c*(x1c - fx1m) - gx3c*(x3c - fx3m);
@@ -807,14 +829,37 @@ void MeshRefinement::ProlongateSharedFieldX3(
           if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
             Real dfx1 = fx1p - fx1m;
             Real dfx2 = fx2p - fx2m;
-            fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
-                                             - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i); 
-            fine(fk  ,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
-                                             - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i);
-            fine(fk,fj+1  ,fi) = ccval - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
-                                             + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
-            fine(fk,fj+1,fi+1) = ccval + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
-                                             + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
+            // fine(fk  ,fj  ,fi) = ccval - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
+            //                                  - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i); 
+            // fine(fk  ,fj,fi+1) = ccval + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
+            //                                  - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i);
+            // fine(fk,fj+1  ,fi) = ccval - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
+            //                                  + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
+            // fine(fk,fj+1,fi+1) = ccval + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
+            //                                  + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
+
+            // fine(fk  ,fj  ,fi) = ccval * csarea_x3_(i)/sarea_x3_[0][0](fi)  
+            //                                  - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
+            //                                  - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i); 
+            // fine(fk  ,fj,fi+1) = ccval * csarea_x3_(i)/sarea_x3_[0][0](fi+1) 
+            //                                  + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
+            //                                  - gx2c*dfx2*(sarea_x3_[0][1](fi) + sarea_x3_[0][1](fi+1))/csarea_x3_(i);
+            // fine(fk,fj+1  ,fi) = ccval * csarea_x3_(i)/sarea_x3_[0][1](fi) 
+            //                                  - gx1c*dfx1*(sarea_x3_[0][0](fi+1) + sarea_x3_[0][1](fi+1))/csarea_x3_(i)
+            //                                  + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
+            // fine(fk,fj+1,fi+1) = ccval * csarea_x3_(i)/sarea_x3_[0][1](fi+1) 
+            //                                  + gx1c*dfx1*(sarea_x3_[0][0](fi) + sarea_x3_[0][1](fi))/csarea_x3_(i)
+            //                                  + gx2c*dfx2*(sarea_x3_[0][0](fi) + sarea_x3_[0][0](fi+1))/csarea_x3_(i);
+
+
+            fine(fk,fj  ,fi  ) = csarea_x3_(i)/sarea_x3_[0][0](fi) * 
+                                  (ccval - gx1c*(x1c - fx1m) - gx2c*(x2c - fx2m));
+            fine(fk,fj  ,fi+1) = csarea_x3_(i)/sarea_x3_[0][0](fi+1) * 
+                                  (ccval + gx1c*(fx1p - x1c) - gx2c*(x2c - fx2m) );
+            fine(fk,fj+1,fi  ) = csarea_x3_(i)/sarea_x3_[0][1](fi) * 
+                                  (ccval - gx1c*(x1c - fx1m) + gx2c*(fx2p - x2c) );
+            fine(fk,fj+1,fi+1) = csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
+                                  (ccval + gx1c*(fx1p - x1c) + gx2c*(fx2p - x2c) );
           }
           else{
             fine(fk,fj  ,fi  ) = ccval - gx1c*(x1c - fx1m) - gx2c*(x2c - fx2m);
