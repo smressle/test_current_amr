@@ -1472,7 +1472,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
           Real diff = coarse_flux-fine_flux;
 
-          fprintf(stderr,"Coarse flux: %g fine_flux: %g \n",coarse_flux,fine_flux,diff);
+          fprintf(stderr,"Coarse flux: %g fine_flux: %g diff: %g \n",coarse_flux,fine_flux,diff);
 
           // fine.x1f(fk  ,fj  ,fi+1) =
           //     (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
