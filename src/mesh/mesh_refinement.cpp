@@ -860,6 +860,7 @@ void MeshRefinement::ProlongateSharedFieldX3(
                                   (ccval - gx1c*(x1c - fx1m) + gx2c*(fx2p - x2c) );
             fine(fk,fj+1,fi+1) = 0.25*csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx2c*(fx2p - x2c) );
+
           }
           else{
             fine(fk,fj  ,fi  ) = ccval - gx1c*(x1c - fx1m) - gx2c*(x2c - fx2m);
@@ -997,10 +998,16 @@ void MeshRefinement::ProlongateInternalField(
                           pco->GetEdge2Length(fk+1,fj+1,fi+1));
           Real Sdx3 = SQR(pco->GetEdge3Length(fk,fj+1,fi+1) +
                           pco->GetEdge3Length(fk+1,fj+1,fi+1));
-          Uxx *= 0.125; Vyy *= 0.125; Wzz *= 0.125;
+          Uxx  *= 0.125; Vyy *= 0.125; Wzz *= 0.125;
           Uxyz *= 0.125/(Sdx2 + Sdx3);
           Vxyz *= 0.125/(Sdx1 + Sdx3);
           Wxyz *= 0.125/(Sdx1 + Sdx2);
+
+
+          Uxx  *= 0; Vyy *= 0; Wzz *= 0;
+          Uxyz *= 0/(Sdx2 + Sdx3);
+          Vxyz *= 0/(Sdx1 + Sdx3);
+          Wxyz *= 0/(Sdx1 + Sdx2);
           fine.x1f(fk  ,fj  ,fi+1) =
               (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
                     fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
