@@ -1841,7 +1841,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   }
 
   // Calculate x1-face-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -1863,16 +1863,19 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           coord_area1_kji_(k,j,i) = std::sqrt(-det) * dx2 * dx3;
 
           // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            metric_face1_kji_(0,n,k,j,i) = g(n);
-            metric_face1_kji_(1,n,k,j,i) = g_inv(n);
-          }
 
-          // Calculate frame transformation
-          CalculateTransformation(g, g_inv, 1, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
+          if (not coarse_flag){
+            for (int n = 0; n < NMETRIC; ++n) {
+              metric_face1_kji_(0,n,k,j,i) = g(n);
+              metric_face1_kji_(1,n,k,j,i) = g_inv(n);
+            }
+
+            // Calculate frame transformation
+            CalculateTransformation(g, g_inv, 1, transformation);
+            for (int n = 0; n < 2; ++n) {
+              for (int m = 0; m < NTRIANGULAR; ++m) {
+                trans_face1_kji_(n,m,k,j,i) = transformation(n,m);
+              }
             }
           }
 
@@ -1882,10 +1885,10 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
   // Calculate x2-face-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -1906,20 +1909,22 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real det = Determinant(g);
           coord_area2_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx3;
 
-          // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            metric_face2_kji_(0,n,k,j,i) = g(n);
-            metric_face2_kji_(1,n,k,j,i) = g_inv(n);
-          }
+          if (not coarse_flag){
 
-          // Calculate frame transformation
-          CalculateTransformation(g, g_inv, 2, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
+            // Set metric coefficients
+            for (int n = 0; n < NMETRIC; ++n) {
+              metric_face2_kji_(0,n,k,j,i) = g(n);
+              metric_face2_kji_(1,n,k,j,i) = g_inv(n);
+            }
+
+            // Calculate frame transformation
+            CalculateTransformation(g, g_inv, 2, transformation);
+            for (int n = 0; n < 2; ++n) {
+              for (int m = 0; m < NTRIANGULAR; ++m) {
+                trans_face2_kji_(n,m,k,j,i) = transformation(n,m);
+              }
             }
           }
-
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
@@ -1927,10 +1932,10 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
   // Calculate x3-face-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -1951,19 +1956,21 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           Real det = Determinant(g);
           coord_area3_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2;
 
-          // Set metric coefficients
-          for (int n = 0; n < NMETRIC; ++n) {
-            metric_face3_kji_(0,n,k,j,i) = g(n);
-            metric_face3_kji_(1,n,k,j,i) = g_inv(n);
-          }
-
-          // Calculate frame transformation
-          CalculateTransformation(g, g_inv, 3, transformation);
-          for (int n = 0; n < 2; ++n) {
-            for (int m = 0; m < NTRIANGULAR; ++m) {
-              trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+          if (not coarse_flag){
+            // Set metric coefficients
+            for (int n = 0; n < NMETRIC; ++n) {
+              metric_face3_kji_(0,n,k,j,i) = g(n);
+              metric_face3_kji_(1,n,k,j,i) = g_inv(n);
             }
-          }
+
+            // Calculate frame transformation
+            CalculateTransformation(g, g_inv, 3, transformation);
+            for (int n = 0; n < 2; ++n) {
+              for (int m = 0; m < NTRIANGULAR; ++m) {
+                trans_face3_kji_(n,m,k,j,i) = transformation(n,m);
+              }
+            }
+         }
 
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
@@ -1972,7 +1979,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
 
 
