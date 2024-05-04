@@ -1111,7 +1111,7 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
         pb->cjs, pb->cje, pb->cks, pb->cke);
 
 
-    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,b->cis, pb->cie,
+    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
         pb->cjs, pb->cje, pb->cks, pb->cke);
 
   }
