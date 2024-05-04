@@ -221,6 +221,15 @@ void MeshRefinement::RestrictFieldX1(
               (fine(k  ,j,i)*sarea_x1_[0][0](i) + fine(k  ,j+1,i)*sarea_x1_[0][1](i)
                + fine(k+1,j,i)*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i)
                )/tarea;
+
+
+
+            Real new_flux = coarse(ck,cj,ci) * csarea_x1_(ci); 
+
+            Real old_flux = fine(k,j,i  )*sarea_x1_[0][0](i) + fine(k,j+1  ,i)*sarea_x1_[0][1](i)
+                          + fine(k+1,j,i  )*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i);
+
+            fprintf(stderr,"RestrictFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -288,6 +297,15 @@ void MeshRefinement::RestrictFieldX2(
               (fine(k  ,j,i)*sarea_x2_[0][0](i) + fine(k  ,j,i+1)*sarea_x2_[0][0](i+1)
                +fine(k+1,j,i)*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1))
               /tarea;
+
+
+
+            Real new_flux = coarse(ck,cj,ci) * csarea_x2_(ci); 
+
+            Real old_flux = fine(k,j,i  )*sarea_x2_[0][0](i) + fine(k,j  ,i+1)*sarea_x2_[0][1](i+1)
+                          + fine(k+1,j,i  )*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1);
+
+            fprintf(stderr,"RestrictFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -357,6 +375,15 @@ void MeshRefinement::RestrictFieldX3(
               (fine(k,j  ,i)*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
                + fine(k,j+1,i)*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1)
                ) /tarea;
+
+
+
+            Real new_flux = coarse(ck,cj,ci) * csarea_x3_(ci); 
+
+            Real old_flux = fine(k,j,i  )*sarea_x3_[0][0](i) + fine(k,j  ,i+1)*sarea_x3_[0][0](i+1)
+                          + fine(k,j+1,i  )*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1);
+
+            fprintf(stderr,"RestrictFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
         }
       }
     }
@@ -617,6 +644,14 @@ void MeshRefinement::ProlongateSharedFieldX1(
             fine(fk+1,fj+1,fi) = 0.25*csarea_x1_(i)/sarea_x1_[1][1](fi) * 
                                   (ccval + gx2c*(fx2p - x2c) + gx3c*(fx3p - x3c) );
 
+
+
+            Real new_flux = fine(fk,fj  ,fi  )*sarea_x1_[0][0](fi) + fine(fk,fj+1  ,fi)*sarea_x1_[0][1](fi)
+                          + fine(fk+1,fj,fi  )*sarea_x1_[1][0](fi) + fine(fk+1,fj+1,fi)*sarea_x1_[1][1](fi);
+            Real old_flux = coarse(k,j,i) * csarea_x1_(i);
+
+            fprintf(stderr,"ProlongateSharedFieldX1 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
+
           }
           else{
 
@@ -731,6 +766,13 @@ void MeshRefinement::ProlongateSharedFieldX2(
                                   (ccval - gx1c*(x1c - fx1m) + gx3c*(fx3p - x3c) );
             fine(fk+1,fj,fi+1) = 0.25*csarea_x2_(i)/sarea_x2_[1][0](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx3c*(fx3p - x3c) );
+
+
+            Real new_flux = fine(fk,fj  ,fi  )*sarea_x2_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x2_[0][0](fi+1)
+                          + fine(fk+1,fj,fi  )*sarea_x2_[1][0](fi) + fine(fk+1,fj,fi+1)*sarea_x2_[1][0](fi+1);
+            Real old_flux = coarse(k,j,i) * csarea_x2_(i);
+
+            fprintf(stderr,"ProlongateSharedFieldX2 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
 
           }
           else{
@@ -865,6 +907,14 @@ void MeshRefinement::ProlongateSharedFieldX3(
                                   (ccval - gx1c*(x1c - fx1m) + gx2c*(fx2p - x2c) );
             fine(fk,fj+1,fi+1) = 0.25*csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx2c*(fx2p - x2c) );
+
+
+
+            Real new_flux = fine(fk,fj  ,fi  )*sarea_x3_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x3_[0][0](fi+1)
+                          + fine(fk,fj+1,fi  )*sarea_x3_[0][1](fi) + fine(fk,fj+1,fi+1)*sarea_x3_[0][1](fi+1);
+            Real old_flux = coarse(k,j,i) * csarea_x3_(i);
+
+            fprintf(stderr,"ProlongateSharedFieldX3 \n new_flux: %g old_flux: %g \n", new_flux,old_flux);
 
           }
           else{
