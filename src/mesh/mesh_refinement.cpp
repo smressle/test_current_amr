@@ -90,6 +90,22 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
   sarea_x3_[2][0].NewAthenaArray(nc1);
   sarea_x3_[2][1].NewAthenaArray(nc1);
 
+
+
+  sarea_x1_[0][2].NewAthenaArray(nc1+qx1);
+  sarea_x1_[2][0].NewAthenaArray(nc1+qx1);
+  sarea_x1_[1][2].NewAthenaArray(nc1+qx1);
+  sarea_x1_[2][1].NewAthenaArray(nc1+qx1);
+  sarea_x1_[2][2].NewAthenaArray(nc1+qx1);
+
+  sarea_x2_[2][0].NewAthenaArray(nc1);
+  sarea_x2_[2][1].NewAthenaArray(nc1);
+  sarea_x2_[2][2].NewAthenaArray(nc1);
+
+  sarea_x3_[0][2].NewAthenaArray(nc1);
+  sarea_x3_[1][2].NewAthenaArray(nc1);
+  sarea_x3_[2][2].NewAthenaArray(nc1);
+
   if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
     csarea_x1_.NewAthenaArray(nc1+1);
     csarea_x2_.NewAthenaArray(nc1+1);
