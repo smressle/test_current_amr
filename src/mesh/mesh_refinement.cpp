@@ -1461,9 +1461,15 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
           for (int di=0; di<=1; di++){
             for (int dj=0; dj<=1; dj++){
               for (int dk=0; dk<=1; dk++){
-                fine_flux += fine.x1f(dk+fk,dj+fj,di+fi+1)*sarea_x1_[0+dk][0+dj](di+fi+1) - fine.x1f(dk+fk,dj+fj,di+fi)*sarea_x1_[0+dk][0+dj](di+fi) +
-                             fine.x2f(dk+fk,dj+fj+1,di+fi)*sarea_x2_[0+dk][1+dj](di+fi)   - fine.x2f(dk+fk,dj+fj,di+fi)*sarea_x2_[0+dk][0+dj](di+fi) +
-                             fine.x3f(dk+fk+1,dj+fj,di+fi)*sarea_x3_[1+dk][0+dj](di+fi)   - fine.x3f(dk+fk,dj+fj,di+fi)*sarea_x3_[0+dk][0+dj](di+fi) ;
+                Real dfine_flux =  fine.x1f(dk+fk,dj+fj,di+fi+1)*sarea_x1_[0+dk][0+dj](di+fi+1) - fine.x1f(dk+fk,dj+fj,di+fi)*sarea_x1_[0+dk][0+dj](di+fi) +
+                                   fine.x2f(dk+fk,dj+fj+1,di+fi)*sarea_x2_[0+dk][1+dj](di+fi)   - fine.x2f(dk+fk,dj+fj,di+fi)*sarea_x2_[0+dk][0+dj](di+fi) +
+                                   fine.x3f(dk+fk+1,dj+fj,di+fi)*sarea_x3_[1+dk][0+dj](di+fi)   - fine.x3f(dk+fk,dj+fj,di+fi)*sarea_x3_[0+dk][0+dj](di+fi) ;
+                fine_flux += dfine_flux;
+
+
+                if (fabs(coarse_flux-dfine_flux)>1e-14){
+                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g \n",dfine_flux,coarse_flux );
+                }
               }
             }
           }
@@ -1472,7 +1478,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
           if (fabs(coarse_flux-fine_flux)>1e-14){
-            fprintf(stderr,"Prolong Violates DivB!! \n new_flux: %g old_flux: %g \n",fine_flux,coarse_flux );
+            fprintf(stderr,"Prolong shared Violates DivB!! \n new_flux: %g old_flux: %g \n",fine_flux,coarse_flux );
           }
 
           Real diff = coarse_flux-fine_flux;
