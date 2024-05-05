@@ -1468,7 +1468,12 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
                 if (fabs(coarse_flux-dfine_flux)>1e-14){
-                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g \n",dfine_flux,coarse_flux );
+                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g ijk: %d %d %d  di dj dk: %d %d %d \n finex1p : %g Ax1p: %g finex1: %g Ax1: %g \nfinex2p : %g Ax2p: %g finex2: %g Ax2: %g \n finex3p : %g Ax3p: %g finex3: %g Ax3: %g \n ",dfine_flux,coarse_flux,i,j,k,di,dj,dk,
+                    fine.x1f(dk+fk,dj+fj,di+fi+1),sarea_x1_[0+dk][0+dj](di+fi+1),
+                    fine.x1f(dk+fk,dj+fj,di+fi),sarea_x1_[0+dk][0+dj](di+fi),
+                    fine.x2f(dk+fk,dj+fj+1,di+fi), sarea_x2_[0+dk][1+dj](di+fi),
+                    fine.x2f(dk+fk,dj+fj,di+fi),sarea_x2_[0+dk][0+dj](di+fi),
+                     fine.x3f(dk+fk+1,dj+fj,di+fi),sarea_x3_[0+dk][0+dj](di+fi)   );
                 }
               }
             }
