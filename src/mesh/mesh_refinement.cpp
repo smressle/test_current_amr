@@ -1473,7 +1473,8 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
                     fine.x1f(dk+fk,dj+fj,di+fi),sarea_x1_[0+dk][0+dj](di+fi),
                     fine.x2f(dk+fk,dj+fj+1,di+fi), sarea_x2_[0+dk][1+dj](di+fi),
                     fine.x2f(dk+fk,dj+fj,di+fi),sarea_x2_[0+dk][0+dj](di+fi),
-                     fine.x3f(dk+fk+1,dj+fj,di+fi),sarea_x3_[0+dk][0+dj](di+fi)   );
+                    fine.x3f(dk+fk+1,dj+fj,di+fi),sarea_x3_[0+dk][0+dj](di+fi),
+                    fine.x3f(dk+fk,dj+fj,di+fi), sarea_x3_[0+dk][0+dj](di+fi)    );
                 }
               }
             }
