@@ -317,7 +317,7 @@ void BoundaryValues::RestrictGhostCellsOnSameLevel(const NeighborBlock& nb, int 
 
       pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
                         ris, rie, rjs, rje, rks,
-                           rek);
+                           rke);
     } else { // 1D or 2D
       pmr->RestrictFieldX3((*var_fc).x3f, (*coarse_fc).x3f, ris, rie, rjs, rje, rks,
                            rke);
