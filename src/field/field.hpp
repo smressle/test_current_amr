@@ -73,6 +73,8 @@ class Field {
   void ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc);
   void ComputeCornerE_STS();
 
+  void CheckFieldDivergence(FaceField &b, std::string code_location);
+
  private:
   // scratch space used to compute fluxes
   AthenaArray<Real> cc_e_;

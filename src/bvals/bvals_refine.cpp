@@ -315,9 +315,9 @@ void BoundaryValues::RestrictGhostCellsOnSameLevel(const NeighborBlock& nb, int 
                            re);
 
 
-      pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        ris, rie, rjs, rje, rks,
-                           rke);
+      // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+      //                   ris, rie, rjs, rje, rks,
+      //                      rke);
     } else { // 1D or 2D
       pmr->RestrictFieldX3((*var_fc).x3f, (*coarse_fc).x3f, ris, rie, rjs, rje, rks,
                            rke);
@@ -525,7 +525,7 @@ void BoundaryValues::ProlongateGhostCells(const NeighborBlock& nb,
     // step 4. calculate the internal finer fields using the Toth & Roe method
     pmr->ProlongateInternalField((*var_fc), si, ei, sj, ej, sk, ek);
 
-    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,si, ei, sj, ej, sk, ek);
+    // pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,si, ei, sj, ej, sk, ek);
 
   }
 
