@@ -206,7 +206,7 @@ void Field::AddEMFSourceTerms(const Real time, const Real dt,
 
 void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
-  MeshBlock *pmb = pmy_block_;
+  MeshBlock *pmb = pmy_block;
 
   int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
@@ -229,8 +229,9 @@ void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
               +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
               +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
-        if (std::fabs(divb)>std::numeric_limits<double>::epsilon()){
-          fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n",code_location,divb,std::numeric_limits<double>::epsilon() );
+        Real machine_precision = static_cast<Real>(std::numeric_limits<Real>::epsilon());
+        if (std::fabs(divb)>machine_precision){
+          fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n",code_location,divb,machine_precision );
         }
       }
     }
