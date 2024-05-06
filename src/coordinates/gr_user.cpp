@@ -1881,6 +1881,8 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x1f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->coarse_b_.x1f(k,j,i) *= fac;
+
           if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x1f(k,j,i) *= fac ;
         }
         }
@@ -1929,6 +1931,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x2f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->coarse_b_.x2f(k,j,i) *= fac;
           if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x2f(k,j,i) *= fac ;
         }
         }
@@ -1977,6 +1980,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->b.x3f(k,j,i) *= fac;
+          if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->coarse_b_.x3f(k,j,i) *= fac;
           if (MAGNETIC_FIELDS_ENABLED &&  is_half_time_step) pmb->pfield->b1.x3f(k,j,i) *= fac ;
         }
         }
