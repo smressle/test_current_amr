@@ -54,13 +54,9 @@ void Mesh::LoadBalancingAndAdaptiveMeshRefinement(ParameterInput *pin) {
     GatherCostListAndCheckBalance();
     RedistributeAndRefineMeshBlocks(pin, nbtotal + nnew - ndel);
 
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Refinement in b");
-
   } else if (lb_flag_ && step_since_lb >= lb_interval_) {
     if (!GatherCostListAndCheckBalance()) // load imbalance detected
       RedistributeAndRefineMeshBlocks(pin, nbtotal);
-   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Redistribute in b");
-
     lb_flag_ = false;
   }
   return;
@@ -663,6 +659,10 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   // re-initialize the MeshBlocks
   for (int i=0; i<nblocal; ++i)
     my_blocks(i)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
+
+  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+        my_blocks(i)->pfield->CheckFieldDivergence(pmb->pfield->b,"After Refinement in b");
+
   Initialize(2, pin);
 
   ResetLoadBalanceVariables();
