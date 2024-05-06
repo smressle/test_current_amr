@@ -661,7 +661,7 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
     my_blocks(i)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
 
   if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        my_blocks(i)->pfield->CheckFieldDivergence(pmb->pfield->b,"After Refinement in b");
+        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
 
   Initialize(2, pin);
 
