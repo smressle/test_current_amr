@@ -1996,7 +1996,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
 
   // Calculate x1-edge-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu; ++i) {
@@ -2016,10 +2016,10 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
   // Calculate x2-edge-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu+1; ++k) {
       for (int j = jll; j <= juu; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -2039,10 +2039,10 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
   // Calculate x3-edge-centered geometric quantities
-  if (not coarse_flag) {
+  // if (not coarse_flag) {
     for (int k = kll; k <= kuu; ++k) {
       for (int j = jll; j <= juu+1; ++j) {
         for (int i = ill; i <= iuu+1; ++i) {
@@ -2062,7 +2062,7 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
         }
       }
     }
-  }
+  // }
 
 
 //     Real divb_new =0.0;
