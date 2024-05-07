@@ -231,7 +231,7 @@ void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
         Real machine_precision = 1e-12; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
         if (std::fabs(divb)>machine_precision){
-          fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n",code_location.c_str(),divb,machine_precision );
+          fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n ijk: %d %d %d\n",code_location.c_str(),divb,machine_precision,i,j,k );
         }
       }
     }
