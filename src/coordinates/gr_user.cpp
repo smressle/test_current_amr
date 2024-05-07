@@ -152,11 +152,15 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   coord_area2_kji_.NewAthenaArray(nc3, nc2+1, nc1);
   coord_area3_kji_.NewAthenaArray(nc3+1, nc2, nc1);
 
+  coord_len1_kji_.NewAthenaArray(nc3+1, nc2+1, nc1);
+  coord_len2_kji_.NewAthenaArray(nc3+1, nc2, nc1+1);
+  coord_len3_kji_.NewAthenaArray(nc3, nc2+1, nc1+1);
+
   if (!coarse_flag) {
     coord_vol_kji_.NewAthenaArray(nc3, nc2, nc1);
-    coord_len1_kji_.NewAthenaArray(nc3+1, nc2+1, nc1);
-    coord_len2_kji_.NewAthenaArray(nc3+1, nc2, nc1+1);
-    coord_len3_kji_.NewAthenaArray(nc3, nc2+1, nc1+1);
+    // coord_len1_kji_.NewAthenaArray(nc3+1, nc2+1, nc1);
+    // coord_len2_kji_.NewAthenaArray(nc3+1, nc2, nc1+1);
+    // coord_len3_kji_.NewAthenaArray(nc3, nc2+1, nc1+1);
     coord_width1_kji_.NewAthenaArray(nc3, nc2, nc1);
     coord_width2_kji_.NewAthenaArray(nc3, nc2, nc1);
     coord_width3_kji_.NewAthenaArray(nc3, nc2, nc1);
@@ -362,7 +366,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   // }
 
   // Calculate x1-edge-centered geometric quantities
-  if (!coarse_flag) {
+  // if (!coarse_flag) {
     for (int k=kll; k<=kuu+1; ++k) {
       for (int j=jll; j<=juu+1; ++j) {
         for (int i=ill; i<=iuu; ++i) {
@@ -381,10 +385,10 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         }
       }
     }
-  }
+  // }
 
   // Calculate x2-edge-centered geometric quantities
-  if (!coarse_flag) {
+  // if (!coarse_flag) {
     for (int k=kll; k<=kuu+1; ++k) {
       for (int j=jll; j<=juu; ++j) {
         for (int i=ill; i<=iuu+1; ++i) {
@@ -403,10 +407,10 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         }
       }
     }
-  }
+  // }
 
   // Calculate x3-edge-centered geometric quantities
-  if (!coarse_flag) {
+  // if (!coarse_flag) {
     for (int k=kll; k<=kuu; ++k) {
       for (int j=jll; j<=juu+1; ++j) {
         for (int i=ill; i<=iuu+1; ++i) {
@@ -425,7 +429,7 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         }
       }
     }
-  }
+  // }
 
 
   g.DeleteAthenaArray();

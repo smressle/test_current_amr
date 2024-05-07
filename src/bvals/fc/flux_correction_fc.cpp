@@ -316,9 +316,16 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
     Real *buf, const NeighborBlock& nb) {
   MeshBlock *pmb = pmy_block_;
   Coordinates *pco = pmb->pcoord;
+  Coordinates *pcoarse = pmb->pmr->pcoarsec;
   // use the surface area aray as the edge length array
   AthenaArray<Real> &le1 = pbval_->sarea_[0];
   AthenaArray<Real> &le2 = pbval_->sarea_[1];
+
+  AthenaArray<Real> cle;
+
+  cle.NewAthenaArray(pmb->cie+1); 
+
+  pmb->block_size_.nx1 + 2*NGHOST
   int p = 0;
   if (nb.ni.type == NeighborConnect::face) {
     if (pmb->block_size.nx3 > 1) { // 3D
@@ -328,14 +335,23 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
         if (nb.fid == BoundaryFace::inner_x1) {
           i = pmb->is;
         } else {
-          i = pmb->ie + 1;
+          i = pmb->ie + 1;  
         }
         // restrict and pack e2
         for (int k=pmb->ks; k<=pmb->ke+1; k+=2) {
           for (int j=pmb->js; j<=pmb->je; j+=2) {
             Real el1 = pco->GetEdge2Length(k,j,i);
             Real el2 = pco->GetEdge2Length(k,j+1,i);
-            buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(el1 + el2);
+
+            Real eltot = el1 + el2;
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-ks)/2;
+              int cj = pmb->cjs + (j-js)/2;
+              int ci = pmb->cis + (i-is)/2;
+              Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+            }
+            buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
           }
         }
         // restrict and pack e3
@@ -350,7 +366,17 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               el1 = pco->dx3f(k);
               el2 = pco->dx3f(k+1);
             }
-            buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(el1 + el2);
+
+            Real eltot = el1+el2;
+
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-ks)/2;
+              int cj = pmb->cjs + (j-js)/2;
+              int ci = pmb->cis + (i-is)/2;
+              Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+            }
+            buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
           }
         }
         // x2 direction
@@ -372,8 +398,24 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               le1(i+1) = pco->dx1f(i+1);
             }
           }
+
+          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          {
+            int ck = pmb->cks + (k-ks)/2;
+            int cj = pmb->cjs + (j-js)/2;
+            pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+          }
           for (int i=pmb->is; i<=pmb->ie; i+=2)
-            buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(le1(i) + le1(i+1));
+          {
+
+            Real eltot = le1(i) + le1(i+1);
+
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+              int ci = pmb->cis + (i-is)/2;
+              eltot = cle(ci);
+            }
+            buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
+          }
         }
         // restrict and pack e3
         for (int k=pmb->ks; k<=pmb->ke; k+=2) {
@@ -386,8 +428,22 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               le2(i) = pco->dx3f(k+1);
             }
           }
+
+          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          {
+            int ck = pmb->cks + (k-ks)/2;
+            int cj = pmb->cjs + (j-js)/2;
+            pcoarse->Edge3Length(ck,cj,pmb->cis,pmb->cie+1,cle);
+          }
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
-            buf[p++] = (e3(k,j,i)*le1(i) + e3(k+1,j,i)*le2(i))/(le1(i) + le2(i));
+          {
+            Real eltot = le1(i) + le2(i);
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+              int ci = pmb->cis + (i-is)/2;
+              eltot = cle(ci);
+            }
+            buf[p++] = (e3(k,j,i)*le1(i) + e3(k+1,j,i)*le2(i))/(eltot);
+          }
         }
         // x3 direction
       } else if (nb.fid == BoundaryFace::inner_x3 || nb.fid == BoundaryFace::outer_x3) {
@@ -408,15 +464,43 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               le1(i+1) = pco->dx1f(i+1);
             }
           }
-          for (int i=pmb->is; i<=pmb->ie; i+=2)
-            buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(le1(i) + le1(i+1));
+
+          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          {
+            int ck = pmb->cks + (k-ks)/2;
+            int cj = pmb->cjs + (j-js)/2;
+            pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+          }
+
+          for (int i=pmb->is; i<=pmb->ie; i+=2){
+            Real eltot = le1(i) + le1(i+1);
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+              int ci = pmb->cis + (i-is)/2;
+              eltot = cle(ci);
+            }
+            buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
+          }
         }
         // restrict and pack e2
         for (int j=pmb->js; j<=pmb->je; j+=2) {
           pco->Edge2Length(k,   j, pmb->is, pmb->ie+1, le1);
           pco->Edge2Length(k, j+1, pmb->is, pmb->ie+1, le2);
+
+          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          {
+            int ck = pmb->cks + (k-ks)/2;
+            int cj = pmb->cjs + (j-js)/2;
+            pcoarse->Edge2Length(ck,cj,pmb->cis,pmb->cie+1,cle);
+          }
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
-            buf[p++] = (e2(k,j,i)*le1(i) + e2(k,j+1,i)*le2(i))/(le1(i) + le2(i));
+          {
+            Real eltot = le1(i) + le2(i);
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+              int ci = pmb->cis + (i-is)/2;
+              eltot = cle(ci);
+            }
+            buf[p++] = (e2(k,j,i)*le1(i) + e2(k,j+1,i)*le2(i))/(eltot);
+          }
         }
       }
     } else if (pmb->block_size.nx2 > 1) { // 2D
@@ -499,7 +583,16 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             el1 = pco->dx3f(k);
             el2 = pco->dx3f(k+1);
           }
-          buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(el1 + el2);
+
+            Real eltot = el1 + el2;
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-ks)/2;
+              int cj = pmb->cjs + (j-js)/2;
+              int ci = pmb->cis + (i-is)/2;
+              Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+            }
+          buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
         }
         // x1x3 edge
       } else if (nb.eid >= 4 && nb.eid < 8) {
@@ -518,7 +611,16 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
         for (int j=pmb->js; j<=pmb->je; j+=2) {
           Real el1 = pco->GetEdge2Length(k,j,i);
           Real el2 = pco->GetEdge2Length(k,j+1,i);
-          buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(el1 + el2);
+
+          Real eltot = el1 + el2;
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-ks)/2;
+              int cj = pmb->cjs + (j-js)/2;
+              int ci = pmb->cis + (i-is)/2;
+              Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+            }
+          buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
         }
         // x2x3 edge
       } else if (nb.eid >= 8 && nb.eid < 12) {
@@ -543,8 +645,23 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             le1(i+1) = pco->dx1f(i+1);
           }
         }
+
+        if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          {
+            int ck = pmb->cks + (k-ks)/2;
+            int cj = pmb->cjs + (j-js)/2;
+            pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+          }
+
         for (int i=pmb->is; i<=pmb->ie; i+=2)
-          buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(le1(i) + le1(i+1));
+        {
+            Real eltot = le1(i) + le1(i+1);
+            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+              int ci = pmb->cis + (i-is)/2;
+              eltot = cle(ci);
+            }
+          buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
+        }
       }
     } else if (pmb->block_size.nx2 > 1) { // 2D
       // x1x2 edge
@@ -563,6 +680,8 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
       buf[p++] = e3(pmb->ks,j,i);
     }
   }
+
+  cle.DeleteAthenaArray();
   return p;
 }
 
