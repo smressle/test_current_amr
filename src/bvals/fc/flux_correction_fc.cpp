@@ -342,7 +342,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             Real el2 = pco->GetEdge2Length(k,j+1,i);
 
             Real eltot = el1 + el2;
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
@@ -367,7 +367,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
             Real eltot = el1+el2;
 
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
@@ -397,7 +397,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             }
           }
 
-          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
             int ck = pmb->cks + (k-pmb->ks)/2;
             int cj = pmb->cjs + (j-pmb->js)/2;
@@ -408,7 +408,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
             Real eltot = le1(i) + le1(i+1);
 
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
               int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
@@ -427,7 +427,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             }
           }
 
-          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
             int ck = pmb->cks + (k-pmb->ks)/2;
             int cj = pmb->cjs + (j-pmb->js)/2;
@@ -436,7 +436,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
           {
             Real eltot = le1(i) + le2(i);
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
               int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
@@ -463,7 +463,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             }
           }
 
-          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
             int ck = pmb->cks + (k-pmb->ks)/2;
             int cj = pmb->cjs + (j-pmb->js)/2;
@@ -472,7 +472,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
           for (int i=pmb->is; i<=pmb->ie; i+=2){
             Real eltot = le1(i) + le1(i+1);
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
               int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
@@ -484,7 +484,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           pco->Edge2Length(k,   j, pmb->is, pmb->ie+1, le1);
           pco->Edge2Length(k, j+1, pmb->is, pmb->ie+1, le2);
 
-          if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
             int ck = pmb->cks + (k-pmb->ks)/2;
             int cj = pmb->cjs + (j-pmb->js)/2;
@@ -493,7 +493,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
           {
             Real eltot = le1(i) + le2(i);
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
               int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
@@ -583,7 +583,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           }
 
             Real eltot = el1 + el2;
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
@@ -611,7 +611,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           Real el2 = pco->GetEdge2Length(k,j+1,i);
 
           Real eltot = el1 + el2;
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
@@ -644,7 +644,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           }
         }
 
-        if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+        if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
             int ck = pmb->cks + (k-pmb->ks)/2;
             int cj = pmb->cjs + (j-pmb->js)/2;
@@ -654,7 +654,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
         for (int i=pmb->is; i<=pmb->ie; i+=2)
         {
             Real eltot = le1(i) + le1(i+1);
-            if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
               int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
