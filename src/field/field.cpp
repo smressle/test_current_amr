@@ -206,42 +206,42 @@ void Field::AddEMFSourceTerms(const Real time, const Real dt,
 
 void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
-  MeshBlock *pmb = pmy_block;
+  // MeshBlock *pmb = pmy_block;
 
-  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
-  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  // int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
 
-  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  // face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  // face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
-  for(int k=ks; k<=ke; k++) {
-    for(int j=js; j<=je; j++) {
-      pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
-      pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
-      pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
-      pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
-      pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
-      for(int i=is; i<=ie; i++) {
-        Real divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
-              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
-              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+  // for(int k=ks; k<=ke; k++) {
+  //   for(int j=js; j<=je; j++) {
+  //     pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
+  //     pmb->pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+  //     pmb->pcoord->Face2Area(k,   j,   is, ie,   face2m);
+  //     pmb->pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+  //     pmb->pcoord->Face3Area(k,   j,   is, ie,   face3m);
+  //     for(int i=is; i<=ie; i++) {
+  //       Real divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+  //             +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+  //             +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
-        Real machine_precision = 1e-12; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
-        if (std::fabs(divb)>machine_precision){
-          fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n",code_location.c_str(),divb,machine_precision );
-        }
-      }
-    }
-  }
+  //       Real machine_precision = 1e-12; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
+  //       if (std::fabs(divb)>machine_precision){
+  //         fprintf(stderr, "nonzero divergence!! at location:  %s\n divb: %g machine precision: %g  \n",code_location.c_str(),divb,machine_precision );
+  //       }
+  //     }
+  //   }
+  // }
 
-  face1.DeleteAthenaArray();
-  face2p.DeleteAthenaArray();
-  face2m.DeleteAthenaArray();
-  face3p.DeleteAthenaArray();
-  face3m.DeleteAthenaArray();
+  // face1.DeleteAthenaArray();
+  // face2p.DeleteAthenaArray();
+  // face2m.DeleteAthenaArray();
+  // face3p.DeleteAthenaArray();
+  // face3m.DeleteAthenaArray();
   return;
 }
 
