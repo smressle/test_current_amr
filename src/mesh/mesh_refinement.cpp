@@ -1393,7 +1393,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
           if (fabs(fine_flux)>1e-10 or fabs(coarse_flux)>1e-10){
 
-            fprintf(stderr,"Large divB in restrict! fine_tot: %g coarse: %g \n",fine_flux,coarse_flux,)
+            fprintf(stderr,"Large divB in restrict! fine_tot: %g coarse: %g \n",fine_flux,coarse_flux);
           for (int di=0; di<=1; di++){
             for (int dj=0; dj<=1; dj++){
               for (int dk=0; dk<=1; dk++){
