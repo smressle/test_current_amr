@@ -1691,7 +1691,7 @@ TaskStatus TimeIntegratorTaskList::IntegrateField(MeshBlock *pmb, int stage) {
 
 
       if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After IntegrateField in b");
-      if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After IntegrateField in b1");
+      // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After IntegrateField in b1");
 
     }
     return TaskStatus::next;
@@ -2210,7 +2210,7 @@ TaskStatus TimeIntegratorTaskList::Prolongation(MeshBlock *pmb, int stage) {
     pbval->ProlongateBoundaries(t_end_stage, dt, pmb->pbval->bvars_main_int);
 
   if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After boundary prolongation in b");
-  if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After boundary prolongation in b1");
+  // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After boundary prolongation in b1");
 
 
     return TaskStatus::success;
@@ -2245,7 +2245,7 @@ TaskStatus TimeIntegratorTaskList::Primitives(MeshBlock *pmb, int stage) {
                                     il, iu, jl, ju, kl, ku);
 
     if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Cons2prim in b");
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After Cons2prim in b1");
+    // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After Cons2prim in b1");
     if (pmb->porb->orbital_advection_defined) {
       pmb->porb->ResetOrbitalSystemConversionFlag();
     }
