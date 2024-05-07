@@ -353,6 +353,9 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   if (mesh_size.nx2 > 1) nleaf = 4;
   if (mesh_size.nx3 > 1) nleaf = 8;
 
+
+  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Refinement in b");
   // Step 1. construct new lists
   LogicalLocation *newloc = new LogicalLocation[ntot];
   int *newrank = new int[ntot];
