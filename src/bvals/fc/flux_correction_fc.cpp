@@ -344,9 +344,9 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             Real eltot = el1 + el2;
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
-              int ck = pmb->cks + (k-ks)/2;
-              int cj = pmb->cjs + (j-js)/2;
-              int ci = pmb->cis + (i-is)/2;
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
             }
             buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
@@ -369,9 +369,9 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
-              int ck = pmb->cks + (k-ks)/2;
-              int cj = pmb->cjs + (j-js)/2;
-              int ci = pmb->cis + (i-is)/2;
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
             }
             buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
@@ -399,8 +399,8 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
           if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
-            int ck = pmb->cks + (k-ks)/2;
-            int cj = pmb->cjs + (j-js)/2;
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
             pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
           }
           for (int i=pmb->is; i<=pmb->ie; i+=2)
@@ -409,7 +409,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             Real eltot = le1(i) + le1(i+1);
 
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
-              int ci = pmb->cis + (i-is)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
             buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
@@ -429,15 +429,15 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
           if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
-            int ck = pmb->cks + (k-ks)/2;
-            int cj = pmb->cjs + (j-js)/2;
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
             pcoarse->Edge3Length(ck,cj,pmb->cis,pmb->cie+1,cle);
           }
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
           {
             Real eltot = le1(i) + le2(i);
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
-              int ci = pmb->cis + (i-is)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
             buf[p++] = (e3(k,j,i)*le1(i) + e3(k+1,j,i)*le2(i))/(eltot);
@@ -465,15 +465,15 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
           if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
-            int ck = pmb->cks + (k-ks)/2;
-            int cj = pmb->cjs + (j-js)/2;
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
             pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
           }
 
           for (int i=pmb->is; i<=pmb->ie; i+=2){
             Real eltot = le1(i) + le1(i+1);
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
-              int ci = pmb->cis + (i-is)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
             buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
@@ -486,15 +486,15 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
           if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
-            int ck = pmb->cks + (k-ks)/2;
-            int cj = pmb->cjs + (j-js)/2;
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
             pcoarse->Edge2Length(ck,cj,pmb->cis,pmb->cie+1,cle);
           }
           for (int i=pmb->is; i<=pmb->ie+1; i+=2)
           {
             Real eltot = le1(i) + le2(i);
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
-              int ci = pmb->cis + (i-is)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
             buf[p++] = (e2(k,j,i)*le1(i) + e2(k,j+1,i)*le2(i))/(eltot);
@@ -585,9 +585,9 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
             Real eltot = el1 + el2;
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
-              int ck = pmb->cks + (k-ks)/2;
-              int cj = pmb->cjs + (j-js)/2;
-              int ci = pmb->cis + (i-is)/2;
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
             }
           buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
@@ -613,9 +613,9 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
           Real eltot = el1 + el2;
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
               {
-              int ck = pmb->cks + (k-ks)/2;
-              int cj = pmb->cjs + (j-js)/2;
-              int ci = pmb->cis + (i-is)/2;
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
             }
           buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
@@ -646,8 +646,8 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
         if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
           {
-            int ck = pmb->cks + (k-ks)/2;
-            int cj = pmb->cjs + (j-js)/2;
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
             pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
           }
 
@@ -655,7 +655,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
         {
             Real eltot = le1(i) + le1(i+1);
             if (pmb->pmy_mesh_->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0)){
-              int ci = pmb->cis + (i-is)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
               eltot = cle(ci);
             }
           buf[p++] = (e1(k,j,i)*le1(i) + e1(k,j,i+1)*le1(i+1))/(eltot);
