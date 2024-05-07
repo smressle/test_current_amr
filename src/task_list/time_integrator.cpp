@@ -1909,11 +1909,13 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
                            // Scaled coefficient for RHS update
     // if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(pmb->pmy_mesh->metric_time,pmb);
   if (METRIC_EVOLUTION && pmb->pmy_mesh->update_metric_this_timestep) {
+
+    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"Before UpdateMetric in b");
       pmb->pcoord->UpdateUserMetric(t_end_stage,pmb);
       if (pmb->pmy_mesh->multilevel) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb);
 
       if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After UpdateMetric in b");
-      if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After UpdateMetric in b1");
+      // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After UpdateMetric in b1");
    }
 
 
@@ -2056,7 +2058,7 @@ TaskStatus TimeIntegratorTaskList::SetBoundariesField(MeshBlock *pmb, int stage)
     pmb->pfield->fbvar.SetBoundaries();
 
     if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After SetBoundariesField in b");
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After SetBoundariesField in b1");
+    // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After SetBoundariesField in b1");
 
     return TaskStatus::success;
   }
