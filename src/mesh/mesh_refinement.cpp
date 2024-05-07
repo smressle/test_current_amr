@@ -1512,7 +1512,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
           }
 
           if(fabs(coarse_flux)>1e-10 or fabs(fine_flux)>1e-10){
-                  fprintf(stderr,"Large divB in Prolongate Shared!! coarse: %g fine_tot: %g  \n ",coarse_flux,dfine_flux);
+                  fprintf(stderr,"Large divB in Prolongate Shared!! coarse: %g fine_tot: %g  \n ",coarse_flux,fine_flux);
 
                     exit(0);
                 }
