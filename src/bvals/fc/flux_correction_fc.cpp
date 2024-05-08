@@ -347,7 +347,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
               int ci = pmb->cis + (i-pmb->is)/2;
-              Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+              eltot = pcoarse->GetEdge2Length(ck,cj,ci);
             }
             buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
           }
@@ -372,7 +372,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
               int ci = pmb->cis + (i-pmb->is)/2;
-              Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+              eltot = pcoarse->GetEdge3Length(ck,cj,ci);
             }
             buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
           }
@@ -588,7 +588,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
               int ci = pmb->cis + (i-pmb->is)/2;
-              Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+              eltot = pcoarse->GetEdge3Length(ck,cj,ci);
             }
           buf[p++] = (e3(k,j,i)*el1 + e3(k+1,j,i)*el2)/(eltot);
         }
@@ -616,7 +616,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
               int ck = pmb->cks + (k-pmb->ks)/2;
               int cj = pmb->cjs + (j-pmb->js)/2;
               int ci = pmb->cis + (i-pmb->is)/2;
-              Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+              eltot = pcoarse->GetEdge2Length(ck,cj,ci);
             }
           buf[p++] = (e2(k,j,i)*el1 + e2(k,j+1,i)*el2)/(eltot);
         }
