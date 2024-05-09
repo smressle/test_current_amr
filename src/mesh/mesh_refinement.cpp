@@ -1639,6 +1639,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
             // interpolate onto the finer grid
 
           Real fine_tot=0;
+          Real coarse_tot = coarse(n,k,j,i)*cvol_(i);
 
           for (int di=0; di<=1; di++){
             for (int dj=0; dj<=1; dj++){
@@ -1646,7 +1647,6 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
                 Real dfine =  fine(n,fk+dk  ,fj+dj  ,fi+di  )* fvol_[dk][dj](di+fi);
                 fine_tot += dfine;
 
-                Real coarse_tot = coarse(n,k,j,i)*cvol_(i);
 
 
                 if (fabs(coarse_tot*0.125-dfine)>1e-14){
