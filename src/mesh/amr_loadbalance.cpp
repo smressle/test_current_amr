@@ -774,6 +774,12 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cis, pb->cie,
                             pb->cjs, pb->cje,
                             pb->cks, pb->cke, p);
+
+    pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
+                                    pb->cis, pb->cie,
+                                    pb->cjs, pb->cje,
+                                    pb->cks, pb->cke);
+
   }
   for (auto fc_pair : pb->pmr->pvars_fc_) {
     FaceField *var_fc = std::get<0>(fc_pair);
@@ -835,6 +841,11 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
     int nu = var_cc->GetDim4() - 1;
     pmr->RestrictCellCenteredValues(*var_cc, *coarse_cc,
                                     0, nu,
+                                    pob->cis, pob->cie,
+                                    pob->cjs, pob->cje,
+                                    pob->cks, pob->cke);
+
+     pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
                                     pob->cis, pob->cie,
                                     pob->cjs, pob->cje,
                                     pob->cks, pob->cke);
@@ -948,8 +959,12 @@ void Mesh::FillSameRankCoarseToFineAMR(MeshBlock* pob, MeshBlock* pmb,
     pmr->ProlongateCellCenteredValues(
         dst, *var_cc, 0, nu,
         pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
+
+    pmr->CheckConservedQuantitiesAfterProlong(dst, *var_cc,0, nu,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
     pob_cc_it++;
   }
+
+
   auto pob_fc_it = pob->pmr->pvars_fc_.begin();
   // iterate MeshRefinement std::vectors on new pmb
   for (auto fc_pair : pmr->pvars_fc_) {
@@ -1097,6 +1112,9 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
     pmr->ProlongateCellCenteredValues(
         *coarse_cc, *var_cc, 0, nu,
         pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
+
+    pmr->CheckConservedQuantitiesAfterProlong(dst, *var_cc,0, nu,pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
+
   }
   for (auto fc_pair : pb->pmr->pvars_fc_) {
     FaceField *var_fc = std::get<0>(fc_pair);

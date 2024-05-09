@@ -45,6 +45,8 @@ class MeshRefinement {
   friend class OrbitalAdvection;
   // needs to access pcoarcec
   friend class FaceCenteredBoundaryVariable;
+  friend class CellCenteredBoundaryVariable;
+
 
  public:
   MeshRefinement(MeshBlock *pmb, ParameterInput *pin);
