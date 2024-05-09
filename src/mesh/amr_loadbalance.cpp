@@ -1113,7 +1113,7 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
         *coarse_cc, *var_cc, 0, nu,
         pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
 
-    pmr->CheckConservedQuantitiesAfterProlong(*coare_cc, *var_cc,0, nu,pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
+    pmr->CheckConservedQuantitiesAfterProlong(*coarse_cc, *var_cc,0, nu,pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
 
   }
   for (auto fc_pair : pb->pmr->pvars_fc_) {
