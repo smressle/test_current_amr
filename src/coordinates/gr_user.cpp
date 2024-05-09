@@ -156,11 +156,9 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
   coord_len2_kji_.NewAthenaArray(nc3+1, nc2, nc1+1);
   coord_len3_kji_.NewAthenaArray(nc3, nc2+1, nc1+1);
 
+  coord_vol_kji_.NewAthenaArray(nc3, nc2, nc1);
+
   if (!coarse_flag) {
-    coord_vol_kji_.NewAthenaArray(nc3, nc2, nc1);
-    // coord_len1_kji_.NewAthenaArray(nc3+1, nc2+1, nc1);
-    // coord_len2_kji_.NewAthenaArray(nc3+1, nc2, nc1+1);
-    // coord_len3_kji_.NewAthenaArray(nc3, nc2+1, nc1+1);
     coord_width1_kji_.NewAthenaArray(nc3, nc2, nc1);
     coord_width2_kji_.NewAthenaArray(nc3, nc2, nc1);
     coord_width3_kji_.NewAthenaArray(nc3, nc2, nc1);
@@ -214,10 +212,10 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
         Metric(metric_t,x1, x2, x3, pin, g, g_inv, dg_dx1, dg_dx2, dg_dx3,dg_dt);
 
         // Calculate volumes
-        if (!coarse_flag) {
+        // if (!coarse_flag) {
           Real det = Determinant(g);
           coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
-        }
+        // }
 
         // Calculate widths
         if (!coarse_flag) {
@@ -1794,7 +1792,6 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
 
 
         // Calculate volumes
-        if (not coarse_flag ) {
           // Real det_p1,facp1;
           //  if (is_half_time_step) {
           //   // MetricWithoutPin(pmb->pmy_mesh->time+pmb->pmy_mesh->dt,x1, x2, x3, gp1, g_invp1, dg_dx1p1, dg_dx2p1, dg_dx3p1,dg_dtp1);
@@ -1804,8 +1801,9 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
           //   fprintf(stderr,"This is a half time step!! \n");
 
           // }
-          Real det = Determinant(g);
-          coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
+        Real det = Determinant(g);
+        coord_vol_kji_(k,j,i) = std::sqrt(-det) * dx1 * dx2 * dx3;
+        if (not coarse_flag ) {
           Real fac = sqrt_minus_det_old/std::sqrt(-det);
           for (int n_cons=IDN; n_cons <= IEN; ++n_cons){
             pmb->phydro->u(n_cons,k,j,i) *=fac;

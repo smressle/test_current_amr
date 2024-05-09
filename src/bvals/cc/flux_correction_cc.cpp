@@ -78,9 +78,15 @@ int CellCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(Real *buf,
                                                          const NeighborBlock& nb) {
   MeshBlock *pmb=pmy_block_;
   Coordinates *pco = pmb->pcoord;
+  Coordinates *pcoarse = pmb->pmr->pcoarsec;
   // cache pointers to surface area arrays (BoundaryBase protected variable)
   AthenaArray<Real> &sarea0 = pbval_->sarea_[0];
   AthenaArray<Real> &sarea1 = pbval_->sarea_[1];
+
+
+  AthenaArray<Real> carea;
+
+  carea.NewAthenaArray(pmb->cie+1); 
   int p = 0;
   // x1 direction
   if (nb.fid == BoundaryFace::inner_x1 || nb.fid == BoundaryFace::outer_x1) {
@@ -94,6 +100,14 @@ int CellCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(Real *buf,
             Real apm = pco->GetFace1Area(k+1, j,   i);
             Real app = pco->GetFace1Area(k+1, j+1, i);
             Real tarea = amm + amp + apm + app;
+
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              int ci = pmb->cis + (i-pmb->is)/2;
+              tarea = pcoarse->GetFace1Area(ck,cj,ci);
+            }
             buf[p++] = (x1flux(nn, k  , j  , i)*amm
                        + x1flux(nn, k  , j+1, i)*amp
                        + x1flux(nn, k+1, j  , i)*apm
@@ -124,8 +138,21 @@ int CellCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(Real *buf,
         for (int k=pmb->ks; k<=pmb->ke; k+=2) {
           pco->Face2Area(k  , j, pmb->is, pmb->ie, sarea0);
           pco->Face2Area(k+1, j, pmb->is, pmb->ie, sarea1);
+
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+              int ck = pmb->cks + (k-pmb->ks)/2;
+              int cj = pmb->cjs + (j-pmb->js)/2;
+              pcoarse->Face2Area(ck,cj,pmb->cis,pmb->cie,carea);
+            }
           for (int i=pmb->is; i<=pmb->ie; i+=2) {
             Real tarea = sarea0(i) + sarea0(i+1) + sarea1(i) + sarea1(i+1);
+            if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+              {
+                int ci = pmb->cis + (i-pmb->is)/2;
+                tarea = carea(ci);
+              }
+      
             buf[p++] = (x2flux(nn, k  , j, i  )*sarea0(i  )
                        + x2flux(nn, k  , j, i+1)*sarea0(i+1)
                        + x2flux(nn, k+1, j, i  )*sarea1(i  )
@@ -151,8 +178,20 @@ int CellCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(Real *buf,
       for (int j=pmb->js; j<=pmb->je; j+=2) {
         pco->Face3Area(k, j,   pmb->is, pmb->ie, sarea0);
         pco->Face3Area(k, j+1, pmb->is, pmb->ie, sarea1);
+
+        if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+        {
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Face3Area(ck,cj,pmb->cis,pmb->cie,carea);
+        }
         for (int i=pmb->is; i<=pmb->ie; i+=2) {
           Real tarea = sarea0(i) + sarea0(i+1) + sarea1(i) + sarea1(i+1);
+          if (pmb->pmy_mesh->multilevel and (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0))
+            {
+              int ci = pmb->cis + (i-pmb->is)/2;
+              tarea = carea(ci);
+            }
           buf[p++] = (x3flux(nn, k, j  , i  )*sarea0(i  )
                      + x3flux(nn, k, j  , i+1)*sarea0(i+1)
                      + x3flux(nn, k, j+1, i  )*sarea1(i  )
@@ -161,6 +200,8 @@ int CellCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(Real *buf,
       }
     }
   }
+
+  carea.DeleteAthenaArray();
   return p;
 }
 

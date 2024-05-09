@@ -114,6 +114,9 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
     csarea_x2p_.NewAthenaArray(nc1+1);
     csarea_x3p_.NewAthenaArray(nc1+1);
 
+    cvol_.NewAthenaArray(nc1);
+
+
   }
 
   // KGF: probably don't need to preallocate space for pointers in these vectors
@@ -154,6 +157,10 @@ void MeshRefinement::RestrictCellCenteredValues(
           pco->CellVolume(k,j+1,si,ei,fvol_[0][1]);
           pco->CellVolume(k+1,j,si,ei,fvol_[1][0]);
           pco->CellVolume(k+1,j+1,si,ei,fvol_[1][1]);
+
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
+            pcoarsec->CellVolume(ck, cj, csi, cei, cvol_);
+          }
           for (int ci=csi; ci<=cei; ci++) {
             int i = (ci - pmb->cis)*2 + pmb->is;
             // KGF: add the off-centered quantities first to preserve FP symmetry
@@ -161,6 +168,7 @@ void MeshRefinement::RestrictCellCenteredValues(
                          + (fvol_[0][0](i+1) + fvol_[0][1](i+1)))
                         + ((fvol_[1][0](i) + fvol_[1][1](i))
                            + (fvol_[1][0](i+1) + fvol_[1][1](i+1)));
+            if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) tvol = cvol_(ci);
             // KGF: add the off-centered quantities first to preserve FP symmetry
             coarse(n,ck,cj,ci) =
                 (((fine(n,k  ,j  ,i)*fvol_[0][0](i) + fine(n,k  ,j+1,i)*fvol_[0][1](i))
@@ -448,6 +456,7 @@ void MeshRefinement::ProlongateCellCenteredValues(
     int sn, int en, int si, int ei, int sj, int ej, int sk, int ek) {
   MeshBlock *pmb = pmy_block_;
   Coordinates *pco = pmb->pcoord;
+  int fsi = (si - pmb->cis)*2 + pmb->is, fei = (ei - pmb->cis)*2 + pmb->is + 1;
   if (pmb->block_size.nx3 > 1) {
     for (int n=sn; n<=en; n++) {
       for (int k=sk; k<=ek; k++) {
@@ -472,6 +481,14 @@ void MeshRefinement::ProlongateCellCenteredValues(
           const Real& fx2p = pco->x2v(fj+1);
           Real dx2fm = x2c - fx2m;
           Real dx2fp = fx2p - x2c;
+
+          if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
+            pcoarsec->CellVolume(k, j, si, ei, cvol_);
+            pco->CellVolume(fk,fj,fsi,fei,fvol_[0][0]);
+            pco->CellVolume(fk,fj+1,fsi,fei,fvol_[0][1]);
+            pco->CellVolume(fk+1,fj,fsi,fei,fvol_[1][0]);
+            pco->CellVolume(fk+1,fj+1,fsi,fei,fvol_[1][1]);
+          }
           for (int i=si; i<=ei; i++) {
             int fi = (i - pmb->cis)*2 + pmb->is;
             const Real& x1m = pcoarsec->x1v(i-1);
@@ -501,14 +518,29 @@ void MeshRefinement::ProlongateCellCenteredValues(
 
             // KGF: add the off-centered quantities first to preserve FP symmetry
             // interpolate onto the finer grid
-            fine(n,fk  ,fj  ,fi  ) = ccval - (gx1c*dx1fm + gx2c*dx2fm + gx3c*dx3fm);
-            fine(n,fk  ,fj  ,fi+1) = ccval + (gx1c*dx1fp - gx2c*dx2fm - gx3c*dx3fm);
-            fine(n,fk  ,fj+1,fi  ) = ccval - (gx1c*dx1fm - gx2c*dx2fp + gx3c*dx3fm);
-            fine(n,fk  ,fj+1,fi+1) = ccval + (gx1c*dx1fp + gx2c*dx2fp - gx3c*dx3fm);
-            fine(n,fk+1,fj  ,fi  ) = ccval - (gx1c*dx1fm + gx2c*dx2fm - gx3c*dx3fp);
-            fine(n,fk+1,fj  ,fi+1) = ccval + (gx1c*dx1fp - gx2c*dx2fm + gx3c*dx3fp);
-            fine(n,fk+1,fj+1,fi  ) = ccval - (gx1c*dx1fm - gx2c*dx2fp - gx3c*dx3fp);
-            fine(n,fk+1,fj+1,fi+1) = ccval + (gx1c*dx1fp + gx2c*dx2fp + gx3c*dx3fp);
+
+
+            if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0) {
+              fine(n,fk  ,fj  ,fi  ) = 0.125 * cvol_(i)/fvol_[0][0](fi) * ( ccval - (gx1c*dx1fm + gx2c*dx2fm + gx3c*dx3fm) );
+              fine(n,fk  ,fj  ,fi+1) = 0.125 * cvol_(i)/fvol_[0][0](fi+1) * (ccval + (gx1c*dx1fp - gx2c*dx2fm - gx3c*dx3fm) );
+              fine(n,fk  ,fj+1,fi  ) = 0.125 * cvol_(i)/fvol_[0][1](fi) * (ccval - (gx1c*dx1fm - gx2c*dx2fp + gx3c*dx3fm) );
+              fine(n,fk  ,fj+1,fi+1) = 0.125 * cvol_(i)/fvol_[0][1](fi+1) * (ccval + (gx1c*dx1fp + gx2c*dx2fp - gx3c*dx3fm) );
+              fine(n,fk+1,fj  ,fi  ) = 0.125 * cvol_(i)/fvol_[1][0](fi) * (ccval - (gx1c*dx1fm + gx2c*dx2fm - gx3c*dx3fp) );
+              fine(n,fk+1,fj  ,fi+1) = 0.125 * cvol_(i)/fvol_[1][0](fi+1) * (ccval + (gx1c*dx1fp - gx2c*dx2fm + gx3c*dx3fp) );
+              fine(n,fk+1,fj+1,fi  ) = 0.125 * cvol_(i)/fvol_[1][1](fi) * (ccval - (gx1c*dx1fm - gx2c*dx2fp - gx3c*dx3fp) );
+              fine(n,fk+1,fj+1,fi+1) = 0.125 * cvol_(i)/fvol_[1][1](fi+1) * (ccval + (gx1c*dx1fp + gx2c*dx2fp + gx3c*dx3fp) );
+
+            }
+            else{
+              fine(n,fk  ,fj  ,fi  ) = ccval - (gx1c*dx1fm + gx2c*dx2fm + gx3c*dx3fm);
+              fine(n,fk  ,fj  ,fi+1) = ccval + (gx1c*dx1fp - gx2c*dx2fm - gx3c*dx3fm);
+              fine(n,fk  ,fj+1,fi  ) = ccval - (gx1c*dx1fm - gx2c*dx2fp + gx3c*dx3fm);
+              fine(n,fk  ,fj+1,fi+1) = ccval + (gx1c*dx1fp + gx2c*dx2fp - gx3c*dx3fm);
+              fine(n,fk+1,fj  ,fi  ) = ccval - (gx1c*dx1fm + gx2c*dx2fm - gx3c*dx3fp);
+              fine(n,fk+1,fj  ,fi+1) = ccval + (gx1c*dx1fp - gx2c*dx2fm + gx3c*dx3fp);
+              fine(n,fk+1,fj+1,fi  ) = ccval - (gx1c*dx1fm - gx2c*dx2fp - gx3c*dx3fp);
+              fine(n,fk+1,fj+1,fi+1) = ccval + (gx1c*dx1fp + gx2c*dx2fp + gx3c*dx3fp);
+            }
           }
         }
       }
