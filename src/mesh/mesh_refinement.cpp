@@ -1551,60 +1551,121 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
           Real diff = coarse_flux-fine_flux;
 
-          // fprintf(stderr,"Coarse flux: %g fine_flux: %g diff: %g \n",coarse_flux,fine_flux,diff);
-
-          // fine.x1f(fk  ,fj  ,fi+1) =
-          //     (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
-          //           fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
-          //      + Uxx - Sdx3*Vxyz - Sdx2*Wxyz) /sarea_x1_[0][0](fi+1);
-          // fine.x1f(fk  ,fj+1,fi+1) =
-          //     (0.5*(fine.x1f(fk  ,fj+1,fi  )*sarea_x1_[0][1](fi  ) +
-          //           fine.x1f(fk  ,fj+1,fi+2)*sarea_x1_[0][1](fi+2))
-          //      + Uxx - Sdx3*Vxyz + Sdx2*Wxyz) /sarea_x1_[0][1](fi+1);
-          // fine.x1f(fk+1,fj  ,fi+1) =
-          //     (0.5*(fine.x1f(fk+1,fj  ,fi  )*sarea_x1_[1][0](fi  ) +
-          //           fine.x1f(fk+1,fj  ,fi+2)*sarea_x1_[1][0](fi+2))
-          //      + Uxx + Sdx3*Vxyz - Sdx2*Wxyz) /sarea_x1_[1][0](fi+1);
-          // fine.x1f(fk+1,fj+1,fi+1) =
-          //     (0.5*(fine.x1f(fk+1,fj+1,fi  )*sarea_x1_[1][1](fi  ) +
-          //           fine.x1f(fk+1,fj+1,fi+2)*sarea_x1_[1][1](fi+2))
-          //      + Uxx + Sdx3*Vxyz + Sdx2*Wxyz) /sarea_x1_[1][1](fi+1);
-
-          // fine.x2f(fk  ,fj+1,fi  ) =
-          //     (0.5*(fine.x2f(fk  ,fj  ,fi  )*sarea_x2_[0][0](fi  ) +
-          //           fine.x2f(fk  ,fj+2,fi  )*sarea_x2_[0][2](fi  ))
-          //      + Vyy - Sdx3*Uxyz - Sdx1*Wxyz) /sarea_x2_[0][1](fi  );
-          // fine.x2f(fk  ,fj+1,fi+1) =
-          //     (0.5*(fine.x2f(fk  ,fj  ,fi+1)*sarea_x2_[0][0](fi+1) +
-          //           fine.x2f(fk  ,fj+2,fi+1)*sarea_x2_[0][2](fi+1))
-          //      + Vyy - Sdx3*Uxyz + Sdx1*Wxyz) /sarea_x2_[0][1](fi+1);
-          // fine.x2f(fk+1,fj+1,fi  ) =
-          //     (0.5*(fine.x2f(fk+1,fj  ,fi  )*sarea_x2_[1][0](fi  ) +
-          //           fine.x2f(fk+1,fj+2,fi  )*sarea_x2_[1][2](fi  ))
-          //      + Vyy + Sdx3*Uxyz - Sdx1*Wxyz) /sarea_x2_[1][1](fi  );
-          // fine.x2f(fk+1,fj+1,fi+1) =
-          //     (0.5*(fine.x2f(fk+1,fj  ,fi+1)*sarea_x2_[1][0](fi+1) +
-          //           fine.x2f(fk+1,fj+2,fi+1)*sarea_x2_[1][2](fi+1))
-          //      + Vyy + Sdx3*Uxyz + Sdx1*Wxyz) /sarea_x2_[1][1](fi+1);
-
-          // fine.x3f(fk+1,fj  ,fi  ) =
-          //     (0.5*(fine.x3f(fk+2,fj  ,fi  )*sarea_x3_[2][0](fi  ) +
-          //           fine.x3f(fk  ,fj  ,fi  )*sarea_x3_[0][0](fi  ))
-          //      + Wzz - Sdx2*Uxyz - Sdx1*Vxyz) /sarea_x3_[1][0](fi  );
-          // fine.x3f(fk+1,fj  ,fi+1) =
-          //     (0.5*(fine.x3f(fk+2,fj  ,fi+1)*sarea_x3_[2][0](fi+1) +
-          //           fine.x3f(fk  ,fj  ,fi+1)*sarea_x3_[0][0](fi+1))
-          //      + Wzz - Sdx2*Uxyz + Sdx1*Vxyz) /sarea_x3_[1][0](fi+1);
-          // fine.x3f(fk+1,fj+1,fi  ) =
-          //     (0.5*(fine.x3f(fk+2,fj+1,fi  )*sarea_x3_[2][1](fi  ) +
-          //           fine.x3f(fk  ,fj+1,fi  )*sarea_x3_[0][1](fi  ))
-          //      + Wzz + Sdx2*Uxyz - Sdx1*Vxyz) /sarea_x3_[1][1](fi  );
-          // fine.x3f(fk+1,fj+1,fi+1) =
-          //     (0.5*(fine.x3f(fk+2,fj+1,fi+1)*sarea_x3_[2][1](fi+1) +
-          //           fine.x3f(fk  ,fj+1,fi+1)*sarea_x3_[0][1](fi+1))
-          //      + Wzz + Sdx2*Uxyz + Sdx1*Vxyz) /sarea_x3_[1][1](fi+1);
         }
       }
     }
     return;
+  }
+
+
+  void MeshRefinement::CheckConservedQuantitiesAfterRestrict(AthenaArray<Real> &fine, AthenaArray<Real> &coarse, int sn, int en,
+    int csi, int cei, int csj, int cej, int csk, int cek){
+
+    MeshBlock *pmb = pmy_block_;
+    Coordinates *pco = pmb->pcoord;
+    int si = (csi - pmb->cis)*2 + pmb->is, ei = (cei - pmb->cis)*2 + pmb->is + 1;
+
+    // store the restricted data in the prolongation buffer for later use
+      for (int n=sn; n<=en; ++n) {
+        for (int ck=csk; ck<=cek; ck++) {
+          int k = (ck - pmb->cks)*2 + pmb->ks;
+          for (int cj=csj; cj<=cej; cj++) {
+            int j = (cj - pmb->cjs)*2 + pmb->js;
+            pco->CellVolume(k,j,si,ei,fvol_[0][0]);
+            pco->CellVolume(k,j+1,si,ei,fvol_[0][1]);
+            pco->CellVolume(k+1,j,si,ei,fvol_[1][0]);
+            pco->CellVolume(k+1,j+1,si,ei,fvol_[1][1]);
+
+            if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
+              pcoarsec->CellVolume(ck, cj, csi, cei, cvol_);
+            }
+            for (int ci=csi; ci<=cei; ci++) {
+              int i = (ci - pmb->cis)*2 + pmb->is;
+
+                Real fine_tot =  (((fine(n,k  ,j  ,i)*fvol_[0][0](i) + fine(n,k  ,j+1,i)*fvol_[0][1](i))
+                    + (fine(n,k  ,j  ,i+1)*fvol_[0][0](i+1) +
+                       fine(n,k  ,j+1,i+1)*fvol_[0][1](i+1)))
+                   + ((fine(n,k+1,j  ,i)*fvol_[1][0](i) + fine(n,k+1,j+1,i)*fvol_[1][1](i))
+                      + (fine(n,k+1,j  ,i+1)*fvol_[1][0](i+1) +
+                         fine(n,k+1,j+1,i+1)*fvol_[1][1](i+1))));
+
+                // Real fine_loc1 = fine(n,k  ,j  ,i)*fvol_[0][0](i);
+                // Real fine_loc2 = fine(n,k  ,j+1,i)*fvol_[0][1](i);
+                // Real fine_loc3 = fine(n,k  ,j  ,i+1)*fvol_[0][0](i+1);
+                // Real fine_loc4 = fine(n,k  ,j+1,i+1)*fvol_[0][1](i+1);
+                // Real fine_loc5 = fine(n,k+1,j  ,i)*fvol_[1][0](i);
+                // Real fine_loc6 = fine(n,k+1,j+1,i)*fvol_[1][1](i);
+                // Real fine_loc7 = fine(n,k+1,j  ,i+1)*fvol_[1][0](i+1);
+                // Real fine_loc8 = fine(n,k+1,j+1,i+1)*fvol_[1][1](i+1);
+
+                Real coarse_tot = coarse(n,ck,cj,ci)*cvol_(ci);
+
+                if (fabs(coarse_tot-fine_tot)>1e-14){
+                 fprintf(stderr,"Restrict does not conserve quantity!!! \n coarse_tot: %g fine_tot: %g \n",coarse_tot,fine_tot );
+                }
+
+            }
+          }
+        }
+      }
+
+      return;
+
+  }
+
+
+  void MeshRefinement::CheckConservedQuantitiesAfterProlong(
+    AthenaArray<Real> &coarse, AthenaArray<Real> &fine,
+    int sn, int en, int si, int ei, int sj, int ej, int sk, int ek){
+  MeshBlock *pmb = pmy_block_;
+  Coordinates *pco = pmb->pcoord;
+  int fsi = (si - pmb->cis)*2 + pmb->is, fei = (ei - pmb->cis)*2 + pmb->is + 1;
+    for (int n=sn; n<=en; n++) {
+      for (int k=sk; k<=ek; k++) {
+        int fk = (k - pmb->cks)*2 + pmb->ks;
+        for (int j = sj; j<=ej; j++) {
+          int fj = (j - pmb->cjs)*2 + pmb->js;
+
+          pcoarsec->CellVolume(k, j, si, ei, cvol_);
+          pco->CellVolume(fk,fj,fsi,fei,fvol_[0][0]);
+          pco->CellVolume(fk,fj+1,fsi,fei,fvol_[0][1]);
+          pco->CellVolume(fk+1,fj,fsi,fei,fvol_[1][0]);
+          pco->CellVolume(fk+1,fj+1,fsi,fei,fvol_[1][1]);
+          for (int i=si; i<=ei; i++) {
+            int fi = (i - pmb->cis)*2 + pmb->is;
+
+
+            // KGF: add the off-centered quantities first to preserve FP symmetry
+            // interpolate onto the finer grid
+
+          Real fine_tot=0;
+
+          for (int di=0; di<=1; di++){
+            for (int dj=0; dj<=1; dj++){
+              for (int dk=0; dk<=1; dk++){
+                Real dfine =  fine(n,fk+dk  ,fj+dj  ,fi+di  )* fvol_[dk][dj](di+fi);
+                fine_tot += dfine;
+
+                Real coarse_tot = coarse(n,k,j,i)*cvol_(i);
+
+
+                if (fabs(coarse_tot*0.125-dfine)>1e-14){
+                   fprintf(stderr,"Prolong does not conserve quantity!! \n new_flux: %g old_flux: %g",dfine,coarse_tot );
+                }
+
+              }
+            }
+          }
+
+          if (fabs(coarse_flux-fine_tot)>1e-14){
+            fprintf(stderr,"Prolong does not conserve total quantity!! \n new_flux: %g old_flux: %g \n",fine_tot,coarse_to );
+          }
+
+
+          }
+        }
+      }
+    }
+
+  return;
   }

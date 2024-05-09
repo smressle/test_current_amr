@@ -78,6 +78,13 @@ class MeshRefinement {
 
   void CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceField &coarse,
                        int csi, int cei, int csj, int cej, int csk, int cek);
+
+  void CheckConservedQuantitiesAfterProlong(
+    AthenaArray<Real> &coarse, AthenaArray<Real> &fine,
+    int sn, int en, int si, int ei, int sj, int ej, int sk, int ek);
+
+  void CheckConservedQuantitiesAfterRestrict(AthenaArray<Real> &fine, AthenaArray<Real> &coarse, int sn, int en,
+    int csi, int cei, int csj, int cej, int csk, int cek);
   void CheckRefinementCondition();
 
   // setter functions for "enrolling" variable arrays in refinement via Mesh::AMR()
@@ -97,7 +104,7 @@ class MeshRefinement {
 
   //AthenaArray<Real> fvol_[2][2], sarea_x1_[2][2], sarea_x2_[2][3], sarea_x3_[3][2];
   AthenaArray<Real> fvol_[2][2], sarea_x1_[3][3], sarea_x2_[3][3], sarea_x3_[3][3];
-  AthenaArray<Real> cvol_; csarea_x1_, csarea_x2_, csarea_x3_,csarea_x2p_, csarea_x3p_;
+  AthenaArray<Real> cvol_, csarea_x1_, csarea_x2_, csarea_x3_,csarea_x2p_, csarea_x3p_;
   int refine_flag_, neighbor_rflag_, deref_count_, deref_threshold_;
 
   // functions
