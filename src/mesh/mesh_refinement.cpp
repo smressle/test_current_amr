@@ -1650,7 +1650,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
                 if (fabs(coarse_tot*0.125-dfine)>1e-14){
-                   fprintf(stderr,"Prolong does not conserve quantity!! \n new_flux: %g old_flux: %g",dfine,coarse_tot );
+                   fprintf(stderr,"Prolong does not conserve quantity!! \n new_flux: %g old_flux: %g diff: %g\n",dfine,coarse_tot*0.125,dfine-coarse_tot*0.125  );
                 }
 
               }
