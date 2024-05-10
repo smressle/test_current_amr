@@ -1601,7 +1601,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
                 Real coarse_tot = coarse(n,ck,cj,ci)*cvol_(ci);
 
                 if (fabs(coarse_tot-fine_tot)>1e-14){
-                 fprintf(stderr,"Restrict does not conserve quantity!!! \n coarse_tot: %g fine_tot: %g \n",coarse_tot,fine_tot );
+                 fprintf(stderr,"Restrict does not conserve quantity!!! \n coarse_tot: %g fine_tot: %g diff: %g \n",coarse_tot,fine_tot, coarse_tot-fine_tot );
                 }
 
             }
