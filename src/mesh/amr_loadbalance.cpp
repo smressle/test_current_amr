@@ -354,8 +354,8 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   if (mesh_size.nx3 > 1) nleaf = 8;
 
 
-  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Refinement in b");
+  // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+  //       my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Refinement in b");
   // Step 1. construct new lists
   LogicalLocation *newloc = new LogicalLocation[ntot];
   int *newrank = new int[ntot];
@@ -668,8 +668,8 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
 
   Initialize(2, pin);
 
-    if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
+    // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+    //     my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
 
   ResetLoadBalanceVariables();
 
@@ -775,10 +775,10 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cjs, pb->cje,
                             pb->cks, pb->cke, p);
 
-    pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
-                                    pb->cis, pb->cie,
-                                    pb->cjs, pb->cje,
-                                    pb->cks, pb->cke);
+    // pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
+    //                                 pb->cis, pb->cie,
+    //                                 pb->cjs, pb->cje,
+    //                                 pb->cks, pb->cke);
 
   }
   for (auto fc_pair : pb->pmr->pvars_fc_) {
@@ -810,10 +810,10 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cks, pb->cke+f3, p);
 
 
-    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        pb->cis, pb->cie,
-                         pb->cjs, pb->cje,
-                         pb->cks, pb->cke);
+    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+    //                     pb->cis, pb->cie,
+    //                      pb->cjs, pb->cje,
+    //                      pb->cks, pb->cke);
   }
   return;
 }
@@ -845,10 +845,10 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                                     pob->cjs, pob->cje,
                                     pob->cks, pob->cke);
 
-     pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
-                                    pob->cis, pob->cie,
-                                    pob->cjs, pob->cje,
-                                    pob->cks, pob->cke);
+     // pmr->CheckConservedQuantitiesAfterRestrict(*var_cc, *coarse_cc, 0, nu,
+     //                                pob->cis, pob->cie,
+     //                                pob->cjs, pob->cje,
+     //                                pob->cks, pob->cke);
     // copy from old/original/other MeshBlock (pob) to newly created block (pmb)
     AthenaArray<Real> &src = *coarse_cc;
     AthenaArray<Real> &dst = *std::get<0>(*pmb_cc_it); // pmb->phydro->u;
@@ -881,10 +881,10 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                          pob->cks, pob->cke+f3);
 
 
-    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        pob->cis, pob->cie,
-                         pob->cjs, pob->cje,
-                         pob->cks, pob->cke);
+    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+    //                     pob->cis, pob->cie,
+    //                      pob->cjs, pob->cje,
+    //                      pob->cks, pob->cke);
     FaceField &src_b = *coarse_fc;
     FaceField &dst_b = *std::get<0>(*pmb_fc_it); // pmb->pfield->b;
     for (int k=kl, fk=pob->cks; fk<=pob->cke; k++, fk++) {
@@ -960,7 +960,7 @@ void Mesh::FillSameRankCoarseToFineAMR(MeshBlock* pob, MeshBlock* pmb,
         dst, *var_cc, 0, nu,
         pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
 
-    pmr->CheckConservedQuantitiesAfterProlong(dst, *var_cc,0, nu,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
+    // pmr->CheckConservedQuantitiesAfterProlong(dst, *var_cc,0, nu,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
     pob_cc_it++;
   }
 
@@ -1004,7 +1004,7 @@ void Mesh::FillSameRankCoarseToFineAMR(MeshBlock* pob, MeshBlock* pmb,
         *var_fc, pob->cis, pob->cie,
         pob->cjs, pob->cje, pob->cks, pob->cke);
 
-    pmr->CheckFieldDivergenceAfterProlongate(dst_b,*var_fc,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
+    // pmr->CheckFieldDivergenceAfterProlongate(dst_b,*var_fc,pob->cis, pob->cie, pob->cjs, pob->cje, pob->cks, pob->cke);
     pob_fc_it++;
   }
   return;
@@ -1113,7 +1113,7 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
         *coarse_cc, *var_cc, 0, nu,
         pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
 
-    pmr->CheckConservedQuantitiesAfterProlong(*coarse_cc, *var_cc,0, nu,pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
+    // pmr->CheckConservedQuantitiesAfterProlong(*coarse_cc, *var_cc,0, nu,pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
 
   }
   for (auto fc_pair : pb->pmr->pvars_fc_) {
@@ -1140,8 +1140,8 @@ void Mesh::FinishRecvCoarseToFineAMR(MeshBlock *pb, Real *recvbuf) {
         pb->cjs, pb->cje, pb->cks, pb->cke);
 
 
-    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
-        pb->cjs, pb->cje, pb->cks, pb->cke);
+    // pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
+    //     pb->cjs, pb->cje, pb->cks, pb->cke);
 
   }
   return;
