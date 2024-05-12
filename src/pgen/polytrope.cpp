@@ -44,14 +44,18 @@ Real gconst;
 Real m_refine;
 LogicalLocation *loc_list;              /* List of logical locations of meshblocks */
 int n_mb = 0; /* Number of meshblocks */
-Real R_max,xvel,yvel,gam,gm1,gm_,kappa,T_W,da,pa,dc,x1_0,x2_0,x3_0;
+Real R_max,xvel,yvel,gam,gm1,gm_,kappa,T_W,da,pa,dc,x1_0,x2_0,x3_0,r_inner_boundary;
 }  // namespace
 
 
 int MassRefine(MeshBlock *pmb);
 void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim);
-void inner_boundary_function(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim );
-
+void inner_boundary_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half, const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar);
 
 void Mesh::InitUserMeshData(ParameterInput *pin) {
 
@@ -169,7 +173,12 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin){
 }
 
 
-void inner_boundary_function(MeshBlock *pmb,const Real t, const Real dt_hydro, const AthenaArray<Real> &prim_old, AthenaArray<Real> &prim )
+void inner_boundary_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
+  const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
+  const AthenaArray<Real> &prim_old,const AthenaArray<Real> &prim_half,  AthenaArray<Real> &prim, 
+  const FaceField &bb_half, const FaceField &bb,
+  const AthenaArray<Real> &s_old,const AthenaArray<Real> &s_half, AthenaArray<Real> &s_scalar, 
+  const AthenaArray<Real> &r_half, AthenaArray<Real> &prim_scalar)
 {
 
   apply_inner_boundary_condition(pmb,prim);
@@ -210,7 +219,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim){
 
           r = sqrt( SQR(x) + SQR(y) + SQR(z));
 
-          if (r < pmb->r_inner_boundary){
+          if (r < r_inner_boundary){
               
             // if (r < R_max) {
               // den_pol = dc*R_max/(PI*rad)*std::sin((PI*rad)/R_max);
