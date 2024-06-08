@@ -213,7 +213,7 @@ void EquationOfState::ConservedToPrimitive(
         //   exit(0);
         // }
 
-        if (gamma>1e2) success=false;
+        if (gamma>gamma_max_) success=false;
 
         // Handle failures
         if (!success) {
