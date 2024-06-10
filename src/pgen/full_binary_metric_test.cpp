@@ -2260,10 +2260,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                        + g(I33,i)*uu3*uu3;
               gamma = std::sqrt(1.0 + tmp);
 
-              
+
               if (gamma>gamma_max){
 
-                fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a1: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a1x,a1y,a1z);
+                fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a2: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a2x,a2y,a2z);
 
                 Real ratio = gamma_max/gamma;
 
