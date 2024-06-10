@@ -184,6 +184,8 @@ int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR 
 static Real SMALL = 1e-7;
 #define DEL 1e-4;
 
+Real gamma_max;
+
 
 //This function performs L * A = A_new 
 void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
@@ -314,6 +316,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   // if (MAGNETIC_FIELDS_ENABLED) EnrollUserExplicitEMFSourceFunction(emf_source);
 
   // fprintf(stderr,"Done with set_orbit_arrays \n");
+
+
+  gamma_max = pin->GetOrAddReal("hydro", "gamma_max", 1000.0);
 
   return;
 }
@@ -1934,6 +1939,32 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               gamma = std::sqrt(1.0 + tmp);
 
 
+              if (gamma>gamma_max){
+
+                fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a1: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a1x,a1y,a1z);
+
+                Real ratio = gamma_max/gamma;
+
+                u0prime *= ratio;
+                u1prime *= ratio;
+                u2prime *= ratio;
+                u3prime *= ratio;
+
+                gamma = gamma_max;
+
+
+                uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+                uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+                uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+
+                prim(IVX,k,j,i) = uu1;
+                prim(IVY,k,j,i) = uu2;
+                prim(IVZ,k,j,i) = uu3;
+
+              }
+
+
               // if (gamma>1e3){
               //   fprintf(stderr, "HUGE gamma in horizon 1: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
               // }
@@ -2228,6 +2259,33 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                        + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                        + g(I33,i)*uu3*uu3;
               gamma = std::sqrt(1.0 + tmp);
+
+              
+              if (gamma>gamma_max){
+
+                fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a1: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a1x,a1y,a1z);
+
+                Real ratio = gamma_max/gamma;
+
+                u0prime *= ratio;
+                u1prime *= ratio;
+                u2prime *= ratio;
+                u3prime *= ratio;
+
+                gamma = gamma_max;
+
+
+                uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+                uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+                uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+
+                prim(IVX,k,j,i) = uu1;
+                prim(IVY,k,j,i) = uu2;
+                prim(IVZ,k,j,i) = uu3;
+
+              }
+
 
 
               // if (gamma>1e3){
