@@ -1755,6 +1755,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
 
+          if (rprime < rhprime*0.8) {
+            rprime = rhprime*0.8;
+            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
+          }
+
           if (rprime < rh){
 
               Real bsq_over_rho_max = 1.0;
@@ -1943,24 +1948,24 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
                 fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a1: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a1x,a1y,a1z);
 
-                Real ratio = gamma_max/gamma;
+                // Real ratio = gamma_max/gamma;
 
-                u0prime *= ratio;
-                u1prime *= ratio;
-                u2prime *= ratio;
-                u3prime *= ratio;
+                // u0prime *= ratio;
+                // u1prime *= ratio;
+                // u2prime *= ratio;
+                // u3prime *= ratio;
 
-                gamma = gamma_max;
-
-
-                uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
-                uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
-                uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+                // gamma = gamma_max;
 
 
-                prim(IVX,k,j,i) = uu1;
-                prim(IVY,k,j,i) = uu2;
-                prim(IVZ,k,j,i) = uu3;
+                // uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+                // uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+                // uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+
+                // prim(IVX,k,j,i) = uu1;
+                // prim(IVY,k,j,i) = uu2;
+                // prim(IVZ,k,j,i) = uu3;
 
               }
 
@@ -2018,6 +2023,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           // Real thprime,phiprime;
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
+
+          if (rprime < rhprime*0.8) {
+            rprime = rhprime*0.8;
+            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+          }
 
           if (rprime < rh2){
 
@@ -2265,24 +2275,24 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
                 fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a2: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a2x,a2y,a2z);
 
-                Real ratio = gamma_max/gamma;
+                // Real ratio = gamma_max/gamma;
 
-                u0prime *= ratio;
-                u1prime *= ratio;
-                u2prime *= ratio;
-                u3prime *= ratio;
+                // u0prime *= ratio;
+                // u1prime *= ratio;
+                // u2prime *= ratio;
+                // u3prime *= ratio;
 
-                gamma = gamma_max;
-
-
-                uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
-                uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
-                uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+                // gamma = gamma_max;
 
 
-                prim(IVX,k,j,i) = uu1;
-                prim(IVY,k,j,i) = uu2;
-                prim(IVZ,k,j,i) = uu3;
+                // uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+                // uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+                // uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+
+                // prim(IVX,k,j,i) = uu1;
+                // prim(IVY,k,j,i) = uu2;
+                // prim(IVZ,k,j,i) = uu3;
 
               }
 
