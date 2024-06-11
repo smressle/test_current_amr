@@ -1755,8 +1755,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
 
-          if (rprime < rhprime*0.8) {
-            rprime = rhprime*0.8;
+          if (rprime < rh*0.8) {
+            rprime = rh*0.8;
             convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
           }
 
@@ -2024,8 +2024,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
 
 
-          if (rprime < rhprime*0.8) {
-            rprime = rhprime*0.8;
+          if (rprime < rh2*0.8) {
+            rprime = rh2*0.8;
             convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
           }
 
