@@ -2029,7 +2029,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Omega = 1.0/std::sqrt( std::pow(radius,1.5) + a);
         // Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
-        Real H_over_r_target = 0.1;
+        Real H_over_r_target = 0.02;
         Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
 
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
