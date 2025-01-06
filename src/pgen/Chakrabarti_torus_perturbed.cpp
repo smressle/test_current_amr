@@ -143,6 +143,7 @@ static Real Omega_bh2;
 static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
 static Real orbit_inclination;
+static Real H_over_r_target;
 
 // Real rotation_matrix[3][3];
 
@@ -494,6 +495,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pert_amp = pin->GetOrAddReal("problem", "pert_amp", 0.0);
   pert_kr = pin->GetOrAddReal("problem", "pert_kr", 0.0);
   pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
+
+  H_over_r_target = pin->GetOrAddReal("problem", "H_over_r", 0.1);
+
 
 
   max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
@@ -2029,7 +2033,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Omega = 1.0/std::sqrt( std::pow(radius,1.5) + a);
         // Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
-        Real H_over_r_target = 0.02;
+        // Real H_over_r_target = 0.02;
         Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
 
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
