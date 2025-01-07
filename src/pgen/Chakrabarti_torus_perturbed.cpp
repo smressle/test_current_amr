@@ -2030,6 +2030,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
         // Real v_kep = std::sqrt((1.0 + q)/radius);
 
+        // See Teixeira+ 2014 https://iopscience.iop.org/article/10.1088/0004-637X/796/2/103
+
         Real Omega = 1.0/std::sqrt( std::pow(radius,1.5) + a);
         // Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
@@ -2064,32 +2066,49 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
 
-       Real bsq = 0.0;
-       if (MAGNETIC_FIELDS_ENABLED){
-            // Calculate 4-magnetic field
-          Real bb1 = bcc(IB1,k,j,i);
-          Real bb2 = bcc(IB2,k,j,i);
-          Real bb3 = bcc(IB3,k,j,i);
-          Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                  + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                  + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                  + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-          Real b1 = (bb1 + b0 * u1) / u0;
-          Real b2 = (bb2 + b0 * u2) / u0;
-          Real b3 = (bb3 + b0 * u3) / u0;
-          Real b_0, b_1, b_2, b_3;
-          pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+       // Real bsq = 0.0;
+       // if (MAGNETIC_FIELDS_ENABLED){
+       //      // Calculate 4-magnetic field
+       //    Real bb1 = bcc(IB1,k,j,i);
+       //    Real bb2 = bcc(IB2,k,j,i);
+       //    Real bb3 = bcc(IB3,k,j,i);
+       //    Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+       //            + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+       //            + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+       //            + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+       //    Real b1 = (bb1 + b0 * u1) / u0;
+       //    Real b2 = (bb2 + b0 * u2) / u0;
+       //    Real b3 = (bb3 + b0 * u3) / u0;
+       //    Real b_0, b_1, b_2, b_3;
+       //    pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-          // Calculate magnetic pressure
-          bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+       //    // Calculate magnetic pressure
+       //    bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
-        }
+       //  }
 
-        Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+        // Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+
+
+        // Do not include bsq in enthalpy
+        Real Be = - ( 1.0 + ug/prim(IDN,k,j,i) + prim(IPR,k,j,i)/prim(IDN,k,j,i) ) * u_0 -1.0; 
+
 
 
         if (Be>0) L_cool = 0.0;
-        cons(IEN,k,j,i) += -dt * L_cool * u_0;
+
+        // Calculate Boyer-Lindquist coordinates of cell
+        rh = ( m + std::sqrt(SQR(m)-SQR(a)) );
+        if (radius < rh) L_cool = 0.0;
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+        get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
+
+        if (rprime < rhprime) L_cool = 0.0;
+
+
+        cons(IEN,k,j,i) +=  dt * L_cool * u_0;  // This is positive because E = - T_t^t
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
