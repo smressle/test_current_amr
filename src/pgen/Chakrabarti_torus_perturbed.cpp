@@ -2108,7 +2108,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if (rprime < rhprime) L_cool = 0.0;
 
 
-        cons(IEN,k,j,i) +=  dt * L_cool * u_0;  // This is positive because E = - T_t^t
+        cons(IEN,k,j,i) += -dt * L_cool * u_0; 
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
