@@ -126,6 +126,7 @@ static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real potential_sinth_pow,potential_costh_pow;
+static Real extra_field_norm;                      // factor to multiply field by 
 static Real beta_min;                              // min ratio of gas to mag pressure
 static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
 static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
@@ -485,6 +486,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
     potential_sinth_pow = pin->GetOrAddReal("problem", "potential_sinth_pow",0.0);
     potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0.0);
+
+    extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
+
 
 
     beta_min = pin->GetReal("problem", "beta_min");
@@ -1153,7 +1157,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-        normalization = 1.0;
+        normalization = 1.0 * extra_field_norm;
 
     // Calculate vector potential in renormalized case
     } else if (field_config == MAD){
@@ -1205,7 +1209,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-      normalization = 0.5715/7.8780470912524105 * std::sqrt(10.0) ;
+      normalization = 0.5715/7.8780470912524105 * std::sqrt(10.0) * extra_field_norm ;
 
     }
     else {
