@@ -125,6 +125,7 @@ static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
 static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
+static Real potential_sinth_pow,potential_costh_pow;
 static Real beta_min;                              // min ratio of gas to mag pressure
 static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
 static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
@@ -482,6 +483,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     potential_cutoff = pin->GetReal("problem", "potential_cutoff");
     potential_r_pow = pin->GetReal("problem", "potential_r_pow");
     potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
+    potential_sinth_pow = pin->GetorAddReal("problem", "potential_sinth_pow",0,0);
+    potential_costh_pow = pin->GetorAddReal("problem", "potential_costh_pow",0,0);
+
 
     beta_min = pin->GetReal("problem", "beta_min");
 
@@ -1109,7 +1113,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
                 a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow);
+                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(std::sin(theta),potential_sinth_pow)
+                    * std::pow(std::cos(theta),potential_costh_pow);
               }
              }
             }
@@ -1128,7 +1134,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
                 a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow);
+                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(std::sin(theta),potential_sinth_pow)
+                    * std::pow(std::cos(theta),potential_costh_pow);
               }
             }
             }
