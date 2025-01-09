@@ -483,8 +483,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     potential_cutoff = pin->GetReal("problem", "potential_cutoff");
     potential_r_pow = pin->GetReal("problem", "potential_r_pow");
     potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
-    potential_sinth_pow = pin->GetOrAddReal("problem", "potential_sinth_pow",0,0);
-    potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0,0);
+    potential_sinth_pow = pin->GetOrAddReal("problem", "potential_sinth_pow",0.0);
+    potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0.0);
 
 
     beta_min = pin->GetReal("problem", "beta_min");
