@@ -2054,6 +2054,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real kappa_0 = 0.01;
         // Real delta_kappa = kappa-kappa_0;
 
+        if (Y>2.0) Y = 2.0;
         Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
 
         // Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::fabs(delta_kappa/kappa_0)  );
