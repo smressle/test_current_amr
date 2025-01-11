@@ -2129,7 +2129,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
 
         if (std::abs(cons(IEN,k,j,i)) > 1e10){
-          fprintf(stderr,"Very large engery!!: E: %g L_cool: %g u_0: %g Y: %g ug: %g Omega: %g  \n", cons(IEN,k,j,i),L_cool,u_0, Y, ug,Omega)
+          fprintf(stderr,"Very large engery!!: E: %g L_cool: %g u_0: %g Y: %g ug: %g Omega: %g  \n", cons(IEN,k,j,i),L_cool,u_0, Y, ug,Omega);
         }
 
       }
