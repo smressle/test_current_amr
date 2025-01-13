@@ -1184,8 +1184,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(theta),potential_sinth_pow)
-                    * std::pow(std::cos(theta),potential_costh_pow);
-                    * std::cos(2.0*PI * r/loop_radius)
+                    * std::pow(std::cos(theta),potential_costh_pow)
+                    * std::cos(2.0*PI * r/loop_radius);
               }
              }
             }
