@@ -37,7 +37,7 @@
 #endif
 
 // Declarations
-enum b_configs {vertical, normal, renorm, MAD};
+enum b_configs {vertical, normal, renorm, MAD,multi_loop};
 void FixedBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                    FaceField &bb, Real time, Real dt,
                    int is, int ie, int js, int je, int ks, int ke, int ghost);
@@ -126,6 +126,7 @@ static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real potential_sinth_pow,potential_costh_pow;
+static Real loop_radius;
 static Real extra_field_norm;                      // factor to multiply field by 
 static Real beta_min;                              // min ratio of gas to mag pressure
 static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
@@ -469,7 +470,11 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
                                                   "field_config");
     if (field_config_str == "normal") {
       field_config = normal;
-    } else if (field_config_str == "renorm") {
+    } 
+    else if (field_config_str == "multi_loop"){
+      field_config = multi_loop;
+    }
+      else if (field_config_str == "renorm") {
       field_config = renorm;
     } else if (field_config_str == "MAD"){
       field_config = MAD;
@@ -488,6 +493,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0.0);
 
     extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
+
+    loop_radius = pin->GetOrAddReal("problem","loop_radius",10.0);
 
 
 
@@ -1160,6 +1167,65 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         normalization = 1.0 * extra_field_norm;
 
     // Calculate vector potential in renormalized case
+    } 
+    else if (field_config == multi_loop) {
+
+      // Calculate edge-centered vector potential values for untilted disks
+        for (int k = kl; k<=ku+1; ++k) {
+        for (int j = jl; j <= ju+1; ++j) {
+          for (int i = il; i <= iu+1; ++i) {
+            Real r, theta, phi;
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),
+                &r, &theta, &phi);
+            if (r >= rin) {
+              if (in_torus(k,j,i) == true) {
+                Real rho = phydro->w(IDN,k,j,i);
+                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+                a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
+                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(std::sin(theta),potential_sinth_pow)
+                    * std::pow(std::cos(theta),potential_costh_pow);
+                    * std::cos(2.0*PI * r/loop_radius)
+              }
+             }
+            }
+          }
+        }
+
+      // Calculate cell-centered vector potential values for untilted disks
+        for (int k = kl; k<=ku; ++k) {
+        for (int j = jl; j <= ju; ++j) {
+          for (int i = il; i <= iu; ++i) {
+            Real r, theta, phi;
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),
+                &r, &theta, &phi);
+            if (r >= rin) {
+              if (in_torus(k,j,i) == true) {
+                Real rho = phydro->w(IDN,k,j,i);
+                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+                a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
+                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(std::sin(theta),potential_sinth_pow)
+                    * std::pow(std::cos(theta),potential_costh_pow);
+              }
+            }
+            }
+          }
+        }
+
+
+
+      // Calculate magnetic field normalization
+      // if (beta_min < 0.0) {
+      //   normalization = 0.0;
+      // } else {
+      //   Real beta_min_actual = CalculateBetaMin();
+      //   normalization = std::sqrt(beta_min_actual/beta_min);
+      // }
+
+        normalization = 1.0 * extra_field_norm;
+
+    // Calculate vector potential in renormalized case
     } else if (field_config == MAD){
       // Calculate edge-centered vector potential values for untilted disks
         for (int k = kl; k<=ku+1; ++k) {
@@ -1215,7 +1281,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     else {
       std::stringstream msg;
       msg << "### FATAL ERROR in Problem Generator\n"
-          << "field_config must be \"normal\" or \"MAD\"" << std::endl;
+          << "field_config must be \"normal\" or \"MAD\" or \"multi_loop\" " << std::endl;
       throw std::runtime_error(msg.str().c_str());
     }
 
