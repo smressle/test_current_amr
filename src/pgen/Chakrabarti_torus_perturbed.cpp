@@ -700,7 +700,7 @@ int RefinementCondition(MeshBlock *pmb)
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
           
-          for (int n_level = 5; n_level<=max_smr_refinement_level; n_level++){
+          for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
           
             Real x = pmb->pcoord->x1v(i);
             Real y = pmb->pcoord->x2v(j);
@@ -712,10 +712,14 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real z_radius;
 
-            if (n_level==5) z_radius = 13.5;
-            if (n_level==6) z_radius = 6.3;
-            if (n_level==7) z_radius = 3.2;
-            if (n_level==8) z_radius = 1.6;
+            if (n_level==1) z_radius = 250.0*0.9999;
+            if (n_level==2) z_radius = 125.0*0.9999;
+            if (n_level==3) z_radius = 62.5*0.9999
+            if (n_level==4) z_radius = 31.25*0.9999;
+            if (n_level==5) z_radius = 13.5*0.9999;
+            if (n_level==6) z_radius = 6.3*0.9999;
+            if (n_level==7) z_radius = 3.2*0.9999;
+            if (n_level==8) z_radius = 1.6*0.9999;
             // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
 
           
