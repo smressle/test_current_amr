@@ -714,7 +714,7 @@ int RefinementCondition(MeshBlock *pmb)
 
             if (n_level==1) z_radius = 250.0*0.9999;
             if (n_level==2) z_radius = 125.0*0.9999;
-            if (n_level==3) z_radius = 62.5*0.9999
+            if (n_level==3) z_radius = 62.5*0.9999;
             if (n_level==4) z_radius = 31.25*0.9999;
             if (n_level==5) z_radius = 13.5*0.9999;
             if (n_level==6) z_radius = 6.3*0.9999;
