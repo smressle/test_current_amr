@@ -708,7 +708,7 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real xprime,yprime,zprime,rprime,Rprime;
             get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            Real box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
             Real z_radius;
 
@@ -720,6 +720,8 @@ int RefinementCondition(MeshBlock *pmb)
             if (n_level==6) z_radius = 6.3*0.9999;
             if (n_level==7) z_radius = 3.2*0.9999;
             if (n_level==8) z_radius = 1.6*0.9999;
+
+            if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
 
           
