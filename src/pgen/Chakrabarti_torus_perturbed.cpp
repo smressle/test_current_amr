@@ -116,7 +116,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 // Global variables
 static Real m, a;                                  // black hole parameters
-static Real gamma_adi, k_adi;                      // hydro parameters
+static Real k_adi;                      // hydro parameters
 static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
 static Real log_h_edge, log_h_peak;                // calculated torus parameters
@@ -465,7 +465,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   r_peak = pin->GetReal("problem", "r_peak");
   n_pow = pin->GetReal("problem", "n_pow");
   rho_max = pin->GetReal("problem", "rho_max");
-  gamma_adi = peos->GetGamma();
+
   if (MAGNETIC_FIELDS_ENABLED) {
     std::string field_config_str = pin->GetString("problem",
                                                   "field_config");
@@ -904,7 +904,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
 
   // Get ratio of specific heats
-  gamma_adi = peos->GetGamma();
+  Real gamma_adi = peos->GetGamma();
   Real gam = gamma_adi;
 
 
@@ -2103,6 +2103,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+  Real gamma_adi = pmb->peos->GetGamma();
 
 
   // // Go through all cells
