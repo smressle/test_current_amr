@@ -465,6 +465,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   r_peak = pin->GetReal("problem", "r_peak");
   n_pow = pin->GetReal("problem", "n_pow");
   rho_max = pin->GetReal("problem", "rho_max");
+  gamma_adi = peos->GetGamma();
   if (MAGNETIC_FIELDS_ENABLED) {
     std::string field_config_str = pin->GetString("problem",
                                                   "field_config");
@@ -1220,7 +1221,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(theta),potential_sinth_pow)
-                    * std::pow(std::cos(theta),potential_costh_pow);
+                    * std::pow(std::cos(theta),potential_costh_pow) 
+                    * std::cos(2.0*PI * r/loop_radius);;
               }
             }
             }
