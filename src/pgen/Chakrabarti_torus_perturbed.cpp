@@ -126,6 +126,7 @@ static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real potential_sinth_pow,potential_costh_pow;
+static Real potential_theta_min, potential_theta_max;
 static Real loop_radius;
 static Real extra_field_norm;                      // factor to multiply field by 
 static Real beta_min;                              // min ratio of gas to mag pressure
@@ -1138,10 +1139,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               if (in_torus(k,j,i) == true) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+                Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(theta),potential_sinth_pow)
-                    * std::pow(std::cos(theta),potential_costh_pow);
+                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
+                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
               }
              }
             }
@@ -1159,10 +1161,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               if (in_torus(k,j,i) == true) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+                Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(theta),potential_sinth_pow)
-                    * std::pow(std::cos(theta),potential_costh_pow);
+                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
+                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
               }
             }
             }
