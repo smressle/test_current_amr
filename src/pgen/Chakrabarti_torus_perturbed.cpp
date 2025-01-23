@@ -1144,7 +1144,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
+                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
+                else a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
@@ -1166,7 +1167,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
+                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
+                else a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
