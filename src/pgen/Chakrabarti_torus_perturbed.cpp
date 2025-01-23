@@ -950,6 +950,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
   pgas_over_rho_peak = eps_c * (gam-1.0);
+  Real pgas_peak = pgas_over_rho_peak * rho_peak;
 
 
   AthenaArray<bool> in_torus; 
@@ -1143,10 +1144,18 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               if (in_torus(k,j,i) == true) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+
+                Real press = phydro->w(IPR,k,j,i);
+                Real press_cutoff = std::max(press-potential_cutoff*pgas_peak, static_cast<Real>(0.0));
+
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
+                // else a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
+                //     * std::pow(rho_cutoff, potential_rho_pow)
+                //     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
+                //     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
                 else a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(press_cutoff, potential_rho_pow)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
               }
@@ -1166,10 +1175,18 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               if (in_torus(k,j,i) == true) {
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+
+                Real press = phydro->w(IPR,k,j,i);
+                Real press_cutoff = std::max(press-potential_cutoff*pgas_peak, static_cast<Real>(0.0));
+
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
+                // else a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
+                //     * std::pow(rho_cutoff, potential_rho_pow)
+                //     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
+                //     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
                 else a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(press_cutoff, potential_rho_pow)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
               }
