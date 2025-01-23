@@ -494,6 +494,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     potential_sinth_pow = pin->GetOrAddReal("problem", "potential_sinth_pow",0.0);
     potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0.0);
 
+    potential_theta_min = pin->GetOrAddReal("problem", "potential_theta_min",0.0);
+    potential_theta_max = pin->GetOrAddReal("problem", "potential_theta_max",PI);
+
+
     extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
 
     loop_radius = pin->GetOrAddReal("problem","loop_radius",10.0);
