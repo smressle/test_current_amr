@@ -1229,9 +1229,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
                 a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(N_loops_theta * PI * scaled_theta),potential_sinth_pow)
+                    * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
+                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow)
-                    * std::sin(2.0*PI * (r-rin)/loop_radius);
+                    * std::sin(PI * (r-rin)/loop_radius);
               }
              }
             }
@@ -1253,9 +1254,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
                 a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(N_loops_theta * PI * scaled_theta),potential_sinth_pow)
+                    * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
+                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow) 
-                    * std::sin(2.0*PI * (r-rin)/loop_radius);
+                    * std::sin(PI * (r-rin)/loop_radius);
               }
             }
             }
