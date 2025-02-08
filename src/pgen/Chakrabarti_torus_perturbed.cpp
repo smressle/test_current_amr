@@ -723,17 +723,27 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real z_radius;
 
-            if (n_level==1) z_radius = 250.0*0.9999;
-            if (n_level==2) z_radius = 125.0*0.9999;
-            if (n_level==3) z_radius = 62.5*0.9999;
-            if (n_level==4) z_radius = 31.25*0.9999;
-            if (n_level==5) z_radius = 13.5*0.9999;
-            if (n_level==6) z_radius = 6.3*0.9999;
-            if (n_level==7) z_radius = 3.2*0.9999;
-            if (n_level==8) z_radius = 1.6*0.9999;
+            // if (n_level==1) z_radius = 250.0*0.9999;
+            // if (n_level==2) z_radius = 125.0*0.9999;
+            // if (n_level==3) z_radius = 62.5*0.9999;
+            // if (n_level==4) z_radius = 31.25*0.9999;
+            // if (n_level==5) z_radius = 13.5*0.9999;
+            // if (n_level==6) z_radius = 6.3*0.9999;
+            // if (n_level==7) z_radius = 3.2*0.9999;
+            // if (n_level==8) z_radius = 1.6*0.9999;
 
-            if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            // if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
+
+
+            if (n_level==1) z_radius = 62.5*0.9999;
+            if (n_level==2) z_radius = 31.25*0.9999;
+            if (n_level==3) z_radius = 13.5*0.9999;
+            if (n_level==4) z_radius = 6.3*0.9999;
+            if (n_level==5) z_radius = 3.2*0.9999;
+            if (n_level==6) z_radius = 1.6*0.9999;
+
+            if (n_level>=4) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
 
           
 
