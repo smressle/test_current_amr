@@ -1237,7 +1237,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow)
                     * std::sin(PI * (r-rin)/loop_radius)
                     * std::exp(-r/potential_r_exp_cut)
-                    * std::exp( -SQR(theta-PI/2.0)/potential_theta_scale_height);
+                    * std::exp( -SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
               }
              }
             }
@@ -1264,7 +1264,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow) 
                     * std::sin(PI * (r-rin)/loop_radius)
                     * std::exp(-r/potential_r_exp_cut)
-                    * std::exp( -SQR(theta-PI/2.0)/potential_theta_scale_height);
+                    * std::exp( -SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
               }
             }
             }
