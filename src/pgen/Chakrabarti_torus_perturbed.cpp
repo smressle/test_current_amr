@@ -128,6 +128,7 @@ static Real potential_r_pow, potential_rho_pow;    // set how vector potential s
 static Real potential_sinth_pow,potential_costh_pow;
 static Real potential_theta_min, potential_theta_max;
 static Real loop_radius;
+static Reel potential_r_exp_cut, potential_theta_scale_height;
 static Real N_loops_theta; 
 static Real extra_field_norm;                      // factor to multiply field by 
 static Real beta_min;                              // min ratio of gas to mag pressure
@@ -502,6 +503,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
     extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
 
     loop_radius = pin->GetOrAddReal("problem","loop_radius",10.0);
+    potential_r_exp_cut  = pin->GetOrAddReal("problem","potential_r_exp_cut",1e6);
+    potential_theta_scale_height = pin->GetOrAddReal("problem","potential_theta_scale_height",1e6);
     N_loops_theta = pin->GetOrAddReal("problem","N_loops_theta",1.0);
 
 
@@ -1232,7 +1235,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow)
-                    * std::sin(PI * (r-rin)/loop_radius);
+                    * std::sin(PI * (r-rin)/loop_radius)
+                    * std::exp(-r/potential_r_exp_cut)
+                    * std::exp( -SQR(th-PI/2.0)/potential_theta_scale_height);
               }
              }
             }
@@ -1257,7 +1262,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
                     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow) 
-                    * std::sin(PI * (r-rin)/loop_radius);
+                    * std::sin(PI * (r-rin)/loop_radius)
+                    * std::exp(-r/potential_r_exp_cut)
+                    * std::exp( -SQR(th-PI/2.0)/potential_theta_scale_height);
               }
             }
             }
