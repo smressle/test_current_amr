@@ -128,7 +128,7 @@ static Real potential_r_pow, potential_rho_pow;    // set how vector potential s
 static Real potential_sinth_pow,potential_costh_pow;
 static Real potential_theta_min, potential_theta_max;
 static Real loop_radius;
-static Reel potential_r_exp_cut, potential_theta_scale_height;
+static Real potential_r_exp_cut, potential_theta_scale_height;
 static Real N_loops_theta; 
 static Real extra_field_norm;                      // factor to multiply field by 
 static Real beta_min;                              // min ratio of gas to mag pressure
