@@ -1116,7 +1116,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         normalization = 1.0 * extra_field_norm;
 
-        fprintf(stderr,"normalization: %g extra_field_norm: %g \n", normalization, extra_field_norm );
+        // fprintf(stderr,"normalization: %g extra_field_norm: %g \n", normalization, extra_field_norm );
 
       // // Calculate magnetic field normalization
       // if (beta_min < 0.0) {
@@ -1340,6 +1340,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             pfield->b.x1f(k,j,i) *= normalization;
 
+            fprintf(stderr,"normalization in x1f: %g \n", normalization);
+
           }
         }
       }
@@ -1380,6 +1382,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
 
             pfield->b.x2f(k,j,i) *= normalization;
+            fprintf(stderr,"normalization in x2f: %g \n", normalization);
                   
           }
         }
@@ -1421,6 +1424,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
 
             pfield->b.x3f(k,j,i) *= normalization;
+            fprintf(stderr,"normalization in x3f: %g \n", normalization);
               
 
           }
