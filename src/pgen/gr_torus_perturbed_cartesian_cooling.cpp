@@ -138,6 +138,7 @@ static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
 static Real beta_min;                              // min ratio of gas to mag pressure
+static Real extra_field_norm;                      // factor to multiply field by 
 static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
 static int sample_n_phi;                           // number of cells in 3D sample grid
 static Real sample_r_rat;                          // sample grid geometric spacing ratio
@@ -505,6 +506,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
       potential_r_pow = pin->GetReal("problem", "potential_r_pow");
       potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
     }
+
+    extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
+
+    
     beta_min = pin->GetReal("problem", "beta_min");
     sample_n_r = pin->GetInteger("problem", "sample_n_r");
     sample_n_theta = pin->GetInteger("problem", "sample_n_theta");
@@ -1109,14 +1114,15 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
+        normalization = 1.0*extra_field_norm
 
-      // Calculate magnetic field normalization
-      if (beta_min < 0.0) {
-        normalization = 0.0;
-      } else {
-        Real beta_min_actual = CalculateBetaMin();
-        normalization = std::sqrt(beta_min_actual/beta_min);
-      }
+      // // Calculate magnetic field normalization
+      // if (beta_min < 0.0) {
+      //   normalization = 0.0;
+      // } else {
+      //   Real beta_min_actual = CalculateBetaMin();
+      //   normalization = std::sqrt(beta_min_actual/beta_min);
+      // }
 
     // Calculate vector potential in renormalized case
     } else if (field_config == vertical) {
@@ -1185,7 +1191,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-      normalization = 0.5715;
+      normalization = 0.5715 * extra_field_norm;
 
     }
     else {
