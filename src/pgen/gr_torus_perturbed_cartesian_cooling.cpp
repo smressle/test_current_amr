@@ -509,7 +509,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
     extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
 
-    
+
     beta_min = pin->GetReal("problem", "beta_min");
     sample_n_r = pin->GetInteger("problem", "sample_n_r");
     sample_n_theta = pin->GetInteger("problem", "sample_n_theta");
@@ -1114,7 +1114,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
-        normalization = 1.0*extra_field_norm
+        normalization = 1.0*extra_field_norm;
 
       // // Calculate magnetic field normalization
       // if (beta_min < 0.0) {
