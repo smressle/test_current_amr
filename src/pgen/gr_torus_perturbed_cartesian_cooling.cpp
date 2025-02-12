@@ -1114,7 +1114,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         }
 
 
-        normalization = 1.0*extra_field_norm;
+        normalization = 1.0 * extra_field_norm;
+
+        fprintf(stderr,"normalization: %g extra_field_norm: %g \n", normalization, extra_field_norm );
 
       // // Calculate magnetic field normalization
       // if (beta_min < 0.0) {
