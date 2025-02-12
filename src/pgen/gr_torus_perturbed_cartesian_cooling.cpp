@@ -152,6 +152,8 @@ static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D s
 static Real phi_min, phi_max;                      // limits in phi for 3D samples
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
 static Real dfloor,pfloor;                         // density and pressure floors
+static Real H_over_r_target;
+
 // static Real rh;                                    // horizon radius
 
 static Real q;          // black hole mass and spin
@@ -326,6 +328,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
 
 
+  H_over_r_target = pin->GetOrAddReal("problem", "H_over_r", 0.1);
+
+
+
   max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
 
   max_second_bh_refinement_level = pin->GetOrAddReal("problem","max_bh2_refinement",0);
@@ -457,12 +463,6 @@ int RefinementCondition(MeshBlock *pmb)
   int max_level_required = 0;
 
 
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
-
-  get_orbit_quantities(pmb->pmy_mesh->time,orbit_quantities);
-
-
   // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
 
@@ -478,7 +478,7 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
         
@@ -497,7 +497,6 @@ int RefinementCondition(MeshBlock *pmb)
                 // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
                 // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
                 // }
-                orbit_quantities.DeleteAthenaArray();
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -525,8 +524,32 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
+
+            Real z_radius;
+
+            // if (n_level==1) z_radius = 250.0*0.9999;
+            // if (n_level==2) z_radius = 125.0*0.9999;
+            // if (n_level==3) z_radius = 62.5*0.9999;
+            // if (n_level==4) z_radius = 31.25*0.9999;
+            // if (n_level==5) z_radius = 13.5*0.9999;
+            // if (n_level==6) z_radius = 6.3*0.9999;
+            // if (n_level==7) z_radius = 3.2*0.9999;
+            // if (n_level==8) z_radius = 1.6*0.9999;
+
+            // if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
+
+
+            if (n_level==1) z_radius = 62.5*0.9999;
+            if (n_level==2) z_radius = 31.25*0.9999;
+            if (n_level==3) z_radius = 13.5*0.9999;
+            if (n_level==4) z_radius = 6.3*0.9999;
+            if (n_level==5) z_radius = 3.2*0.9999;
+            if (n_level==6) z_radius = 1.6*0.9999;
+
+            if (n_level>=4) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
 
           
 
@@ -534,7 +557,7 @@ int RefinementCondition(MeshBlock *pmb)
              //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
              //    }
             if (x<box_radius && x > -box_radius && y<box_radius
-              && y > -box_radius && z<box_radius && z > -box_radius ){
+              && y > -box_radius && z<z_radius && z > -z_radius ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
@@ -549,7 +572,6 @@ int RefinementCondition(MeshBlock *pmb)
 
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
-                  orbit_quantities.DeleteAthenaArray();
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -570,8 +592,6 @@ int RefinementCondition(MeshBlock *pmb)
 //     fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
 //     pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
 // }
-
-orbit_quantities.DeleteAthenaArray();
 if (current_level>max_level_required) return -1;
 else if (current_level==max_level_required) return 0;
 else return 1;
@@ -579,6 +599,7 @@ else return 1;
 // if (any_at_current_level==1) return 0;
   // return -1;
 }
+
 
 
 //----------------------------------------------------------------------------------------
@@ -1956,6 +1977,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
+  Real gamma_adi = pmb->peos->GetGamma();
+
 
   // // Go through all cells
   // for (int k = ks; k <= ke; ++k) {
@@ -1966,18 +1989,35 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
     for (int j=pmb->js; j<=pmb->je; ++j) {
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
       for (int i=pmb->is; i<=pmb->ie; ++i) {
+
+        Real radius, theta,phi;
+        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &radius,
+                                         &theta, &phi);
         Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
-        Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gamma_adi);
+        // Real kappa = prim(IPR,k,j,i)/ std::pow(prim(IDN,k,j,i),gamma_adi);
 
-        Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
-        Real v_kep = std::sqrt((1.0 + q)/radius);
-        Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
+        // Real radius = std::sqrt( SQR( pmb->pcoord->x1v(i) ) + SQR( pmb->pcoord->x2v(j) ) + SQR( pmb->pcoord->x3v(k) ) );
+        // Real v_kep = std::sqrt((1.0 + q)/radius);
 
+        // See Teixeira+ 2014 https://iopscience.iop.org/article/10.1088/0004-637X/796/2/103
 
-        Real kappa_0 = 0.01;
-        Real delta_kappa = kappa-kappa_0;
+        Real Omega = 1.0/( std::pow(radius,1.5) + a);
+        // Real t_cool = 2.0 * PI * radius/v_kep;  //orbital time 
 
-        Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::abs(delta_kappa/kappa_0)  );
+        // Real H_over_r_target = 0.02;
+        Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
+
+        Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
+        // Real kappa_0 = 0.01;
+        // Real delta_kappa = kappa-kappa_0;
+
+        // if (Y>2.0) Y = 2.0;
+        Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        if (L_cool<0) L_cool = 0.0;
+
+        // if (L_cool > ug/dt * 0.01) L_cool = ug/dt * 0.01;
+
+        // Real L_cool = ug/t_cool * std::sqrt( delta_kappa/kappa_0 + std::fabs(delta_kappa/kappa_0)  );
 
           // Calculate normal frame Lorentz factor
         Real uu1 = prim(IM1,k,j,i);
@@ -1999,35 +2039,56 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
 
-       Real bsq = 0.0;
-       if (MAGNETIC_FIELDS_ENABLED){
-            // Calculate 4-magnetic field
-          Real bb1 = bcc(IB1,k,j,i);
-          Real bb2 = bcc(IB2,k,j,i);
-          Real bb3 = bcc(IB3,k,j,i);
-          Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                  + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                  + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                  + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-          Real b1 = (bb1 + b0 * u1) / u0;
-          Real b2 = (bb2 + b0 * u2) / u0;
-          Real b3 = (bb3 + b0 * u3) / u0;
-          Real b_0, b_1, b_2, b_3;
-          pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+       // Real bsq = 0.0;
+       // if (MAGNETIC_FIELDS_ENABLED){
+       //      // Calculate 4-magnetic field
+       //    Real bb1 = bcc(IB1,k,j,i);
+       //    Real bb2 = bcc(IB2,k,j,i);
+       //    Real bb3 = bcc(IB3,k,j,i);
+       //    Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+       //            + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+       //            + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+       //            + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+       //    Real b1 = (bb1 + b0 * u1) / u0;
+       //    Real b2 = (bb2 + b0 * u2) / u0;
+       //    Real b3 = (bb3 + b0 * u3) / u0;
+       //    Real b_0, b_1, b_2, b_3;
+       //    pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-          // Calculate magnetic pressure
-          bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+       //    // Calculate magnetic pressure
+       //    bsq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
 
-        }
+       //  }
 
-        Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+        // Real Be = - ( prim(IDN,k,j,i) + ug + prim(IPR,k,j,i) + bsq) * u_0 -1.0; 
+
+
+        // Do not include bsq in enthalpy
+        Real Be = - ( 1.0 + ug/prim(IDN,k,j,i) + prim(IPR,k,j,i)/prim(IDN,k,j,i) ) * u_0 -1.0; 
+
 
 
         if (Be>0) L_cool = 0.0;
-        cons(IEN,k,j,i) += -dt * L_cool * u_0;
+
+        // Calculate Boyer-Lindquist coordinates of cell
+        rh = ( m + std::sqrt(SQR(m)-SQR(a)) );
+        if (radius < rh) L_cool = 0.0;
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+        get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
+
+        if (rprime < rhprime) L_cool = 0.0;
+
+
+        cons(IEN,k,j,i) += -dt * L_cool * u_0; 
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
+
+        // if (std::abs(cons(IEN,k,j,i)) > 1e5){
+        //   fprintf(stderr,"Very large engery!!: E: %g L_cool: %g u_0: %g Y: %g ug: %g Omega: %g  \n", cons(IEN,k,j,i),L_cool,u_0, Y, ug,Omega);
+        // }
 
       }
     }
@@ -2036,6 +2097,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
  return;
 }
+
+
 
 
 
