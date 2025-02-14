@@ -3156,7 +3156,13 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 
 
 /// prevent metric from gettin nan sqrt(-gdet)
-  Real th  = std::acos(z/r);
+
+  Real th;
+  if (std::abs(z)>r){
+    if (z<0) th = PI;
+    if (z>0) th = 0.0;
+  }
+  else th  = std::acos(z/r);
   Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
                               (a*y+r*x)/(SQR(r) + SQR(a) )  );
   rh =  ( m + std::sqrt(SQR(m)-SQR(a)) );
