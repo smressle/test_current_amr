@@ -3160,6 +3160,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   Real phi = std::atan2( (r*y-a*x)/(SQR(r) + SQR(a) ), 
                               (a*y+r*x)/(SQR(r) + SQR(a) )  );
   rh =  ( m + std::sqrt(SQR(m)-SQR(a)) );
+
+  Real x_old = x;
+  Real y_old = y;
+  Real z_old = z;
+
   if (r<rh/2.0) {
     r = rh/2.0;
     x = r * std::cos(phi)*std::sin(th) - a * std::sin(phi)*std::sin(th);
@@ -3399,7 +3404,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       Real dl0_dx3 = 0.0;
 
       if (std::isnan(f) || std::isnan(r) || std::isnan(sqrt_term) || std::isnan (df_dx1) || std::isnan(df_dx2)){
-        fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n",x,y,z,r);
+        fprintf(stderr,"ISNAN in metric\n x y y: %g %g %g r: %g \n ijk: %d %d %d \n xyz_old: %g %g %g \n th: %g phi: %g \n",x,y,z,r,i,j,k,x_old,y_old,z_old,th,phi);
         exit(0);
       }
 
