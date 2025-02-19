@@ -742,6 +742,7 @@ int RefinementCondition(MeshBlock *pmb)
             if (n_level==4) z_radius = 6.3*0.9999;
             if (n_level==5) z_radius = 3.2*0.9999;
             if (n_level==6) z_radius = 1.6*0.9999;
+            if (n_level==7) z_radius = 0.8*0.9999;
 
             if (n_level>=4) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
 
