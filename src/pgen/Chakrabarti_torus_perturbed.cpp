@@ -2236,7 +2236,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         // Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
 
-        Real Target_Temperature target_temperature_func( radius,H_over_r_target);
+        Real Target_Temperature = target_temperature_func( radius,H_over_r_target);
 
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
 
