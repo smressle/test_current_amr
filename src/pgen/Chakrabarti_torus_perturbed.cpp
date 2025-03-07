@@ -2221,6 +2221,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
   Real gamma_adi = pmb->peos->GetGamma();
 
+  fprintf(stderr,"a and m in noble cooling: %g %g \n", a, m);
 
   for (int k=pmb->ks; k<=pmb->ke; ++k) {
     for (int j=pmb->js; j<=pmb->je; ++j) {
@@ -2234,9 +2235,14 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real Omega = 1.0/( std::pow(radius,1.5) + a);
 
+        Real r_isco = risco_calc_general( 1, a, m );
+        if (r<r_isco) Omega = 1.0/( std::pow(r_isco,1.5) + a);
+
         // Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
 
         Real Target_Temperature = target_temperature_func( radius,H_over_r_target);
+
+        fprintf(stderr,"target temperature: %g at r: %g \n", Target_Temperature,r);
 
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
 
