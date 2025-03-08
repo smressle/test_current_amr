@@ -2242,9 +2242,11 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real Target_Temperature = target_temperature_func( radius,H_over_r_target);
 
-        fprintf(stderr,"target temperature: %g at r: %g \n", Target_Temperature,radius);
-
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
+
+
+        // fprintf(stderr,"target temperature: %g at r: %g \n", Target_Temperature,radius);
+
 
 
         Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
@@ -2294,6 +2296,12 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
+
+        user_out_var(0,k,j,i) = L_cool;
+        user_out_var(1,k,j,i) = Target_Temperature;
+        user_out_var(2,k,j,i) = Be;
+        user_out_var(3,k,j,i) += L_cool * dt;
+        user_out_var(4,k,j,i) = Y;
 
 
 
@@ -2376,7 +2384,7 @@ void MeshBlock::UserWorkInLoop(void)
                  + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
                  + g(I33,i)*uu3*uu3;
         Real gamma = std::sqrt(1.0 + tmp);
-        user_out_var(0,k,j,i) = gamma;
+        // user_out_var(0,k,j,i) = gamma;
 
         // Calculate 4-velocity
         Real alpha = std::sqrt(-1.0/gi(I00,i));
@@ -2386,10 +2394,10 @@ void MeshBlock::UserWorkInLoop(void)
         Real u3 = uu3 - alpha * gamma * gi(I03,i);
         Real u_0, u_1, u_2, u_3;
 
-        user_out_var(1,k,j,i) = u0;
-        user_out_var(2,k,j,i) = u1;
-        user_out_var(3,k,j,i) = u2;
-        user_out_var(4,k,j,i) = u3;
+        // user_out_var(1,k,j,i) = u0;
+        // user_out_var(2,k,j,i) = u1;
+        // user_out_var(3,k,j,i) = u2;
+        // user_out_var(4,k,j,i) = u3;
         if (not MAGNETIC_FIELDS_ENABLED) {
           continue;
         }
@@ -2412,7 +2420,7 @@ void MeshBlock::UserWorkInLoop(void)
 
         // Calculate magnetic pressure
         Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
-        user_out_var(5,k,j,i) = b_sq/2.0;
+        // user_out_var(5,k,j,i) = b_sq/2.0;
 
         if (std::isnan(b_sq)) {
           Real r, th,tmp;
