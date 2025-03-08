@@ -2297,11 +2297,11 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         cons(IM2,k,j,i) += -dt * L_cool * u_2;
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
 
-        user_out_var(0,k,j,i) = L_cool;
-        user_out_var(1,k,j,i) = Target_Temperature;
-        user_out_var(2,k,j,i) = Be;
-        user_out_var(3,k,j,i) += L_cool * dt;
-        user_out_var(4,k,j,i) = Y;
+        pmb->user_out_var(0,k,j,i) = L_cool;
+        pmb->user_out_var(1,k,j,i) = Target_Temperature;
+        pmb->user_out_var(2,k,j,i) = Be;
+        pmb->user_out_var(3,k,j,i) += L_cool * dt;
+        pmb->user_out_var(4,k,j,i) = Y;
 
 
 
