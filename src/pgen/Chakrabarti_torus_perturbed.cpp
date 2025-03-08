@@ -2301,7 +2301,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if ((Y>100 || ug_frac>0.1) && L_cool>0 && radius<10.0){
           fprintf(stderr,"High Y!  at xyz: %g %g %g \n r th ph: %g %g %g \n Y, ug_frac: %g %g ",
             pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),radius,theta,phi,
-            Y,dt * L_cool/ug )
+            Y,ug_frac );
         }
 
         pmb->user_out_var(0,k,j,i) = L_cool;
