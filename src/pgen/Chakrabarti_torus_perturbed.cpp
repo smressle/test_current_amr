@@ -113,7 +113,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               AthenaArray<Real> &cons_scalar);
 
 void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
-              cAthenaArray<Real> &prim);
+              AthenaArray<Real> &prim);
 
 
 
@@ -2326,7 +2326,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 }
 
 void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
-              cAthenaArray<Real> &prim){
+              AthenaArray<Real> &prim){
 
 
 
