@@ -112,6 +112,9 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &bcc, AthenaArray<Real> &cons,
               AthenaArray<Real> &cons_scalar);
 
+void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
+              cAthenaArray<Real> &prim);
+
 
 
 // Global variables
@@ -562,7 +565,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
-  EnrollUserExplicitSourceFunction(NobleCooling);
+  // EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   //init_orbit_tables();
@@ -2141,6 +2144,8 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
+  NobleCoolingPrimitive(pmb, time, dt,prim);
+
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
 
@@ -2320,6 +2325,121 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
  return;
 }
 
+void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
+              cAthenaArray<Real> &prim){
+
+
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+  Real gamma_adi = pmb->peos->GetGamma();
+
+  // fprintf(stderr,"a and m in noble cooling: %g %g \n", a, m);
+
+  for (int k=pmb->ks; k<=pmb->ke; ++k) {
+    for (int j=pmb->js; j<=pmb->je; ++j) {
+      pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
+      for (int i=pmb->is; i<=pmb->ie; ++i) {
+
+        Real radius, theta,phi;
+        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &radius,
+                                         &theta, &phi);
+        Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
+
+        Real Omega = 1.0/( std::pow(radius,1.5) + a);
+
+        Real r_isco = risco_calc_general( 1, a, m );
+        if (radius<r_isco) Omega = 1.0/( std::pow(r_isco,1.5) + a);
+
+        // Real Target_Temperature = PI/2.0 * SQR( H_over_r_target * radius * Omega);
+
+        Real Target_Temperature = target_temperature_func( radius,H_over_r_target);
+
+        Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
+
+
+        // fprintf(stderr,"target temperature: %g at r: %g \n", Target_Temperature,radius);
+
+
+
+        Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        if (L_cool<0) L_cool = 0.0;
+
+
+          // Calculate normal frame Lorentz factor
+        Real uu1 = prim(IM1,k,j,i);
+        Real uu2 = prim(IM2,k,j,i);
+        Real uu3 = prim(IM3,k,j,i);
+        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                 + g(I33,i)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi(I00,i));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi(I01,i);
+        Real u2 = uu2 - alpha * gamma * gi(I02,i);
+        Real u3 = uu3 - alpha * gamma * gi(I03,i);
+        Real u_0, u_1, u_2, u_3;
+
+        pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+
+
+        // Do not include bsq in enthalpy
+        Real Be = - ( 1.0 + ug/prim(IDN,k,j,i) + prim(IPR,k,j,i)/prim(IDN,k,j,i) ) * u_0 -1.0; 
+
+        if (Be>0) L_cool = 0.0;
+
+
+        // Calculate Boyer-Lindquist coordinates of cell
+        rh = ( m + std::sqrt(SQR(m)-SQR(a)) );
+        if (radius < rh) L_cool = 0.0;
+
+        Real xprime,yprime,zprime,rprime,Rprime;
+        get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+        Real rhprime = ( q + std::sqrt(SQR(q)-SQR(aprime)) );
+
+        if (rprime < rhprime) L_cool = 0.0;
+
+
+        Real L_cool_T = L_cool / prim(IDN,k,j,i) * (gamma_adi-1.0);
+
+        Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+
+        if (L_cool_T>0){
+          T_new += - dt * L_cool_T;
+
+          if (T_new<Target_Temperature) T_new = Target_Temperature;
+        }
+
+        prim(IPR,k,j,i) = T_new * prim(IDN,k,j,i);
+
+
+        // Real ug_frac = dt * L_cool/ug;
+        // if ((Y>100 || ug_frac>0.1) && L_cool>0 && radius<10.0){
+        //   fprintf(stderr,"High Y!  at xyz: %g %g %g \n r th ph: %g %g %g \n Y, ug_frac: %g %g ",
+        //     pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k),radius,theta,phi,
+        //     Y,ug_frac );
+        // }
+
+        pmb->user_out_var(0,k,j,i) = L_cool_T;
+        pmb->user_out_var(1,k,j,i) = Target_Temperature;
+        pmb->user_out_var(2,k,j,i) = Be;
+        pmb->user_out_var(3,k,j,i) += L_cool_T * dt;
+        pmb->user_out_var(4,k,j,i) = Y;
+
+
+
+      }
+    }
+  }
+
+
+ return;
+}
 
 
 
