@@ -565,7 +565,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
-  // EnrollUserExplicitSourceFunction(NobleCooling);
+  EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   //init_orbit_tables();
@@ -2144,7 +2144,7 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
-  NobleCoolingPrimitive(pmb, time, dt,prim);
+  // NobleCoolingPrimitive(pmb, time, dt,prim);
 
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
@@ -2309,6 +2309,10 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         //     Y,ug_frac );
         // }
 
+
+        if (L_cool > 0 && Y<1){
+          fprintf(stderr,"Overcooling! L_cool: %g Y: %g T_target: %g\n Y_func: %g Omega: %g ug: %g r: %g \n xyz: %g %g %g \n",L_cool,Y,Target_Temperature,std::sqrt( Y-1.0 +  std::fabs(Y-1.0) ),Omega,ug,r,x,y,z );
+        }
         pmb->user_out_var(0,k,j,i) = L_cool;
         pmb->user_out_var(1,k,j,i) = Target_Temperature;
         pmb->user_out_var(2,k,j,i) = Be;
