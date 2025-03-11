@@ -2311,7 +2311,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 
         if (L_cool > 0 && Y<1){
-          fprintf(stderr,"Overcooling! L_cool: %g Y: %g T_target: %g\n Y_func: %g Omega: %g ug: %g r: %g \n xyz: %g %g %g \n",L_cool,Y,Target_Temperature,std::sqrt( Y-1.0 +  std::fabs(Y-1.0) ),Omega,ug,r,x,y,z );
+          fprintf(stderr,"Overcooling! L_cool: %g Y: %g T_target: %g\n Y_func: %g Omega: %g ug: %g r: %g \n xyz: %g %g %g \n",
+            L_cool,Y,Target_Temperature,std::sqrt( Y-1.0 +  std::fabs(Y-1.0) ),Omega,ug,radius,pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k) );
         }
         pmb->user_out_var(0,k,j,i) = L_cool;
         pmb->user_out_var(1,k,j,i) = Target_Temperature;
