@@ -2429,7 +2429,7 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         else{
           T_new = ( -B_q - std::sqrt( SQR(B_q) - 4.0*A_q*C_q) )/ (2.0 * A_q); 
 
-          if (T_new<Target_Temperature) T_new = Target_Temperature ; //prim(IPR,k,j,i)/prim(IDN,k,j,i);
+          if (T_new<Target_Temperature) T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
         }
 
 
