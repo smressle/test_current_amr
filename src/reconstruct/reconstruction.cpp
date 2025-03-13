@@ -214,11 +214,11 @@ Reconstruction::Reconstruction(MeshBlock *pmb, ParameterInput *pin) :
     uniform[X3DIR] = false;
 
 
-  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 && xorder==3) {
-    uniform[X1DIR] = false;
-    uniform[X2DIR] = false;
-    uniform[X3DIR] = false;
-  }
+  // if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 && xorder==3) {
+  //   uniform[X1DIR] = false;
+  //   uniform[X2DIR] = false;
+  //   uniform[X3DIR] = false;
+  // }
 
   // Uniform mesh with --coord=cartesian or GR: Minkowski, Schwarzschild, Kerr-Schild,
   // GR-User will use the uniform Cartesian limiter and reconstruction weights

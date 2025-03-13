@@ -2373,6 +2373,8 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         if (L_cool<0) L_cool = 0.0;
 
+        if (radius<6.0) L_cool = 0.0
+
 
           // Calculate normal frame Lorentz factor
         Real uu1 = prim(IM1,k,j,i);
