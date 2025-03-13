@@ -2429,7 +2429,7 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         }
         else {
 
-          Real atan_arg = - std::sqrt(2.0)/2.0 * (gamma_adi-1.0) * Omega * dt + std::atan(std::sqrt(T_old/Target_Temperature-1.0));
+          Real atan_arg = - std::sqrt(2.0)/2.0 * (gamma_adi-1.0) * Omega * dt + std::atan( std::sqrt(T_old/Target_Temperature-1.0) );
           if (atan_arg<0) T_new = Target_Temperature;
           else  T_new = Target_Temperature * ( SQR(std::tan(atan_arg)) + 1.0);
 
