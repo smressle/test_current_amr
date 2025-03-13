@@ -2423,13 +2423,21 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         Real C_q = 2.0 * SQR(Omega*dt*ug_over_rho) + SQR(T_old);
 
         Real T_new;
-        if (Be>0 || (radius<rh) || (rprime<rhprime)){
+
+        if (Be>0 || (radius<rh) || (rprime<rhprime) || T_old<Target_Temperature){
           T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
         }
-        else{
-          T_new = ( -B_q - std::sqrt( SQR(B_q) - 4.0*A_q*C_q) )/ (2.0 * A_q); 
+        else {
 
-          if (T_new<Target_Temperature) T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+          Real atan_arg = - std::sqrt(2.0)/2.0 * (gamma_adi-1.0) * Omega * dt + std::atan(std::sqrt(T_old/Target_Temperature-1.0));
+          if (atan_arg<0) T_new = Target_Temperature;
+          else  T_new = Target_Temperature * ( SQR(std::tan(atan_arg)) + 1.0);
+
+
+          // T_new = Target_Temperature * ( SQR(std::tan(atan_arg)) + 1.0);
+          // T_new = ( -B_q - std::sqrt( SQR(B_q) - 4.0*A_q*C_q) )/ (2.0 * A_q); 
+
+          // if (T_new<Target_Temperature) T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
         }
 
 
