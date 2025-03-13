@@ -2373,7 +2373,7 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         if (L_cool<0) L_cool = 0.0;
 
-        if (radius<6.0) L_cool = 0.0;
+        // if (radius<6.0) L_cool = 0.0;
 
 
           // Calculate normal frame Lorentz factor
@@ -2416,13 +2416,31 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
 
         Real L_cool_T = L_cool / prim(IDN,k,j,i) * (gamma_adi-1.0);
 
-        Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+        Real ug_over_rho = ug/prim(IDN,k,j,i);
+        Real T_old = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+        Real A_q = 1.0;
+        Real B_q = -2.0 * ( SQR(Omega * dt * ug_over_rho)/Target_Temperature    + T_old ); 
+        Real C_q = 2.0 * SQR(Omega*dt*ug_over_rho) + SQR(T_old);
 
-        if (L_cool_T>0){
-          T_new += - dt * L_cool_T;
-
-          if (T_new<Target_Temperature) T_new = Target_Temperature;
+        Real T_new;
+        if (Be>0 || (radius<rh) || (rprim<rhprime)){
+          T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
         }
+        else{
+          T_new = ( -B_q - std::sqrt( SQR(B_q) - 4.0*A_q*C_q) )/ (2.0 * A_q); 
+
+          if (T_new<Target_Temperature) T_new = T_target ; //prim(IPR,k,j,i)/prim(IDN,k,j,i);
+        }
+
+
+
+        // Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+
+        // if (L_cool_T>0){
+        //   T_new += - dt * L_cool_T;
+
+        //   if (T_new<Target_Temperature) T_new = Target_Temperature;
+        // }
 
         prim(IPR,k,j,i) = T_new * prim(IDN,k,j,i);
 
