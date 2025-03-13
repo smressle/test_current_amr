@@ -204,12 +204,6 @@ Reconstruction::Reconstruction(MeshBlock *pmb, ParameterInput *pin) :
     curvilinear[X2DIR] = true;
   }
 
-  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 && xorder==3) {
-    // spherical_polar: x1=r and x2=theta require special treatment. x3=phi does not
-    curvilinear[X1DIR] = true;
-    curvilinear[X2DIR] = true;
-    curvilinear[X3DIR] = true;
-  }
   // for all coordinate systems, nonuniform geometric spacing or user-defined
   // MeshGenerator ---> use nonuniform reconstruction weights and limiter terms
   if (pmb->block_size.x1rat != 1.0)
@@ -218,6 +212,13 @@ Reconstruction::Reconstruction(MeshBlock *pmb, ParameterInput *pin) :
     uniform[X2DIR] = false;
   if (pmb->block_size.x3rat != 1.0)
     uniform[X3DIR] = false;
+
+
+  if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 && xorder==3) {
+    uniform[X1DIR] = True;
+    uniform[X2DIR] = True;
+    uniform[X3DIR] = True;
+  }
 
   // Uniform mesh with --coord=cartesian or GR: Minkowski, Schwarzschild, Kerr-Schild,
   // GR-User will use the uniform Cartesian limiter and reconstruction weights
