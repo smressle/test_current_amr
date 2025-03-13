@@ -215,9 +215,9 @@ Reconstruction::Reconstruction(MeshBlock *pmb, ParameterInput *pin) :
 
 
   if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0 && xorder==3) {
-    uniform[X1DIR] = True;
-    uniform[X2DIR] = True;
-    uniform[X3DIR] = True;
+    uniform[X1DIR] = false;
+    uniform[X2DIR] = false;
+    uniform[X3DIR] = false;
   }
 
   // Uniform mesh with --coord=cartesian or GR: Minkowski, Schwarzschild, Kerr-Schild,
