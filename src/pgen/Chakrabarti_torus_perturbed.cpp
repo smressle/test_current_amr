@@ -2627,16 +2627,16 @@ void MeshBlock::UserWorkInLoop(void)
             phydro->w1(IDN,k,j,i),phydro->w(IDN,k,j,i),phydro->w1(IPR,k,j,i),phydro->w(IPR,k,j,i),
             gamma_old, gamma,
             u0_old,u1_old,u2_old,u3_old,u0,u1,u2,u3,
-            user_out_var(0,k,j,i), b_sq/phydro->w(IPR,k,j,i)*2.0),
+            user_out_var(0,k,j,i), b_sq/phydro->w(IPR,k,j,i)*2.0,
             phydro->w1(IDN,k+1,j,i),phydro->w1(IDN,k-1,j,i), 
             phydro->w1(IDN,k,j+1,i), phydro->w1(IDN,k,j-1,i),
             phydro->w1(IDN,k,j,i+1), phydro->w1(IDN,k,j,i-1),
             phydro->w1(IPR,k+1,j,i),phydro->w1(IPR,k-1,j,i), 
             phydro->w1(IPR,k,j+1,i), phydro->w1(IPR,k,j-1,i),
-            phydro->w1(IPR,k,j,i+1), phydro->w1(IPR,k,j,i-1)
+            phydro->w1(IPR,k,j,i+1), phydro->w1(IPR,k,j,i-1),
             phydro->w(IDN,k+1,j,i),phydro->w(IDN,k-1,j,i), 
             phydro->w(IDN,k,j+1,i), phydro->w(IDN,k,j-1,i),
-            phydro->w(IDN,k,j,i+1), phydro->w(IDN,k,j,i-1),
+            phydro->w(IDN,k,j,i+1), phydro->w(IDN,k,j,i-1));
         }
 
 
