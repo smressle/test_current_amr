@@ -2613,7 +2613,6 @@ void MeshBlock::UserWorkInLoop(void)
         Real u1_old = uu1_old - alpha * gamma_old * gi(I01,i);
         Real u2_old = uu2_old - alpha * gamma_old * gi(I02,i);
         Real u3_old = uu3_old - alpha * gamma_old * gi(I03,i);
-        Real u_0, u_1, u_2, u_3;
 
 
 
@@ -2625,10 +2624,10 @@ void MeshBlock::UserWorkInLoop(void)
         if (std::abs(T_new-T_old)/T_new > 0.5 && abs(th-PI/2.0)<0.1){
           fprintf(stderr,"Rapid change in T at x y z : %g %g %g \n r th ph: %g %g %g \n T_old: %g T_new: %g rho_old: %g rho_new: %g \n press_old: %g press_new: %g gamma_old: %g gamma_new: %g \nu_old: %g %g %g %g \n u_new: %g %g %g %g  \n L_cool: %g  beta: %g \n",
             pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k), r,th,ph,T_half,T_new,
-            w1(IDN,k,j,i),w(IDN,k,j,i),w1(IPR,k,j,i),w(IPR,k,j,i),
+            phydro->w1(IDN,k,j,i),phydro->w(IDN,k,j,i),phydro->w1(IPR,k,j,i),phydro->w(IPR,k,j,i),
             gamma_old, gamma,
             u0_old,u1_old,u2_old,u3_old,u0,u1,u2,u3,
-            user_out_var(0,k,j,i), b_sq/w(IPR,k,j,i)*2.0);
+            user_out_var(0,k,j,i), b_sq/phydro->w(IPR,k,j,i)*2.0);
         }
 
 
