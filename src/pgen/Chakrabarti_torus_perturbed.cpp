@@ -2621,7 +2621,7 @@ void MeshBlock::UserWorkInLoop(void)
 
         Real r, th,ph;
         GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&ph);
-        if (std::abs(T_new-T_half)/T_new > 0.5 && abs(th-PI/2.0)<0.1){
+        if (std::abs(T_new-T_half)/T_new > 0.5 && abs(th-PI/2.0)<0.1 && r>4 && r<10){
           fprintf(stderr,"Rapid change in T at x y z : %g %g %g \n r th ph: %g %g %g \n T_old: %g T_new: %g rho_old: %g rho_new: %g \n press_old: %g press_new: %g gamma_old: %g gamma_new: %g \nu_old: %g %g %g %g \n u_new: %g %g %g %g  \n L_cool: %g  beta: %g \n",
             pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k), r,th,ph,T_half,T_new,
             phydro->w1(IDN,k,j,i),phydro->w(IDN,k,j,i),phydro->w1(IPR,k,j,i),phydro->w(IPR,k,j,i),
