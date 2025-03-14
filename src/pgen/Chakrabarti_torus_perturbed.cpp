@@ -565,7 +565,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
-  // EnrollUserExplicitSourceFunction(NobleCooling);
+  EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   //init_orbit_tables();
@@ -2144,7 +2144,7 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
-  NobleCoolingPrimitive(pmb, time, dt,prim);
+  // NobleCoolingPrimitive(pmb, time, dt,prim);
 
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
@@ -2318,9 +2318,12 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real delta_T =
         pmb->user_out_var(0,k,j,i) = L_cool;
         pmb->user_out_var(1,k,j,i) = Target_Temperature;
-        pmb->user_out_var(2,k,j,i) = Be;
+        pmb->user_out_var(2,k,j,i) = u_1;
         pmb->user_out_var(3,k,j,i) += L_cool * dt;
         pmb->user_out_var(4,k,j,i) = Y;
+        pmb->user_out_var(5,k,j,i) = prim(IDN,k,j,i); 
+        pmb->user_out_var(6,k,j,i) = u_0; 
+
 
 
 
@@ -2593,6 +2596,42 @@ void MeshBlock::UserWorkInLoop(void)
 
           exit(0);
         }
+
+
+        // Calculate normal frame Lorentz factor
+        Real uu1_old = phydro->w1(IM1,k,j,i);
+        Real uu2_old = phydro->w1(IM2,k,j,i);
+        Real uu3_old = phydro->w1(IM3,k,j,i);
+        tmp = g(I11,i)*uu1_old*uu1_old + 2.0*g(I12,i)*uu1_old*uu2_old + 2.0*g(I13,i)*uu1_old*uu3_old
+                 + g(I22,i)*uu2_old*uu2_old + 2.0*g(I23,i)*uu2_old*uu3_old
+                 + g(I33,i)*uu3_old*uu3_old;
+        Real gamma_old = std::sqrt(1.0 + tmp);
+        // user_out_var(0,k,j,i) = gamma;
+
+        // Calculate 4-velocity
+        Real u0_old = gamma_old/alpha;
+        Real u1_old = uu1_old - alpha * gamma_old * gi(I01,i);
+        Real u2_old = uu2_old - alpha * gamma_old * gi(I02,i);
+        Real u3_old = uu3_old - alpha * gamma_old * gi(I03,i);
+        Real u_0, u_1, u_2, u_3;
+
+
+
+        Real T_half = phydro->w1(IPR,k,j,i)/phydro->w1(IDN,k,j,i);
+        Real T_new = phydro->w(IPR,k,j,i)/phydro->w(IDN,k,j,i);
+
+        Real r, th,tmp;
+        GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&tmp);
+        if (std::abs(T_new-T_old)/T_new > 0.5 && abs(th-PI/2.0)<0.1){
+          fprintf(stderr,"Rapid change in T at x y z : %g %g %g \n r th ph: %g %g %g \n T_old: %g T_new: %g rho_old: %g rho_new: %g \n press_old: %g press_new: %g gamma_old: %g gamma_new: %g \nu_old: %g %g %g %g \n u_new: %g %g %g %g  \n L_cool: %g  beta: %g \n",
+            pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k), r,th,ph,T_half,T_new,
+            w1(IDN,k,j,i),w(IDN,k,j,i),w1(IPR,k,j,i),w(IPR,k,j,i),
+            gamma_old, gamma,
+            u0_old,u1_old,u2_old,u3_old,u0,u1,u2,u3,
+            user_out_var(0,k,j,i), b_sq/w(IPR,k,j,i)*2.0);
+        }
+
+
       }
     }
   }
