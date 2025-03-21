@@ -565,7 +565,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
 
-  // EnrollUserExplicitSourceFunction(NobleCooling);
+  EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   //init_orbit_tables();
@@ -2144,7 +2144,7 @@ void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real 
   int i, j, k, kprime;
   int is, ie, js, je, ks, ke;
 
-  NobleCoolingPrimitive(pmb, time, dt,prim);
+  // NobleCoolingPrimitive(pmb, time, dt,prim);
 
 
   apply_inner_boundary_condition(pmb,prim,prim_scalar);
