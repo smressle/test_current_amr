@@ -498,7 +498,7 @@ void CalculateNormalConserved(
     // ee(i) = -qq_n;
 
     // Uncomment for new energy equation
-    ee(i) = -qq_n - dd(i);
+    ee(i) = -qq_n  ; //- dd(i);
     mm(0,i) = g_11*SQR(mm1) + 2.0*g_12*mm1*mm2 + 2.0*g_13*mm1*mm3
               + g_22*SQR(mm2) + 2.0*g_23*mm2*mm3
               + g_33*SQR(mm3);
