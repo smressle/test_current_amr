@@ -209,6 +209,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // Calculate wavespeeds in left state
     Real lambda_p_l, lambda_m_l;
     Real wgas_l = rho_l + gamma_adi/(gamma_adi-1.0) * pgas_l;
+    Real wgas_without_rho_l = gamma_adi/(gamma_adi-1.0) * pgas_l;
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_l, pgas_l, ucon_l[0], ucon_l[ivx],
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
@@ -216,6 +217,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // Calculate wavespeeds in right state
     Real lambda_p_r, lambda_m_r;
     Real wgas_r = rho_r + gamma_adi/(gamma_adi-1.0) * pgas_r;
+    Real wgas_without_rho_r = gamma_adi/(gamma_adi-1.0) * pgas_r;
+
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_r, pgas_r, ucon_r[0], ucon_r[ivx],
                                               b_sq_r, g00, g0i, gii,
                                               &lambda_p_r, &lambda_m_r);
@@ -230,7 +233,10 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real wtot_l = wgas_l + b_sq_l;
     Real ptot_l = pgas_l + 0.5*b_sq_l;
     cons_l[IDN] = rho_l * ucon_l[0];
-    cons_l[IEN] = wtot_l * ucon_l[0] * ucov_l[0] - bcon_l[0] * bcov_l[0] + ptot_l;
+    // cons_l[IEN] = wtot_l * ucon_l[0] * ucov_l[0] - bcon_l[0] * bcov_l[0] + ptot_l;
+    // uncomment for new energy evolution
+    cons_l[IEN] = rho_l * ucon_l[0] * (1.0 + ucov_l[0]) + wtot_without_rho_l * ucon_l[0] * ucov_l[0] - bcon_l[0] * bcov_l[0] + ptot_l;
+
     cons_l[IVX] = wtot_l * ucon_l[0] * ucov_l[1] - bcon_l[0] * bcov_l[1];
     cons_l[IVY] = wtot_l * ucon_l[0] * ucov_l[2] - bcon_l[0] * bcov_l[2];
     cons_l[IVZ] = wtot_l * ucon_l[0] * ucov_l[3] - bcon_l[0] * bcov_l[3];
@@ -241,7 +247,10 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // (rho u^i, T^i_\mu, and *F^{ji}, where i = ivx and j != ivx)
     Real flux_l[NWAVE];
     flux_l[IDN] = rho_l * ucon_l[ivx];
-    flux_l[IEN] = wtot_l * ucon_l[ivx] * ucov_l[0] - bcon_l[ivx] * bcov_l[0];
+    // flux_l[IEN] = wtot_l * ucon_l[ivx] * ucov_l[0] - bcon_l[ivx] * bcov_l[0];
+    // uncomment for new energy evolution
+    flux_l[IEN] = rho_l * ucon_l[ivx] * (1.0 + ucov_l[0]) + wtot_without_rho_l * ucon_l[ivx] * ucov_l[0] - bcon_l[ivx] * bcov_l[0];
+
     flux_l[IVX] = wtot_l * ucon_l[ivx] * ucov_l[1] - bcon_l[ivx] * bcov_l[1];
     flux_l[IVY] = wtot_l * ucon_l[ivx] * ucov_l[2] - bcon_l[ivx] * bcov_l[2];
     flux_l[IVZ] = wtot_l * ucon_l[ivx] * ucov_l[3] - bcon_l[ivx] * bcov_l[3];
@@ -255,7 +264,10 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real wtot_r = wgas_r + b_sq_r;
     Real ptot_r = pgas_r + 0.5*b_sq_r;
     cons_r[IDN] = rho_r * ucon_r[0];
-    cons_r[IEN] = wtot_r * ucon_r[0] * ucov_r[0] - bcon_r[0] * bcov_r[0] + ptot_r;
+    // cons_r[IEN] = wtot_r * ucon_r[0] * ucov_r[0] - bcon_r[0] * bcov_r[0] + ptot_r;
+      // uncomment for new energy evolution
+    cons_r[IEN] = rho_r * ucon_r[0] * (1.0 + ucov_r[0]) + wtot_without_rho_r * ucon_r[0] * ucov_r[0] - bcon_r[0] * bcov_r[0] + ptot_r;
+
     cons_r[IVX] = wtot_r * ucon_r[0] * ucov_r[1] - bcon_r[0] * bcov_r[1];
     cons_r[IVY] = wtot_r * ucon_r[0] * ucov_r[2] - bcon_r[0] * bcov_r[2];
     cons_r[IVZ] = wtot_r * ucon_r[0] * ucov_r[3] - bcon_r[0] * bcov_r[3];
@@ -266,7 +278,10 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // (rho u^i, T^i_\mu, and *F^{ji}, where i = ivx and j != ivx)
     Real flux_r[NWAVE];
     flux_r[IDN] = rho_r * ucon_r[ivx];
-    flux_r[IEN] = wtot_r * ucon_r[ivx] * ucov_r[0] - bcon_r[ivx] * bcov_r[0];
+    // flux_r[IEN] = wtot_r * ucon_r[ivx] * ucov_r[0] - bcon_r[ivx] * bcov_r[0];
+    // uncomment for new energy evolution
+    flux_r[IEN] = rho_r * ucon_r[ivx] * (1.0 + ucov_r[0]) + wtot_without_rho_r * ucon_r[ivx] * ucov_r[0] - bcon_r[ivx] * bcov_r[0];
+
     flux_r[IVX] = wtot_r * ucon_r[ivx] * ucov_r[1] - bcon_r[ivx] * bcov_r[1];
     flux_r[IVY] = wtot_r * ucon_r[ivx] * ucov_r[2] - bcon_r[ivx] * bcov_r[2];
     flux_r[IVZ] = wtot_r * ucon_r[ivx] * ucov_r[3] - bcon_r[ivx] * bcov_r[3];

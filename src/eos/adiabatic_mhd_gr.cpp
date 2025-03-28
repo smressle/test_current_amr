@@ -474,7 +474,10 @@ void CalculateNormalConserved(
     const Real &bb3 = bb(IB3,k,j,i);
 
     // Calculate projected momentum densities Q_\mu = -n_\nu T^\nu_\mu (N 17)
-    const Real qq_0 = alpha * t0_0;
+    // const Real qq_0 = alpha * t0_0;
+
+    // Uncomment for new energy evolution 
+    const Real qq_0 = alpha * (t0_0-rho_u0);
     const Real qq_1 = alpha * t0_1;
     const Real qq_2 = alpha * t0_2;
     const Real qq_3 = alpha * t0_3;
@@ -492,7 +495,10 @@ void CalculateNormalConserved(
 
     // Set normal conserved quantities
     dd(i) = alpha * rho_u0;  // (N 21)
-    ee(i) = -qq_n;
+    // ee(i) = -qq_n;
+
+    // Uncomment for new energy equation
+    ee(i) = -qq_n - dd(i);
     mm(0,i) = g_11*SQR(mm1) + 2.0*g_12*mm1*mm2 + 2.0*g_13*mm1*mm3
               + g_22*SQR(mm2) + 2.0*g_23*mm2*mm3
               + g_33*SQR(mm3);
@@ -733,7 +739,12 @@ void PrimitiveToConservedSingle(
   Real wtot = rho + gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
   Real ptot = pgas + 0.5 * b_sq;
   rho_u0 = rho * u0;
-  t0_0 = wtot * u0 * u_0 - b0 * b_0 + ptot;
+  // t0_0 = wtot * u0 * u_0 - b0 * b_0 + ptot;
+
+
+  // Uncomment for new conserved energy evolution
+  Real wtot_without_rho = gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
+  t0_0 = rho * u0 * (u_0+1.0) +  wtot_without_rho  * u0 * u_0 - b0 * b_0 + ptot;
   t0_1 = wtot * u0 * u_1 - b0 * b_1;
   t0_2 = wtot * u0 * u_2 - b0 * b_2;
   t0_3 = wtot * u0 * u_3 - b0 * b_3;
