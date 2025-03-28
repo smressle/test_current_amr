@@ -231,6 +231,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // (rho u^0, T^0_\mu, and B^j = *F^{j0}, where j != ivx)
     Real cons_l[NWAVE];
     Real wtot_l = wgas_l + b_sq_l;
+    Real wtot_without_rho_l = wgas_without_rho_l + b_sq_l;
     Real ptot_l = pgas_l + 0.5*b_sq_l;
     cons_l[IDN] = rho_l * ucon_l[0];
     // cons_l[IEN] = wtot_l * ucon_l[0] * ucov_l[0] - bcon_l[0] * bcov_l[0] + ptot_l;
@@ -262,6 +263,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     // (rho u^0, T^0_\mu, and B^j = *F^{j0}, where j != ivx)
     Real cons_r[NWAVE];
     Real wtot_r = wgas_r + b_sq_r;
+    Real wtot_without_rho_r = wgas_without_rho_r + b_sq_r;
     Real ptot_r = pgas_r + 0.5*b_sq_r;
     cons_r[IDN] = rho_r * ucon_r[0];
     // cons_r[IEN] = wtot_r * ucon_r[0] * ucov_r[0] - bcon_r[0] * bcov_r[0] + ptot_r;
