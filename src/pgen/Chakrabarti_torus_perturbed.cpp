@@ -106,6 +106,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
 void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
+Real Luminosity(MeshBlock *pmb, int iout);
+{
 
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
@@ -558,9 +560,10 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  AllocateUserHistoryOutput(1);
+  AllocateUserHistoryOutput(2);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
+  EnrollUserHistoryOutput(1, Luminosity, "Lum")
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -611,7 +614,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 7;
+  int N_user_vars = 1;
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -2317,12 +2320,12 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         // Real delta_T =
         pmb->user_out_var(0,k,j,i) = L_cool;
-        pmb->user_out_var(1,k,j,i) = Target_Temperature;
-        pmb->user_out_var(2,k,j,i) = u_1;
-        pmb->user_out_var(3,k,j,i) += L_cool * dt;
-        pmb->user_out_var(4,k,j,i) = Y;
-        pmb->user_out_var(5,k,j,i) = prim(IDN,k,j,i); 
-        pmb->user_out_var(6,k,j,i) = u_0; 
+        // pmb->user_out_var(1,k,j,i) = Target_Temperature;
+        // pmb->user_out_var(2,k,j,i) = u_1;
+        // pmb->user_out_var(3,k,j,i) += L_cool * dt;
+        // pmb->user_out_var(4,k,j,i) = Y;
+        // pmb->user_out_var(5,k,j,i) = prim(IDN,k,j,i); 
+        // pmb->user_out_var(6,k,j,i) = u_0; 
 
 
 
@@ -2464,10 +2467,10 @@ void NobleCoolingPrimitive(MeshBlock *pmb, const Real time, const Real dt,
         // }
 
         pmb->user_out_var(0,k,j,i) = L_cool_T;
-        pmb->user_out_var(1,k,j,i) = Target_Temperature;
-        pmb->user_out_var(2,k,j,i) = Be;
-        pmb->user_out_var(3,k,j,i) += L_cool_T * dt;
-        pmb->user_out_var(4,k,j,i) = Y;
+        // pmb->user_out_var(1,k,j,i) = Target_Temperature;
+        // pmb->user_out_var(2,k,j,i) = Be;
+        // pmb->user_out_var(3,k,j,i) += L_cool_T * dt;
+        // pmb->user_out_var(4,k,j,i) = Y;
 
 
 
@@ -2518,6 +2521,27 @@ Real DivergenceB(MeshBlock *pmb, int iout)
   face3m.DeleteAthenaArray();
 
   return divb;
+}
+
+Real Luminosity(MeshBlock *pmb, int iout)
+{
+  Real Lum=0;
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      for(int i=is; i<=ie; i++) {
+
+        Real volume = pmb->pcoord->GetCellVolume(k,j,i);
+
+        Lum += pmb->user_out_var(0,k,j,i) * vol;
+      }
+    }
+  }
+
+
+
+  return Lum;
 }
 //----------------------------------------------------------------------------------------
 // Function responsible for storing useful quantities for output
