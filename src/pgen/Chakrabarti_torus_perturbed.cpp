@@ -562,7 +562,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   AllocateUserHistoryOutput(2);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
-  EnrollUserHistoryOutput(1, Luminosity, "Lum")
+  EnrollUserHistoryOutput(1, Luminosity, "Lum");
 
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -2533,7 +2533,7 @@ Real Luminosity(MeshBlock *pmb, int iout)
 
         Real volume = pmb->pcoord->GetCellVolume(k,j,i);
 
-        Lum += pmb->user_out_var(0,k,j,i) * vol;
+        Lum += pmb->user_out_var(0,k,j,i) * volume;
       }
     }
   }
