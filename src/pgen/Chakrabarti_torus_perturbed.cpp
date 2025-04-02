@@ -107,7 +107,6 @@ void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3, Real *pa0, Real *pa
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 Real Luminosity(MeshBlock *pmb, int iout);
-{
 
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
