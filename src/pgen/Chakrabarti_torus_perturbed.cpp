@@ -566,8 +566,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
 
 
-  if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
-  // if(adaptive==true) EnrollUserRefinementCondition(RefinementConditiona0);
+  // if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
+  if(adaptive==true) EnrollUserRefinementCondition(RefinementConditiona0);
 
 
   EnrollUserExplicitSourceFunction(NobleCooling);
