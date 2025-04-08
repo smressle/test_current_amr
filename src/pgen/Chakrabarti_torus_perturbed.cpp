@@ -567,7 +567,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
   //if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
-  if(adaptive==true) EnrollUserRefinementConditiona0(RefinementCondition);
+  if(adaptive==true) EnrollUserRefinementCondition(RefinementConditiona0);
 
 
   EnrollUserExplicitSourceFunction(NobleCooling);
@@ -910,8 +910,8 @@ int RefinementConditiona0(MeshBlock *pmb)
 
 
   
-            if (n_level==1) z_radius = 13.5*0.9999;
-            if (n_level==2) z_radius = 6.3*0.9999;
+            if (n_level==1) z_radius = 38.4*0.9999;
+            if (n_level==2) z_radius = 19.2*0.9999;
             if (n_level==3) z_radius = 9.6*0.9999;
             if (n_level==4) z_radius = 4.8*0.9999;
             if (n_level==5) z_radius = 2.4*0.9999;
