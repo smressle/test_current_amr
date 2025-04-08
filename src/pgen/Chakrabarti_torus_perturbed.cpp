@@ -78,6 +78,7 @@ static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real *pa1, Real *pa2, Real *pa3);
 
 int RefinementCondition(MeshBlock *pmb);
+int RefinementConditiona0(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt);
@@ -565,7 +566,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
 
 
-  if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
+  //if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
+  if(adaptive==true) EnrollUserRefinementConditiona0(RefinementCondition);
+
 
   EnrollUserExplicitSourceFunction(NobleCooling);
 
@@ -801,6 +804,171 @@ else return 1;
   // return -1;
 }
 
+int RefinementConditiona0(MeshBlock *pmb)
+{
+  int refine = 0;
+
+    Real DX,DY,DZ;
+    Real dx,dy,dz;
+  get_uniform_box_spacing(pmb->pmy_mesh->mesh_size,&DX,&DY,&DZ);
+  get_uniform_box_spacing(pmb->block_size,&dx,&dy,&dz);
+
+
+  Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
+  Real bh2_focus_radius = 3.125*q;
+  //Real bh2_focus_radius = 3.125*0.1;
+
+  int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
+
+
+  // if (current_level >=max_refinement_level) return 0;
+
+  int any_in_refinement_region = 0;
+  int any_at_current_level=0;
+
+
+  int max_level_required = 0;
+
+
+  // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
+  //first loop: check if any part of block is within refinement levels for secondary black hole
+
+  for (int k = pmb->ks; k<=pmb->ke;k++){
+    for(int j=pmb->js; j<=pmb->je; j++) {
+      for(int i=pmb->is; i<=pmb->ie; i++) {
+
+
+          for (int n_level = 1; n_level<=max_second_bh_refinement_level; n_level++){
+          
+            Real x = pmb->pcoord->x1v(i);
+            Real y = pmb->pcoord->x2v(j);
+            Real z = pmb->pcoord->x3v(k);
+
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+
+        
+            //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
+            // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
+            // }
+            if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
+              && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+              if (n_level>max_level_required) max_level_required=n_level;
+              any_in_refinement_region=1;
+
+              if (current_level < n_level){
+                // if (current_level==max_refinement_level){
+                // Real xbh, ybh, zbh;
+                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+                // }
+                  return  1;
+              }
+              if (current_level==n_level) any_at_current_level=1;
+            }
+
+
+          
+          }
+
+        }
+      }
+    }
+      
+
+  //second loop: check if any part of block is within refinement levels for primary black hole
+
+  for (int k = pmb->ks; k<=pmb->ke;k++){
+    for(int j=pmb->js; j<=pmb->je; j++) {
+      for(int i=pmb->is; i<=pmb->ie; i++) {
+          
+          for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
+          
+            Real x = pmb->pcoord->x1v(i);
+            Real y = pmb->pcoord->x2v(j);
+            Real z = pmb->pcoord->x3v(k);
+
+            Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
+
+            Real z_radius;
+
+            // if (n_level==1) z_radius = 250.0*0.9999;
+            // if (n_level==2) z_radius = 125.0*0.9999;
+            // if (n_level==3) z_radius = 62.5*0.9999;
+            // if (n_level==4) z_radius = 31.25*0.9999;
+            // if (n_level==5) z_radius = 13.5*0.9999;
+            // if (n_level==6) z_radius = 6.3*0.9999;
+            // if (n_level==7) z_radius = 3.2*0.9999;
+            // if (n_level==8) z_radius = 1.6*0.9999;
+
+            // if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
+
+
+  
+            if (n_level==1) z_radius = 13.5*0.9999;
+            if (n_level==2) z_radius = 6.3*0.9999;
+            if (n_level==3) z_radius = 9.6*0.9999;
+            if (n_level==4) z_radius = 4.8*0.9999;
+            if (n_level==5) z_radius = 2.4*0.9999;
+            if (n_level==6) z_radius = 1.2*0.9999;
+
+            if (n_level>=3) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+
+            if (n_level==3) box_radius = 75.0 * 0.9999;
+
+          
+
+             // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
+             //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
+             //    }
+            if (x<box_radius && x > -box_radius && y<box_radius
+              && y > -box_radius && z<z_radius && z > -z_radius ){
+
+
+              if (n_level>max_level_required) max_level_required=n_level;
+              any_in_refinement_region = 1;
+              if (current_level < n_level){
+                // if (current_level==max_refinement_level){
+                // Real xbh, ybh, zbh;
+                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+                // }
+
+                  //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
+                    //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
+                  return  1;
+              }
+              if (current_level==n_level) any_at_current_level=1;
+            }
+
+
+
+          
+          }
+
+  }
+ }
+}
+
+// if (current_level==max_refinement_level){
+//     Real xbh, ybh, zbh;
+//     get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+//     fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
+//     pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
+// }
+if (current_level>max_level_required) return -1;
+else if (current_level==max_level_required) return 0;
+else return 1;
+//if (any_in_refinement_region==0) return -1;
+// if (any_at_current_level==1) return 0;
+  // return -1;
+}
 
 //----------------------------------------------------------------------------------------
 // Function for setting initial conditions
