@@ -67,6 +67,7 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_mm_.NewAthenaArray(4,nc1);
   normal_bb_.NewAthenaArray(4,nc1);
   normal_tt_.NewAthenaArray(nc1);
+  fixed_.NewAthenaArray(nc3, nc2, nc1);
 }
 
 
@@ -365,6 +366,9 @@ void EquationOfState::ConservedToPrimitive(
           PrimitiveToConservedSingle(prim, gamma_adi, bb_cc, g_, g_inv_, k, j, i, cons,
                                      pco);
         }
+
+
+        fixed_(k,j,i) = fixed;
 
         // if (prim(IPR,k,j,i)>1e10){
         //   fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n p_floor: %g d_floor: %g pmag: %g gamma: %g \n old press; %g old den: %g normal dd: %g normal ee: %g ee_min: %g dd_min: %g \n ",

@@ -616,7 +616,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 1;
+  int N_user_vars = 2;
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -2419,9 +2419,9 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real Target_Temperature = target_temperature_func( radius,H_over_r_target);
 
-        // Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
+        Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
 
-        Real Y = prim(IPR,k,j,i)/std::pow(prim(IDN,k,j,i),gamma_adi)/k_target;
+        // Real Y = prim(IPR,k,j,i)/std::pow(prim(IDN,k,j,i),gamma_adi)/k_target;
 
 
         // fprintf(stderr,"target temperature: %g at r: %g \n", Target_Temperature,radius);
@@ -2491,6 +2491,11 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         // Real delta_T =
         pmb->user_out_var(0,k,j,i) = L_cool;
+
+        bool fixed =  pmb->peos->GetFixedValue(k,j,i);
+
+
+        if (fixed) pmb->user_out_var(1,k,j,i) +-1;
         // pmb->user_out_var(1,k,j,i) = Target_Temperature;
         // pmb->user_out_var(2,k,j,i) = u_1;
         // pmb->user_out_var(3,k,j,i) += L_cool * dt;
