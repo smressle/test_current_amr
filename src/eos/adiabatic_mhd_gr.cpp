@@ -67,7 +67,7 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_mm_.NewAthenaArray(4,nc1);
   normal_bb_.NewAthenaArray(4,nc1);
   normal_tt_.NewAthenaArray(nc1);
-  nt nc2 = pmb->ncells2, nc3 = pmb->ncells3;
+  int nc2 = pmb->ncells2, nc3 = pmb->ncells3;
   fixed_.NewAthenaArray(nc3, nc2, nc1);
 }
 
