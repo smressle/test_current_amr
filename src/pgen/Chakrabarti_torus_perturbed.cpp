@@ -2396,7 +2396,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
   Real gamma_adi = pmb->peos->GetGamma();
 
-  Real k_target = 0.005;
+  Real k_target = 0.0005;
 
   // fprintf(stderr,"a and m in noble cooling: %g %g \n", a, m);
 
