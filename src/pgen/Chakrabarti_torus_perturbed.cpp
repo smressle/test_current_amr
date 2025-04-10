@@ -2495,7 +2495,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         bool fixed =  pmb->peos->GetFixedValue(k,j,i);
 
 
-        if (fixed) pmb->user_out_var(1,k,j,i) +-1;
+        if (fixed) pmb->user_out_var(1,k,j,i) +=1;
         // pmb->user_out_var(1,k,j,i) = Target_Temperature;
         // pmb->user_out_var(2,k,j,i) = u_1;
         // pmb->user_out_var(3,k,j,i) += L_cool * dt;
