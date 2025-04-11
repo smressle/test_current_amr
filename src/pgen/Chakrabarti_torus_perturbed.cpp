@@ -566,8 +566,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
 
 
-  // if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
-  if(adaptive==true) EnrollUserRefinementCondition(RefinementConditiona0);
+  if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
+  // if(adaptive==true) EnrollUserRefinementCondition(RefinementConditiona0);
 
 
   EnrollUserExplicitSourceFunction(NobleCooling);
@@ -616,7 +616,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 1;
+  int N_user_vars = 9;
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -2492,10 +2492,18 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real delta_T =
         pmb->user_out_var(0,k,j,i) = L_cool;
 
-        bool fixed =  pmb->peos->GetFixedValue(k,j,i);
+        int fixed_value =  pmb->peos->GetFixedValue(k,j,i);
 
 
-        // if (fixed) pmb->user_out_var(1,k,j,i) +=1;
+        if (fixed_value==1) pmb->user_out_var(1,k,j,i) +=1;
+        if (fixed_value==2) pmb->user_out_var(2,k,j,i) +=1;
+        if (fixed_value==3) pmb->user_out_var(3,k,j,i) +=1;
+        if (fixed_value==4) pmb->user_out_var(4,k,j,i) +=1;
+        if (fixed_value==5) pmb->user_out_var(5,k,j,i) +=1;
+        if (fixed_value==6) pmb->user_out_var(6,k,j,i) +=1;
+        if (fixed_value==7) pmb->user_out_var(7,k,j,i) +=1;
+        if (fixed_value==8) pmb->user_out_var(8,k,j,i) +=1;
+
         // pmb->user_out_var(1,k,j,i) = Target_Temperature;
         // pmb->user_out_var(2,k,j,i) = u_1;
         // pmb->user_out_var(3,k,j,i) += L_cool * dt;

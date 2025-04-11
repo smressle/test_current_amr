@@ -113,6 +113,8 @@ void EquationOfState::ConservedToPrimitive(
   // Interpolate magnetic field from faces to cell centers
   pmy_block_->pfield->CalculateCellCenteredField(bb, bb_cc, pco, il, iu, jl, ju, kl, ku);
 
+  int fixed_value = 0;
+
   // Go through all rows
   for (int k=kl; k<=ku; ++k) {
     for (int j=jl; j<=ju; ++j) {
@@ -164,6 +166,7 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_dd_(i) < dd_min) {
           normal_dd_(i) = dd_min;
           fixed = true;
+          fixed_value = 1;
           // fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -174,6 +177,7 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_ee_(i) < ee_min) {
           normal_ee_(i) = ee_min;
           fixed = true;
+          fixed_value = 2;
 
         // if (std::fabs(normal_ee_(i))>1e10){
         //   fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
@@ -195,6 +199,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_mm_(3,i) *= factor;
           normal_tt_(i) *= factor;
           fixed = true;
+          fixed_value =3;
           // fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -223,6 +228,7 @@ void EquationOfState::ConservedToPrimitive(
             prim(n,k,j,i) = prim_old(n,k,j,i);
           }
           fixed = true;
+          fixed_value =4
         }
 
         // Apply density and gas pressure floors in normal frame
@@ -268,6 +274,7 @@ void EquationOfState::ConservedToPrimitive(
             }
           }
           fixed = true;
+          fixed_value = 5;
         }
 
         // Apply velocity ceiling
@@ -287,6 +294,7 @@ void EquationOfState::ConservedToPrimitive(
           uu2 *= factor;
           uu3 *= factor;
           fixed = true;
+          fixed_value=6;
           velocity_ceiling = true;
           // fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -343,12 +351,14 @@ void EquationOfState::ConservedToPrimitive(
         if (rho < density_floor_local) {
           rho = density_floor_local;
           fixed = true;
+          fixed_value = 7;
           // fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
         if (pgas < pressure_floor_local) {
           pgas = pressure_floor_local;
           fixed = true;
+          fixed_value =8;
           // fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -369,7 +379,7 @@ void EquationOfState::ConservedToPrimitive(
         }
 
 
-        fixed_(k,j,i) = fixed;
+        fixed_(k,j,i) = fixed_value;;
 
         // if (prim(IPR,k,j,i)>1e10){
         //   fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n p_floor: %g d_floor: %g pmag: %g gamma: %g \n old press; %g old den: %g normal dd: %g normal ee: %g ee_min: %g dd_min: %g \n ",
