@@ -228,7 +228,7 @@ void EquationOfState::ConservedToPrimitive(
             prim(n,k,j,i) = prim_old(n,k,j,i);
           }
           fixed = true;
-          fixed_value =4
+          fixed_value =4;
         }
 
         // Apply density and gas pressure floors in normal frame
