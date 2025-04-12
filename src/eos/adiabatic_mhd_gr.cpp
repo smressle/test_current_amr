@@ -277,6 +277,9 @@ void EquationOfState::ConservedToPrimitive(
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
 
 
+          Real gamma_before = gamma;
+          Real pmag_before = pmag;
+
             // if (std::fabs(normal_ee_(i))>1e10){
             //   fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g w_gas_add: %g gamma: %g \n p_add: %g rho_add: %g gam: %g pre_ee: %g \n",
             //   normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i),
@@ -290,6 +293,14 @@ void EquationOfState::ConservedToPrimitive(
                                                normal_bb_, normal_tt_, gamma_adi,
                                                prim_old(IPR,k,j,i), k, j, i, prim, &gamma,
                                                &pmag);
+
+
+
+          if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
+            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n",pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
+              gamma,pmag,gamma_before,pmag_before);
+          }
+
 
           // Handle failures
           if (!success) {
