@@ -113,7 +113,6 @@ void EquationOfState::ConservedToPrimitive(
   // Interpolate magnetic field from faces to cell centers
   pmy_block_->pfield->CalculateCellCenteredField(bb, bb_cc, pco, il, iu, jl, ju, kl, ku);
 
-  int fixed_value = 0;
 
   // Go through all rows
   for (int k=kl; k<=ku; ++k) {
@@ -130,6 +129,7 @@ void EquationOfState::ConservedToPrimitive(
       for (int i=il; i<=iu; ++i) {
         // Set flag indicating conserved values need adjusting at end
         bool fixed = false;
+         int fixed_value = 0;
 
       //   if (std::fabs(normal_ee_(i))>1e10){
       //   fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
