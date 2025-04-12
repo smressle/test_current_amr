@@ -271,10 +271,14 @@ void EquationOfState::ConservedToPrimitive(
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           // Adjust conserved density and energy
           Real wgas_add = rho_add + gamma_adi/(gamma_adi-1.0) * pgas_add;
+          Real pre_dd = normal_dd_(i);
           normal_dd_(i) += rho_add * gamma;
 
           Real pre_ee = normal_ee_(i);
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
+
+          Real T_old = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+
 
 
           Real gamma_before = gamma;
@@ -294,11 +298,13 @@ void EquationOfState::ConservedToPrimitive(
                                                prim_old(IPR,k,j,i), k, j, i, prim, &gamma,
                                                &pmag);
 
+          Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
 
 
           if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
-            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n",pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
-              gamma,pmag,gamma_before,pmag_before);
+            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n dd_before: %g dd_after: %g ee_before: %g ee_after: %g \n T_old: %g T_new: %g\n",
+              pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
+              gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new);
           }
 
 
