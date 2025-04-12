@@ -156,7 +156,7 @@ class EquationOfState {
   int GetFixedValue6(int k, int j, int i) {return fixed_6(k,j,i);}
   int GetFixedValue7(int k, int j, int i) {return fixed_7(k,j,i);}
   int GetFixedValue8(int k, int j, int i) {return fixed_8(k,j,i);}
-  int GetFixedValue8(int k, int j, int i) {return fixed_9(k,j,i);}
+  int GetFixedValue9(int k, int j, int i) {return fixed_9(k,j,i);}
 
 
   EosTable* ptable; // pointer to EOS table data
