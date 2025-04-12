@@ -271,6 +271,7 @@ void EquationOfState::ConservedToPrimitive(
           if (!success) {
             for (int n = 0; n < NHYDRO; ++n) {
               prim(n,k,j,i) = prim_old(n,k,j,i);
+              fixed_value = 9;
             }
           }
           fixed = true;

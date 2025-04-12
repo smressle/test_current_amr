@@ -616,7 +616,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 9;
+  int N_user_vars = 10;
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -2503,6 +2503,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if (fixed_value==6) pmb->user_out_var(6,k,j,i) +=1;
         if (fixed_value==7) pmb->user_out_var(7,k,j,i) +=1;
         if (fixed_value==8) pmb->user_out_var(8,k,j,i) +=1;
+        if (fixed_value==9) pmb->user_out_var(9,k,j,i) +=1;
+
 
         // pmb->user_out_var(1,k,j,i) = Target_Temperature;
         // pmb->user_out_var(2,k,j,i) = u_1;
