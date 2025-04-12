@@ -68,7 +68,16 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_bb_.NewAthenaArray(4,nc1);
   normal_tt_.NewAthenaArray(nc1);
   int nc2 = pmb->ncells2, nc3 = pmb->ncells3;
-  fixed_.NewAthenaArray(nc3, nc2, nc1);
+  fixed_1.NewAthenaArray(nc3, nc2, nc1);
+  fixed_2.NewAthenaArray(nc3, nc2, nc1);
+  fixed_3.NewAthenaArray(nc3, nc2, nc1);
+  fixed_4.NewAthenaArray(nc3, nc2, nc1);
+  fixed_5.NewAthenaArray(nc3, nc2, nc1);
+  fixed_6.NewAthenaArray(nc3, nc2, nc1);
+  fixed_7.NewAthenaArray(nc3, nc2, nc1);
+  fixed_8.NewAthenaArray(nc3, nc2, nc1);
+  fixed_9.NewAthenaArray(nc3, nc2, nc1);
+
 }
 
 
@@ -131,6 +140,17 @@ void EquationOfState::ConservedToPrimitive(
         bool fixed = false;
          int fixed_value = 0;
 
+         fixed_1(k,j,i) = 0;
+         fixed_2(k,j,i) = 0;
+         fixed_3(k,j,i) = 0;
+         fixed_4(k,j,i) = 0;
+         fixed_5(k,j,i) = 0;
+         fixed_6(k,j,i) = 0;
+         fixed_7(k,j,i) = 0;
+         fixed_8(k,j,i) = 0;
+         fixed_9(k,j,i) = 0;
+
+
       //   if (std::fabs(normal_ee_(i))>1e10){
       //   fprintf(stderr,"Normal ee huge after Calculate normal!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
       //   normal_ee_(i),cons(IDN,k,j,i),cons(IPR,k,j,i), g_inv_(I00,i) );
@@ -166,6 +186,7 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_dd_(i) < dd_min) {
           normal_dd_(i) = dd_min;
           fixed = true;
+          fixed_1(k,j,i)=1;
           fixed_value = 1;
           // fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -178,6 +199,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_ee_(i) = ee_min;
           fixed = true;
           fixed_value = 2;
+          fixed_2(k,j,i)=1;
 
         // if (std::fabs(normal_ee_(i))>1e10){
         //   fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
@@ -200,6 +222,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_tt_(i) *= factor;
           fixed = true;
           fixed_value =3;
+          fixed_3(k,j,i)=1;
           // fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -229,6 +252,7 @@ void EquationOfState::ConservedToPrimitive(
           }
           fixed = true;
           fixed_value =4;
+          fixed_4(k,j,i)=1;
         }
 
         // Apply density and gas pressure floors in normal frame
@@ -272,10 +296,14 @@ void EquationOfState::ConservedToPrimitive(
             for (int n = 0; n < NHYDRO; ++n) {
               prim(n,k,j,i) = prim_old(n,k,j,i);
               fixed_value = 9;
+              fixed_9(k,j,i)=1;
             }
           }
+          else{
+            fixed_value = 5;
+            fixed_5(k,j,i)=1;
+          }
           fixed = true;
-          fixed_value = 5;
         }
 
         // Apply velocity ceiling
@@ -296,6 +324,7 @@ void EquationOfState::ConservedToPrimitive(
           uu3 *= factor;
           fixed = true;
           fixed_value=6;
+          fixed_6(k,j,i)=1;
           velocity_ceiling = true;
           // fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -353,6 +382,7 @@ void EquationOfState::ConservedToPrimitive(
           rho = density_floor_local;
           fixed = true;
           fixed_value = 7;
+          fixed_7(k,j,i)=1;
           // fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -360,6 +390,7 @@ void EquationOfState::ConservedToPrimitive(
           pgas = pressure_floor_local;
           fixed = true;
           fixed_value =8;
+          fixed_8(k,j,i)=1;
           // fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -380,7 +411,7 @@ void EquationOfState::ConservedToPrimitive(
         }
 
 
-        fixed_(k,j,i) = fixed_value;;
+        // fixed_(k,j,i) = fixed_value;;
 
         // if (prim(IPR,k,j,i)>1e10){
         //   fprintf(stderr, "Large pressure in Con2PRim!!\n press; %g cons_en: %g den: %g cons_den: %g \n fixed?: %d success: %d velocity_ceiling: %d \n rho_add: %g pgas_add: %g \n p_floor: %g d_floor: %g pmag: %g gamma: %g \n old press; %g old den: %g normal dd: %g normal ee: %g ee_min: %g dd_min: %g \n ",

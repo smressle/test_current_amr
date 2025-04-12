@@ -148,7 +148,17 @@ class EquationOfState {
   Real GetIsoSoundSpeed() const {return iso_sound_speed_;}
   Real GetDensityFloor() const {return density_floor_;}
   Real GetPressureFloor() const {return pressure_floor_;}
-  int GetFixedValue(int k, int j, int i) {return fixed_(k,j,i);}
+  int GetFixedValue1(int k, int j, int i) {return fixed_1(k,j,i);}
+  int GetFixedValue2(int k, int j, int i) {return fixed_2(k,j,i);}
+  int GetFixedValue3(int k, int j, int i) {return fixed_3(k,j,i);}
+  int GetFixedValue4(int k, int j, int i) {return fixed_4(k,j,i);}
+  int GetFixedValue5(int k, int j, int i) {return fixed_5(k,j,i);}
+  int GetFixedValue6(int k, int j, int i) {return fixed_6(k,j,i);}
+  int GetFixedValue7(int k, int j, int i) {return fixed_7(k,j,i);}
+  int GetFixedValue8(int k, int j, int i) {return fixed_8(k,j,i);}
+  int GetFixedValue8(int k, int j, int i) {return fixed_9(k,j,i);}
+
+
   EosTable* ptable; // pointer to EOS table data
 #if GENERAL_EOS
   Real GetGamma();
@@ -175,7 +185,7 @@ class EquationOfState {
   Real egas_unit_, inv_egas_unit_;       // physical unit/sim unit for energy density
   Real vsqr_unit_, inv_vsqr_unit_;       // physical unit/sim unit for speed^2
   AthenaArray<Real> g_, g_inv_;          // metric and its inverse, used in GR
-  AthenaArray<int> fixed_;              // cells with problems, used in GR hydro
+  AthenaArray<int> fixed_1,fixed_2,fixed_3,fixed_4,fixed_5,fixed_6,fixed_7,fixed_8,fixed_9;              // cells with problems, used in GR hydro
   AthenaArray<Real> normal_dd_;          // normal-frame densities, used in relativity
   AthenaArray<Real> normal_ee_;          // normal-frame energies, used in relativity
   AthenaArray<Real> normal_mm_;          // normal-frame momenta, used in relativity

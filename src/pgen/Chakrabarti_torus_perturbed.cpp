@@ -2492,18 +2492,18 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real delta_T =
         pmb->user_out_var(0,k,j,i) = L_cool;
 
-        int fixed_value =  pmb->peos->GetFixedValue(k,j,i);
+        // int fixed_value =  pmb->peos->GetFixedValue(k,j,i);
 
 
-        if (fixed_value==1) pmb->user_out_var(1,k,j,i) +=1;
-        if (fixed_value==2) pmb->user_out_var(2,k,j,i) +=1;
-        if (fixed_value==3) pmb->user_out_var(3,k,j,i) +=1;
-        if (fixed_value==4) pmb->user_out_var(4,k,j,i) +=1;
-        if (fixed_value==5) pmb->user_out_var(5,k,j,i) +=1;
-        if (fixed_value==6) pmb->user_out_var(6,k,j,i) +=1;
-        if (fixed_value==7) pmb->user_out_var(7,k,j,i) +=1;
-        if (fixed_value==8) pmb->user_out_var(8,k,j,i) +=1;
-        if (fixed_value==9) pmb->user_out_var(9,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue1(k,j,i)==1) pmb->user_out_var(1,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue2(k,j,i)==1) pmb->user_out_var(2,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue3(k,j,i)==1) pmb->user_out_var(3,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue4(k,j,i)==1) pmb->user_out_var(4,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue5(k,j,i)==1) pmb->user_out_var(5,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue6(k,j,i)==1) pmb->user_out_var(6,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue7(k,j,i)==1) pmb->user_out_var(7,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue8(k,j,i)==1) pmb->user_out_var(8,k,j,i) +=1;
+        if (pmb->peos->GetFixedValue9(k,j,i)==1) pmb->user_out_var(9,k,j,i) +=1;
 
 
         // pmb->user_out_var(1,k,j,i) = Target_Temperature;
