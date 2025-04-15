@@ -306,7 +306,7 @@ void EquationOfState::ConservedToPrimitive(
               pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
               gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new,
               cons(IEN,k,j,i),cons(IDN,k,j,i), bb_cc(IB1,k,j,i),bb_cc(IB2,k,j,i),bb_cc(IB3,k,j,i),
-              i,j,k,pmb->gid);
+              i,j,k,pmy_block_->gid);
           }
 
 
