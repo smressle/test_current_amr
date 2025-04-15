@@ -302,9 +302,11 @@ void EquationOfState::ConservedToPrimitive(
 
 
           if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
-            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n dd_before: %g dd_after: %g ee_before: %g ee_after: %g \n T_old: %g T_new: %g\n",
+            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n dd_before: %g dd_after: %g ee_before: %g ee_after: %g \n T_old: %g T_new: %g\n E_cons: %g D_cons: %g B_cc: %g %g %g \n i j k: %d %d %d gid: %d \n",
               pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
-              gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new);
+              gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new,
+              cons(IEN,k,j,i),cons(IDN,k,j,i), bb_cc(IB1,k,j,i),bb_cc(IB2,k,j,i),bb_cc(IB3,k,j,i),
+              i,j,k,pmb->gid);
           }
 
 
