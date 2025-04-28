@@ -68,15 +68,15 @@ EquationOfState::EquationOfState(MeshBlock *pmb, ParameterInput *pin) :
   normal_bb_.NewAthenaArray(4,nc1);
   normal_tt_.NewAthenaArray(nc1);
   int nc2 = pmb->ncells2, nc3 = pmb->ncells3;
-  fixed_1.NewAthenaArray(nc3, nc2, nc1);
-  fixed_2.NewAthenaArray(nc3, nc2, nc1);
-  fixed_3.NewAthenaArray(nc3, nc2, nc1);
-  fixed_4.NewAthenaArray(nc3, nc2, nc1);
-  fixed_5.NewAthenaArray(nc3, nc2, nc1);
-  fixed_6.NewAthenaArray(nc3, nc2, nc1);
-  fixed_7.NewAthenaArray(nc3, nc2, nc1);
-  fixed_8.NewAthenaArray(nc3, nc2, nc1);
-  fixed_9.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_1.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_2.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_3.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_4.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_5.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_6.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_7.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_8.NewAthenaArray(nc3, nc2, nc1);
+  // fixed_9.NewAthenaArray(nc3, nc2, nc1);
 
 }
 
@@ -140,15 +140,15 @@ void EquationOfState::ConservedToPrimitive(
         bool fixed = false;
          int fixed_value = 0;
 
-         fixed_1(k,j,i) = 0;
-         fixed_2(k,j,i) = 0;
-         fixed_3(k,j,i) = 0;
-         fixed_4(k,j,i) = 0;
-         fixed_5(k,j,i) = 0;
-         fixed_6(k,j,i) = 0;
-         fixed_7(k,j,i) = 0;
-         fixed_8(k,j,i) = 0;
-         fixed_9(k,j,i) = 0;
+         // fixed_1(k,j,i) = 0;
+         // fixed_2(k,j,i) = 0;
+         // fixed_3(k,j,i) = 0;
+         // fixed_4(k,j,i) = 0;
+         // fixed_5(k,j,i) = 0;
+         // fixed_6(k,j,i) = 0;
+         // fixed_7(k,j,i) = 0;
+         // fixed_8(k,j,i) = 0;
+         // fixed_9(k,j,i) = 0;
 
 
       //   if (std::fabs(normal_ee_(i))>1e10){
@@ -186,7 +186,7 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_dd_(i) < dd_min) {
           normal_dd_(i) = dd_min;
           fixed = true;
-          fixed_1(k,j,i)=1;
+          // fixed_1(k,j,i)=1;
           fixed_value = 1;
           // fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -199,7 +199,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_ee_(i) = ee_min;
           fixed = true;
           fixed_value = 2;
-          fixed_2(k,j,i)=1;
+          // fixed_2(k,j,i)=1;
 
         // if (std::fabs(normal_ee_(i))>1e10){
         //   fprintf(stderr,"Normal ee huge after applying floor!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g \n",
@@ -222,7 +222,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_tt_(i) *= factor;
           fixed = true;
           fixed_value =3;
-          fixed_3(k,j,i)=1;
+          // fixed_3(k,j,i)=1;
           // fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -252,7 +252,7 @@ void EquationOfState::ConservedToPrimitive(
           }
           fixed = true;
           fixed_value =4;
-          fixed_4(k,j,i)=1;
+          // fixed_4(k,j,i)=1;
         }
 
         // Apply density and gas pressure floors in normal frame
@@ -301,13 +301,13 @@ void EquationOfState::ConservedToPrimitive(
           Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
 
 
-          if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
-            fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n dd_before: %g dd_after: %g ee_before: %g ee_after: %g \n T_old: %g T_new: %g\n E_cons: %g D_cons: %g B_cc: %g %g %g \n i j k: %d %d %d gid: %d \n",
-              pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
-              gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new,
-              cons(IEN,k,j,i),cons(IDN,k,j,i), bb_cc(IB1,k,j,i),bb_cc(IB2,k,j,i),bb_cc(IB3,k,j,i),
-              i,j,k,pmy_block_->gid);
-          }
+          // if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
+          //   fprintf(stderr,"x,y,z: %g %g %g  rho_add: %g pgas_add: %g  \n gamma: %g pmag: %g gamma_before: %g pmag_before: %g \n dd_before: %g dd_after: %g ee_before: %g ee_after: %g \n T_old: %g T_new: %g\n E_cons: %g D_cons: %g B_cc: %g %g %g \n i j k: %d %d %d gid: %d \n",
+          //     pco->x1v(i),pco->x2v(j),pco->x3v(k),rho_add,pgas_add,
+          //     gamma,pmag,gamma_before,pmag_before,pre_dd,normal_dd_(i),pre_ee,normal_ee_(i),T_old,T_new,
+          //     cons(IEN,k,j,i),cons(IDN,k,j,i), bb_cc(IB1,k,j,i),bb_cc(IB2,k,j,i),bb_cc(IB3,k,j,i),
+          //     i,j,k,pmy_block_->gid);
+          // }
 
 
           // Handle failures
@@ -315,12 +315,12 @@ void EquationOfState::ConservedToPrimitive(
             for (int n = 0; n < NHYDRO; ++n) {
               prim(n,k,j,i) = prim_old(n,k,j,i);
               fixed_value = 9;
-              fixed_9(k,j,i)=1;
+              // fixed_9(k,j,i)=1;
             }
           }
           else{
             fixed_value = 5;
-            fixed_5(k,j,i)=1;
+            // fixed_5(k,j,i)=1;
           }
           fixed = true;
         }
@@ -343,7 +343,7 @@ void EquationOfState::ConservedToPrimitive(
           uu3 *= factor;
           fixed = true;
           fixed_value=6;
-          fixed_6(k,j,i)=1;
+          // fixed_6(k,j,i)=1;
           velocity_ceiling = true;
           // fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -401,7 +401,7 @@ void EquationOfState::ConservedToPrimitive(
           rho = density_floor_local;
           fixed = true;
           fixed_value = 7;
-          fixed_7(k,j,i)=1;
+          // fixed_7(k,j,i)=1;
           // fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -409,7 +409,7 @@ void EquationOfState::ConservedToPrimitive(
           pgas = pressure_floor_local;
           fixed = true;
           fixed_value =8;
-          fixed_8(k,j,i)=1;
+          // fixed_8(k,j,i)=1;
           // fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }

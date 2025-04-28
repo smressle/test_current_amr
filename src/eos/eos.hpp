@@ -148,15 +148,15 @@ class EquationOfState {
   Real GetIsoSoundSpeed() const {return iso_sound_speed_;}
   Real GetDensityFloor() const {return density_floor_;}
   Real GetPressureFloor() const {return pressure_floor_;}
-  int GetFixedValue1(int k, int j, int i) {return fixed_1(k,j,i);}
-  int GetFixedValue2(int k, int j, int i) {return fixed_2(k,j,i);}
-  int GetFixedValue3(int k, int j, int i) {return fixed_3(k,j,i);}
-  int GetFixedValue4(int k, int j, int i) {return fixed_4(k,j,i);}
-  int GetFixedValue5(int k, int j, int i) {return fixed_5(k,j,i);}
-  int GetFixedValue6(int k, int j, int i) {return fixed_6(k,j,i);}
-  int GetFixedValue7(int k, int j, int i) {return fixed_7(k,j,i);}
-  int GetFixedValue8(int k, int j, int i) {return fixed_8(k,j,i);}
-  int GetFixedValue9(int k, int j, int i) {return fixed_9(k,j,i);}
+  // int GetFixedValue1(int k, int j, int i) {return fixed_1(k,j,i);}
+  // int GetFixedValue2(int k, int j, int i) {return fixed_2(k,j,i);}
+  // int GetFixedValue3(int k, int j, int i) {return fixed_3(k,j,i);}
+  // int GetFixedValue4(int k, int j, int i) {return fixed_4(k,j,i);}
+  // int GetFixedValue5(int k, int j, int i) {return fixed_5(k,j,i);}
+  // int GetFixedValue6(int k, int j, int i) {return fixed_6(k,j,i);}
+  // int GetFixedValue7(int k, int j, int i) {return fixed_7(k,j,i);}
+  // int GetFixedValue8(int k, int j, int i) {return fixed_8(k,j,i);}
+  // int GetFixedValue9(int k, int j, int i) {return fixed_9(k,j,i);}
 
 
   EosTable* ptable; // pointer to EOS table data
