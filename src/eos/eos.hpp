@@ -185,7 +185,7 @@ class EquationOfState {
   Real egas_unit_, inv_egas_unit_;       // physical unit/sim unit for energy density
   Real vsqr_unit_, inv_vsqr_unit_;       // physical unit/sim unit for speed^2
   AthenaArray<Real> g_, g_inv_;          // metric and its inverse, used in GR
-  AthenaArray<int> fixed_1,fixed_2,fixed_3,fixed_4,fixed_5,fixed_6,fixed_7,fixed_8,fixed_9;              // cells with problems, used in GR hydro
+  // AthenaArray<int> fixed_1,fixed_2,fixed_3,fixed_4,fixed_5,fixed_6,fixed_7,fixed_8,fixed_9;              // cells with problems, used in GR hydro
   AthenaArray<Real> normal_dd_;          // normal-frame densities, used in relativity
   AthenaArray<Real> normal_ee_;          // normal-frame energies, used in relativity
   AthenaArray<Real> normal_mm_;          // normal-frame momenta, used in relativity

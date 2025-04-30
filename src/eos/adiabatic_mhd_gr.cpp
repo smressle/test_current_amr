@@ -138,7 +138,7 @@ void EquationOfState::ConservedToPrimitive(
       for (int i=il; i<=iu; ++i) {
         // Set flag indicating conserved values need adjusting at end
         bool fixed = false;
-         int fixed_value = 0;
+         // int fixed_value = 0;
 
          // fixed_1(k,j,i) = 0;
          // fixed_2(k,j,i) = 0;
@@ -187,7 +187,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_dd_(i) = dd_min;
           fixed = true;
           // fixed_1(k,j,i)=1;
-          fixed_value = 1;
+          // fixed_value = 1;
           // fprintf(stderr,"Conserved Density too low!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
         }
@@ -198,7 +198,7 @@ void EquationOfState::ConservedToPrimitive(
         if (normal_ee_(i) < ee_min) {
           normal_ee_(i) = ee_min;
           fixed = true;
-          fixed_value = 2;
+          // fixed_value = 2;
           // fixed_2(k,j,i)=1;
 
         // if (std::fabs(normal_ee_(i))>1e10){
@@ -221,7 +221,7 @@ void EquationOfState::ConservedToPrimitive(
           normal_mm_(3,i) *= factor;
           normal_tt_(i) *= factor;
           fixed = true;
-          fixed_value =3;
+          // fixed_value =3;
           // fixed_3(k,j,i)=1;
           // fprintf(stderr,"momentum too large !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -251,7 +251,7 @@ void EquationOfState::ConservedToPrimitive(
             prim(n,k,j,i) = prim_old(n,k,j,i);
           }
           fixed = true;
-          fixed_value =4;
+          // fixed_value =4;
           // fixed_4(k,j,i)=1;
         }
 
@@ -271,18 +271,18 @@ void EquationOfState::ConservedToPrimitive(
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
           // Adjust conserved density and energy
           Real wgas_add = rho_add + gamma_adi/(gamma_adi-1.0) * pgas_add;
-          Real pre_dd = normal_dd_(i);
+          // Real pre_dd = normal_dd_(i);
           normal_dd_(i) += rho_add * gamma;
 
-          Real pre_ee = normal_ee_(i);
+          // Real pre_ee = normal_ee_(i);
           normal_ee_(i) += wgas_add * SQR(gamma) + pgas_add;
 
-          Real T_old = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+          // Real T_old = prim(IPR,k,j,i)/prim(IDN,k,j,i);
 
 
 
-          Real gamma_before = gamma;
-          Real pmag_before = pmag;
+          // Real gamma_before = gamma;
+          // Real pmag_before = pmag;
 
             // if (std::fabs(normal_ee_(i))>1e10){
             //   fprintf(stderr,"Normal ee huge before recalculating primitives!!: %g \n cons_rho: %g cons_en: %g \n g^00: %g w_gas_add: %g gamma: %g \n p_add: %g rho_add: %g gam: %g pre_ee: %g \n",
@@ -298,7 +298,7 @@ void EquationOfState::ConservedToPrimitive(
                                                prim_old(IPR,k,j,i), k, j, i, prim, &gamma,
                                                &pmag);
 
-          Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
+          // Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
 
 
           // if (r>4 && r<8 && std::abs(pco->x3v(k))<0.03){
@@ -314,12 +314,12 @@ void EquationOfState::ConservedToPrimitive(
           if (!success) {
             for (int n = 0; n < NHYDRO; ++n) {
               prim(n,k,j,i) = prim_old(n,k,j,i);
-              fixed_value = 9;
+              // fixed_value = 9;
               // fixed_9(k,j,i)=1;
             }
           }
           else{
-            fixed_value = 5;
+            // fixed_value = 5;
             // fixed_5(k,j,i)=1;
           }
           fixed = true;
@@ -342,7 +342,7 @@ void EquationOfState::ConservedToPrimitive(
           uu2 *= factor;
           uu3 *= factor;
           fixed = true;
-          fixed_value=6;
+          // fixed_value=6;
           // fixed_6(k,j,i)=1;
           velocity_ceiling = true;
           // fprintf(stderr,"Velocity_ceiling!!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
@@ -400,7 +400,7 @@ void EquationOfState::ConservedToPrimitive(
         if (rho < density_floor_local) {
           rho = density_floor_local;
           fixed = true;
-          fixed_value = 7;
+          // fixed_value = 7;
           // fixed_7(k,j,i)=1;
           // fprintf(stderr,"Fluid frame density floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));
@@ -408,7 +408,7 @@ void EquationOfState::ConservedToPrimitive(
         if (pgas < pressure_floor_local) {
           pgas = pressure_floor_local;
           fixed = true;
-          fixed_value =8;
+          // fixed_value =8;
           // fixed_8(k,j,i)=1;
           // fprintf(stderr,"Fluid frame pressure floor !!! \n ijk: %d %d %d \n xyz: %g %g %g \n",
           //   i,j,k,pco->x1v(i),pco->x2v(j),pco->x3v(k));

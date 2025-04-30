@@ -2913,118 +2913,118 @@ Real Luminosity(MeshBlock *pmb, int iout)
 void MeshBlock::UserWorkInLoop(void)
 {
   // Create aliases for metric
-  AthenaArray<Real> &g = ruser_meshblock_data[0];
-  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+  // AthenaArray<Real> &g = ruser_meshblock_data[0];
+  // AthenaArray<Real> &gi = ruser_meshblock_data[1];
 
 
-  // Go through all cells
-  for (int k = ks; k <= ke; ++k) {
-    for (int j = js; j <= je; ++j) {
-      pcoord->CellMetric(k, j, is, ie, g, gi);
-      for (int i = is; i <= ie; ++i) {
+  // // Go through all cells
+  // for (int k = ks; k <= ke; ++k) {
+  //   for (int j = js; j <= je; ++j) {
+  //     pcoord->CellMetric(k, j, is, ie, g, gi);
+  //     for (int i = is; i <= ie; ++i) {
 
-        // Calculate normal frame Lorentz factor
-        Real uu1 = phydro->w(IM1,k,j,i);
-        Real uu2 = phydro->w(IM2,k,j,i);
-        Real uu3 = phydro->w(IM3,k,j,i);
-        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                 + g(I33,i)*uu3*uu3;
-        Real gamma = std::sqrt(1.0 + tmp);
-        // user_out_var(0,k,j,i) = gamma;
+  //       // Calculate normal frame Lorentz factor
+  //       Real uu1 = phydro->w(IM1,k,j,i);
+  //       Real uu2 = phydro->w(IM2,k,j,i);
+  //       Real uu3 = phydro->w(IM3,k,j,i);
+  //       Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+  //                + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+  //                + g(I33,i)*uu3*uu3;
+  //       Real gamma = std::sqrt(1.0 + tmp);
+  //       // user_out_var(0,k,j,i) = gamma;
 
-        // Calculate 4-velocity
-        Real alpha = std::sqrt(-1.0/gi(I00,i));
-        Real u0 = gamma/alpha;
-        Real u1 = uu1 - alpha * gamma * gi(I01,i);
-        Real u2 = uu2 - alpha * gamma * gi(I02,i);
-        Real u3 = uu3 - alpha * gamma * gi(I03,i);
-        Real u_0, u_1, u_2, u_3;
+  //       // Calculate 4-velocity
+  //       Real alpha = std::sqrt(-1.0/gi(I00,i));
+  //       Real u0 = gamma/alpha;
+  //       Real u1 = uu1 - alpha * gamma * gi(I01,i);
+  //       Real u2 = uu2 - alpha * gamma * gi(I02,i);
+  //       Real u3 = uu3 - alpha * gamma * gi(I03,i);
+  //       Real u_0, u_1, u_2, u_3;
 
-        // user_out_var(1,k,j,i) = u0;
-        // user_out_var(2,k,j,i) = u1;
-        // user_out_var(3,k,j,i) = u2;
-        // user_out_var(4,k,j,i) = u3;
-        if (not MAGNETIC_FIELDS_ENABLED) {
-          continue;
-        }
+  //       // user_out_var(1,k,j,i) = u0;
+  //       // user_out_var(2,k,j,i) = u1;
+  //       // user_out_var(3,k,j,i) = u2;
+  //       // user_out_var(4,k,j,i) = u3;
+  //       if (not MAGNETIC_FIELDS_ENABLED) {
+  //         continue;
+  //       }
 
-        pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+  //       pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
-        // Calculate 4-magnetic field
-        Real bb1 = pfield->bcc(IB1,k,j,i);
-        Real bb2 = pfield->bcc(IB2,k,j,i);
-        Real bb3 = pfield->bcc(IB3,k,j,i);
-        Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-        Real b1 = (bb1 + b0 * u1) / u0;
-        Real b2 = (bb2 + b0 * u2) / u0;
-        Real b3 = (bb3 + b0 * u3) / u0;
-        Real b_0, b_1, b_2, b_3;
-        pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+  //       // Calculate 4-magnetic field
+  //       Real bb1 = pfield->bcc(IB1,k,j,i);
+  //       Real bb2 = pfield->bcc(IB2,k,j,i);
+  //       Real bb3 = pfield->bcc(IB3,k,j,i);
+  //       Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+  //               + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+  //               + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+  //               + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+  //       Real b1 = (bb1 + b0 * u1) / u0;
+  //       Real b2 = (bb2 + b0 * u2) / u0;
+  //       Real b3 = (bb3 + b0 * u3) / u0;
+  //       Real b_0, b_1, b_2, b_3;
+  //       pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
 
-        // Calculate magnetic pressure
-        Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
-        // user_out_var(5,k,j,i) = b_sq/2.0;
+  //       // Calculate magnetic pressure
+  //       Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+  //       // user_out_var(5,k,j,i) = b_sq/2.0;
 
-        if (std::isnan(b_sq)) {
-          Real r, th,tmp;
-          GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&tmp);
-          fprintf(stderr,"BSQ IS NAN!! \n x y z: %g %g %g r th  %g %g \n g: %g %g %g %g %g %g %g %g %g %g\n bb: %g %g %g u: %g %g %g %g \n",
-            pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),r,th,g(I00,i),g(I01,i),g(I02,i),g(I03,i),
-            g(I11,i),g(I12,i),g(I13,i),g(I22,i),g(I23,i),g(I33,i),bb1,bb2,bb3,u0,u1,u2,u3) ;
+  //       if (std::isnan(b_sq)) {
+  //         Real r, th,tmp;
+  //         GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&tmp);
+  //         fprintf(stderr,"BSQ IS NAN!! \n x y z: %g %g %g r th  %g %g \n g: %g %g %g %g %g %g %g %g %g %g\n bb: %g %g %g u: %g %g %g %g \n",
+  //           pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),r,th,g(I00,i),g(I01,i),g(I02,i),g(I03,i),
+  //           g(I11,i),g(I12,i),g(I13,i),g(I22,i),g(I23,i),g(I33,i),bb1,bb2,bb3,u0,u1,u2,u3) ;
 
-          exit(0);
-        }
-
-
-        // // Calculate normal frame Lorentz factor
-        // Real uu1_old = phydro->w1(IM1,k,j,i);
-        // Real uu2_old = phydro->w1(IM2,k,j,i);
-        // Real uu3_old = phydro->w1(IM3,k,j,i);
-        // tmp = g(I11,i)*uu1_old*uu1_old + 2.0*g(I12,i)*uu1_old*uu2_old + 2.0*g(I13,i)*uu1_old*uu3_old
-        //          + g(I22,i)*uu2_old*uu2_old + 2.0*g(I23,i)*uu2_old*uu3_old
-        //          + g(I33,i)*uu3_old*uu3_old;
-        // Real gamma_old = std::sqrt(1.0 + tmp);
-        // // user_out_var(0,k,j,i) = gamma;
-
-        // // Calculate 4-velocity
-        // Real u0_old = gamma_old/alpha;
-        // Real u1_old = uu1_old - alpha * gamma_old * gi(I01,i);
-        // Real u2_old = uu2_old - alpha * gamma_old * gi(I02,i);
-        // Real u3_old = uu3_old - alpha * gamma_old * gi(I03,i);
+  //         exit(0);
+  //       }
 
 
+  //       // // Calculate normal frame Lorentz factor
+  //       // Real uu1_old = phydro->w1(IM1,k,j,i);
+  //       // Real uu2_old = phydro->w1(IM2,k,j,i);
+  //       // Real uu3_old = phydro->w1(IM3,k,j,i);
+  //       // tmp = g(I11,i)*uu1_old*uu1_old + 2.0*g(I12,i)*uu1_old*uu2_old + 2.0*g(I13,i)*uu1_old*uu3_old
+  //       //          + g(I22,i)*uu2_old*uu2_old + 2.0*g(I23,i)*uu2_old*uu3_old
+  //       //          + g(I33,i)*uu3_old*uu3_old;
+  //       // Real gamma_old = std::sqrt(1.0 + tmp);
+  //       // // user_out_var(0,k,j,i) = gamma;
 
-        // Real T_half = phydro->w1(IPR,k,j,i)/phydro->w1(IDN,k,j,i);
-        // Real T_new = phydro->w(IPR,k,j,i)/phydro->w(IDN,k,j,i);
-
-        // Real r, th,ph;
-        // GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&ph);
-        // if (std::abs(T_new-T_half)/T_new > 0.5 && abs(th-PI/2.0)<0.1 && r>4 && r<10){
-        //   fprintf(stderr,"Rapid change in T at x y z : %g %g %g \n r th ph: %g %g %g \n ijk: %d %d %d \n T_old: %g T_new: %g rho_old: %g rho_new: %g \n press_old: %g press_new: %g gamma_old: %g gamma_new: %g \nu_old: %g %g %g %g \n u_new: %g %g %g %g  \n L_cool: %g  beta: %g \n rho_neighbors: %g %g %g %g %g %g \n press_neighbors: %g %g %g %g %g %g \n rho_neighbors_old: %g %g %g %g %g %g \n",
-        //     pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k), r,th,ph,i,j,k,T_half,T_new,
-        //     phydro->w1(IDN,k,j,i),phydro->w(IDN,k,j,i),phydro->w1(IPR,k,j,i),phydro->w(IPR,k,j,i),
-        //     gamma_old, gamma,
-        //     u0_old,u1_old,u2_old,u3_old,u0,u1,u2,u3,
-        //     user_out_var(0,k,j,i), b_sq/phydro->w(IPR,k,j,i)*2.0,
-        //     phydro->w1(IDN,k+1,j,i),phydro->w1(IDN,k-1,j,i), 
-        //     phydro->w1(IDN,k,j+1,i), phydro->w1(IDN,k,j-1,i),
-        //     phydro->w1(IDN,k,j,i+1), phydro->w1(IDN,k,j,i-1),
-        //     phydro->w1(IPR,k+1,j,i),phydro->w1(IPR,k-1,j,i), 
-        //     phydro->w1(IPR,k,j+1,i), phydro->w1(IPR,k,j-1,i),
-        //     phydro->w1(IPR,k,j,i+1), phydro->w1(IPR,k,j,i-1),
-        //     phydro->w(IDN,k+1,j,i),phydro->w(IDN,k-1,j,i), 
-        //     phydro->w(IDN,k,j+1,i), phydro->w(IDN,k,j-1,i),
-        //     phydro->w(IDN,k,j,i+1), phydro->w(IDN,k,j,i-1));
-        // }
+  //       // // Calculate 4-velocity
+  //       // Real u0_old = gamma_old/alpha;
+  //       // Real u1_old = uu1_old - alpha * gamma_old * gi(I01,i);
+  //       // Real u2_old = uu2_old - alpha * gamma_old * gi(I02,i);
+  //       // Real u3_old = uu3_old - alpha * gamma_old * gi(I03,i);
 
 
-      }
-    }
-  }
+
+  //       // Real T_half = phydro->w1(IPR,k,j,i)/phydro->w1(IDN,k,j,i);
+  //       // Real T_new = phydro->w(IPR,k,j,i)/phydro->w(IDN,k,j,i);
+
+  //       // Real r, th,ph;
+  //       // GetBoyerLindquistCoordinates(pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k),&r,&th,&ph);
+  //       // if (std::abs(T_new-T_half)/T_new > 0.5 && abs(th-PI/2.0)<0.1 && r>4 && r<10){
+  //       //   fprintf(stderr,"Rapid change in T at x y z : %g %g %g \n r th ph: %g %g %g \n ijk: %d %d %d \n T_old: %g T_new: %g rho_old: %g rho_new: %g \n press_old: %g press_new: %g gamma_old: %g gamma_new: %g \nu_old: %g %g %g %g \n u_new: %g %g %g %g  \n L_cool: %g  beta: %g \n rho_neighbors: %g %g %g %g %g %g \n press_neighbors: %g %g %g %g %g %g \n rho_neighbors_old: %g %g %g %g %g %g \n",
+  //       //     pcoord->x1v(i),pcoord->x2v(j),pcoord->x3v(k), r,th,ph,i,j,k,T_half,T_new,
+  //       //     phydro->w1(IDN,k,j,i),phydro->w(IDN,k,j,i),phydro->w1(IPR,k,j,i),phydro->w(IPR,k,j,i),
+  //       //     gamma_old, gamma,
+  //       //     u0_old,u1_old,u2_old,u3_old,u0,u1,u2,u3,
+  //       //     user_out_var(0,k,j,i), b_sq/phydro->w(IPR,k,j,i)*2.0,
+  //       //     phydro->w1(IDN,k+1,j,i),phydro->w1(IDN,k-1,j,i), 
+  //       //     phydro->w1(IDN,k,j+1,i), phydro->w1(IDN,k,j-1,i),
+  //       //     phydro->w1(IDN,k,j,i+1), phydro->w1(IDN,k,j,i-1),
+  //       //     phydro->w1(IPR,k+1,j,i),phydro->w1(IPR,k-1,j,i), 
+  //       //     phydro->w1(IPR,k,j+1,i), phydro->w1(IPR,k,j-1,i),
+  //       //     phydro->w1(IPR,k,j,i+1), phydro->w1(IPR,k,j,i-1),
+  //       //     phydro->w(IDN,k+1,j,i),phydro->w(IDN,k-1,j,i), 
+  //       //     phydro->w(IDN,k,j+1,i), phydro->w(IDN,k,j-1,i),
+  //       //     phydro->w(IDN,k,j,i+1), phydro->w(IDN,k,j,i-1));
+  //       // }
+
+
+  //     }
+  //   }
+  // }
 
   // Real divb=0;
   // Real divbmax=0;
