@@ -416,7 +416,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   // aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
   // r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 1e5);
 
   // orbit_inclination = pin->GetOrAddReal("problem","orbit_inclination",0.0);
 
@@ -431,7 +431,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
   //r_inner_boundary_2 = rh2/2.0;
 
-  int N_user_vars = 7;
+  int N_user_vars = 1;
+
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
   } else {
@@ -1701,9 +1702,10 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
 
-    fscanf(input_file, "%i %f \n", &nt, &q);
+    fscanf(input_file, "%i %lf \n", &nt, &q);
     // int nt = 10;
-    q = 0.1;
+    fprintf(stderr,"Before qreset! nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
+    q = 0.01;
 
        
     fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
