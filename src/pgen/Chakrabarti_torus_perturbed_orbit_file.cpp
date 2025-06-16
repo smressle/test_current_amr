@@ -3948,18 +3948,18 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 
-Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
+// Real EquationOfState::GetRadius(Real x1, Real x2, Real x3,  Real a){
 
-  Real r, th, phi;
-  GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
-  return r;
-}
+//   Real r, th, phi;
+//   GetBoyerLindquistCoordinates(x1,x2,x3,0,0,a, &r, &th, &phi);
+//   return r;
+// }
 
-Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
+// Real EquationOfState::GetRadius2(Real x1, Real x2, Real x3){
 
-  return -1.0;
-  // Real xprime,yprime,zprime,rprime,Rprime;
-  // get_prime_coords(x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
+//   return -1.0;
+//   // Real xprime,yprime,zprime,rprime,Rprime;
+//   // get_prime_coords(x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
 
-  // return rprime;
-}
+//   // return rprime;
+// }
