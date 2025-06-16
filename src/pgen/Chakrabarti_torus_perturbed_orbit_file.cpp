@@ -37,7 +37,7 @@
 #endif
 
 // Declarations
-enum b_configs {vertical, normal, renorm, MAD};
+enum b_configs {vertical, normal, renorm, MAD,multi_loop};
 void FixedBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                    FaceField &bb, Real time, Real dt,
                    int is, int ie, int js, int je, int ks, int ke, int ghost);
@@ -628,6 +628,107 @@ else return 1;
 // if (any_at_current_level==1) return 0;
   // return -1;
 }
+
+//----------------------------------------------------------------------------------------
+// Function for setting initial conditions
+// Inputs:
+//   pin: parameters
+// Outputs: (none)
+// Notes:
+//   initializes Fishbone-Moncrief torus
+//     sets both primitive and conserved variables
+//   defines and enrolls fixed r- and theta-direction boundary conditions
+//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
+//              Fishbone 1977, ApJ 215 323 (F)
+//   assumes x3 is axisymmetric direction
+
+  Real gtphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -2.0*a*r/sigma * sin2;
+  }
+  Real gtt(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -(1.0 - 2.0*r/sigma);
+  }
+  Real gphiphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return (r2 + a2 + 2.0*a2*r/sigma * sin2) * sin2;
+  }
+
+
+  Real gitphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -2.0*r/(sigma*delta)*a;
+   } 
+
+  Real gitt(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -1.0/delta * (r2 + a2 +2*r*a2/sigma*sin2);
+  }
+
+  Real giphiphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return (delta - a2*sin2)/(sigma*delta*sin2);
+  }
+
+
+  Real  lambda_func(Real r,Real a,Real theta,Real l){
+    return std::sqrt(-gphiphi(r,a,theta)/gtt(r,a,theta) );
+  }
+  Real l_kep(Real a,Real r){
+
+    Real Omega = 1.0/(std::pow(r,1.5) + a);
+
+    //Omega = - (gtphi + l gtt)/(gphiphi + l gtphi)
+    //l (Omega gtphi + gtt) = -gtphi - Omega gphiphi
+    // l = - (gtphi + Omega gphiphi)/(Omega gtphi + gtt)
+    // Equation 2.4a in Chakrabarti
+    Real l = - (gtphi(r,a,PI/2.0) + Omega * gphiphi(r,a,PI/2.0) ) / ( Omega * gtphi(r,a,PI/2.0) + gtt(r,a,PI/2.0) );
+    return l;
+  }
+
+
+  Real f(Real l, Real c_const,Real n_pow){
+    Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
+    return std::pow( std::fabs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
+  }
+
 
 
 //----------------------------------------------------------------------------------------
