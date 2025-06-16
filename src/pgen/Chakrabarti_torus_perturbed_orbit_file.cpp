@@ -136,7 +136,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 // Global variables
 static Real m, a;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
-static Real r_edge, r_peak, l, rho_max;            // fixed torus parameters
+static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
 static Real log_h_edge, log_h_peak;                // calculated torus parameters
 static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
@@ -922,7 +922,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
           // Transform to preferred coordinates
           Real u0, u1, u2, u3;
-          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), &u0, &u1, &u2, &u3);
+          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), a,&u0, &u1, &u2, &u3);
           uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
           uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
           uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
@@ -1225,9 +1225,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Az /dy
             Real tmp, Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k),a,
                 &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),a,
                 &tmp,&tmp,&Az_1);
                   
 
@@ -1235,9 +1235,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ay/dz
             Real  Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1),
+            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1), a,
                 &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), a,
                 &tmp,&Ay_1,&tmp);
 
             pfield->b.x1f(k,j,i) -= 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx3f(k) );
@@ -1266,9 +1266,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ax /dz
             Real tmp, Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1),
+            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1),a,
                 &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), a, 
                 &Ax_1,&tmp,&tmp);
                   
 
@@ -1276,9 +1276,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Az/dx
             Real Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k), a, 
                 &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),
+            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),a,
                 &tmp,&tmp,&Az_1);
 
             pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
@@ -1307,9 +1307,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ay /dx
             Real tmp, Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k),a,
                 &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),a,
                 &tmp,&Ay_1,&tmp);
                   
 
@@ -1317,9 +1317,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             //d Ax/dy
             Real Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k),a,
                 &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),
+            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),a,
                 &Ax_1,&tmp,&tmp);
 
             pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
