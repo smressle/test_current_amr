@@ -549,7 +549,6 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
             Real z_radius;
@@ -2155,8 +2154,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
         Real radius, theta,phi;
-        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), &radius,
-                                         &theta, &phi);
+        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities(IA1X),orbit_quantities(IA1Y),orbit_quantities(IA1Z),
+          &radius,&theta, &phi);
 
         Real xprime,yprime,zprime,rprime,Rprime;
         get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
@@ -2219,7 +2218,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if (Be>0) L_cool = 0.0;
 
         // Calculate Boyer-Lindquist coordinates of cell
-        rh = ( m + std::sqrt(SQR(m)-SQR(a1)) );
+        Real rh = ( m + std::sqrt(SQR(m)-SQR(a1)) );
         if (radius < rh) L_cool = 0.0;
 
         if (rprime < rhprime) L_cool = 0.0;
@@ -2871,106 +2870,6 @@ static bool CalculateBeta(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta
   return true;
 }
 
-//----------------------------------------------------------------------------------------
-// Function for calculating beta given vector potential
-// Inputs:
-//   r_m,r_c,r_p: inner, center, and outer radii
-//   theta_m,theta_c,theta_p: upper, center, and lower polar angles
-//   a_cm,a_cp,a_mc,a_pc: A_phi offset by theta (down,up) and r (down,up)
-// Outputs:
-//   pbeta: value set to plasma beta at cell center
-//   returned value: true if pbeta points to meaningful number (inside torus)
-// Notes:
-//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
-
-static bool CalculateBetaFromA(Real r_m, Real r_c, Real r_p, Real theta_m, Real theta_c,
-              Real theta_p, Real a_cm, Real a_cp, Real a_mc, Real a_pc, Real *pbeta) {
-  // Calculate trigonometric functions of theta
-  Real sin_theta_c = std::sin(theta_c);
-  Real cos_theta_c = std::cos(theta_c);
-
-  // Determine if we are in the torus (FM 3.6)
-  if (r_m < r_edge) {
-    return false;
-  }
-  Real log_h = LogHAux(r_c, sin_theta_c) - log_h_edge;
-  if (log_h < 0.0) {
-    return false;
-  }
-
-  // Calculate primitives
-  Real pgas_over_rho = (gamma_adi-1.0)/gamma_adi * (std::exp(log_h)-1.0);
-  Real rho = std::pow(pgas_over_rho/k_adi, 1.0/(gamma_adi-1.0)) / rho_peak;
-  Real pgas = pgas_over_rho * rho;
-
-  // Check A_phi
-  if (a_cm == 0.0 or a_cp == 0.0 or a_mc == 0.0 or a_pc == 0.0) {
-    return false;
-  }
-
-  // Calculate 3-magnetic field
-  Real det = (SQR(r_c) + SQR(a) * SQR(cos_theta_c)) * std::abs(sin_theta_c);
-  Real bb1 = 1.0/det * (a_cp-a_cm) / (theta_p-theta_m);
-  Real bb2 = -1.0/det * (a_pc-a_mc) / (r_p-r_m);
-  Real bb3 = 0.0;
-
-  // Calculate beta
-  Real pmag = CalculateMagneticPressure(bb1, bb2, bb3, r_c, theta_c, 0.0);
-  *pbeta = pgas/pmag;
-  return true;
-}
-
-//----------------------------------------------------------------------------------------
-// Function to calculate 1/2 * b^lambda b_lambda
-// Inputs:
-//   bb1,bb2,bb3: components of 3-magnetic field in Boyer-Lindquist coordinates
-//   r,theta,phi: Boyer-Lindquist coordinates
-// Outputs:
-//   returned value: magnetic pressure
-
-static Real CalculateMagneticPressure(Real bb1, Real bb2, Real bb3, Real r, Real theta,
-                                      Real phi) {
-  // Calculate Boyer-Lindquist metric
-  Real sin_theta = std::sin(theta);
-  Real cos_theta = std::cos(theta);
-  Real delta = SQR(r) - 2.0*m*r + SQR(a);
-  Real sigma = SQR(r) + SQR(a) * SQR(cos_theta);
-  Real g_00 = -(1.0 - 2.0*m*r/sigma);
-  Real g_01 = 0.0;
-  Real g_02 = 0.0;
-  Real g_03 = -2.0*m*a*r/sigma * SQR(sin_theta);
-  Real g_11 = sigma/delta;
-  Real g_12 = 0.0;
-  Real g_13 = 0.0;
-  Real g_22 = sigma;
-  Real g_23 = 0.0;
-  Real g_33 = (SQR(r) + SQR(a) + 2.0*m*SQR(a)*r/sigma * SQR(sin_theta)) * SQR(sin_theta);
-  Real g_10 = g_01;
-  Real g_20 = g_02;
-  Real g_21 = g_12;
-  Real g_30 = g_03;
-  Real g_31 = g_13;
-  Real g_32 = g_23;
-
-  // Calculate 4-velocity
-  Real u0, u1, u2, u3;
-  CalculateVelocityInTiltedTorus(r, theta, phi, &u0, &u1, &u2, &u3);
-
-  // Calculate 4-magnetic field
-  Real b0 = bb1 * (g_10*u0 + g_11*u1 + g_12*u2 + g_13*u3)
-          + bb2 * (g_20*u0 + g_21*u1 + g_22*u2 + g_23*u3)
-          + bb3 * (g_30*u0 + g_31*u1 + g_32*u2 + g_33*u3);
-  Real b1 = 1.0/u0 * (bb1 + b0 * u1);
-  Real b2 = 1.0/u0 * (bb2 + b0 * u2);
-  Real b3 = 1.0/u0 * (bb3 + b0 * u3);
-
-  // Calculate magnetic pressure
-  Real b_sq = g_00*b0*b0 + g_01*b0*b1 + g_02*b0*b2 + g_03*b0*b3
-            + g_10*b1*b0 + g_11*b1*b1 + g_12*b1*b2 + g_13*b1*b3
-            + g_20*b2*b0 + g_21*b2*b1 + g_22*b2*b2 + g_23*b2*b3
-            + g_30*b3*b0 + g_31*b3*b1 + g_32*b3*b2 + g_33*b3*b3;
-  return 0.5*b_sq;
-}
 
 //----------------------------------------------------------------------------------------
 // Function for returning corresponding Boyer-Lindquist coordinates of point
