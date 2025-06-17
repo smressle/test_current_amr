@@ -335,6 +335,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
 
 
+  H_over_r_target = pin->GetOrAddReal("problem", "H_over_r", 0.1);
+
   max_refinement_level = pin->GetOrAddReal("mesh","numlevel",0);
 
   max_second_bh_refinement_level = pin->GetOrAddReal("problem","max_bh2_refinement",0);
@@ -369,7 +371,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 1e5);
   m =pin->GetReal("coord", "m");
 
   if(adaptive==true) EnrollUserRefinementCondition(RefinementCondition);
@@ -402,26 +404,6 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
-  // Get mass and spin of black hole
-  m = pcoord->GetMass();
-  // q = pin->GetOrAddReal("problem", "q", 0.1);
-  // aprime = q * pin->GetOrAddReal("problem", "a_bh2", 0.0);
-  // r_bh2 = pin->GetOrAddReal("problem", "r_bh2", 20.0);
-
-  t0 = pin->GetOrAddReal("problem","t0", 1e5);
-
-  // orbit_inclination = pin->GetOrAddReal("problem","orbit_inclination",0.0);
-
-
-  // rh = m * ( 1.0 + std::sqrt(1.0-SQR(a)) );
-  //r_inner_boundary = rh/2.0;
-
-
-    // Get mass of black hole
-  // Real m2 = q;
-
-  // rh2 =  ( m2 + std::sqrt( SQR(m2) - SQR(aprime)) );
-  //r_inner_boundary_2 = rh2/2.0;
 
   int N_user_vars = 1;
 
@@ -458,7 +440,7 @@ int RefinementCondition(MeshBlock *pmb)
 
 
   Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
-  Real bh2_focus_radius = 3.125*q;
+  Real bh2_focus_radius = 12*q;
   //Real bh2_focus_radius = 3.125*0.1;
 
   int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
@@ -1796,11 +1778,11 @@ void set_orbit_arrays(std::string orbit_file_name){
 
     fscanf(input_file, "%i %lf \n", &nt, &q);
     // int nt = 10;
-    fprintf(stderr,"Before qreset! nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
-    q = 0.01;
+    fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
+    // q = 0.01;
 
        
-    fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
+    // fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
 
     t_orbits.NewAthenaArray(nt);
     orbit_array.NewAthenaArray(Norbit,nt);
@@ -3045,7 +3027,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   //////////////Perturber Black Hole//////////////////
 
-  t0 = pin->GetOrAddReal("problem","t0", 1e4);
+  t0 = pin->GetOrAddReal("problem","t0", 1e5);
 
   Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
