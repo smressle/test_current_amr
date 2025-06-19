@@ -2064,11 +2064,11 @@ double target_temperature_func( double r_loc, double h_o_r ,double spin, double 
   /* Set ISCO values for future use if we need them */
   Real r_isco = risco_calc_general( 1, spin, mass )/(mass+SMALL);
   r = r_isco;
-  rm1 = 1./r;     x = sqrt(r);    xm3 = 1./(x*x*x);    term1 = a*a*rm1;
+  rm1 = 1./r;     x = sqrt(r);    xm3 = 1./(x*x*x);    term1 = spin*spin*rm1;
 
-  C_f = 1. - 3*rm1 + 2*a*xm3;
-  F_f = 1. - 2*a*xm3 + term1*rm1;
-  G_f = 1. - 2*rm1 + a*xm3 ;
+  C_f = 1. - 3*rm1 + 2*spin*xm3;
+  F_f = 1. - 2*spin*xm3 + term1*rm1;
+  G_f = 1. - 2*rm1 + spin*xm3 ;
 
   ut_sq_isco   = G_f * G_f     / C_f ;
   uphi_sq_isco = F_f * F_f * r / C_f;
@@ -2077,12 +2077,12 @@ double target_temperature_func( double r_loc, double h_o_r ,double spin, double 
   r = r_loc;
 
 
-  rm1 = 1./r;     x = sqrt(r);    xm3 = 1./(x*x*x);    term1 = a*a*rm1;
+  rm1 = 1./r;     x = sqrt(r);    xm3 = 1./(x*x*x);    term1 = spin*spin*rm1;
 
   if( r > r_isco ) { 
-    C_f = 1. - 3*rm1 + 2*a*xm3;
-    F_f = 1. - 2*a*xm3 + term1*rm1;
-    G_f = 1. - 2*rm1 + a*xm3 ;
+    C_f = 1. - 3*rm1 + 2*spin*xm3;
+    F_f = 1. - 2*spin*xm3 + term1*rm1;
+    G_f = 1. - 2*rm1 + spin*xm3 ;
     ut_sq   = G_f * G_f     / C_f ;
     uphi_sq = F_f * F_f * r / C_f;
     R_z = uphi_sq*rm1 - term1*(ut_sq - 1.) ;
