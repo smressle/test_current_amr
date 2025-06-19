@@ -2062,7 +2062,7 @@ double target_temperature_func( double r_loc, double h_o_r ,double spin, double 
   static int local_first_time = 1;
 
   /* Set ISCO values for future use if we need them */
-  Real r_isco = risco_calc_general( 1, spin, mass );
+  Real r_isco = risco_calc_general( 1, spin, mass )/(mass+SMALL);
   r = r_isco;
   rm1 = 1./r;     x = sqrt(r);    xm3 = 1./(x*x*x);    term1 = a*a*rm1;
 
@@ -2142,7 +2142,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime/(q+SMALL),1.5) + a2/(q+SMALL));
 
         Real r_isco = risco_calc_general( 1, a1, m );
-        Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q )/(q+SMALL); //neads a/M, returns isco in units of M
+        Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q ); //neads a/M, returns isco in units of M_1
 
         if (radius<r_isco) Omega = 1.0/( std::pow(r_isco,1.5) + a1);
         if (rprime<r_isco_secondary) Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(r_isco_secondary/(q+SMALL),1.5) + a2/(q+SMALL));
