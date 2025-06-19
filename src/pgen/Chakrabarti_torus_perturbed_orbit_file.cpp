@@ -76,9 +76,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3);
-static void CalculateVelocityInTorus(Real r, Real sin_theta, Real *pu0, Real *pu3);
-static void CalculateVelocityInTiltedTorus(Real r, Real theta, Real phi, Real *pu0,
-                                           Real *pu1, Real *pu2, Real *pu3);
+
 int RefinementCondition(MeshBlock *pmb);
 void  Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
@@ -2497,112 +2495,6 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
 
 
 
-//----------------------------------------------------------------------------------------
-// Function for computing 4-velocity components at a given position inside untilted torus
-// Inputs:
-//   r: Boyer-Lindquist r
-//   sin_theta: sine of Boyer-Lindquist theta
-// Outputs:
-//   pu0: u^t set (Boyer-Lindquist coordinates)
-//   pu3: u^\phi set (Boyer-Lindquist coordinates)
-// Notes:
-//   The formula for u^3 as a function of u_{(\phi)} is tedious to derive, but this
-//       matches the formula used in Harm (init.c).
-
-static void CalculateVelocityInTorus(Real r, Real sin_theta, Real *pu0, Real *pu3) {
-  Real sin_sq_theta = SQR(sin_theta);
-  Real cos_sq_theta = 1.0 - sin_sq_theta;
-  Real delta = SQR(r) - 2.0*m*r + SQR(a);                    // \Delta
-  Real sigma = SQR(r) + SQR(a)*cos_sq_theta;                 // \Sigma
-  Real aa = SQR(SQR(r)+SQR(a)) - delta*SQR(a)*sin_sq_theta;  // A
-  Real exp_2nu = sigma * delta / aa;                         // \exp(2\nu) (FM 3.5)
-  Real exp_2psi = aa / sigma * sin_sq_theta;                 // \exp(2\psi) (FM 3.5)
-  Real exp_neg2chi = exp_2nu / exp_2psi;                     // \exp(-2\chi) (cf. FM 2.15)
-  Real u_phi_proj_a = 1.0 + 4.0*SQR(l)*exp_neg2chi;
-  Real u_phi_proj_b = -1.0 + std::sqrt(u_phi_proj_a);
-  Real u_phi_proj = std::sqrt(0.5 * u_phi_proj_b);           // (FM 3.3)
-  Real u3_a = (1.0+SQR(u_phi_proj)) / (aa*sigma*delta);
-  Real u3_b = 2.0*m*a*r * std::sqrt(u3_a);
-  Real u3_c = std::sqrt(sigma/aa) / sin_theta;
-  Real u3 = u3_b + u3_c * u_phi_proj;
-  Real g_00 = -(1.0 - 2.0*m*r/sigma);
-  Real g_03 = -2.0*m*a*r/sigma * sin_sq_theta;
-  Real g_33 = (sigma + (1.0 + 2.0*m*r/sigma) * SQR(a)
-      * sin_sq_theta) * sin_sq_theta;
-  Real u0_a = (SQR(g_03) - g_00*g_33) * SQR(u3);
-  Real u0_b = std::sqrt(u0_a - g_00);
-  Real u0 = -1.0/g_00 * (g_03*u3 + u0_b);
-  *pu0 = u0;
-  *pu3 = u3;
-  return;
-}
-
-//----------------------------------------------------------------------------------------
-// Function for computing 4-velocity components at a given position inside tilted torus
-// Inputs:
-//   r: Boyer-Lindquist r
-//   theta,phi: Boyer-Lindquist theta and phi in BH-aligned coordinates
-// Outputs:
-//   pu0,pu1,pu2,pu3: u^\mu set (Boyer-Lindquist coordinates)
-// Notes:
-//   first finds corresponding location in untilted torus
-//   next calculates velocity at that point in untilted case
-//   finally transforms that velocity into coordinates in which torus is tilted
-
-static void CalculateVelocityInTiltedTorus(Real r, Real theta, Real phi, Real *pu0,
-                                           Real *pu1, Real *pu2, Real *pu3) {
-  // Calculate corresponding location
-  Real sin_theta = std::sin(theta);
-  Real cos_theta = std::cos(theta);
-  Real sin_phi = std::sin(phi);
-  Real cos_phi = std::cos(phi);
-  Real sin_vartheta, cos_vartheta, varphi;
-  if (psi != 0.0) {
-    Real x = sin_theta * cos_phi;
-    Real y = sin_theta * sin_phi;
-    Real z = cos_theta;
-    Real varx = cos_psi * x - sin_psi * z;
-    Real vary = y;
-    Real varz = sin_psi * x + cos_psi * z;
-    sin_vartheta = std::sqrt(SQR(varx) + SQR(vary));
-    cos_vartheta = varz;
-    varphi = std::atan2(vary, varx);
-  } else {
-    sin_vartheta = std::abs(sin_theta);
-    cos_vartheta = cos_theta;
-    varphi = (sin_theta < 0.0) ? phi-PI : phi;
-  }
-  Real sin_varphi = std::sin(varphi);
-  Real cos_varphi = std::cos(varphi);
-
-  // Calculate untilted velocity
-  Real u0_tilt, u3_tilt;
-  CalculateVelocityInTorus(r, sin_vartheta, &u0_tilt, &u3_tilt);
-  Real u1_tilt = 0.0;
-  Real u2_tilt = 0.0;
-
-  // Account for tilt
-  *pu0 = u0_tilt;
-  *pu1 = u1_tilt;
-  if (psi != 0.0) {
-    Real dtheta_dvartheta =
-        (cos_psi * sin_vartheta + sin_psi * cos_vartheta * cos_varphi) / sin_theta;
-    Real dtheta_dvarphi = -sin_psi * sin_vartheta * sin_varphi / sin_theta;
-    Real dphi_dvartheta = sin_psi * sin_varphi / SQR(sin_theta);
-    Real dphi_dvarphi = sin_vartheta / SQR(sin_theta)
-        * (cos_psi * sin_vartheta + sin_psi * cos_vartheta * cos_varphi);
-    *pu2 = dtheta_dvartheta * u2_tilt + dtheta_dvarphi * u3_tilt;
-    *pu3 = dphi_dvartheta * u2_tilt + dphi_dvarphi * u3_tilt;
-  } else {
-    *pu2 = u2_tilt;
-    *pu3 = u3_tilt;
-  }
-  if (sin_theta < 0.0) {
-    *pu2 *= -1.0;
-    *pu3 *= -1.0;
-  }
-  return;
-}
 
 
 
