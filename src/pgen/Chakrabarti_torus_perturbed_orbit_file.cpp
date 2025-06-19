@@ -523,6 +523,7 @@ int RefinementCondition(MeshBlock *pmb)
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
+            get_prime_coords(x,y,z, pmb->pmy_mesh->time, &xprime,&yprime, &zprime, &rprime,&Rprime);
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
             Real z_radius;
@@ -540,16 +541,17 @@ int RefinementCondition(MeshBlock *pmb)
             // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
 
 
-            if (n_level==1) z_radius = 62.5*0.9999;
-            if (n_level==2) z_radius = 31.25*0.9999;
-            if (n_level==3) z_radius = 13.5*0.9999;
-            if (n_level==4) z_radius = 6.3*0.9999;
-            if (n_level==5) z_radius = 3.2*0.9999;
-            if (n_level==6) z_radius = 1.6*0.9999;
-            if (n_level==7) z_radius = 0.8*0.9999;
-            if (n_level==8) z_radius = 0.4*0.9999;
+            if (n_level==1) z_radius = 76.8*0.9999;
+            if (n_level==2) z_radius = 38.4*0.9999;
+            if (n_level==3) z_radius = 19.2*0.9999;
+            if (n_level==4) z_radius = 9.6*0.9999;
+            if (n_level==5) z_radius = 4.8*0.9999;
+            if (n_level==6) z_radius = 2.4*0.9999;
+            if (n_level==7) z_radius = 1.2*0.9999;
 
             if (n_level>=4) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+
+            if (n_level==4) box_radius = 75.0 * 0.9999;
 
           
 
@@ -585,6 +587,7 @@ int RefinementCondition(MeshBlock *pmb)
   }
  }
 }
+
 
 // if (current_level==max_refinement_level){
 //     Real xbh, ybh, zbh;
@@ -2138,16 +2141,16 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
 
         Real Omega = 1.0/( std::pow(radius,1.5) + a1);
-        Real Omega_secondary = 1.0/( std::pow(rprime,1.5) + a2);
+        Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime/(q+SMALL),1.5) + a2/(q+SMALL));
 
         Real r_isco = risco_calc_general( 1, a1, m );
-        Real r_isco_secondary = risco_calc_general( 1, a2, q );
+        Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q )/(q+SMALL); //neads a/M, returns isco in units of M
 
         if (radius<r_isco) Omega = 1.0/( std::pow(r_isco,1.5) + a1);
-        if (rprime<r_isco_secondary) Omega_secondary = 1.0/( std::pow(r_isco_secondary,1.5) + a2);
+        if (rprime<r_isco_secondary) Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(r_isco_secondary/(q+SMALL),1.5) + a2/(q+SMALL));
 
         Real Target_Temperature = target_temperature_func( radius,H_over_r_target,a1,m);
-        Real Target_Temperature_secondary = target_temperature_func( rprime,H_over_r_target,a2,q);
+        Real Target_Temperature_secondary = target_temperature_func( rprime/(q+SMALL),H_over_r_target,a2/(q+SMALL),q);
 
         Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
         Real Y_secondary = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature_secondary;
