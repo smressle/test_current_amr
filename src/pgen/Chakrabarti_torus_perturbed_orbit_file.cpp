@@ -126,7 +126,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 
 // Global variables
-static Real m, a;                                  // black hole parameters
+static Real m;                                  // black hole parameters
 static Real gamma_adi, k_adi;                      // hydro parameters
 static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
