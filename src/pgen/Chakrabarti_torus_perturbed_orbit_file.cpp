@@ -76,9 +76,6 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
                      Real theta, Real phi, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 static void TransformAphi(Real a3_bl, Real x1,
                      Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3);
-static Real CalculateLFromRPeak(Real r);
-static Real CalculateRPeakFromL(Real l_target);
-static Real LogHAux(Real r, Real sin_theta);
 static void CalculateVelocityInTorus(Real r, Real sin_theta, Real *pu0, Real *pu3);
 static void CalculateVelocityInTiltedTorus(Real r, Real theta, Real phi, Real *pu0,
                                            Real *pu1, Real *pu2, Real *pu3);
@@ -2497,109 +2494,8 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
   return;
 }
 
-//----------------------------------------------------------------------------------------
-// Function for calculating angular momentum variable l
-// Inputs:
-//   r: desired radius of pressure maximum
-// Outputs:
-//   returned value: l = u^t u_\phi such that pressure maximum occurs at r_peak
-// Notes:
-//   beware many different definitions of l abound
-//     this is *not* -u_phi/u_t
-//   Harm has a similar function: lfish_calc() in init.c
-//     Harm's function assumes M = 1 and that corotation is desired
-//     it is equivalent to this, though seeing this requires much manipulation
-//   implements (3.8) from Fishbone & Moncrief 1976, ApJ 207 962
-//   assumes corotation
-//   see CalculateRPeakFromL()
 
-static Real CalculateLFromRPeak(Real r) {
-  Real num = SQR(SQR(r)) + SQR(a*r) - 2.0*m*SQR(a)*r - a*(SQR(r)-SQR(a))*std::sqrt(m*r);
-  Real denom = SQR(r) - 3.0*m*r + 2.0*a*std::sqrt(m*r);
-  return 1.0/r * std::sqrt(m/r) * num/denom;
-}
 
-//----------------------------------------------------------------------------------------
-// Function for calculating pressure maximum radius r_peak
-// Inputs:
-//   l_target: desired u^t u_\phi
-// Outputs:
-//   returned value: location of pressure maximum given l_target
-// Notes:
-//   beware many different definitions of l abound
-//     this is *not* -u_phi/u_t
-//   uses (3.8) from Fishbone & Moncrief 1976, ApJ 207 962
-//   assumes corotation
-//   uses bisection to find r such that formula for l agrees with given value
-//   proceeds until either absolute tolerance is met
-//   returns best value after max_iterations reached if tolerances not met
-//   returns NAN in case of failure (e.g. root not bracketed)
-//   see CalculateLFromRPeak()
-
-static Real CalculateRPeakFromL(Real l_target) {
-  // Parameters
-  const Real tol_r = 1.0e-10;      // absolute tolerance on abscissa r_peak
-  const Real tol_l = 1.0e-10;      // absolute tolerance on ordinate l
-  const int max_iterations = 100;  // maximum number of iterations before best res
-
-  // Prepare initial values
-  Real r_a = r_min;
-  Real r_b = r_max;
-  Real r_c = 0.5 * (r_min + r_max);
-  Real l_a = CalculateLFromRPeak(r_a);
-  Real l_b = CalculateLFromRPeak(r_b);
-  Real l_c = CalculateLFromRPeak(r_c);
-  if (not ((l_a < l_target and l_b > l_target) or (l_a > l_target and l_b < l_target))) {
-    return NAN;
-  }
-
-  // Find root
-  for (int n = 0; n < max_iterations; ++n) {
-    if (std::abs(r_b-r_a) <= 2.0*tol_r or std::abs(l_c-l_target) <= tol_l) {
-      break;
-    }
-    if ((l_a < l_target and l_c < l_target) or (l_a > l_target and l_c > l_target)) {
-      r_a = r_c;
-      l_a = l_c;
-    } else {
-      r_b = r_c;
-      l_b = l_c;
-    }
-    r_c = 0.5 * (r_min + r_max);
-    l_c = CalculateLFromRPeak(r_c);
-  }
-  return r_c;
-}
-
-//----------------------------------------------------------------------------------------
-// Function for helping to calculate enthalpy
-// Inputs:
-//   r: radial Boyer-Lindquist coordinate
-//   sin_theta: sine of polar Boyer-Lindquist coordinate
-// Outputs:
-//   returned value: log(h)
-// Notes:
-//   enthalpy defined here as h = p_gas/rho
-//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
-//   implements first half of (FM 3.6)
-
-static Real LogHAux(Real r, Real sin_theta) {
-  Real sin_sq_theta = SQR(sin_theta);
-  Real cos_sq_theta = 1.0 - sin_sq_theta;
-  Real delta = SQR(r) - 2.0*m*r + SQR(a);                    // \Delta
-  Real sigma = SQR(r) + SQR(a)*cos_sq_theta;                 // \Sigma
-  Real aa = SQR(SQR(r)+SQR(a)) - delta*SQR(a)*sin_sq_theta;  // A
-  Real exp_2nu = sigma * delta / aa;                         // \exp(2\nu) (FM 3.5)
-  Real exp_2psi = aa / sigma * sin_sq_theta;                 // \exp(2\psi) (FM 3.5)
-  Real exp_neg2chi = exp_2nu / exp_2psi;                     // \exp(-2\chi) (cf. FM 2.15)
-  Real omega = 2.0*m*a*r/aa;                                 // \omega (FM 3.5)
-  Real var_a = std::sqrt(1.0 + 4.0*SQR(l)*exp_neg2chi);
-  Real var_b = 0.5 * std::log((1.0+var_a)
-      / (sigma*delta/aa));
-  Real var_c = -0.5 * var_a;
-  Real var_d = -l * omega;
-  return var_b + var_c + var_d;                              // (FM 3.4)
-}
 
 //----------------------------------------------------------------------------------------
 // Function for computing 4-velocity components at a given position inside untilted torus
