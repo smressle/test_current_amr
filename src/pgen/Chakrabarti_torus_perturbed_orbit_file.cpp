@@ -2149,14 +2149,21 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Y_secondary = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature_secondary;
 
 
+        Real L_cool;
 
-        Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
-        Real L_cool_secondary = 0.0; //Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
+        if (Y>=Y_secondary){
+          L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        }
+        else{
+          L_cool = Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
+        }
+        // Real L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        // Real L_cool_secondary = 0.0; //Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
         if (L_cool<0) L_cool = 0.0;
-        if (L_cool_secondary<0) L_cool_secondary = 0.0;
+        // if (L_cool_secondary<0) L_cool_secondary = 0.0;
 
 
-        L_cool = std::max(L_cool,L_cool_secondary);
+        // L_cool = std::max(L_cool,L_cool_secondary);
 
 
           // Calculate normal frame Lorentz factor
