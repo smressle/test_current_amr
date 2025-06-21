@@ -2151,7 +2151,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real L_cool;
 
-        if (Y>=Y_secondary){
+        if (Target_Temperature>=Target_Temperature_secondary){
           L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         }
         else{
