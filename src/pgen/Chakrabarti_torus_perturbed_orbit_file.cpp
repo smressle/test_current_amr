@@ -378,7 +378,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
 
-  EnrollUserExplicitSourceFunction(NobleCooling);
+  // EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   // fprintf(stderr,"Done with set_orbit_arrays \n");
@@ -1352,7 +1352,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 }
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
