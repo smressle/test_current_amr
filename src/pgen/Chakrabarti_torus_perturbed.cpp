@@ -3859,7 +3859,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   // Real dy_bh2_dt = Omega_bh2 * r_bh2 * std::cos(Omega_bh2 * (t-t0));
 
 
-/// prevent metric from gettin nan sqrt(-gdet)
+/// prevent metric from getting nan sqrt(-gdet)
   Real thprime  = std::acos(zprime/rprime);
   Real phiprime = std::atan2( (rprime*yprime-aprime*xprime)/(SQR(rprime) + SQR(aprime) ), 
                               (aprime*yprime+rprime*xprime)/(SQR(rprime) + SQR(aprime) )  );

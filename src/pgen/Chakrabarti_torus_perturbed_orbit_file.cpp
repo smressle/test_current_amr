@@ -378,7 +378,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
 
-  // EnrollUserExplicitSourceFunction(NobleCooling);
+  EnrollUserExplicitSourceFunction(NobleCooling);
 
 
   // fprintf(stderr,"Done with set_orbit_arrays \n");
