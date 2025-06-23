@@ -400,7 +400,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
 
 
-  int N_user_vars = 1;
+  int N_user_vars = 2;
 
   if (MAGNETIC_FIELDS_ENABLED) {
     AllocateUserOutputVariables(N_user_vars);
@@ -2209,6 +2209,9 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real ug_frac = dt * L_cool/ug;
 
         pmb->user_out_var(0,k,j,i) = L_cool;
+
+        pmb->user_out_var(1,k,j,i) = pmb->pcoord->GetCellVolume(k,j,i)/
+                          (pmb->pcoord->dx1f(i)*pmb->pcoord->dx2f(j)*pmb->pcoord->dx3f(k));
 
 
 
