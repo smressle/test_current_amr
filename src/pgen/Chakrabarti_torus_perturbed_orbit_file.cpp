@@ -1523,21 +1523,6 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_old = Determinant(g_old);
 
-        // if (dir==0 and i<=iu){
-        //  if (std::sqrt(-det_new) != face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k))){
-        //     fprintf(stderr,"determinants don't match DIR 0!! %g %g \n",std::sqrt(-det_new),face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-        //   }
-        // }
-        // if (dir==1){
-        //   if (std::sqrt(-det_new) != face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k))){
-        //     fprintf(stderr,"determinants don't match DIR 1!! %g %g \n",std::sqrt(-det_new),face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k)));
-        //   }
-        // }
-        // if (dir==2){
-        //   if (std::sqrt(-det_new) != face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j))){
-        //     fprintf(stderr,"determinants don't match DIR 2!! %g %g \n",std::sqrt(-det_new),face3m(i)/(pcoord->dx2f(j)*pcoord->dx3f(k)));
-        //   }
-        // }
 
         if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
         if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
@@ -1548,10 +1533,6 @@ for (int dir=0; dir<=2; ++dir){
         if (dir==1 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face2rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
         if (dir==2 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face3rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
 
-        // if (dir==0) pfield->b.x1f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        // if (dir==1) pfield->b.x2f(k,j,i) *= 1.0/std::sqrt(-det_new);
-        // if (dir==2) pfield->b.x3f(k,j,i) *= 1.0/std::sqrt(-det_new);
-
 
         g_tmp.DeleteAthenaArray();
         g_old.DeleteAthenaArray();
@@ -1561,91 +1542,6 @@ for (int dir=0; dir<=2; ++dir){
   }
 }
 
-//   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
-
-//   face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-//   face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-//   face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-//   face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-//   face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
-
-//    for (int k=kl; k<=ku; ++k) {
-// #pragma omp parallel for schedule(static)
-//     for (int j=jl; j<=ju; ++j) {
-//       pcoord->Face1Area(k,   j,   il, iu+1, face1);
-//       for (int i=il; i<=iu+1; ++i) {
-
-//         // Prepare scratch arrays
-//         AthenaArray<Real> g_old;
-//         g_old.NewAthenaArray(NMETRIC);
-
-
-//         Real sqrt_minus_det_new = face1(i)/(pcoord->dx2f(j)*pcoord->dx3f(k));
-
-//         single_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
-
-//         Real det_old = -1.0; //Determinant(g_old);
-
-//         pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
-
-
-//         g_old.DeleteAthenaArray();
-
-//       }
-//     }
-//   }
-
-//     for (int k=kl; k<=ku; ++k) {
-// #pragma omp parallel for schedule(static)
-//     for (int j=jl; j<=ju+1; ++j) {
-//       pcoord->Face2Area(k,   j,   il, iu, face2m);
-//       for (int i=il; i<=iu; ++i) {
-
-//         // Prepare scratch arrays
-//         AthenaArray<Real> g_old;
-//         g_old.NewAthenaArray(NMETRIC);
-
-
-//         Real sqrt_minus_det_new = face2m(i)/(pcoord->dx1f(i)*pcoord->dx3f(k));
-
-//         single_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
-
-//         Real det_old = -1.0; //Determinant(g_old);
-
-//         pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
-
-
-//         g_old.DeleteAthenaArray();
-
-//       }
-//     }
-//   }
-
-//     for (int k=kl; k<=ku+1; ++k) {
-// #pragma omp parallel for schedule(static)
-//     for (int j=jl; j<=ju; ++j) {
-//       pcoord->Face3Area(k,   j,   il, iu, face3m);
-//       for (int i=il; i<=iu; ++i) {
-
-//         // Prepare scratch arrays
-//         AthenaArray<Real> g_old;
-//         g_old.NewAthenaArray(NMETRIC);
-
-
-//         Real sqrt_minus_det_new = face3m(i)/(pcoord->dx1f(i)*pcoord->dx2f(j));
-
-//         single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
-
-//         Real det_old = -1.0; //Determinant(g_old);
-
-//         pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/sqrt_minus_det_new;
-
-
-//         g_old.DeleteAthenaArray();
-
-//       }
-//     }
-//   }
 
    for (int k=kl; k<=ku; ++k) {
 #pragma omp parallel for schedule(static)
@@ -1676,9 +1572,9 @@ for (int dir=0; dir<=2; ++dir){
         Real det_old = Determinant(g_old);
 
          Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
-          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
-            phydro->u(n_cons,k,j,i) *=fac;
-          }
+          // for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+          //   phydro->u(n_cons,k,j,i) *=fac;
+          // }
 
         g_tmp.DeleteAthenaArray();
         g_old.DeleteAthenaArray();
@@ -1693,11 +1589,6 @@ for (int dir=0; dir<=2; ++dir){
   // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
   FaceField &b = pfield->b;
 
-  // face1.NewAthenaArray((ie-is)+2*NGHOST+2);
-  // face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  // face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
-  // face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
-  // face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {
@@ -1711,11 +1602,6 @@ for (int dir=0; dir<=2; ++dir){
               +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
               +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
         if (divbmax<std::abs(divb)) divbmax = std::abs(divb);
-
-        // if (i<=ie-1 && j<=je-1 && k<=ke-1)fprintf(stderr,"PreserveDivbNewMetric ijk: %d %d %d \n divb divb_old: %g %g \n face1rat: %g face1rat_used: %g \n face2: %g %g \n face3: %g %g \n face1p: %g %g\n face2p: %g %g \n face3p: %g %g \n",
-        //   i,j,k,divb,divb_old(k,j,i),face1rat(k,j,i), face1rat_used(k,j,i), face2rat(k,j,i), face2rat_used(k,j,i),
-        //   face3rat(k,j,i),face3rat_used(k,j,i),face1rat(k,j,i+1),face1rat_used(k,j,i+1),
-        //   face2rat(k,j+1,i), face2rat_used(k,j+1,i), face3rat(k+1,j,i), face3rat_used(k+1,j,i));
 
         }
       }
@@ -1742,23 +1628,23 @@ for (int dir=0; dir<=2; ++dir){
 
   divb_old.DeleteAthenaArray();
 
-  // // Calculate cell-centered magnetic field
-  // AthenaArray<Real> bb;
-  // if (MAGNETIC_FIELDS_ENABLED) {
-  //   pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
-  //       ku);
-  // } else {
-  //   bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
-  // }
+  // Calculate cell-centered magnetic field
+  AthenaArray<Real> bb;
+  if (MAGNETIC_FIELDS_ENABLED) {
+    pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+        ku);
+  } else {
+    bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+  }
 
-  // // Initialize conserved values
-  // if (MAGNETIC_FIELDS_ENABLED) {
-  //   peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-  //       kl, ku);
-  // } else {
-  //   peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-  //   bb.DeleteAthenaArray();
-  // }
+  // Initialize conserved values
+  if (MAGNETIC_FIELDS_ENABLED) {
+    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+        kl, ku);
+  } else {
+    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+    bb.DeleteAthenaArray();
+  }
 
 
 return;
