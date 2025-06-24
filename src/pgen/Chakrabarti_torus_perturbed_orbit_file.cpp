@@ -1557,7 +1557,7 @@ for (int dir=0; dir<=2; ++dir){
         g_tmp.NewAthenaArray(NMETRIC);
         g_old.NewAthenaArray(NMETRIC);
         gi_old.NewAthenaArray(NMETRIC);
-        g_diff.NewAthenaArray(NMETRIC)
+        g_diff.NewAthenaArray(NMETRIC);
         g_tmp(I00) = g(I00,i);
         g_tmp(I01) = g(I01,i);
         g_tmp(I02) = g(I02,i);
@@ -1614,13 +1614,13 @@ for (int dir=0; dir<=2; ++dir){
                 Real bb1 = pfield->bcc(IB1,k,j,i);
                 Real bb2 = pfield->bcc(IB2,k,j,i);
                 Real bb3 = pfield->bcc(IB3,k,j,i);
-                Real b0 = g_old(I01)*u0*bb1 + g_old(I02)*u0*bb2 + g_old(I03)*u0*bb3
+                b0 = g_old(I01)*u0*bb1 + g_old(I02)*u0*bb2 + g_old(I03)*u0*bb3
                         + g_old(I11)*u1*bb1 + g_old(I12)*u1*bb2 + g_old(I13)*u1*bb3
                         + g_old(I12)*u2*bb1 + g_old(I22)*u2*bb2 + g_old(I23)*u2*bb3
                         + g_old(I13)*u3*bb1 + g_old(I23)*u3*bb2 + g_old(I33)*u3*bb3;
-                Real b1 = (bb1 + b0 * u1) / u0;
-                Real b2 = (bb2 + b0 * u2) / u0;
-                Real b3 = (bb3 + b0 * u3) / u0;
+                b1 = (bb1 + b0 * u1) / u0;
+                b2 = (bb2 + b0 * u2) / u0;
+                b3 = (bb3 + b0 * u3) / u0;
                 Real b_0, b_1, b_2, b_3;
 
                 Real b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
@@ -1632,19 +1632,19 @@ for (int dir=0; dir<=2; ++dir){
       }
 
         Real gamma_adi = peos->GetGamma();
-        Real wtot = rho + gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
-        Real ptot = pgas + 0.5*b_sq;
+        Real wtot = phydro->w(IDN,k,j,i) + gamma_adi/(gamma_adi-1.0) * phydro->w(IPR,k,j,i) + b_sq;
+        Real ptot = phydro->w(IPR,k,j,i) + 0.5*b_sq;
         Real tt[NMETRIC];
-        tt[I00] = wtot * u0 * u0 + ptot * g00 - b0 * b0;
-        tt[I01] = wtot * u0 * u1 + ptot * g01 - b0 * b1;
-        tt[I02] = wtot * u0 * u2 + ptot * g02 - b0 * b2;
-        tt[I03] = wtot * u0 * u3 + ptot * g03 - b0 * b3;
-        tt[I11] = wtot * u1 * u1 + ptot * g11 - b1 * b1;
-        tt[I12] = wtot * u1 * u2 + ptot * g12 - b1 * b2;
-        tt[I13] = wtot * u1 * u3 + ptot * g13 - b1 * b3;
-        tt[I22] = wtot * u2 * u2 + ptot * g22 - b2 * b2;
-        tt[I23] = wtot * u2 * u3 + ptot * g23 - b2 * b3;
-        tt[I33] = wtot * u3 * u3 + ptot * g33 - b3 * b3;
+        tt[I00] = wtot * u0 * u0 + ptot * g_old(I00) - b0 * b0;
+        tt[I01] = wtot * u0 * u1 + ptot * g_old(I01) - b0 * b1;
+        tt[I02] = wtot * u0 * u2 + ptot * g_old(I02) - b0 * b2;
+        tt[I03] = wtot * u0 * u3 + ptot * g_old(I03) - b0 * b3;
+        tt[I11] = wtot * u1 * u1 + ptot * g_old(I11) - b1 * b1;
+        tt[I12] = wtot * u1 * u2 + ptot * g_old(I12) - b1 * b2;
+        tt[I13] = wtot * u1 * u3 + ptot * g_old(I13) - b1 * b3;
+        tt[I22] = wtot * u2 * u2 + ptot * g_old(I22) - b2 * b2;
+        tt[I23] = wtot * u2 * u3 + ptot * g_old(I23) - b2 * b3;
+        tt[I33] = wtot * u3 * u3 + ptot * g_old(I33) - b3 * b3;
 
 
         // addition of perturber is like changing dg/dt in one timestep, cooresponding to a 
