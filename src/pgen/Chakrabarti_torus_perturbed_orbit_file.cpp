@@ -1553,9 +1553,11 @@ for (int dir=0; dir<=2; ++dir){
       for (int i=il; i<=iu; ++i) {
 
                 // Prepare scratch arrays
-        AthenaArray<Real> g_tmp,g_old;
+        AthenaArray<Real> g_tmp,g_old,gi_old,g_diff;
         g_tmp.NewAthenaArray(NMETRIC);
         g_old.NewAthenaArray(NMETRIC);
+        gi_old.NewAthenaArray(NMETRIC);
+        g_diff.NewAthenaArray(NMETRIC)
         g_tmp(I00) = g(I00,i);
         g_tmp(I01) = g(I01,i);
         g_tmp(I02) = g(I02,i);
@@ -1571,15 +1573,106 @@ for (int dir=0; dir<=2; ++dir){
 
         single_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
 
+        bool invertible =gluInvertMatrix(g_old,gi_old);
+
+
+
+        g_diff(I00) = g_tmp(I00) - g_old(I00);
+        g_diff(I01) = g_tmp(I01) - g_old(I01);
+        g_diff(I02) = g_tmp(I02) - g_old(I02);
+        g_diff(I03) = g_tmp(I03) - g_old(I03);
+        g_diff(I11) = g_tmp(I11) - g_old(I11);
+        g_diff(I12) = g_tmp(I12) - g_old(I12);
+        g_diff(I13) = g_tmp(I13) - g_old(I13);
+        g_diff(I22) = g_tmp(I22) - g_old(I22);
+        g_diff(I23) = g_tmp(I23) - g_old(I23);
+        g_diff(I33) = g_tmp(I33) - g_old(I33);
+
+
+        Real uu1 = phydro->w(IVX,k,j,i);
+        Real uu2 = phydro->w(IVY,k,j,i);
+        Real uu3 = phydro->w(IVZ,k,j,i);
+        Real tmp = g_old(I11,i)*uu1*uu1 + 2.0*g_old(I12,i)*uu1*uu2 + 2.0*g_old(I13,i)*uu1*uu3
+                 + g_old(I22,i)*uu2*uu2 + 2.0*g_old(I23,i)*uu2*uu3
+                 + g_old(I33,i)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+        // user_out_var(0,k,j,i) = gamma;
+
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi_old(I00,i));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi_old(I01,i);
+        Real u2 = uu2 - alpha * gamma * gi_old(I02,i);
+        Real u3 = uu3 - alpha * gamma * gi_old(I03,i);
+
+        Real b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0;
+        Real b_sq = 0.0;
+
+        if (MAGNETIC_FIELDS_ENABLED) {
+    
+                // Calculate 4-magnetic field
+                Real bb1 = pfield->bcc(IB1,k,j,i);
+                Real bb2 = pfield->bcc(IB2,k,j,i);
+                Real bb3 = pfield->bcc(IB3,k,j,i);
+                Real b0 = g_old(I01)*u0*bb1 + g_old(I02)*u0*bb2 + g_old(I03)*u0*bb3
+                        + g_old(I11)*u1*bb1 + g_old(I12)*u1*bb2 + g_old(I13)*u1*bb3
+                        + g_old(I12)*u2*bb1 + g_old(I22)*u2*bb2 + g_old(I23)*u2*bb3
+                        + g_old(I13)*u3*bb1 + g_old(I23)*u3*bb2 + g_old(I33)*u3*bb3;
+                Real b1 = (bb1 + b0 * u1) / u0;
+                Real b2 = (bb2 + b0 * u2) / u0;
+                Real b3 = (bb3 + b0 * u3) / u0;
+                Real b_0, b_1, b_2, b_3;
+
+                Real b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
+                Real b_1 = g_old(I01)*b0 + g_old(I11)*b1 + g_old(I12)*b2 + g_old(I13)*b3;
+                Real b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + gv(I23)*b3;
+                Real b_3 = g_old(I03)*b0 + g_old(I13)*b1 + g_old(I23)*b2 + g_old(I33)*b3;
+                b_sq = b_0*b0 + b_1*b1 + b_2*b2 + b_3*b3;
+            
+      }
+
+        Real gamma_adi = peos->GetGamma();
+        Real wtot = rho + gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
+        Real ptot = pgas + 0.5*b_sq;
+        Real tt[NMETRIC];
+        tt[I00] = wtot * u0 * u0 + ptot * g00 - b0 * b0;
+        tt[I01] = wtot * u0 * u1 + ptot * g01 - b0 * b1;
+        tt[I02] = wtot * u0 * u2 + ptot * g02 - b0 * b2;
+        tt[I03] = wtot * u0 * u3 + ptot * g03 - b0 * b3;
+        tt[I11] = wtot * u1 * u1 + ptot * g11 - b1 * b1;
+        tt[I12] = wtot * u1 * u2 + ptot * g12 - b1 * b2;
+        tt[I13] = wtot * u1 * u3 + ptot * g13 - b1 * b3;
+        tt[I22] = wtot * u2 * u2 + ptot * g22 - b2 * b2;
+        tt[I23] = wtot * u2 * u3 + ptot * g23 - b2 * b3;
+        tt[I33] = wtot * u3 * u3 + ptot * g33 - b3 * b3;
+
+
+        // addition of perturber is like changing dg/dt in one timestep, cooresponding to a 
+        // source term of 1/2 dgmu nu/dt T^mu nu
+        // so mulitply by dt to get addition, with is the secondary part of the metric.  
+        Real s_E = 0.0;
+        for (int n = 0; n < NMETRIC; ++n) {
+          s_E += g_diff(n) * tt[n];
+        }
+        s_E -= 0.5 * (  g_diff(I00) * tt[I00]
+                      + g_diff(I11) * tt[I11]
+                      + g_diff(I22) * tt[I22]
+                      + g_diff(I33) * tt[I33]);
+
+
+        phydro->u(IEN,k,j,i) += s_E
+
         Real det_old = Determinant(g_old);
 
          Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
-          // for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
-          //   phydro->u(n_cons,k,j,i) *=fac;
-          // }
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            phydro->u(n_cons,k,j,i) *=fac;
+          }
 
         g_tmp.DeleteAthenaArray();
         g_old.DeleteAthenaArray();
+        gi_old.DeleteAthenaArray();
+        g_diff.DeleteAthenaArray();
 
       }
     }
@@ -1631,22 +1724,22 @@ for (int dir=0; dir<=2; ++dir){
   divb_old.DeleteAthenaArray();
 
   // Calculate cell-centered magnetic field
-  AthenaArray<Real> bb;
-  if (MAGNETIC_FIELDS_ENABLED) {
-    pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
-        ku);
-  } else {
-    bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
-  }
+  // AthenaArray<Real> bb;
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+  //       ku);
+  // } else {
+  //   bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+  // }
 
-  // Initialize conserved values
-  if (MAGNETIC_FIELDS_ENABLED) {
-    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-        kl, ku);
-  } else {
-    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-    bb.DeleteAthenaArray();
-  }
+  // // Initialize conserved values
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+  //       kl, ku);
+  // } else {
+  //   peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+  //   bb.DeleteAthenaArray();
+  // }
 
 
 return;
