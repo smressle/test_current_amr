@@ -1623,10 +1623,10 @@ for (int dir=0; dir<=2; ++dir){
                 b3 = (bb3 + b0 * u3) / u0;
                 Real b_0, b_1, b_2, b_3;
 
-                Real b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
-                Real b_1 = g_old(I01)*b0 + g_old(I11)*b1 + g_old(I12)*b2 + g_old(I13)*b3;
-                Real b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + gv(I23)*b3;
-                Real b_3 = g_old(I03)*b0 + g_old(I13)*b1 + g_old(I23)*b2 + g_old(I33)*b3;
+                b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
+                b_1 = g_old(I01)*b0 + g_old(I11)*b1 + g_old(I12)*b2 + g_old(I13)*b3;
+                b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + gv(I23)*b3;
+                b_3 = g_old(I03)*b0 + g_old(I13)*b1 + g_old(I23)*b2 + g_old(I33)*b3;
                 b_sq = b_0*b0 + b_1*b1 + b_2*b2 + b_3*b3;
             
       }
@@ -1660,7 +1660,7 @@ for (int dir=0; dir<=2; ++dir){
                       + g_diff(I33) * tt[I33]);
 
 
-        phydro->u(IEN,k,j,i) += s_E
+        phydro->u(IEN,k,j,i) += s_E;
 
         Real det_old = Determinant(g_old);
 
