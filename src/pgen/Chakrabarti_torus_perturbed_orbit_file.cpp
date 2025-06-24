@@ -1608,9 +1608,9 @@ for (int dir=0; dir<=2; ++dir){
         // Calculate 4-velocity
         Real alpha = std::sqrt(-1.0/gi_old(I00,i));
         Real u0 = gamma/alpha;
-        Real u1 = uu1 - alpha * gamma * gi_old(I01,i);
-        Real u2 = uu2 - alpha * gamma * gi_old(I02,i);
-        Real u3 = uu3 - alpha * gamma * gi_old(I03,i);
+        Real u1 = uu1 - alpha * gamma * gi_old(I01);
+        Real u2 = uu2 - alpha * gamma * gi_old(I02);
+        Real u3 = uu3 - alpha * gamma * gi_old(I03);
 
         Real b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0;
         Real b_sq = 0.0;
