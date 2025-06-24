@@ -456,6 +456,13 @@ int RefinementCondition(MeshBlock *pmb)
   get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
 
 
+  Real v2x = orbit_quantities(IV2X);
+  Real v2y = orbit_quantities(IV2Y);
+  Real v2z = orbit_quantities(IV2Z);
+  Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
+  Real bh2_bondi_radius = 2.0 * q /SQR(v2);
+
+
   // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
 
@@ -1592,9 +1599,9 @@ for (int dir=0; dir<=2; ++dir){
         Real uu1 = phydro->w(IVX,k,j,i);
         Real uu2 = phydro->w(IVY,k,j,i);
         Real uu3 = phydro->w(IVZ,k,j,i);
-        Real tmp = g_old(I11,i)*uu1*uu1 + 2.0*g_old(I12,i)*uu1*uu2 + 2.0*g_old(I13,i)*uu1*uu3
-                 + g_old(I22,i)*uu2*uu2 + 2.0*g_old(I23,i)*uu2*uu3
-                 + g_old(I33,i)*uu3*uu3;
+        Real tmp = g_old(I11)*uu1*uu1 + 2.0*g_old(I12)*uu1*uu2 + 2.0*g_old(I13)*uu1*uu3
+                 + g_old(I22)*uu2*uu2 + 2.0*g_old(I23)*uu2*uu3
+                 + g_old(I33)*uu3*uu3;
         Real gamma = std::sqrt(1.0 + tmp);
         // user_out_var(0,k,j,i) = gamma;
 
@@ -2189,7 +2196,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real ug_frac = dt * L_cool/ug;
 
-        pmb->user_out_var(0,k,j,i) = L_cool;
+        pmb->user_out_var(0,k,j,i) = L_cool * u_0;
 
         // pmb->user_out_var(1,k,j,i) = pmb->pcoord->GetCellVolume(k,j,i)/
         //                   (pmb->pcoord->dx1f(i)*pmb->pcoord->dx2f(j)*pmb->pcoord->dx3f(k));
