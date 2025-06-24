@@ -428,9 +428,9 @@ int main(int argc, char *argv[]) {
       fprintf(stderr,"Meshblocks created during initialization : %d Meshblocks Destroyed during initialization: %d\n", pmesh->nbnew,pmesh->nbdel);
 
 
-  if (MAGNETIC_FIELDS_ENABLED && METRIC_EVOLUTION && GENERAL_RELATIVITY && res_flag==1) {
-    pmesh->PreserveDivbAddingBH(pinput);
-  }
+  // if (MAGNETIC_FIELDS_ENABLED && METRIC_EVOLUTION && GENERAL_RELATIVITY && res_flag==1) {
+  //   pmesh->PreserveDivbAddingBH(pinput);
+  // }
 
   if (Globals::my_rank == 0) {
     std::cout << "\nSetup complete, entering main loop...\n" << std::endl;
@@ -476,9 +476,7 @@ int main(int argc, char *argv[]) {
     if (pmesh->turb_flag > 1) pmesh->ptrbd->Driving(); // driven turbulence
 
     if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0){ // && pmesh->ncycle >0) {
-        pmesh->update_metric_this_timestep = false;
-
-        // pmesh->update_metric_this_timestep = true;
+        pmesh->update_metric_this_timestep = true;
     }
 
 
