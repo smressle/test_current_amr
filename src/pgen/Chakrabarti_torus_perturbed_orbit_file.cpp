@@ -1625,7 +1625,7 @@ for (int dir=0; dir<=2; ++dir){
 
                 b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
                 b_1 = g_old(I01)*b0 + g_old(I11)*b1 + g_old(I12)*b2 + g_old(I13)*b3;
-                b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + gv(I23)*b3;
+                b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + g_old(I23)*b3;
                 b_3 = g_old(I03)*b0 + g_old(I13)*b1 + g_old(I23)*b2 + g_old(I33)*b3;
                 b_sq = b_0*b0 + b_1*b1 + b_2*b2 + b_3*b3;
             
