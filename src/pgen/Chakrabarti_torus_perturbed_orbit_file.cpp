@@ -1600,14 +1600,14 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
                       + g_diff(I33) * tt[I33]);
 
 
-        // phydro->u(IEN,k,j,i) += s_E;
+        phydro->u(IEN,k,j,i) += s_E;
 
         Real det_old = Determinant(g_old);
 
-         // Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
-         //  for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
-         //    phydro->u(n_cons,k,j,i) *=fac;
-         //  }
+         Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            phydro->u(n_cons,k,j,i) *=fac;
+          }
 
         g_tmp.DeleteAthenaArray();
         g_old.DeleteAthenaArray();
@@ -1741,13 +1741,13 @@ for (int dir=0; dir<=2; ++dir){
   }
 
   // Initialize conserved values
-  if (MAGNETIC_FIELDS_ENABLED) {
-    peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
-        kl, ku);
-  } else {
-    peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
-    bb.DeleteAthenaArray();
-  }
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+  //       kl, ku);
+  // } else {
+  //   peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+  //   bb.DeleteAthenaArray();
+  // }
 
 
 return;
