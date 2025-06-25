@@ -1539,7 +1539,7 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
         // user_out_var(0,k,j,i) = gamma;
 
         // Calculate 4-velocity
-        Real alpha = std::sqrt(-1.0/gi_old(I00,i));
+        Real alpha = std::sqrt(-1.0/gi_old(I00));
         Real u0 = gamma/alpha;
         Real u1 = uu1 - alpha * gamma * gi_old(I01);
         Real u2 = uu2 - alpha * gamma * gi_old(I02);
