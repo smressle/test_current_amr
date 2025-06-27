@@ -799,7 +799,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
           fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
             i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
 
-          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n" n, coord_src_kji_(3,n,k,j,i));
+          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
           
          
