@@ -640,6 +640,10 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
   // Extract ratio of specific heats
   Real gamma_adi = pmy_block->peos->GetGamma();
 
+  AthenaArray<Real> s_E_array;
+
+  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST)
+
   // Go through cells
   for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
@@ -762,6 +766,8 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
         E += dt * s_E;
 
+        s_E_array(k,j,i) = s_E;
+
 
         // if (std::fabs(E)>1e10){
         //   fprintf(stderr,"LARGE E in coord_sources! \n E: %g dt: %g s_E: %g \n sourceterms: %g %g %g %g \n tt: %g %g %g %g \n",
@@ -771,6 +777,44 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
       }
     }
   }
+
+    for (int k=ks+1; k<=ke-1; ++k) {
+    for (int j=js+1; j<=je-1; ++j) {
+      for (int i=is+1; i<=ie-1; ++i) {
+
+        Real sum = 0.0;
+        int count = 0;
+        for (int kk = k - 1; kk <= k + 1; ++kk) {
+          for (int jj = j - 1; jj <= j + 1; ++jj) {
+            for (int ii = i - 1; ii <= i + 1; ++ii) {
+              if (kk == k && jj == j && ii == i) continue;  // Skip center
+              sum += s_E_array(kk, jj, ii);
+              ++count;
+            }
+          }
+        }
+        Real s_E_avg = sum / count;
+
+        if (std::fabs(s_E_array(k,j,i)) > 10*std::fabs(s_E_avg) ){
+          fprintf(stderr,"Very large s_E at ijk: %d %d %d \n s_E: %g s_E_avg: %g \n",
+            i,j,k, s_E_array(k,j,i),s_E_avg,);
+
+          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n" n, coord_src_kji_(3,n,k,j,i));
+
+          
+         
+        }
+
+
+        }
+    }
+  }
+
+
+
+  s_E_array.DeleteAthenaArray();
+
+
   return;
 }
 
