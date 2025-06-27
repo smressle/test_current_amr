@@ -642,7 +642,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
   AthenaArray<Real> s_E_array;
 
-  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST)
+  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
 
   // Go through cells
   for (int k=ks; k<=ke; ++k) {
@@ -797,7 +797,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
         if (std::fabs(s_E_array(k,j,i)) > 10*std::fabs(s_E_avg) ){
           fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
-            i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg,);
+            i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
 
           for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n" n, coord_src_kji_(3,n,k,j,i));
 
