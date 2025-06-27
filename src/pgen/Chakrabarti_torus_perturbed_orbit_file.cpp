@@ -1361,7 +1361,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
@@ -2544,6 +2544,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     } 
 
 
+    a_dot_x = ax * x + ay * y + az * z;
 
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a_dot_x) )  )/std::sqrt(2.0);
