@@ -1993,9 +1993,40 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
           }
 
 
-
-
 }}}
+
+
+    for (int k=pmb->ks+1; k<=pmb->ke-1; ++k) {
+    for (int j=pmb->js+1; j<=pmb->je-1; ++j) {
+      for (int i=pmb->is+1; i<=pmb->ie-1; ++i) {
+
+        Real sum = 0.0;
+        int count = 0;
+        for (int kk = k - 1; kk <= k + 1; ++kk) {
+          for (int jj = j - 1; jj <= j + 1; ++jj) {
+            for (int ii = i - 1; ii <= i + 1; ++ii) {
+              if (kk == k && jj == j && ii == i) continue;  // Skip center
+              sum += prim(IPR,kk, jj, ii);
+              ++count;
+            }
+          }
+        }
+        Real p_avg = sum / count;
+
+        if (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ){
+          fprintf(stderr,"Very large P at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
+            i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg);
+
+          // for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+
+          
+         
+        }
+
+
+        }
+    }
+  }
 
 
 orbit_quantities.DeleteAthenaArray();
