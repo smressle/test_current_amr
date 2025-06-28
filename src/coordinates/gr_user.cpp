@@ -778,9 +778,9 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
     }
   }
 
-    for (int k=ks+1; k<=ke-1; ++k) {
-    for (int j=js+1; j<=je-1; ++j) {
-      for (int i=is+1; i<=ie-1; ++i) {
+    for (int k=ks; k<=ke; ++k) {
+    for (int j=js; j<=je; ++j) {
+      for (int i=is; i<=ie; ++i) {
 
         Real sum = 0.0;
         int count = 0;
@@ -788,6 +788,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
           for (int jj = j - 1; jj <= j + 1; ++jj) {
             for (int ii = i - 1; ii <= i + 1; ++ii) {
               if (kk == k && jj == j && ii == i) continue;  // Skip center
+              if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
               sum += s_E_array(kk, jj, ii);
               ++count;
             }
