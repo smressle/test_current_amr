@@ -245,27 +245,20 @@ void Hydro::NewBlockTimeStep() {
       }
 
 
-      if (RELATIVISTIC_DYNAMICS){
-        pmb->pcoord->CellMetric(k,j,is,ie,g_,gi_); 
-        #pragma ivdep
+      // SR case: do nothing (assume maximum characteristic is c = 1)
+      // GR case: divide cell widths by coordinate speed of light (not necessarily unity)
+      if (GENERAL_RELATIVITY) {
+        pmb->pcoord->CellMetric(k, j, is, ie, g_, gi_);
         for (int i=is; i<=ie; ++i) {
-
-
-          // Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
-          // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
-          // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
-
-          // Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,w,g_,gi_,pmb->pfield->bcc,pmb->pfield->b);
-
-          // dt1(i) /= cl1;
-          // dt2(i) /= cl2;
-          // dt3(i) /= cl3;
-
-          // dt1(i) = 1e3;
-          // dt2(i) = 1e2;
-          // dt3(i) = 1e2;
+          Real speed1 = -(std::sqrt(SQR(gi_(I01,i)) - gi_(I00,i) * gi_(I11,i))
+              + std::abs(gi_(I01,i))) / gi_(I00,i);
+          Real speed2 = -(std::sqrt(SQR(gi_(I02,i)) - gi_(I00,i) * gi_(I22,i))
+              + std::abs(gi_(I02,i))) / gi_(I00,i);
+          Real speed3 = -(std::sqrt(SQR(gi_(I03,i)) - gi_(I00,i) * gi_(I33,i))
+              + std::abs(gi_(I03,i))) / gi_(I00,i);
+          dt1(i) /= speed1;
+          dt2(i) /= speed2;
+          dt3(i) /= speed3;
         }
       }
 
