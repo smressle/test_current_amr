@@ -1996,9 +1996,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 }}}
 
 
-    for (int k=pmb->ks+1; k<=pmb->ke-1; ++k) {
-    for (int j=pmb->js+1; j<=pmb->je-1; ++j) {
-      for (int i=pmb->is+1; i<=pmb->ie-1; ++i) {
+    for (int k=pmb->ks; k<=pmb->ke; ++k) {
+    for (int j=pmb->js; j<=pmb->je; ++j) {
+      for (int i=pmb->is; i<=pmb->ie; ++i) {
 
         Real sum = 0.0;
         int count = 0;
