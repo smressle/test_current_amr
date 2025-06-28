@@ -775,7 +775,7 @@ void OutputType::ClearOutputData() {
 //! \fn void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag)
 //! \brief scans through singly linked list of OutputTypes and makes any outputs needed.
 
-void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag) {
+void Outputs::MakeOutputsAll(Mesh *pm, ParameterInput *pin, bool wtflag) {
   // wtflag = only true for making final outputs due to signal or wall-time/cycle/time
   // limit. Used by restart file output to change suffix to .final
   bool first=true;
@@ -795,6 +795,55 @@ void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag) {
     }
     ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
   }
+}
+
+void Outputs::MakeOutputsExceptHst(Mesh *pm, ParameterInput *pin, bool wtflag) {
+  // wtflag = only true for making final outputs due to signal or wall-time/cycle/time
+  // limit. Used by restart file output to change suffix to .final
+  bool first=true;
+  OutputType* ptype = pfirst_type_;
+  while (ptype != nullptr) {
+    if (ptype->output_params.file_type != "hst"){
+    if (((pm->time == pm->start_time) // output initial conditions, unless next_time set
+         && (ptype->output_params.next_time <= pm->start_time ))
+      || (ptype->output_params.dt > 0.0 && pm->time >= ptype->output_params.next_time)
+      || (ptype->output_params.dcycle > 0 && pm->ncycle%ptype->output_params.dcycle == 0)
+      || (pm->time >= pm->tlim)
+      || (wtflag && ptype->output_params.file_type == "rst")) {
+      if (first && ptype->output_params.file_type != "hst") {
+        pm->ApplyUserWorkBeforeOutput(pin);
+        first = false;
+      }
+      ptype->WriteOutputFile(pm, pin, wtflag);
+    }
+  }
+  
+    ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
+  }
+}
+
+
+//----------------------------------------------------------------------------------------
+//! \fn void Outputs::MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag)
+//! \brief scans through singly linked list of OutputTypes and makes any outputs needed.
+
+void Outputs::MakeHstOutput(Mesh *pm, ParameterInput *pin, bool wtflag) {
+  // wtflag = only true for making final outputs due to signal or wall-time/cycle/time
+  // limit. Used by restart file output to change suffix to .final
+  bool first=true;
+  OutputType* ptype = pfirst_type_;
+  while (ptype != nullptr) {
+    if (ptype->output_params.file_type == "hst") {
+    if (((pm->time == pm->start_time) // output initial conditions, unless next_time set
+         && (ptype->output_params.next_time <= pm->start_time ))
+      || (ptype->output_params.dt > 0.0 && pm->time >= ptype->output_params.next_time)
+      || (ptype->output_params.dcycle > 0 && pm->ncycle%ptype->output_params.dcycle == 0)
+      || (pm->time >= pm->tlim)) {
+      ptype->WriteOutputFile(pm, pin, wtflag);
+    }
+    ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
+  }
+ }
 }
 
 // //----------------------------------------------------------------------------------------

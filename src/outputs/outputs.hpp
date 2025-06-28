@@ -194,7 +194,9 @@ class Outputs {
   Outputs(Mesh *pm, ParameterInput *pin);
   ~Outputs();
 
-  void MakeOutputs(Mesh *pm, ParameterInput *pin, bool wtflag=false);
+  void MakeOutputsAll(Mesh *pm, ParameterInput *pin, bool wtflag=false);
+  void MakeHstOutput(Mesh *pm, ParameterInput *pin, bool wtflag=false);
+  void MakeOutputsExceptHst(Mesh *pm, ParameterInput *pin, bool wtflag)
 
   bool output_rst_next_timestep(Mesh *pm);
 
