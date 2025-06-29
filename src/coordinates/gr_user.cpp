@@ -802,6 +802,9 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
           for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
+          int in = i+1;
+          if (in>ie) in = i-1;
+          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
           
          
         }
