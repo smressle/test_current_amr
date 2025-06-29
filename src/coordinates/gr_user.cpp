@@ -640,7 +640,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
   // Extract ratio of specific heats
   Real gamma_adi = pmy_block->peos->GetGamma();
 
-  AthenaArray<Real> s_E_array;
+  // AthenaArray<Real> s_E_array;
 
   // s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
 
@@ -822,7 +822,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
 
 
-  s_E_array.DeleteAthenaArray();
+  // s_E_array.DeleteAthenaArray();
 
 
   return;
