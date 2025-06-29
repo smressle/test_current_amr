@@ -796,7 +796,13 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
         }
         Real s_E_avg = sum / count;
 
-        if (std::fabs(s_E_array(k,j,i)) > 10*std::fabs(s_E_avg) ){
+        bool is_in_inner_region = false;
+
+        if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 5.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 5.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 5.0) ){
+          is_in_inner_region=true;
+        }
+
+        if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
           fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
             i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
 
