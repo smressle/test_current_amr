@@ -778,47 +778,47 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
     }
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-      for (int i=is; i<=ie; ++i) {
+  //   for (int k=ks; k<=ke; ++k) {
+  //   for (int j=js; j<=je; ++j) {
+  //     for (int i=is; i<=ie; ++i) {
 
-        Real sum = 0.0;
-        int count = 0;
-        for (int kk = k - 1; kk <= k + 1; ++kk) {
-          for (int jj = j - 1; jj <= j + 1; ++jj) {
-            for (int ii = i - 1; ii <= i + 1; ++ii) {
-              if (kk == k && jj == j && ii == i) continue;  // Skip center
-              if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
-              sum += s_E_array(kk, jj, ii);
-              ++count;
-            }
-          }
-        }
-        Real s_E_avg = sum / count;
+  //       Real sum = 0.0;
+  //       int count = 0;
+  //       for (int kk = k - 1; kk <= k + 1; ++kk) {
+  //         for (int jj = j - 1; jj <= j + 1; ++jj) {
+  //           for (int ii = i - 1; ii <= i + 1; ++ii) {
+  //             if (kk == k && jj == j && ii == i) continue;  // Skip center
+  //             if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
+  //             sum += s_E_array(kk, jj, ii);
+  //             ++count;
+  //           }
+  //         }
+  //       }
+  //       Real s_E_avg = sum / count;
 
-        bool is_in_inner_region = false;
+  //       bool is_in_inner_region = false;
 
-        if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 5.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 5.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 5.0) ){
-          is_in_inner_region=true;
-        }
+  //       if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 5.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 5.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 5.0) ){
+  //         is_in_inner_region=true;
+  //       }
 
-        if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
-          fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
-            i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
+  //       if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
+  //         fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
+  //           i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
 
-          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+  //         for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
-          int in = i+1;
-          if (in>ie) in = i-1;
-          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
+  //         int in = i+1;
+  //         if (in>ie) in = i-1;
+  //         for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
           
          
-        }
+  //       }
 
 
-        }
-    }
-  }
+  //       }
+  //   }
+  // }
 
 
 
