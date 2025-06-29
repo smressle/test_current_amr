@@ -841,8 +841,8 @@ void Outputs::MakeHstOutput(Mesh *pm, ParameterInput *pin, bool wtflag) {
       || (pm->time >= pm->tlim)) {
       ptype->WriteOutputFile(pm, pin, wtflag);
     }
-    ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
   }
+  ptype = ptype->pnext_type; // move to next OutputType node in singly linked list
  }
 }
 

@@ -642,7 +642,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
   AthenaArray<Real> s_E_array;
 
-  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
+  // s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
 
   // Go through cells
   for (int k=ks; k<=ke; ++k) {
@@ -766,7 +766,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
         E += dt * s_E;
 
-        s_E_array(k,j,i) = s_E;
+        // s_E_array(k,j,i) = s_E;
 
 
         // if (std::fabs(E)>1e10){
