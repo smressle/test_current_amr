@@ -2016,12 +2016,25 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
         Real p_avg = sum / count;
 
          bool is_in_inner_region = false;
+         bool is_close_to_secondary = false;
+
+
+          Real x = pmb->pcoord->x1v(i);
+          Real y = pmb->pcoord->x2v(j);
+          Real z = pmb->pcoord->x3v(k);
+          Real t = pmb->pmy_mesh->metric_time;
+
+          Real xprime,yprime,zprime,rprime,Rprime;
+
+          get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
         if ( (std::fabs(pmb->pcoord->x1v(i)) < 5.0) && (std::fabs(pmb->pcoord->x2v(j)) < 5.0) && (std::fabs(pmb->pcoord->x3v(k)) < 5.0) ){
           is_in_inner_region=true;
         }
 
-        if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
+        if (rprime<3.0) is_close_to_secondary = true;
+
+        if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
           fprintf(stderr,"Very large P at ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  \n",
             i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
             prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), pmb->gid,pmb->lid);
