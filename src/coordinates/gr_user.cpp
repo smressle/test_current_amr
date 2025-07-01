@@ -817,10 +817,10 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
         // if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
         if (std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i)) > 10*std::fabs(E_p_M_avg)  && !is_in_inner_region && (std::fabs(pmy_block->pcoord->x3v(k))<5.0) ){
 
-          fprintf(stderr,"Very large E+M at ijk: %d %d %d \n xyz: %g %g %g \n E+M: %g E+M avg: %g \ns_E: %g \n",
+          fprintf(stderr,"Very large E+M at ijk: %d %d %d \n xyz: %g %g %g \n E+M: %g E+M avg: %g \ns_E: %g gid: %d\n",
             i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), 
             cons(IEN,k,j,i) + cons(IDN,k,j,i),E_p_M_avg,
-            s_E_array(k,j,i));
+            s_E_array(k,j,i), pmy_block->gid);
 
           for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
