@@ -800,7 +800,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
             for (int ii = i - 1; ii <= i + 1; ++ii) {
               if (kk == k && jj == j && ii == i) continue;  // Skip center
               if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
-              sum += std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i));
+              sum += std::fabs(cons(IEN,kk,jj,ii) + cons(IDN,kk,jj,ii));
               // sum += s_E_array(kk, jj, ii);
               ++count;
             }
