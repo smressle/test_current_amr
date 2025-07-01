@@ -766,6 +766,17 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
         E += dt * s_E;
 
+
+        if ((pmy_block->gid ==3518) &&  (i==17) && (j==17) && (k==2)) {
+          fprintf(stderr,"Energy Source Term: %g E: %g \n t: %g metric_t: %g s_1 s_2 s_3: %g %g %g \n m_1 m_2 m_3: %g %g %g \n",s_E,E,pmy_block->pmy_mesh->time,pmy_block->pmy_mesh->metric_time,
+            s_1,s_2,s_3,m_1,m_2,m_3);
+          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+
+
+        }
+
+
+
         // s_E_array(k,j,i) = s_E;
 
 
