@@ -2041,16 +2041,16 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
                 prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), 
                 pmb->gid,pmb->lid,pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i));
 
-              for (int kk = k - 1; kk <= k + 1; ++kk) {
-              for (int jj = j - 1; jj <= j + 1; ++jj) {
-                for (int ii = i - 1; ii <= i + 1; ++ii) {
-                  if (kk == k && jj == j && ii == i) continue;  // Skip center
-                  if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
+            //   for (int kk = k - 1; kk <= k + 1; ++kk) {
+            //   for (int jj = j - 1; jj <= j + 1; ++jj) {
+            //     for (int ii = i - 1; ii <= i + 1; ++ii) {
+            //       if (kk == k && jj == j && ii == i) continue;  // Skip center
+            //       if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
 
-                  fprintf(stderr,"P neibhors: %g \n", prim(IPR,kk, jj, ii) );
-                }
-              }
-            }
+            //       fprintf(stderr,"P neibhors: %g \n", prim(IPR,kk, jj, ii) );
+            //     }
+            //   }
+            // }
 
           
          
