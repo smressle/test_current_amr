@@ -2035,8 +2035,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
         if (rprime<3.0) is_close_to_secondary = true;
 
         if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
-          fprintf(stderr,"Very large P at ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
-            i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
+          fprintf(stderr,"Very large P at metric_t: %g t: %g  ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
+            pmb->pmy_mesh->metric_time, pmb->pmy_mesh->time, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
             prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), pmb->gid,pmb->lid),pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i);
 
           for (int kk = k - 1; kk <= k + 1; ++kk) {
