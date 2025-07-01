@@ -640,9 +640,9 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
   // Extract ratio of specific heats
   Real gamma_adi = pmy_block->peos->GetGamma();
 
-  // AthenaArray<Real> s_E_array;
+  AthenaArray<Real> s_E_array;
 
-  // s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
+  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
 
   // Go through cells
   for (int k=ks; k<=ke; ++k) {
@@ -767,17 +767,17 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
         E += dt * s_E;
 
 
-        if ((pmy_block->gid ==3518) &&  (i==17) && (j==17) && (k==2)) {
-          fprintf(stderr,"Energy Source Term: %g E: %g \n t: %g metric_t: %g s_1 s_2 s_3: %g %g %g \n m_1 m_2 m_3: %g %g %g \n",s_E,E,pmy_block->pmy_mesh->time,pmy_block->pmy_mesh->metric_time,
-            s_1,s_2,s_3,m_1,m_2,m_3);
-          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+        // if ((pmy_block->gid ==3518) &&  (i==17) && (j==17) && (k==2)) {
+        //   fprintf(stderr,"Energy Source Term: %g E: %g \n t: %g metric_t: %g s_1 s_2 s_3: %g %g %g \n m_1 m_2 m_3: %g %g %g \n",s_E,E,pmy_block->pmy_mesh->time,pmy_block->pmy_mesh->metric_time,
+        //     s_1,s_2,s_3,m_1,m_2,m_3);
+        //   for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
 
-        }
+        // }
 
 
 
-        // s_E_array(k,j,i) = s_E;
+        s_E_array(k,j,i) = s_E;
 
 
         // if (std::fabs(E)>1e10){
@@ -789,51 +789,56 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
     }
   }
 
-  //   for (int k=ks; k<=ke; ++k) {
-  //   for (int j=js; j<=je; ++j) {
-  //     for (int i=is; i<=ie; ++i) {
+    for (int k=ks; k<=ke; ++k) {
+    for (int j=js; j<=je; ++j) {
+      for (int i=is; i<=ie; ++i) {
 
-  //       Real sum = 0.0;
-  //       int count = 0;
-  //       for (int kk = k - 1; kk <= k + 1; ++kk) {
-  //         for (int jj = j - 1; jj <= j + 1; ++jj) {
-  //           for (int ii = i - 1; ii <= i + 1; ++ii) {
-  //             if (kk == k && jj == j && ii == i) continue;  // Skip center
-  //             if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
-  //             sum += s_E_array(kk, jj, ii);
-  //             ++count;
-  //           }
-  //         }
-  //       }
-  //       Real s_E_avg = sum / count;
+        Real sum = 0.0;
+        int count = 0;
+        for (int kk = k - 1; kk <= k + 1; ++kk) {
+          for (int jj = j - 1; jj <= j + 1; ++jj) {
+            for (int ii = i - 1; ii <= i + 1; ++ii) {
+              if (kk == k && jj == j && ii == i) continue;  // Skip center
+              if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
+              sum += std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i));
+              // sum += s_E_array(kk, jj, ii);
+              ++count;
+            }
+          }
+        }
+        Real E_p_M_avg = sum / count;
 
-  //       bool is_in_inner_region = false;
+        bool is_in_inner_region = false;
 
-  //       if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 5.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 5.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 5.0) ){
-  //         is_in_inner_region=true;
-  //       }
+        if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 3.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 3.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 3.0) ){
+          is_in_inner_region=true;
+        }
 
-  //       if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
-  //         fprintf(stderr,"Very large s_E at ijk: %d %d %d \n xyz: %g %g %g \n s_E: %g s_E_avg: %g \n",
-  //           i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), s_E_array(k,j,i),s_E_avg);
+        // if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
+        if (std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i)) > 10*std::fabs(E_p_M_avg)  && !is_in_inner_region && (std::fabs(pmy_block->pcoord->x3v(k))<5.0) ){
 
-  //         for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+          fprintf(stderr,"Very large E+M at ijk: %d %d %d \n xyz: %g %g %g \n E+M: %g E+M avg: %g \ns_E: %g \n",
+            i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), 
+            cons(IEN,k,j,i) + cons(IDN,k,j,i),E_p_M_avg,
+            s_E_array(k,j,i));
 
-  //         int in = i+1;
-  //         if (in>ie) in = i-1;
-  //         for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
+          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+
+          // int in = i+1;
+          // if (in>ie) in = i-1;
+          // for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
           
          
-  //       }
+        }
 
 
-  //       }
-  //   }
-  // }
+        }
+    }
+  }
 
 
 
-  // s_E_array.DeleteAthenaArray();
+  s_E_array.DeleteAthenaArray();
 
 
   return;
