@@ -2028,7 +2028,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
           get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
-        if ( (std::fabs(pmb->pcoord->x1v(i)) < 5.0) && (std::fabs(pmb->pcoord->x2v(j)) < 5.0) && (std::fabs(pmb->pcoord->x3v(k)) < 5.0) ){
+        if ( (std::fabs(pmb->pcoord->x1v(i)) < 3.0) && (std::fabs(pmb->pcoord->x2v(j)) < 3.0) && (std::fabs(pmb->pcoord->x3v(k)) < 3.0) ){
           is_in_inner_region=true;
         }
 
