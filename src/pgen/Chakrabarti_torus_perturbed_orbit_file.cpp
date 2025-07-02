@@ -2748,7 +2748,7 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
       slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
       *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
 
-      if (t<t_orbits(it)) fprintf(stderr,"t <t_orbit!! t: %g t_orbit: %g it: %d\n",t,t_orbits(it),it)
+      if (t<t_orbits(it)) fprintf(stderr,"t <t_orbit!! t: %g t_orbit: %g it: %d\n",t,t_orbits(it),it);
     }
 
     return;
