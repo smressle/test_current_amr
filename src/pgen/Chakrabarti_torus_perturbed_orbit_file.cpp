@@ -3101,7 +3101,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   if (print_stuff){
-    fprintf("Inside metric when dg/dt is large!  xyz: %g %g %g xyzprime: %g %g %g \n r th ph: %g %g %g rprime thprime phprime: %g %g %g \n",
+    fprintf(stderr,"Inside metric when dg/dt is large!  xyz: %g %g %g xyzprime: %g %g %g \n r th ph: %g %g %g rprime thprime phprime: %g %g %g \n",
      x,y,z,xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
   }
 
