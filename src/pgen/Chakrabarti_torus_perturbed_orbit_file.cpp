@@ -2725,9 +2725,10 @@ static void TransformAphi(Real a3_ks, Real x1,
 
 void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
 
-    // int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
+    int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
 
-    int it = static_cast<int>(std::floor((t - t0_orbits) / dt_orbits));
+    // int it = static_cast<int>(std::floor((t - t0_orbits) / dt_orbits));
+
 
     if (it<= 0) it = 0;
     if (it>=nt-1) it = nt-1;
@@ -2746,6 +2747,8 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
     else{
       slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
       *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
+
+      if (t<t_orbits(it)) fprintf(stderr,"t <t_orbit!! t: %g t_orbit: %g it: %d\n",t,t_orbits(it),it)
     }
 
     return;
