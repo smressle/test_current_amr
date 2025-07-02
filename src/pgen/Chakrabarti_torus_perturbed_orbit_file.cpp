@@ -3273,7 +3273,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
-         if (std::fabs(dg_dt(n))>1.0){
+         if (std::fabs(dg_dt(n))>100.0){
           print_out=true;
 
          }
