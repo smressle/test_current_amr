@@ -3272,7 +3272,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       bool print_out = false;
       bool in_inner_region = false;
 
-      if ((std::fabs(x1)<3.0) && (std::fabs(x2)<3.0) && (std::fabs(x3)<3.0)) is_in_inner_region=true;
+      if ((std::fabs(x1)<3.0) && (std::fabs(x2)<3.0) && (std::fabs(x3)<3.0)) in_inner_region=true;
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
