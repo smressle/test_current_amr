@@ -3163,7 +3163,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   orbit_quantities_stored.NewAthenaArray(Norbit);
 
   get_orbit_quantities(t,orbit_quantities);
-  get_orbit_quantities(t,orbit_quantities_stored);
+
+
+  for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
+    orbit_quantities_stored(iorbit) =  orbit_quantities(iorbit);
+  }
 
   metric_for_derivatives(t,x1,x2,x3,orbit_quantities,g);
 
@@ -3270,7 +3274,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
          if (std::fabs(dg_dt(n))>1.0){
-          print_out=true
+          print_out=true;
 
          }
       }
@@ -3280,7 +3284,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
         for (int n = 0; n < NMETRIC; ++n) {
            fprintf(stderr,"n: %d dg_dt: %g g: %g gp: %g \n", n, dg_dt(n), g(n),gp(n)) ;
         }
-        for (int iorbit = 0; n < Norbit; ++iorbit) {
+        for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
            fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit)) ;
         }
 
