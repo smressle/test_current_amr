@@ -2891,7 +2891,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &orbit_quantities,
-    AthenaArray<Real> &g)
+    AthenaArray<Real> &g,bool print_stuff)
 {
 
   Real x = x1;
@@ -3100,6 +3100,12 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   matrix_multiply_vector_lefthandside(Lambda,l_lowerprime,l_lowerprime_transformed);
 
 
+  if (print_stuff){
+    fprintf("Inside metric when dg/dt is large!  xyz: %g %g %g xyzprime: %g %g %g \n r th ph: %g %g %g rprime thprime phprime: %g %g %g \n",
+     x,y,z,xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
+  }
+
+
   // Set covariant components
   g(I00) = eta[0] + f * l_lower[0]*l_lower[0] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[0];
   g(I01) =          f * l_lower[0]*l_lower[1] + fprime * l_lowerprime_transformed[0]*l_lowerprime_transformed[1];
@@ -3171,7 +3177,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
     orbit_quantities_stored(iorbit) =  orbit_quantities(iorbit);
   }
 
-  metric_for_derivatives(t,x1,x2,x3,orbit_quantities,g);
+  metric_for_derivatives(t,x1,x2,x3,orbit_quantities,g,false);
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
@@ -3217,7 +3223,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x1m = x1 - DEL; // * rprime;
       Real x1m = x1;
 
-      metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
+      metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp, false);
       // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
 
         // // Set x-derivatives of covariant components
@@ -3232,7 +3238,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x2m = x2 - DEL; // * rprime;
       Real x2m = x2;
 
-      metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
+      metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp, false);
       // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
         // // Set y-derivatives of covariant components
       // for (int n = 0; n < NMETRIC; ++n) {
@@ -3246,7 +3252,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real x3m = x3 - DEL; // * rprime;
       Real x3m = x3;
 
-      metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
+      metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp, false);
       // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
         // // Set z-derivatives of covariant components
@@ -3262,7 +3268,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       // Real tm = t - DEL ;
 
       get_orbit_quantities(tp,orbit_quantities);
-      metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
+      metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp, false);
 
       // get_orbit_quantities(tm,orbit_quantities);
       // metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
@@ -3278,7 +3284,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
-         if ( (std::fabs(dg_dt(n))>100.0) && (!in_inner_region) ){
+         if ( (std::fabs(dg_dt(n))>1000.0) && (!in_inner_region) ){
           print_out=true;
 
          }
@@ -3292,6 +3298,11 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
         for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
            fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g diff: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit),orbit_quantities_stored(iorbit)-orbit_quantities(iorbit) ) ;
         }
+
+        metric_for_derivatives(t,x1,x2,x3,orbit_quantities_stored,gp, true);
+
+        metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp, true);
+
 
       }
 
