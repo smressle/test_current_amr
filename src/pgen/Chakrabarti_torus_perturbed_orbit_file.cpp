@@ -2725,7 +2725,9 @@ static void TransformAphi(Real a3_ks, Real x1,
 
 void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
 
-    int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
+    // int it = (int) ((t - t0_orbits) / dt_orbits + 1000) - 1000; //Rounds down
+
+    int it = static_cast<int>(std::floor((t - t0_orbits) / dt_orbits));
 
     if (it<= 0) it = 0;
     if (it>=nt-1) it = nt-1;
@@ -3288,7 +3290,7 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
            fprintf(stderr,"n: %d dg_dt: %g g: %g gp: %g \n", n, dg_dt(n), g(n),gp(n)) ;
         }
         for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
-           fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit)) ;
+           fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g diff: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit),orbit_quantities_stored(iorbit)-orbit_quantities(iorbit) ) ;
         }
 
       }
