@@ -119,6 +119,10 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &bcc, AthenaArray<Real> &cons,
               AthenaArray<Real> &cons_scalar);
 
+void fixup_coordinates(const Real x, const Real y, const Real z, 
+                       const Real ax, const Real ay, const Real az,
+                       Real x_out, Real y_out, Real z_out );
+
 
 // Global variables
 static Real m;                                  // black hole parameters
@@ -201,7 +205,7 @@ int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR *
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
-static Real SMALL = 1e-5;
+static Real SMALL = 1e-10;
 
 
 //This function performs L * A = A_new 
@@ -2573,9 +2577,9 @@ void InflowBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim
 static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Real ay, Real az, Real *pr,
                                          Real *ptheta, Real *pphi) {
 
-    Real x = x1;
-    Real y = x2;
-    Real z = x3;
+    Real x,y,z;
+
+    fixup_coordinates(x1,x2,x3,ax,ay,az, &x, &y, &z );
 
     Real a = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
 
@@ -2588,27 +2592,28 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
     a_cross_x[2] = ax * y - ay * x;
 
 
-    if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
-      Real diff = SMALL - a_dot_x/(a+SMALL);
-      a_dot_x =  SMALL;
+    // if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
-      x = x + diff*ax/(a+SMALL); 
-      y = y + diff*ay/(a+SMALL);
-      z = z + diff*az/(a+SMALL);
-    }
-    if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+    //   Real diff = SMALL - a_dot_x/(a+SMALL);
+    //   a_dot_x =  SMALL;
 
-      Real diff = -SMALL - a_dot_x/(a+SMALL);;
-      a_dot_x =  -SMALL;
+    //   x = x + diff*ax/(a+SMALL); 
+    //   y = y + diff*ay/(a+SMALL);
+    //   z = z + diff*az/(a+SMALL);
+    // }
+    // if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
-      x = x + diff*ax/(a+SMALL);
-      y = y + diff*ay/(a+SMALL);
-      z = z + diff*az/(a+SMALL);
-    } 
+    //   Real diff = -SMALL - a_dot_x/(a+SMALL);;
+    //   a_dot_x =  -SMALL;
+
+    //   x = x + diff*ax/(a+SMALL);
+    //   y = y + diff*ay/(a+SMALL);
+    //   z = z + diff*az/(a+SMALL);
+    // } 
 
 
-    a_dot_x = ax * x + ay * y + az * z;
+    // a_dot_x = ax * x + ay * y + az * z;
 
     Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
     Real r = std::sqrt( SQR(R) - SQR(a) + std::sqrt( SQR(SQR(R) - SQR(a)) + 4.0*SQR(a_dot_x) )  )/std::sqrt(2.0);
@@ -2640,6 +2645,57 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
   *z = r * std::cos(th)                 + ax * std::sin(th) * std::sin(phi) - ay*std::sin(th) * std::cos(phi);
 
 }
+
+
+void fixup_coordinates(const Real x, const Real y, const Real z, 
+                       const Real ax, const Real ay, const Real az,
+                       Real *x_out, Real *y_out, Real *z_out ){
+
+    *x_out = x;
+    *y_out = y;
+    *z_out = z;
+
+    Real a = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
+
+    Real R = std::sqrt( SQR(*x_out) + SQR(*y_out) + SQR(*z_out) );
+
+
+    if ( SQR(R) > SQR(a) ) return;
+
+    // R^2-a^2 <=0
+    // need R^2-a^2 + 4.0*SQR(a_dot_x) >0
+    // so a_dot_x^2 > a^2-R^2/4.0 + SMALL (to be safe)
+
+    Real a_dot_x_min = std::sqrt( (SQR(a) - SQR(R))/4.0)  + SMALL;
+
+    Real a_dot_x = ax * (*x_out) + ay * (*y_out) + az * (*z_out);
+
+
+    // a_dot_x_min = ax * new_x + ay*new_y + az*new_z;
+    // adot_x_min-a_dotx = ax * (new_x-x) + ay * (new_y - y) + az*(new_z=z); 
+
+    if ((std::fabs(a_dot_x)<a_dot_x_min) && (a_dot_x>=0)){
+
+      Real diff = (a_dot_x_min - a_dot_x)/(a+SMALL);
+      // a_dot_x =  a_dot_x_min;
+
+      *x_out = *x_out + diff*ax/(a+SMALL); 
+      *y_out = *y_out + diff*ay/(a+SMALL);
+      *z_out = *z_out + diff*az/(a+SMALL);
+    }
+    if ((std::fabs(a_dot_x)<a_dot_x_min) && (a_dot_x <0)){
+
+      Real diff = (-a_dot_x_min - a_dot_x)/(a+SMALL);;
+      // a_dot_x =  -a_dot_x_min;
+
+      *x_out = *x_out + diff*ax/(a+SMALL);
+      *y_out = *y_out + diff*ay/(a+SMALL);
+      *z_out = *z_out + diff*az/(a+SMALL);
+    } 
+
+  return;
+}
+
 
 //----------------------------------------------------------------------------------------
 // Function for transforming 4-vector from Boyer-Lindquist to desired coordinates
@@ -2748,7 +2804,7 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
       slope = (arr(iorbit,it+1)-arr(iorbit,it))/dt_orbits;
       *result = (t - t_orbits(it) ) * slope + arr(iorbit,it);
 
-      if (t<t_orbits(it)) fprintf(stderr,"t <t_orbit!! t: %g t_orbit: %g it: %d\n",t,t_orbits(it),it);
+      // if (t<t_orbits(it)) fprintf(stderr,"t <t_orbit!! t: %g t_orbit: %g it: %d\n",t,t_orbits(it),it);
     }
 
     return;
@@ -2796,26 +2852,33 @@ void get_prime_coords(Real x, Real y, Real z, AthenaArray<Real> &orbit_quantitie
             (1.0 + (Lorentz - 1.0) * nz * nz) * ( z - zbh );  
 
 
+  Real xprimetmp, yprimetmp,zprimetmp;
+  fixup_coordinates(*xprime,*yprime,*zprime,ax,ay,az,&xprimetmp, &yprimetmp, &zprimetmp );
+
+  *xprime = xprimetmp;
+  *yprime = yprimetmp;
+  *zprime = zprimetmp;
+
   Real a_dot_x_prime = ax * (*xprime) + ay * (*yprime) + az * (*zprime);
 
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-    Real diff = SMALL - a_dot_x_prime/(a_mag+SMALL);
-    a_dot_x_prime =  SMALL;
+  //   Real diff = SMALL - a_dot_x_prime/(a_mag+SMALL);
+  //   a_dot_x_prime =  SMALL;
 
-    *xprime = *xprime + diff*ax/(a_mag+SMALL);
-    *yprime = *yprime + diff*ay/(a_mag+SMALL);
-    *zprime = *zprime + diff*az/(a_mag+SMALL);;
-  }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+  //   *xprime = *xprime + diff*ax/(a_mag+SMALL);
+  //   *yprime = *yprime + diff*ay/(a_mag+SMALL);
+  //   *zprime = *zprime + diff*az/(a_mag+SMALL);;
+  // }
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-    Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);;
-    a_dot_x_prime =  -SMALL;
+  //   Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);;
+  //   a_dot_x_prime =  -SMALL;
 
-    *xprime = *xprime + diff*ax/(a_mag+SMALL);
-    *yprime = *yprime + diff*ay/(a_mag+SMALL);
-    *zprime = *zprime + diff*az/(a_mag+SMALL);
-  } 
+  //   *xprime = *xprime + diff*ax/(a_mag+SMALL);
+  //   *yprime = *yprime + diff*ay/(a_mag+SMALL);
+  //   *zprime = *zprime + diff*az/(a_mag+SMALL);
+  // } 
 
   // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
@@ -2897,10 +2960,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     AthenaArray<Real> &g,bool print_stuff)
 {
 
-  Real x = x1;
-  Real y = x2;
-  Real z = x3;
-
   Real a1x = orbit_quantities(IA1X);
   Real a1y = orbit_quantities(IA1Y);
   Real a1z = orbit_quantities(IA1Z);
@@ -2927,6 +2986,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
 
+  Real x,y,z;
+  fixup_coordinates(x1,x2,x3,a1x,a1y,a1z,&x, &y, &z );
   Real a_dot_x = a1x * x + a1y * y + a1z * z;
 
   if (print_stuff){
@@ -2934,30 +2995,32 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
             x,y,z,a_dot_x,a1x,a1y,a1z);
   }
 
-  Real diff;
-  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
-    diff = SMALL - a_dot_x/(a1+SMALL);
-    a_dot_x =  SMALL;
 
-    x = x + diff*a1x/(a1+SMALL);
-    y = y + diff*a1y/(a1+SMALL);
-    z = z + diff*a1z/(a1+SMALL);
-  }
-  if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+  // Real diff;
+  // if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
-    diff = -SMALL - a_dot_x/(a1+SMALL);
-    a_dot_x =  -SMALL;
+  //   diff = SMALL - a_dot_x/(a1+SMALL);
+  //   a_dot_x =  SMALL;
 
-    x = x + diff*a1x/(a1+SMALL);
-    y = y + diff*a1y/(a1+SMALL);
-    z = z + diff*a1z/(a1+SMALL);
-  } 
+  //   x = x + diff*a1x/(a1+SMALL);
+  //   y = y + diff*a1y/(a1+SMALL);
+  //   z = z + diff*a1z/(a1+SMALL);
+  // }
+  // if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
-  if (print_stuff){
-    fprintf(stderr,"After coordinate fix xyz: %g %g %g adotx: %g \n  diff: %g \n",
-            x,y,z,a_dot_x,diff);
-  }
+  //   diff = -SMALL - a_dot_x/(a1+SMALL);
+  //   a_dot_x =  -SMALL;
+
+  //   x = x + diff*a1x/(a1+SMALL);
+  //   y = y + diff*a1y/(a1+SMALL);
+  //   z = z + diff*a1z/(a1+SMALL);
+  // } 
+
+  // if (print_stuff){
+  //   fprintf(stderr,"After coordinate fix xyz: %g %g %g adotx: %g \n  diff: %g \n",
+  //           x,y,z,a_dot_x,diff);
+  // }
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
     x = 0.1;
@@ -3018,26 +3081,33 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
+
+  Real xprimetmp = xprime;
+  Real yprimetmp = yprime;
+  Real zprimetmp = zprime;
+
+  fixup_coordinates(xprimetmp,yprimetmp,zprimetmp,a2x,a2y,a2z,&xprime, &yprime, &zprime );
+
   Real a_dot_x_prime = a2x * xprime + a2y * yprime + a2z * zprime;
 
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
 
-    Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
-    a_dot_x_prime =  SMALL;
+  //   Real diff = SMALL - a_dot_x_prime/(a2+SMALL);
+  //   a_dot_x_prime =  SMALL;
 
-    xprime = xprime + diff*a2x/(a2+SMALL);
-    yprime = yprime + diff*a2y/(a2+SMALL);
-    zprime = zprime + diff*a2z/(a2+SMALL);
-  }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+  //   xprime = xprime + diff*a2x/(a2+SMALL);
+  //   yprime = yprime + diff*a2y/(a2+SMALL);
+  //   zprime = zprime + diff*a2z/(a2+SMALL);
+  // }
+  // if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
-    Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
-    a_dot_x_prime =  -SMALL;
+  //   Real diff = -SMALL - a_dot_x_prime/(a2+SMALL);
+  //   a_dot_x_prime =  -SMALL;
 
-    xprime = xprime + diff*a2x/(a2+SMALL);
-    yprime = yprime + diff*a2y/(a2+SMALL);
-    zprime = zprime + diff*a2z/(a2+SMALL);
-  } 
+  //   xprime = xprime + diff*a2x/(a2+SMALL);
+  //   yprime = yprime + diff*a2y/(a2+SMALL);
+  //   zprime = zprime + diff*a2z/(a2+SMALL);
+  // } 
   
   Real thprime,phiprime;
   GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
@@ -3771,6 +3841,9 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 
     return true;
 }
+
+
+
 #define DEL 1e-7
 void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g)
