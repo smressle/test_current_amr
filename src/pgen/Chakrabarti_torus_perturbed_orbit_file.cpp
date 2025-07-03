@@ -121,7 +121,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 void fixup_coordinates(const Real x, const Real y, const Real z, 
                        const Real ax, const Real ay, const Real az,
-                       Real x_out, Real y_out, Real z_out );
+                       Real *x_out, Real *y_out, Real *z_out );
 
 
 // Global variables
