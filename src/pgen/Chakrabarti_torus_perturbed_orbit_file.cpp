@@ -1365,7 +1365,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
@@ -2666,7 +2666,7 @@ void fixup_coordinates(const Real x, const Real y, const Real z,
     // need R^2-a^2 + 4.0*SQR(a_dot_x) >0
     // so a_dot_x^2 > a^2-R^2/4.0 + SMALL (to be safe)
 
-    Real a_dot_x_min = std::sqrt( (SQR(a) - SQR(R))/4.0)  + SMALL;
+    Real a_dot_x_min =SMALL; // std::sqrt( (SQR(a) - SQR(R))/4.0)  + SMALL;
 
     Real a_dot_x = ax * (*x_out) + ay * (*y_out) + az * (*z_out);
 
