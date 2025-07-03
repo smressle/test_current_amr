@@ -2000,70 +2000,70 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 }}}
 
 
-    for (int k=pmb->ks; k<=pmb->ke; ++k) {
-    for (int j=pmb->js; j<=pmb->je; ++j) {
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
+    // for (int k=pmb->ks; k<=pmb->ke; ++k) {
+    // for (int j=pmb->js; j<=pmb->je; ++j) {
+    //   for (int i=pmb->is; i<=pmb->ie; ++i) {
 
-        Real sum = 0.0;
-        int count = 0;
-        for (int kk = k - 1; kk <= k + 1; ++kk) {
-          for (int jj = j - 1; jj <= j + 1; ++jj) {
-            for (int ii = i - 1; ii <= i + 1; ++ii) {
-              if (kk == k && jj == j && ii == i) continue;  // Skip center
-              if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
+    //     Real sum = 0.0;
+    //     int count = 0;
+    //     for (int kk = k - 1; kk <= k + 1; ++kk) {
+    //       for (int jj = j - 1; jj <= j + 1; ++jj) {
+    //         for (int ii = i - 1; ii <= i + 1; ++ii) {
+    //           if (kk == k && jj == j && ii == i) continue;  // Skip center
+    //           if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
 
-              sum += prim(IPR,kk, jj, ii);
-              ++count;
-            }
-          }
-        }
-        Real p_avg = sum / count;
+    //           sum += prim(IPR,kk, jj, ii);
+    //           ++count;
+    //         }
+    //       }
+    //     }
+    //     Real p_avg = sum / count;
 
-         bool is_in_inner_region = false;
-         bool is_close_to_secondary = false;
+    //      bool is_in_inner_region = false;
+    //      bool is_close_to_secondary = false;
 
 
-          Real x = pmb->pcoord->x1v(i);
-          Real y = pmb->pcoord->x2v(j);
-          Real z = pmb->pcoord->x3v(k);
-          Real t = pmb->pmy_mesh->metric_time;
+    //       Real x = pmb->pcoord->x1v(i);
+    //       Real y = pmb->pcoord->x2v(j);
+    //       Real z = pmb->pcoord->x3v(k);
+    //       Real t = pmb->pmy_mesh->metric_time;
 
-          Real xprime,yprime,zprime,rprime,Rprime;
+    //       Real xprime,yprime,zprime,rprime,Rprime;
 
-          get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+    //       get_prime_coords(x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
-        if ( (std::fabs(pmb->pcoord->x1v(i)) < 3.0) && (std::fabs(pmb->pcoord->x2v(j)) < 3.0) && (std::fabs(pmb->pcoord->x3v(k)) < 3.0) ){
-          is_in_inner_region=true;
-        }
+    //     if ( (std::fabs(pmb->pcoord->x1v(i)) < 3.0) && (std::fabs(pmb->pcoord->x2v(j)) < 3.0) && (std::fabs(pmb->pcoord->x3v(k)) < 3.0) ){
+    //       is_in_inner_region=true;
+    //     }
 
-        if (rprime<3.0) is_close_to_secondary = true;
+    //     if (rprime<3.0) is_close_to_secondary = true;
 
-        if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
-              fprintf(stderr,"Very large P at metric_t: %g t: %g  ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
-                pmb->pmy_mesh->metric_time, pmb->pmy_mesh->time, i,j,k, 
-                pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
-                prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), 
-                pmb->gid,pmb->lid,pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i));
+    //     if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
+    //           fprintf(stderr,"Very large P at metric_t: %g t: %g  ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
+    //             pmb->pmy_mesh->metric_time, pmb->pmy_mesh->time, i,j,k, 
+    //             pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
+    //             prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), 
+    //             pmb->gid,pmb->lid,pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i));
 
-            //   for (int kk = k - 1; kk <= k + 1; ++kk) {
-            //   for (int jj = j - 1; jj <= j + 1; ++jj) {
-            //     for (int ii = i - 1; ii <= i + 1; ++ii) {
-            //       if (kk == k && jj == j && ii == i) continue;  // Skip center
-            //       if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
+    //         //   for (int kk = k - 1; kk <= k + 1; ++kk) {
+    //         //   for (int jj = j - 1; jj <= j + 1; ++jj) {
+    //         //     for (int ii = i - 1; ii <= i + 1; ++ii) {
+    //         //       if (kk == k && jj == j && ii == i) continue;  // Skip center
+    //         //       if (kk<pmb->ks || kk>pmb->ke || jj<pmb->js || jj>pmb->je || ii<pmb->is || ii>pmb->ie) continue ; //keep loop in bounds
 
-            //       fprintf(stderr,"P neibhors: %g \n", prim(IPR,kk, jj, ii) );
-            //     }
-            //   }
-            // }
+    //         //       fprintf(stderr,"P neibhors: %g \n", prim(IPR,kk, jj, ii) );
+    //         //     }
+    //         //   }
+    //         // }
 
           
          
-        }
+    //     }
 
 
-        }
-    }
-  }
+    //     }
+    // }
+  // }
 
 
 orbit_quantities.DeleteAthenaArray();
@@ -3250,8 +3250,8 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> orbit_quantities;
   orbit_quantities.NewAthenaArray(Norbit);
 
-  AthenaArray<Real> orbit_quantities_stored;
-  orbit_quantities_stored.NewAthenaArray(Norbit);
+  // AthenaArray<Real> orbit_quantities_stored;
+  // orbit_quantities_stored.NewAthenaArray(Norbit);
 
   get_orbit_quantities(t,orbit_quantities);
 
@@ -3360,34 +3360,34 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
       // }
 
-      bool print_out = false;
-      bool in_inner_region = false;
+      // bool print_out = false;
+      // bool in_inner_region = false;
 
-      if ((std::fabs(x1)<3.0) && (std::fabs(x2)<3.0) && (std::fabs(x3)<3.0)) in_inner_region=true;
+      // if ((std::fabs(x1)<3.0) && (std::fabs(x2)<3.0) && (std::fabs(x3)<3.0)) in_inner_region=true;
       for (int n = 0; n < NMETRIC; ++n) {
          dg_dt(n) = (gp(n)-g(n))/(tp-tm);
 
-         if ( (std::fabs(dg_dt(n))>1000.0) && (!in_inner_region) ){
-          print_out=true;
+         // if ( (std::fabs(dg_dt(n))>1000.0) && (!in_inner_region) ){
+         //  print_out=true;
 
          }
       }
 
-      if (print_out){
-        fprintf(stderr,"Extremely large derivatives! at t: %g tp: %g xyz: %g %g %g \n",t,tp,x1,x2,x3);
-        for (int n = 0; n < NMETRIC; ++n) {
-           fprintf(stderr,"n: %d dg_dt: %g g: %g gp: %g \n", n, dg_dt(n), g(n),gp(n)) ;
-        }
-        for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
-           fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g diff: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit),orbit_quantities_stored(iorbit)-orbit_quantities(iorbit) ) ;
-        }
+      // if (print_out){
+      //   fprintf(stderr,"Extremely large derivatives! at t: %g tp: %g xyz: %g %g %g \n",t,tp,x1,x2,x3);
+      //   for (int n = 0; n < NMETRIC; ++n) {
+      //      fprintf(stderr,"n: %d dg_dt: %g g: %g gp: %g \n", n, dg_dt(n), g(n),gp(n)) ;
+      //   }
+      //   for (int iorbit = 0; iorbit < Norbit; ++iorbit) {
+      //      fprintf(stderr,"iorbit: %d orbit_quantitie_prev: %g orbit_quantity: %g diff: %g  \n", iorbit, orbit_quantities_stored(iorbit),orbit_quantities(iorbit),orbit_quantities_stored(iorbit)-orbit_quantities(iorbit) ) ;
+      //   }
 
-        metric_for_derivatives(t,x1,x2,x3,orbit_quantities_stored,gp, true);
+      //   metric_for_derivatives(t,x1,x2,x3,orbit_quantities_stored,gp, true);
 
-        metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp, true);
+      //   metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp, true);
 
 
-      }
+      // }
 
       gp.DeleteAthenaArray();
       // gm.DeleteAthenaArray();

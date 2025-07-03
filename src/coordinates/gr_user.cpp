@@ -640,9 +640,9 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
   // Extract ratio of specific heats
   Real gamma_adi = pmy_block->peos->GetGamma();
 
-  AthenaArray<Real> s_E_array;
+  // AthenaArray<Real> s_E_array;
 
-  s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
+  // s_E_array.NewAthenaArray(ke-ks+2*NGHOST,je-js+2*NGHOST,ie-is+2*NGHOST);
 
   // Go through cells
   for (int k=ks; k<=ke; ++k) {
@@ -777,7 +777,7 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
 
 
 
-        s_E_array(k,j,i) = s_E;
+        // s_E_array(k,j,i) = s_E;
 
 
         // if (std::fabs(E)>1e10){
@@ -789,56 +789,56 @@ void GRUser::AddCoordTermsDivergence(const Real dt, const AthenaArray<Real> *flu
     }
   }
 
-    for (int k=ks; k<=ke; ++k) {
-    for (int j=js; j<=je; ++j) {
-      for (int i=is; i<=ie; ++i) {
+  //   for (int k=ks; k<=ke; ++k) {
+  //   for (int j=js; j<=je; ++j) {
+  //     for (int i=is; i<=ie; ++i) {
 
-        Real sum = 0.0;
-        int count = 0;
-        for (int kk = k - 1; kk <= k + 1; ++kk) {
-          for (int jj = j - 1; jj <= j + 1; ++jj) {
-            for (int ii = i - 1; ii <= i + 1; ++ii) {
-              if (kk == k && jj == j && ii == i) continue;  // Skip center
-              if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
-              sum += std::fabs(cons(IEN,kk,jj,ii) + cons(IDN,kk,jj,ii));
-              // sum += s_E_array(kk, jj, ii);
-              ++count;
-            }
-          }
-        }
-        Real E_p_M_avg = sum / count;
+  //       Real sum = 0.0;
+  //       int count = 0;
+  //       for (int kk = k - 1; kk <= k + 1; ++kk) {
+  //         for (int jj = j - 1; jj <= j + 1; ++jj) {
+  //           for (int ii = i - 1; ii <= i + 1; ++ii) {
+  //             if (kk == k && jj == j && ii == i) continue;  // Skip center
+  //             if (kk<ks || kk>ke || jj<js || jj>je || ii<is || ii>ie) continue ; //keep loop in bounds
+  //             sum += std::fabs(cons(IEN,kk,jj,ii) + cons(IDN,kk,jj,ii));
+  //             // sum += s_E_array(kk, jj, ii);
+  //             ++count;
+  //           }
+  //         }
+  //       }
+  //       Real E_p_M_avg = sum / count;
 
-        bool is_in_inner_region = false;
+  //       bool is_in_inner_region = false;
 
-        if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 3.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 3.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 3.0) ){
-          is_in_inner_region=true;
-        }
+  //       if ( (std::fabs(pmy_block->pcoord->x1v(i)) < 3.0) && (std::fabs(pmy_block->pcoord->x2v(j)) < 3.0) && (std::fabs(pmy_block->pcoord->x3v(k)) < 3.0) ){
+  //         is_in_inner_region=true;
+  //       }
 
-        // if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
-        if (std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i)) > 10*std::fabs(E_p_M_avg)  && !is_in_inner_region && (std::fabs(pmy_block->pcoord->x3v(k))<5.0) ){
+  //       // if (std::fabs(s_E_array(k,j,i)) > 1000*std::fabs(s_E_avg)  && !is_in_inner_region){
+  //       if (std::fabs(cons(IEN,k,j,i) + cons(IDN,k,j,i)) > 10*std::fabs(E_p_M_avg)  && !is_in_inner_region && (std::fabs(pmy_block->pcoord->x3v(k))<5.0) ){
 
-          fprintf(stderr,"Very large E+M at ijk: %d %d %d \n xyz: %g %g %g \n E+M: %g E+M avg: %g \ns_E: %g gid: %d\n",
-            i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), 
-            cons(IEN,k,j,i) + cons(IDN,k,j,i),E_p_M_avg,
-            s_E_array(k,j,i), pmy_block->gid);
+  //         fprintf(stderr,"Very large E+M at ijk: %d %d %d \n xyz: %g %g %g \n E+M: %g E+M avg: %g \ns_E: %g gid: %d\n",
+  //           i,j,k, pmy_block->pcoord->x1v(i),pmy_block->pcoord->x2v(j),pmy_block->pcoord->x3v(k), 
+  //           cons(IEN,k,j,i) + cons(IDN,k,j,i),E_p_M_avg,
+  //           s_E_array(k,j,i), pmy_block->gid);
 
-          for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
+  //         for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,i));
 
-          // int in = i+1;
-          // if (in>ie) in = i-1;
-          // for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
+  //         // int in = i+1;
+  //         // if (in>ie) in = i-1;
+  //         // for (int n = 0; n < NMETRIC; ++n) fprintf(stderr,"Coord source terms in neighbor at n: %d src: %g \n", n, coord_src_kji_(3,n,k,j,in));
           
          
-        }
+  //       }
 
 
-        }
-    }
-  }
+  //       }
+  //   }
+  // }
 
 
 
-  s_E_array.DeleteAthenaArray();
+  // s_E_array.DeleteAthenaArray();
 
 
   return;
