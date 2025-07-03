@@ -2954,8 +2954,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     z = z + diff*a1z/(a1+SMALL);
   } 
 
-  Real a_dot_x = a1x * x + a1y * y + a1z * z;
-
   if (print_stuff){
     fprintf(stderr,"After coordinate fix xyz: %g %g %g adotx: %g \n  diff: %g \n",
             x,y,z,a_dot_x,diff);
