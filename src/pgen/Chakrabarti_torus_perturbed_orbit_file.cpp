@@ -2929,6 +2929,11 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   Real a_dot_x = a1x * x + a1y * y + a1z * z;
 
+  if (print_stuff){
+    fprintf(stderr,"Before coordinate fix xyz: %g %g %g adotx: %g \n ax ay az: %g %g %g \n",
+            x,y,z,a_dot_x,a1x,a1y,a1z)
+  }
+
   if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
     Real diff = SMALL - a_dot_x/(a1+SMALL);
@@ -2948,6 +2953,12 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
     z = z + diff*a1z/(a1+SMALL);
   } 
 
+  Real a_dot_x = a1x * x + a1y * y + a1z * z;
+
+  if (print_stuff){
+    fprintf(stderr,"After coordinate fix xyz: %g %g %g adotx: %g \n  diff: %g \n",
+            x,y,z,a_dot_x,diff)
+  }
 
   if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
     x = 0.1;
