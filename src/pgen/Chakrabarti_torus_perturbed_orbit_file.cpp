@@ -2934,7 +2934,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
             x,y,z,a_dot_x,a1x,a1y,a1z);
   }
 
-  Real diff
+  Real diff;
   if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x>=0)){
 
     diff = SMALL - a_dot_x/(a1+SMALL);
