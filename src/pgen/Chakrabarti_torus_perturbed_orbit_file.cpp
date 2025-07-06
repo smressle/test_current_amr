@@ -115,6 +115,7 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 Real Luminosity(MeshBlock *pmb, int iout);
 
 Real LuminosityWeightedAverage(MeshBlock *pmb, int iout);
+Real BremmsEmiss(MeshBlock *pmb, int iout);
 
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
@@ -367,7 +368,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  AllocateUserHistoryOutput(8);
+  AllocateUserHistoryOutput(9);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
@@ -377,6 +378,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(5, LuminosityWeightedAverage, "Lum_sq");
   EnrollUserHistoryOutput(6, LuminosityWeightedAverage, "gamma_lum");
   EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsqlum");
+  EnrollUserHistoryOutput(8, BremmsEmiss, "Bremms_Lum");
+
 
 
 
@@ -2428,6 +2431,50 @@ Real LuminosityWeightedAverage(MeshBlock *pmb, int iout)
         }
 
         avg += quantity * (pmb->user_out_var(0,k,j,i) * volume);
+      }
+    }
+  }
+
+
+
+  return avg;
+}
+
+Real BremmsEmiss(MeshBlock *pmb, int iout)
+{
+  Real avg=0;
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+        pcoord->CellMetric(k, j, is, ie, g, gi);
+      for(int i=is; i<=ie; i++) {
+
+        Real volume = pmb->pcoord->GetCellVolume(k,j,i);
+
+        Real quantity;
+                  // Calculate normal frame Lorentz factor
+        Real uu1 = pmb->phydro->w(IM1,k,j,i);
+        Real uu2 = pmb->phydro->w(IM2,k,j,i);
+        Real uu3 = pmb->phydro->w(IM3,k,j,i);
+        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                 + g(I33,i)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi(I00,i));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi(I01,i);
+        Real u2 = uu2 - alpha * gamma * gi(I02,i);
+        Real u3 = uu3 - alpha * gamma * gi(I03,i);
+        Real u_0, u_1, u_2, u_3;
+
+        Real T = pmb->phydro->w(IPR,k,j,i)/ pmb->phydro->w(IDN,k,j,i);
+        avg += SQR(pmb->phydro->w(IDN,k,j,i) ) * std::sqrt(T) *  volume;
       }
     }
   }
