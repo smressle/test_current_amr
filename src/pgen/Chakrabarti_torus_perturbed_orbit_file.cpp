@@ -2369,7 +2369,7 @@ Real LuminosityWeightedAverage(MeshBlock *pmb, int iout)
 
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {
-        pcoord->CellMetric(k, j, is, ie, g, gi);
+        pmb->pcoord->CellMetric(k, j, is, ie, g, gi);
       for(int i=is; i<=ie; i++) {
 
         Real volume = pmb->pcoord->GetCellVolume(k,j,i);
@@ -2451,7 +2451,7 @@ Real BremmsEmiss(MeshBlock *pmb, int iout)
 
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {
-        pcoord->CellMetric(k, j, is, ie, g, gi);
+        pmb->pcoord->CellMetric(k, j, is, ie, g, gi);
       for(int i=is; i<=ie; i++) {
 
         Real volume = pmb->pcoord->GetCellVolume(k,j,i);
