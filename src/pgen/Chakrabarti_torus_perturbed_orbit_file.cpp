@@ -114,6 +114,8 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 Real Luminosity(MeshBlock *pmb, int iout);
 
+Real LuminosityWeightedAverage(MeshBlock *pmb, int iout);
+
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               const AthenaArray<Real> &prim, const AthenaArray<Real> &prim_scalar,
               const AthenaArray<Real> &bcc, AthenaArray<Real> &cons,
@@ -365,10 +367,20 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  AllocateUserHistoryOutput(2);
+  AllocateUserHistoryOutput(8);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
+  EnrollUserHistoryOutput(2, LuminosityWeightedAverage, "rho_lum");
+  EnrollUserHistoryOutput(3, LuminosityWeightedAverage, "T_lum");
+  EnrollUserHistoryOutput(4, LuminosityWeightedAverage, "P_lum");
+  EnrollUserHistoryOutput(5, LuminosityWeightedAverage, "Lum_sq");
+  EnrollUserHistoryOutput(6, LuminosityWeightedAverage, "gamma_lum");
+  EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsqlum");
+
+
+
+
 
   t0 = pin->GetOrAddReal("problem","t0", 1e5);
   m =pin->GetReal("coord", "m");
@@ -2340,6 +2352,89 @@ Real Luminosity(MeshBlock *pmb, int iout)
 
 
   return Lum;
+}
+
+
+Real LuminosityWeightedAverage(MeshBlock *pmb, int iout)
+{
+  Real avg=0;
+  int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+        pcoord->CellMetric(k, j, is, ie, g, gi);
+      for(int i=is; i<=ie; i++) {
+
+        Real volume = pmb->pcoord->GetCellVolume(k,j,i);
+
+        Real quantity;
+
+
+        if (iout==2) quantity = pmb->phydro->w(IDN,k,j,i);
+        if (iout==3) quantity = pmb->phydro->w(IPR,k,j,i)/pmb->phydro->w(IDN,k,j,i);
+        if (iout==4) quantity = pmb->phydro->w(IPR,k,j,i);
+        if (iout==5) quantity = pmb->user_out_var(0,k,j,i);
+
+        if (iout==6 or iout==7) {
+                  // Calculate normal frame Lorentz factor
+        Real uu1 = pmb->phydro->w(IM1,k,j,i);
+        Real uu2 = pmb->phydro->w(IM2,k,j,i);
+        Real uu3 = pmb->phydro->w(IM3,k,j,i);
+        Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+                 + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+                 + g(I33,i)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi(I00,i));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi(I01,i);
+        Real u2 = uu2 - alpha * gamma * gi(I02,i);
+        Real u3 = uu3 - alpha * gamma * gi(I03,i);
+        Real u_0, u_1, u_2, u_3;
+        Real b_sq = 0.0;
+
+        if (MAGNETIC_FIELDS_ENABLED){
+    
+          pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
+
+          // Calculate 4-magnetic field
+          Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
+          Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
+          Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
+          Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
+                  + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
+                  + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
+                  + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
+          Real b1 = (bb1 + b0 * u1) / u0;
+          Real b2 = (bb2 + b0 * u2) / u0;
+          Real b3 = (bb3 + b0 * u3) / u0;
+          Real b_0, b_1, b_2, b_3;
+          pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
+
+          // Calculate magnetic pressure
+          Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
+         }
+
+          if (iout==6) quantity = gamma;
+
+          else if (iout==7){
+            if (MAGNETIC_FIELDS_ENABLED) quantity = b_sq;
+            else quantity = 0;
+          }
+        }
+
+        avg += quantity * (pmb->user_out_var(0,k,j,i) * volume);
+      }
+    }
+  }
+
+
+
+  return avg;
 }
 //----------------------------------------------------------------------------------------
 // Function responsible for storing useful quantities for output
