@@ -2472,9 +2472,10 @@ Real BremmsEmiss(MeshBlock *pmb, int iout)
         Real u2 = uu2 - alpha * gamma * gi(I02,i);
         Real u3 = uu3 - alpha * gamma * gi(I03,i);
         Real u_0, u_1, u_2, u_3;
+        pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
 
         Real T = pmb->phydro->w(IPR,k,j,i)/ pmb->phydro->w(IDN,k,j,i);
-        avg += SQR(pmb->phydro->w(IDN,k,j,i) ) * std::sqrt(T) *  volume;
+        avg += u_0 * SQR(pmb->phydro->w(IDN,k,j,i) ) * std::sqrt(T) *  volume;
       }
     }
   }
