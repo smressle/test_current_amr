@@ -377,7 +377,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserHistoryOutput(4, LuminosityWeightedAverage, "P_lum");
   EnrollUserHistoryOutput(5, LuminosityWeightedAverage, "Lum_sq");
   EnrollUserHistoryOutput(6, LuminosityWeightedAverage, "gamma_lum");
-  EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsqlum");
+  EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsq_lum");
   EnrollUserHistoryOutput(8, BremmsEmiss, "Bremms_Lum");
 
 
@@ -1380,7 +1380,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = true; 
+  int SCALE_DIVERGENCE = false; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
