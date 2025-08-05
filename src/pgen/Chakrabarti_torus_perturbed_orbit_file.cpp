@@ -368,17 +368,17 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
 
-  AllocateUserHistoryOutput(9);
+  AllocateUserHistoryOutput(2);
 
   EnrollUserHistoryOutput(0, DivergenceB, "divB");
   EnrollUserHistoryOutput(1, Luminosity, "Lum");
-  EnrollUserHistoryOutput(2, LuminosityWeightedAverage, "rho_lum");
-  EnrollUserHistoryOutput(3, LuminosityWeightedAverage, "T_lum");
-  EnrollUserHistoryOutput(4, LuminosityWeightedAverage, "P_lum");
-  EnrollUserHistoryOutput(5, LuminosityWeightedAverage, "Lum_sq");
-  EnrollUserHistoryOutput(6, LuminosityWeightedAverage, "gamma_lum");
-  EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsq_lum");
-  EnrollUserHistoryOutput(8, BremmsEmiss, "Bremms_Lum");
+  // EnrollUserHistoryOutput(2, LuminosityWeightedAverage, "rho_lum");
+  // EnrollUserHistoryOutput(3, LuminosityWeightedAverage, "T_lum");
+  // EnrollUserHistoryOutput(4, LuminosityWeightedAverage, "P_lum");
+  // EnrollUserHistoryOutput(5, LuminosityWeightedAverage, "Lum_sq");
+  // EnrollUserHistoryOutput(6, LuminosityWeightedAverage, "gamma_lum");
+  // EnrollUserHistoryOutput(7, LuminosityWeightedAverage, "bsq_lum");
+  // EnrollUserHistoryOutput(8, BremmsEmiss, "Bremms_Lum");
 
 
 
@@ -2053,12 +2053,12 @@ void apply_inner_boundary_condition(MeshBlock *pmb,AthenaArray<Real> &prim,Athen
 
     //     if (rprime<3.0) is_close_to_secondary = true;
 
-    //     if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
-    //           fprintf(stderr,"Very large P at metric_t: %g t: %g  ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
-    //             pmb->pmy_mesh->metric_time, pmb->pmy_mesh->time, i,j,k, 
-    //             pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
-    //             prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), 
-    //             pmb->gid,pmb->lid,pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i));
+        // if ( (std::fabs(prim(IPR,k,j,i)) > 10*std::fabs(p_avg) ) && (!is_in_inner_region)  && (!is_close_to_secondary) && (std::fabs(pmb->pcoord->x3v(k)) <5.0) ){
+        //       fprintf(stderr,"Very large P at metric_t: %g t: %g  ijk: %d %d %d \n xyz: %g %g %g \n p: %g P_avg: %g \n prim: %g %g %g %g \n gid: %d lid: %d  p from w1 w2: %g %g\n",
+        //         pmb->pmy_mesh->metric_time, pmb->pmy_mesh->time, i,j,k, 
+        //         pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), prim(IPR,k,j,i),p_avg,
+        //         prim(IDN,k,j,i),prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i), 
+        //         pmb->gid,pmb->lid,pmb->phydro->w(IPR,k,j,i),pmb->phydro->w1(IPR,k,j,i));
 
     //         //   for (int kk = k - 1; kk <= k + 1; ++kk) {
     //         //   for (int jj = j - 1; jj <= j + 1; ++jj) {
@@ -2233,6 +2233,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // Real L_cool_secondary = 0.0; //Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
         if (L_cool<0) L_cool = 0.0;
         // if (L_cool_secondary<0) L_cool_secondary = 0.0;
+
+        L_cool = 10.0*L_cool;
 
 
         // L_cool = std::max(L_cool,L_cool_secondary);
