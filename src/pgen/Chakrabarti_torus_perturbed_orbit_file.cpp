@@ -1380,7 +1380,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
@@ -2207,6 +2207,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real Omega = 1.0/( std::pow(radius,1.5) + a1);
         Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime/(q+SMALL),1.5) + a2/(q+SMALL));
+
+        Omega_secondary = Omega_secondary*q;
 
         Real r_isco = risco_calc_general( 1, a1, m );
         Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q ); //neads a/M, returns isco in units of M_1
