@@ -2208,7 +2208,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Omega = 1.0/( std::pow(radius,1.5) + a1);
         Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime/(q+SMALL),1.5) + a2/(q+SMALL));
 
-        Omega_secondary = Omega_secondary*q;
+        // Omega_secondary = Omega_secondary*q;
 
         Real r_isco = risco_calc_general( 1, a1, m );
         Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q ); //neads a/M, returns isco in units of M_1
@@ -2236,7 +2236,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if (L_cool<0) L_cool = 0.0;
         // if (L_cool_secondary<0) L_cool_secondary = 0.0;
 
-        // L_cool = 10.0*L_cool;
+        L_cool = L_cool/5.0;
 
 
         // L_cool = std::max(L_cool,L_cool_secondary);
