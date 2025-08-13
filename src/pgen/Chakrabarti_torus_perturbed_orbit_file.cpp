@@ -2244,7 +2244,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // if (L_cool_secondary<0) L_cool_secondary = 0.0;
 
         // L_cool = L_cool/5.0;
-        L_cool = L_cool * 50;
+        L_cool = L_cool * 10;
 
 
         // L_cool = std::max(L_cool,L_cool_secondary);
@@ -2284,8 +2284,8 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         if (rprime < rhprime) L_cool = 0.0;
 
-        Real L_cool_max = 0.2 * ug /dt; /// L_cool * dt < 0.2 * ug
-        if (L_cool> L_cool_max) L_cool = L_cool_max;
+        // Real L_cool_max = 0.2 * ug /dt; /// L_cool * dt < 0.2 * ug
+        // if (L_cool> L_cool_max) L_cool = L_cool_max;
 
         cons(IEN,k,j,i) += -dt * L_cool * u_0; 
         cons(IM1,k,j,i) += -dt * L_cool * u_1;
