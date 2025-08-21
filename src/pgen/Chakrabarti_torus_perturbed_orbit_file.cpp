@@ -1380,7 +1380,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = true; 
+  int SCALE_DIVERGENCE = false; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
@@ -2244,7 +2244,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         // if (L_cool_secondary<0) L_cool_secondary = 0.0;
 
         // L_cool = L_cool/5.0;
-        L_cool = L_cool * 10;
+        // L_cool = L_cool * 10;
 
 
         // L_cool = std::max(L_cool,L_cool_secondary);
