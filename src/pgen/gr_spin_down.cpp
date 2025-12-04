@@ -90,11 +90,13 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22);
 bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv);
 
 
-void get_prime_coords(int BH_INDEX,Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities,Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
+void get_prime_coords(Real x, Real y, Real z, Real xbh, Real ybh, Real zbh, 
+                      Real ax, Real ay, Real az,
+                      Real vxbh, Real vybh, Real vzbh,,Real *xprime,Real *yprime,Real *zprime,Real *rprime, Real *Rprime);
 
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
-void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
+void Binary_BH_Metric(Real m, Real xbh, Real ybh, Real zbh, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
                       Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
@@ -3063,43 +3065,14 @@ void interp_orbits(Real t, int iorbit,AthenaArray<Real> &arr, Real *result){
 }
 
 
-void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &orbit_quantities, Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
-
-  Real xbh,ybh,zbh,ax,ay,az,vxbh,vybh,vzbh;
+void get_prime_coords(Real x, Real y, Real z, 
+                      Real xbh, Real ybh, Real zbh, 
+                      Real ax, Real ay, Real az,
+                      Real vxbh, Real vybh, Real vzbh,
+                      Real *xprime, Real *yprime, Real *zprime, Real *rprime, Real *Rprime){
 
   
-  if (BH_INDEX ==1){
-      xbh = orbit_quantities(IX1);
-      ybh = orbit_quantities(IY1);
-      zbh = orbit_quantities(IZ1);
 
-
-      ax = orbit_quantities(IA1X);
-      ay = orbit_quantities(IA1Y);
-      az = orbit_quantities(IA1Z);
-
-      vxbh = orbit_quantities(IV1X);
-      vybh = orbit_quantities(IV1Y);
-      vzbh = orbit_quantities(IV1Z);
-  }
-  else if (BH_INDEX ==2){
-      xbh = orbit_quantities(IX2);
-      ybh = orbit_quantities(IY2);
-      zbh = orbit_quantities(IZ2);
-
-
-      ax = orbit_quantities(IA2X);
-      ay = orbit_quantities(IA2Y);
-      az = orbit_quantities(IA2Z);
-
-      vxbh = orbit_quantities(IV2X);
-      vybh = orbit_quantities(IV2Y);
-      vzbh = orbit_quantities(IV2Z);
-  }
-  else {
-    fprintf(stderr,"Choose a valid BH_INDEX!!: %d \n",BH_INDEX);
-    exit(0);
-  }
   Real a_mag = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
 
 
@@ -3229,7 +3202,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   t0 = pin->GetOrAddReal("problem","t0", 0.0);
 
-  Binary_BH_Metric(m, ax, ay, az, vx, vy, vz,t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
+  Binary_BH_Metric(m, xbh, ybh, zbh,ax, ay, az, vx, vy, vz,t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
   return;
 
@@ -3463,7 +3436,7 @@ void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks ){
 
 }
 
-void metric_for_derivatives(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
+void metric_for_derivatives(Real m, Real xbh, Real ybh, Real zbh, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
   Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &g)
 {
 
@@ -3503,14 +3476,14 @@ void metric_for_derivatives(Real m, Real ax, Real ay, Real az, Real vx, Real vy,
 
   //////////////First Black Hole//////////////////
   Real xprime,yprime,zprime,rprime,Rprime;
-  get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+  get_prime_coords(x,y,z, m,xbh,ybh,zbh,ax,ay,az,vx,vy,vz,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
 
   AthenaArray<Real> g_pert;
 
   g_pert.NewAthenaArray(NMETRIC);
 
-  boosted_BH_metric_addition(m,xprime,yprime,zprime,rprime,Rprime, v1x,v1y,v1z, a1x,a1y,a1z,g_pert );
+  boosted_BH_metric_addition(m,xprime,yprime,zprime,rprime,Rprime, vx,vy,vz, ax,ay,az,g_pert );
 
 
     // Set covariant components
@@ -3580,7 +3553,7 @@ void metric_for_derivatives(Real m, Real ax, Real ay, Real az, Real vx, Real vy,
 
 
 
-void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
+void Binary_BH_Metric(Real m, Real xbh, Real ybh, Real zbh, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
                       Real pdotx, Real pdoty,Real pdotz, Real jdotx, Real jdoty, Real jdotz, Reatl edot,
    Real t, Real x1, Real x2, Real x3,
     AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
@@ -3592,7 +3565,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
   Real z = x3;
 
 
-  metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2,x3,g);
+  metric_for_derivatives(m, xbh, ybh , zbh, ax*m, ay*m, az*m, vx, vy, vz, t,x1,x2,x3,g);
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
@@ -3623,9 +3596,9 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       Real a2 = 0; 
 
       Real xprime,yprime,zprime,rprime,Rprime;
-      get_prime_coords(2,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
+      get_prime_coords(x,y,z,xbh, ybh , zbh, ax*m, ay*m, az*m, vx, vy, vz,&xprime,&yprime,&zprime,&rprime,&Rprime);
 
-      if (Rprime<=a2 or R<=a1){
+      if (Rprime<=a1){
 
         for (int n = 0; n < NMETRIC; ++n) {
              dg_dx1(n) = 0.0;
@@ -3644,7 +3617,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x1m = x1 - DEL; // * rprime;
       Real x1m = x1;
 
-      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1p,x2,x3,gp);
+      metric_for_derivatives(m, xbh, ybh , zbh, ax*m, ay*m, az*m, vx, vy, vz, t,x1p,x2,x3,gp);
       // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
 
         // // Set x-derivatives of covariant components
@@ -3663,7 +3636,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x2m = x2 - DEL; // * rprime;
       Real x2m = x2;
 
-      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2p,x3,gp);
+      metric_for_derivatives(m, xbh, ybh , zbh, ax*m, ay*m, az*m, vx, vy, vz, t,x1,x2p,x3,gp);
       // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
         // // Set y-derivatives of covariant components
       // for (int n = 0; n < NMETRIC; ++n) {
@@ -3681,7 +3654,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x3m = x3 - DEL; // * rprime;
       Real x3m = x3;
 
-      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2,x3p,gp);
+      metric_for_derivatives(m, xbh, ybh, zbh, ax*m, ay*m, az*m, vx, vy, vz, t,x1,x2,x3p,gp);
       // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
         // // Set z-derivatives of covariant components
@@ -3717,8 +3690,12 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       Real vy_m = (m * vy - DEL*pdoty)/m_m;
       Real vz_m = (m * vz - DEL*pdotz)/m_m;
 
+      Real xbh_m = xbh - DEL*vx;
+      Real ybh_m = ybh - DEL*vy;
+      Real zbh_m = zbh - DEL*vz;
 
-      metric_for_derivatives(m_m, ax_m, ay_m, az_m, vx_m, vy_m, vz_m, 
+
+      metric_for_derivatives(m_m,  xbh_m, ybh_m , zbh_m, ax_m*m_m, ay_m*m_m, az_m*m_m, vx_m, vy_m, vz_m, 
                               tm,x1,x2,x3,gm);
 
       // get_orbit_quantities(tm,orbit_quantities);
@@ -3740,7 +3717,6 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
 
 }
 
-  orbit_quantities.DeleteAthenaArray();
   return;
 }
 

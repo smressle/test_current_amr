@@ -73,6 +73,10 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
 
   // Set parameters
   bh_mass_ = pin->GetReal("coord", "m");
+  bh_x_ = pin->GetReal("coord", "xbh")
+  bh_y_ = pin->GetReal("coord", "ybh")
+  bh_z_ = pin->GetReal("coord", "zbh")
+
   bh_spinx_ = pin->GetReal("coord", "ax");
   bh_spiny_ = pin->GetReal("coord", "ay");
   bh_spinz_ = pin->GetReal("coord", "az");
@@ -1802,6 +1806,9 @@ void GRUser::UpdateUserMetric(Real metric_t, Real previous_metric_t, MeshBlock *
 
  
   Real &m = bh_mass_;
+  Real &xbh = bh_x_;
+  Real &ybh = bh_y_;
+  Real &zbh = bh_z_;
   Real &ax = bh_spinx_;
   Real &ay = bh_spiny_;
   Real &az = bh_spinz_;
@@ -1876,6 +1883,10 @@ void GRUser::UpdateUserMetric(Real metric_t, Real previous_metric_t, MeshBlock *
   vx = Px/m;
   vy = Py/m;
   vz = Pz/m;
+
+  xbh += vx * dt_flux;
+  ybh += vy * dt_flux;
+  zbh += vz * dt_flux;
 
 
 

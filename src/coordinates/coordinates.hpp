@@ -138,7 +138,11 @@ class Coordinates {
 
   // In GR, functions...
   // ...to return private variables
-  Real GetMass()  {return bh_mass_;}
+  Real GetMass() {return bh_mass_;}
+  Real Getxbh() {return bh_x_;}
+  Real Getybh() {return bh_x_;}
+  Real Getzbh() {return bh_x_;}
+
   Real GetSpinx() {return bh_spinx_;}
   Real GetSpiny() {return bh_spiny_;}
   Real GetSpiny() {return bh_spinz_;}
@@ -306,6 +310,9 @@ class Coordinates {
 
   // GR-specific variables
   Real bh_mass_;
+  Real bh_x_;
+  Real bh_y_;
+  Real bh_z_;
   Real bh_spinx_;
   Real bh_spiny_;
   Real bh_spinz_;
