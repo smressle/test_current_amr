@@ -1609,23 +1609,21 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
 
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
+  Real m   = pmb->pcoord->GetMass();
+  Real a1x = pmb->pcoord->getSpinx();  
+  Real a1y = pmb->pcoord->getSpiny();
+  Real a1z = pmb->pcoord->getSpinz();
+  Real vx  = pmb->pcoord->get
 
-  Real a1x = orbit_quantities(IA1X);
-  Real a1y = orbit_quantities(IA1Y);
-  Real a1z = orbit_quantities(IA1Z);
-
-  Real a2x = orbit_quantities(IA2X);
-  Real a2y = orbit_quantities(IA2Y);
-  Real a2z = orbit_quantities(IA2Z);
+  Real a2x = 0;
+  Real a2y = 0;
+  Real a2z = 0;
 
   Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
   Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
 
-  Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
+  Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1*m)) );
   // Real r_inner_boundary = rh*0.95;
 
   Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
