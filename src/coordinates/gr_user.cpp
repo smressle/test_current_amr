@@ -1859,16 +1859,13 @@ void GRUser::UpdateUserMetric(Real metric_t, Real previous_metric_t, MeshBlock *
   ay = Jy/SQR(m);
   az = Jz/SQR(m);
 
-  if (ax>1) ax = 0.999;
-  if (ax<-1) ax = -0.999;
+  Real a_tot = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) )
+  if (a_tot >1){
+    ax = ax * 0.99 / a_tot;
+    ay = ay * 0.99 / a_tot;
+    az = az * 0.99 / a_tot;
+  }
 
-
-  if (ay>1) ax = 0.999;
-  if (ay<-1) ax = -0.999;
-
-
-  if (az>1) ax = 0.999;
-  if (az<-1) ax = -0.999;
 
 
   //This should be corrected for relativistic speeds

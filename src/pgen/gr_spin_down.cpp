@@ -94,7 +94,8 @@ void get_prime_coords(int BH_INDEX,Real x, Real y, Real z, AthenaArray<Real> &or
 
 void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real *DZ);
 
-void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
+void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
+                      Real t, Real x1, Real x2, Real x3,
   AthenaArray<Real> &g, AthenaArray<Real> &g_inv, AthenaArray<Real> &dg_dx1,
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
@@ -3228,7 +3229,7 @@ void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
 
   t0 = pin->GetOrAddReal("problem","t0", 0.0);
 
-  Binary_BH_Metric(t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
+  Binary_BH_Metric(m, ax, ay, az, vx, vy, vz,t,x1,x2,x3,g,g_inv,dg_dx1,dg_dx2,dg_dx3,dg_dt,true);
 
   return;
 
@@ -3462,32 +3463,32 @@ void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks ){
 
 }
 
-void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &orbit_quantities,
-    AthenaArray<Real> &g)
+void metric_for_derivatives(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real vz,
+  Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &g)
 {
 
   Real x = x1;
   Real y = x2;
   Real z = x3;
 
-  Real a1x = orbit_quantities(IA1X);
-  Real a1y = orbit_quantities(IA1Y);
-  Real a1z = orbit_quantities(IA1Z);
+  Real a1x = ax;
+  Real a1y = ay;
+  Real a1z = az;
 
-  Real a2x = orbit_quantities(IA2X);
-  Real a2y = orbit_quantities(IA2Y);
-  Real a2z = orbit_quantities(IA2Z);
+  Real a2x = 0;
+  Real a2y = 0;
+  Real a2z = 0;
 
   Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
   Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
 
-  Real v1x = orbit_quantities(IV1X);
-  Real v1y = orbit_quantities(IV1Y);
-  Real v1z = orbit_quantities(IV1Z);
+  Real v1x = vx;
+  Real v1y = vy;
+  Real v1z = vz;
 
-  Real v2x = orbit_quantities(IV2X);
-  Real v2y = orbit_quantities(IV2Y);
-  Real v2z = orbit_quantities(IV2Z);
+  Real v2x = 0;
+  Real v2y = 0;
+  Real v2z = 0;
 
 
   Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
@@ -3509,7 +3510,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   g_pert.NewAthenaArray(NMETRIC);
 
-  boosted_BH_metric_addition(1.0,xprime,yprime,zprime,rprime,Rprime, v1x,v1y,v1z, a1x,a1y,a1z,g_pert );
+  boosted_BH_metric_addition(m,xprime,yprime,zprime,rprime,Rprime, v1x,v1y,v1z, a1x,a1y,a1z,g_pert );
 
 
     // Set covariant components
@@ -3527,21 +3528,21 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   //////////////Second Black Hole//////////////////
 
 
-  get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+  // get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
-  boosted_BH_metric_addition(q,xprime,yprime,zprime,rprime,Rprime, v2x,v2y,v2z, a2x,a2y,a2z,g_pert );
+  // boosted_BH_metric_addition(q,xprime,yprime,zprime,rprime,Rprime, v2x,v2y,v2z, a2x,a2y,a2z,g_pert );
 
-    // Set covariant components
-  g(I00) += g_pert(I00);
-  g(I01) += g_pert(I01);
-  g(I02) += g_pert(I02);
-  g(I03) += g_pert(I03);
-  g(I11) += g_pert(I11);
-  g(I12) += g_pert(I12);
-  g(I13) += g_pert(I13);
-  g(I22) += g_pert(I22);
-  g(I23) += g_pert(I23);
-  g(I33) += g_pert(I33);
+  //   // Set covariant components
+  // g(I00) += g_pert(I00);
+  // g(I01) += g_pert(I01);
+  // g(I02) += g_pert(I02);
+  // g(I03) += g_pert(I03);
+  // g(I11) += g_pert(I11);
+  // g(I12) += g_pert(I12);
+  // g(I13) += g_pert(I13);
+  // g(I22) += g_pert(I22);
+  // g(I23) += g_pert(I23);
+  // g(I33) += g_pert(I33);
 
 
   g_pert.DeleteAthenaArray();
@@ -3590,12 +3591,8 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
   Real y = x2;
   Real z = x3;
 
-  AthenaArray<Real> orbit_quantities;
-  orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(t,orbit_quantities);
-
-  metric_for_derivatives(t,x1,x2,x3,orbit_quantities,g);
+  metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2,x3,g);
 
   bool invertible = gluInvertMatrix(g,g_inv);
 
@@ -3622,8 +3619,8 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
 
 
       Real R = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-      Real a1 = std::sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
-      Real a2 = std::sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
+      Real a1 = std::sqrt( SQR(ax) + SQR(ay) + SQR(az));
+      Real a2 = 0; 
 
       Real xprime,yprime,zprime,rprime,Rprime;
       get_prime_coords(2,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
@@ -3639,6 +3636,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
         return;
       }
 
+      gm.NewAthenaArray(NMETRIC);
       gp.NewAthenaArray(NMETRIC);
       // gm.NewAthenaArray(NMETRIC);
 
@@ -3646,7 +3644,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x1m = x1 - DEL; // * rprime;
       Real x1m = x1;
 
-      metric_for_derivatives(t,x1p,x2,x3,orbit_quantities,gp);
+      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1p,x2,x3,gp);
       // metric_for_derivatives(t,x1m,x2,x3,orbit_quantities,gm);
 
         // // Set x-derivatives of covariant components
@@ -3665,7 +3663,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x2m = x2 - DEL; // * rprime;
       Real x2m = x2;
 
-      metric_for_derivatives(t,x1,x2p,x3,orbit_quantities,gp);
+      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2p,x3,gp);
       // metric_for_derivatives(t,x1,x2m,x3,orbit_quantities,gm);
         // // Set y-derivatives of covariant components
       // for (int n = 0; n < NMETRIC; ++n) {
@@ -3683,7 +3681,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       // Real x3m = x3 - DEL; // * rprime;
       Real x3m = x3;
 
-      metric_for_derivatives(t,x1,x2,x3p,orbit_quantities,gp);
+      metric_for_derivatives(m, ax, ay, az, vx, vy, vz, t,x1,x2,x3p,gp);
       // metric_for_derivatives(t,x1,x2,x3m,orbit_quantities,gm);
 
         // // Set z-derivatives of covariant components
@@ -3697,12 +3695,31 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
         //  }
       }
 
-      Real tp = t + DEL ;
-      Real tm = t;
+      Real tp = t ;
+      Real tm = t - DEL;
       // Real tm = t - DEL ;
 
-      get_orbit_quantities(tp,orbit_quantities);
-      metric_for_derivatives(tp,x1,x2,x3,orbit_quantities,gp);
+      Real m_m = m - DEL*edot;
+
+      Real ax_m = (ax * SQR(m) - DEL*jdotx) / SQR(m_m);
+      Real ay_m = (ay * SQR(m) - DEL*jdoty) / SQR(m_m);
+      Real az_m = (az * SQR(m) - DEL*jdotz) / SQR(m_m);
+
+      Real a_tot_m = std::sqrt( SQR(ax_m) + SQR(ay_m) + SQR(az_m) )
+      if (a_tot >1){
+        ax_m = ax_m * 0.99 / a_tot_m;
+        ay_m = ay_m * 0.99 / a_tot_m;
+        az_m = az_m * 0.99 / a_tot_m;
+      }
+
+
+      Real vx_m = (m * vx - DEL*pdotx)/m_m;
+      Real vy_m = (m * vy - DEL*pdoty)/m_m;
+      Real vz_m = (m * vz - DEL*pdotz)/m_m;
+
+
+      metric_for_derivatives(m_m, ax_m, ay_m, az_m, vx_m, vy_m, vz_m, 
+                              tm,x1,x2,x3,gm);
 
       // get_orbit_quantities(tm,orbit_quantities);
       // metric_for_derivatives(tm,x1,x2,x3,orbit_quantities,gm);
@@ -3711,7 +3728,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       //    dg_dt(n) = (gp(n)-gm(n))/(tp-tm);
       // }
       for (int n = 0; n < NMETRIC; ++n) {
-         dg_dt(n) = (gp(n)-g(n))/(tp-tm);
+         dg_dt(n) = (g(n)-gm(n))/(tp-tm);
 
         // if (std::fabs(dg_dt(n))>1e2 ){
         //   fprintf(stderr,"large dg_dt!: %g for n= %d\n x1: %g y: %g z: %g t: %g %g \n",dg_dt(n),n,x1,x2,x3,t,tp);
@@ -3719,7 +3736,7 @@ void Binary_BH_Metric(Real m, Real ax, Real ay, Real az, Real vx, Real vy, Real 
       }
 
       gp.DeleteAthenaArray();
-      // gm.DeleteAthenaArray();
+      gm.DeleteAthenaArray();
 
 }
 
