@@ -508,6 +508,7 @@ int main(int argc, char *argv[]) {
     pmesh->step_since_lb++;
 
     if (pmesh->update_metric_this_timestep){
+      pmesh->previous_metric_time = pmesh->metric_time;
       pmesh->metric_time = pmesh->time;
       pmesh->update_metric_this_timestep = false;
     }

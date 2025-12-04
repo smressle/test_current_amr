@@ -73,7 +73,21 @@ GRUser::GRUser(MeshBlock *pmb, ParameterInput *pin, bool flag)
 
   // Set parameters
   bh_mass_ = pin->GetReal("coord", "m");
-  bh_spin_ = pin->GetReal("coord", "a");
+  bh_spinx_ = pin->GetReal("coord", "ax");
+  bh_spiny_ = pin->GetReal("coord", "ay");
+  bh_spinz_ = pin->GetReal("coord", "az");
+  bh_speedx_ = pin->GetReal("coord", "vx");
+  bh_speedy_ = pin->GetReal("coord", "vy");
+  bh_speedz_ = pin->GetReal("coord", "vz");
+  
+  bh_edot_ =0.0;
+  bh_pdotx_=0.0;
+  bh_pdoty_=0.0;
+  bh_pdotz_=0.0;
+  bh_jdotx_=0.0;
+  bh_jdoty_=0.0;
+  bh_jdotz_=0.0;
+
   // unused:
   // const Real &m = bh_mass_;
   // const Real &a = bh_spin_;
@@ -1750,7 +1764,7 @@ void GRUser::FluxToGlobal3(
   return;
 }
 
-void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
+void GRUser::UpdateUserMetric(Real metric_t, Real previous_metric_t, MeshBlock *pmb)
 {
   // Set object names
   Mesh *pm = pmy_block->pmy_mesh;
@@ -1787,8 +1801,90 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   if (block_size.nx3 > 1) ncells3 = (ku-kl+1) + 2*ng;
 
  
-  const Real &m = bh_mass_;
-  const Real &a = bh_spin_;
+  Real &m = bh_mass_;
+  Real &ax = bh_spinx_;
+  Real &ay = bh_spiny_;
+  Real &az = bh_spinz_;
+  Real &vx = bh_speedx_;
+  Real &vy = bh_speedy_;
+  Real &vz = bh_speedz_;
+  Real &pdotx = bh_pdotx_;
+  Real &pdoty = bh_pdoty_;
+  Real &pdotz = bh_pdotz_;
+  Real &jdotx = bh_jdotx_;
+  Real &jdoty = bh_jdoty_;
+  Real &jdotz = bh_jdotz_;
+  Real &edot = bh_edot_;
+
+  Real dt_flux = metric_t - previous_metric_t;
+
+  if (dt_flux>pmb->pmy_mesh->dt/10.0){
+    pdotx = pdotx / (dt_flux);
+    pdoty = pdoty / (dt_flux);
+    pdotz = pdotz / (dt_flux);
+    edot  = edot  / (dt_flux);
+    jdotx = jdotx / (dt_flux);
+    jdoty = jdoty / (dt_flux);
+    jdotz = jdotz / (dt_flux);
+  }
+  else{
+    pdotx = 0;
+    pdoty = 0;
+    pdotz = 0;
+    edot  = 0;
+    jdotx = 0;
+    jdoty = 0;
+    jdotz = 0;
+  }
+
+
+
+  Real Jx = ax * SQR(m);
+  Real Jy = ay * SQR(m);
+  Real Jz = az * SQR(m);
+
+  //This should be corrected for relativistic speeds
+  Real Px = m * vx;
+  Real Py = m * vy;
+  Real Pz = m * vz;
+
+
+  m += edot * dt_flux;
+
+  Jx += jdotx * dt_flux;
+  Jy += jdoty * dt_flux;
+  Jz += jdotz * dt_flux;
+
+  ax = Jx/SQR(m);
+  ay = Jy/SQR(m);
+  az = Jz/SQR(m);
+
+  if (ax>1) ax = 0.999;
+  if (ax<-1) ax = -0.999;
+
+
+  if (ay>1) ax = 0.999;
+  if (ay<-1) ax = -0.999;
+
+
+  if (az>1) ax = 0.999;
+  if (az<-1) ax = -0.999;
+
+
+  //This should be corrected for relativistic speeds
+  Px += pdotx * dt_flux;
+  Py += pdoty * dt_flux;
+  Pz += pdotz * dt_flux;
+
+  vx = Px/m;
+  vy = Py/m;
+  vz = Pz/m;
+
+
+
+
+  //m,ax,ay,az,vx,vy,vz,pdotx,pdoty,pdotz,jdotx,jdoty,jdotz,edot
+
 
 
 
@@ -2166,6 +2262,16 @@ void GRUser::UpdateUserMetric(Real metric_t, MeshBlock *pmb)
   //                                   ill, iuu, jll, juu, kll, kuu);
   // }
 
+
+
+  /* Zero out flux averages */
+  edot = 0;
+  pdotx = 0;
+  pdoty = 0;
+  pdotz = 0;
+  jdotx = 0;
+  jdoty = 0;
+  jdotz = 0;
   // Free scratch arrays
   g.DeleteAthenaArray();
   g_inv.DeleteAthenaArray();

@@ -1340,8 +1340,8 @@ void MeshRefinement::SetHydroRefinement(HydroBoundaryQuantity hydro_type) {
   return;
 }
 
-void MeshRefinement::UpdateCoarseMetric(Real t, MeshBlock *pmb) {
-  pcoarsec->UpdateUserMetric(t,pmb);
+void MeshRefinement::UpdateCoarseMetric(Real t, Real previous_t, MeshBlock *pmb) {
+  pcoarsec->UpdateUserMetric(t,previous_t, pmb);
 
   return;
 }

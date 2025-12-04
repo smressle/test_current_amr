@@ -138,8 +138,25 @@ class Coordinates {
 
   // In GR, functions...
   // ...to return private variables
-  Real GetMass() const {return bh_mass_;}
-  Real GetSpin() const {return bh_spin_;}
+  Real GetMass()  {return bh_mass_;}
+  Real GetSpinx() {return bh_spinx_;}
+  Real GetSpiny() {return bh_spiny_;}
+  Real GetSpiny() {return bh_spinz_;}
+  Real GetSpeedx() {return bh_speedx_;}
+  Real GetSpeedy() {return bh_speedy_;}
+  Real GetSpeedz() {return bh_speedz_;}
+
+  Real GetPdotx() {return bh_pdotx_;}
+  Real GetPdoty() {return bh_pdoty_;}
+  Real GetPdotz() {return bh_pdotz_;}
+
+  Real GetJdotx() {return bh_jdotx_;}
+  Real GetJdoty() {return bh_jdoty_;}
+  Real GetJdotz() {return bh_jdotz_;}
+
+  Real GetEdot() {return bh_edot_;}
+
+
 
   // ...to compute metric
   void Metric(Real time, Real x1, Real x2, Real x3, ParameterInput *pin, AthenaArray<Real> &g,
@@ -192,7 +209,7 @@ class Coordinates {
                                Real *pa_0, Real *pa_1, Real *pa_2, Real *pa_3) {}
 
 
-  virtual void UpdateUserMetric(Real t, MeshBlock *pmb) {}
+  virtual void UpdateUserMetric(Real t, Real previous_t, MeshBlock *pmb) {}
 
   // void UpdateUserMetric(const Real metric_t, MeshBlock *pmb);
 
@@ -289,7 +306,21 @@ class Coordinates {
 
   // GR-specific variables
   Real bh_mass_;
-  Real bh_spin_;
+  Real bh_spinx_;
+  Real bh_spiny_;
+  Real bh_spinz_;
+  Real bh_speedx_;  
+  Real bh_speedy_;
+  Real bh_speedz_;
+  Real bh_edot_;
+  Real bh_pdotx_;
+  Real bh_pdoty_;
+  Real bh_pdotz_;
+  Real bh_jdotx_;
+  Real bh_jdoty_;
+  Real bh_jdotz_;
+
+
 };
 
 //----------------------------------------------------------------------------------------

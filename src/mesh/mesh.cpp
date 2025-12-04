@@ -88,7 +88,7 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
                    == BoundaryFlag::shear_periodic ? true : false),
     fluid_setup(GetFluidFormulation(pin->GetOrAddString("hydro", "active", "true"))),
     start_time(pin->GetOrAddReal("time", "start_time", 0.0)), time(start_time),
-    metric_time(start_time),
+    metric_time(start_time), previous_metric_time(start_time),
     tlim(pin->GetReal("time", "tlim")), dt(std::numeric_limits<Real>::max()),
     dt_hyperbolic(dt), dt_parabolic(dt), dt_user(dt),
     cfl_number(pin->GetReal("time", "cfl_number")),
@@ -595,7 +595,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
                    == BoundaryFlag::shear_periodic ? true : false),
     fluid_setup(GetFluidFormulation(pin->GetOrAddString("hydro", "active", "true"))),
     start_time(pin->GetOrAddReal("time", "start_time", 0.0)), time(start_time),
-    metric_time(start_time),
+    metric_time(start_time), previous_metric_time(start_time),
     tlim(pin->GetReal("time", "tlim")), dt(std::numeric_limits<Real>::max()),
     dt_hyperbolic(dt), dt_parabolic(dt), dt_user(dt),
     cfl_number(pin->GetReal("time", "cfl_number")),
@@ -678,6 +678,7 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   hdos += sizeof(RegionSize);
   std::memcpy(&time, &(headerdata[hdos]), sizeof(Real));
   metric_time = time;
+  previous_metric_time=time;
   hdos += sizeof(Real);
   std::memcpy(&dt, &(headerdata[hdos]), sizeof(Real));
   hdos += sizeof(Real);
