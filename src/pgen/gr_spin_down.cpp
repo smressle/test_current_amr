@@ -102,7 +102,7 @@ void Binary_BH_Metric(Real m, Real xbh, Real ybh, Real zbh, Real ax, Real ay, Re
     AthenaArray<Real> &dg_dx2, AthenaArray<Real> &dg_dx3, AthenaArray<Real> &dg_dt, bool take_derivatives);
 
 
-void BoostVector(int BH_INDEX, Real t, Real a0, Real a1, Real a2, Real a3,AthenaArray<Real>&orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
+void BoostVector(Real t, Real a0, Real a1, Real a2, Real a3,Real vxbh, Real vybh, Real vzbh, Real *pa0, Real *pa1, Real *pa2, Real *pa3);
 
 Real DivergenceB(MeshBlock *pmb, int iout);
 
@@ -1614,7 +1614,13 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
   Real a1x = pmb->pcoord->getSpinx();  
   Real a1y = pmb->pcoord->getSpiny();
   Real a1z = pmb->pcoord->getSpinz();
-  Real vx  = pmb->pcoord->get
+  Real vx  = pmb->pcoord->getSpeedx();
+  Real vy  = pmb->pcoord->getSpeedy();
+  Real vz  = pmb->pcoord->getSpeedz();
+  Real xbh = Getxbh();
+  Real ybh = Getybh();
+  Real zbh = Getzbh();
+
 
   Real a2x = 0;
   Real a2y = 0;
@@ -1646,7 +1652,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
           Real xprime,yprime,zprime,rprime,Rprime;
 
-          get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+          get_prime_coords(x,y,z, m,xbh,ybh,zbh,a1x*m,a1y*m,a1z*m,vx,vy,vz,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
           Real thprime,phiprime;
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
@@ -1758,7 +1764,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
           if (rprime < rh*0.8) {
             rprime = rh*0.8;
-            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
+            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x*m,a1y*m,a1z*m,&xprime,&yprime,&zprime);
           }
 
           if (rprime < rh){
@@ -1795,7 +1801,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               Real u3 = uu3 - alpha * gamma * gi(I03,i);
 
 
-              get_free_fall_solution(rprime, xprime,yprime, zprime, a1x,a1y,a1z, &u0, &u1,&u2,&u3);
+              get_free_fall_solution(rprime, xprime,yprime, zprime, a1x*m,a1y*m,a1z*m, &u0, &u1,&u2,&u3);
 
               // AthenaArray<Real> g_unboosted;
               // g_unboosted.NewAthenaArray(NMETRIC);
@@ -1844,7 +1850,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
               // g_unboosted.DeleteAthenaArray();
 
               Real u0prime,u1prime,u2prime,u3prime;
-              BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
+              BoostVector(t,u0,u1,u2,u3, vx, vy, vz,&u0prime,&u1prime,&u2prime,&u3prime);
 
               // Extract metric coefficients
               const Real &g00_ = g(I00,i);
@@ -2019,357 +2025,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
 
-          get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-
-          // Real thprime,phiprime;
-          GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
-
-
-          if (rprime < rh2*0.8) {
-            rprime = rh2*0.8;
-            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
-          }
-
-          if (rprime < rh2){
-
-              Real bsq_over_rho_max = 1.0;
-              Real beta_floor = 0.2;
-              
-
-
-              // Calculate normal frame Lorentz factor
-              Real uu1 = 0.0;
-              Real uu2 = 0.0;
-              Real uu3 = 0.0;
-              Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                       + g(I33,i)*uu3*uu3;
-              Real gamma = std::sqrt(1.0 + tmp);
-
-              // Calculate 4-velocity
-              Real alpha = std::sqrt(-1.0/gi(I00,i));
-              Real u0 = gamma/alpha;
-              Real u1 = uu1 - alpha * gamma * gi(I01,i);
-              Real u2 = uu2 - alpha * gamma * gi(I02,i);
-              Real u3 = uu3 - alpha * gamma * gi(I03,i);
-
-
-
-              get_free_fall_solution(rprime, xprime,yprime, zprime, a2x,a2y,a2z, &u0, &u1,&u2,&u3);
-
-              // AthenaArray<Real> g_unboosted;
-              // g_unboosted.NewAthenaArray(NMETRIC);
-              // unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z,g_unboosted );
-
-              // // Extract metric coefficients
-              // const Real &g00 = g_unboosted(I00);
-              // const Real &g01 = g_unboosted(I01);
-              // const Real &g02 = g_unboosted(I02);
-              // const Real &g03 = g_unboosted(I03);
-              // const Real &g10 = g_unboosted(I01);
-              // const Real &g11 = g_unboosted(I11);
-              // const Real &g12 = g_unboosted(I12);
-              // const Real &g13 = g_unboosted(I13);
-              // const Real &g20 = g_unboosted(I02);
-              // const Real &g21 = g_unboosted(I12);
-              // const Real &g22 = g_unboosted(I22);
-              // const Real &g23 = g_unboosted(I23);
-              // const Real &g30 = g_unboosted(I03);
-              // const Real &g31 = g_unboosted(I13);
-              // const Real &g32 = g_unboosted(I23);
-              // const Real &g33 = g_unboosted(I33);
-
-              // // Set lowered components
-              // Real ud_0 = g00*u0 + g01*u1 + g02*u2 + g03*u3;
-              // Real ud_1 = g10*u0 + g11*u1 + g12*u2 + g13*u3;
-              // Real ud_2 = g20*u0 + g21*u1 + g22*u2 + g23*u3;
-              // Real ud_3 = g30*u0 + g31*u1 + g32*u2 + g33*u3;
-
-              // Real E = ud_0;
-              // Real L = ud_3;
-              // Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // if (rprime > 0.8*rh2){
-              //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              //     fprintf(stderr, "Second BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
-              //     exit(0);
-
-              //   }
-              // }
-
-              // g_unboosted.DeleteAthenaArray();
-
-              Real u0prime,u1prime,u2prime,u3prime;
-              BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
-
-              // AthenaArray<Real> g_boosted;
-              // g_boosted.NewAthenaArray(NMETRIC);
-              // boosted_BH_metric_addition(1.0,xprime,yprime,zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z, g_boosted );
-
-              // g_boosted(I00) += -1.0;
-              // g_boosted(I11) += 1.0;
-              // g_boosted(I22) += 1.0;
-              // g_boosted(I33) += 1.0;
-
-              //               // Extract metric coefficients
-              // const Real &g_00 = g_boosted(I00);
-              // const Real &g_01 = g_boosted(I01);
-              // const Real &g_02 = g_boosted(I02);
-              // const Real &g_03 = g_boosted(I03);
-              // const Real &g_10 = g_boosted(I01);
-              // const Real &g_11 = g_boosted(I11);
-              // const Real &g_12 = g_boosted(I12);
-              // const Real &g_13 = g_boosted(I13);
-              // const Real &g_20 = g_boosted(I02);
-              // const Real &g_21 = g_boosted(I12);
-              // const Real &g_22 = g_boosted(I22);
-              // const Real &g_23 = g_boosted(I23);
-              // const Real &g_30 = g_boosted(I03);
-              // const Real &g_31 = g_boosted(I13);
-              // const Real &g_32 = g_boosted(I23);
-              // const Real &g_33 = g_boosted(I33);
-
-              // // Set lowered components
-              // ud_0 = g_00*u0prime + g_01*u1prime + g_02*u2prime + g_03*u3prime;
-              // ud_1 = g_10*u0prime + g_11*u1prime + g_12*u2prime + g_13*u3prime;
-              // ud_2 = g_20*u0prime + g_21*u1prime + g_22*u2prime + g_23*u3prime;
-              // ud_3 = g_30*u0prime + g_31*u1prime + g_32*u2prime + g_33*u3prime;
-
-              // E = ud_0;
-              // L = ud_3;
-              // udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // // if (rprime > 0.8*rh2){
-              // //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              // //     fprintf(stderr, "Second BH boosted and isolated E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-              // //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime );
-              // //     exit(0);
-
-              // //   }
-              // // }
-              // g_boosted.DeleteAthenaArray();
-
-              // //Make sure four vector is normalized
-              // Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
-              //          + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
-              //          + g(I33,i)*u3prime*u3prime;
-
-              // Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
-
-              // Real a_const = g(I00,i);
-
-              // if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
-              //   u0prime = -c_const/b_const;
-
-              // }
-              // else{
-              //   u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
-              // }
-
- 
-
-               // Extract metric coefficients
-              const Real &g00_ = g(I00,i);
-              const Real &g01_ = g(I01,i);
-              const Real &g02_ = g(I02,i);
-              const Real &g03_ = g(I03,i);
-              const Real &g10_ = g(I01,i);
-              const Real &g11_  = g(I11,i);
-              const Real &g12_  = g(I12,i);
-              const Real &g13_  = g(I13,i);
-              const Real &g20_  = g(I02,i);
-              const Real &g21_  = g(I12,i);
-              const Real &g22_  = g(I22,i);
-              const Real &g23_  = g(I23,i);
-              const Real &g30_  = g(I03,i);
-              const Real &g31_  = g(I13,i);
-              const Real &g32_  = g(I23,i);
-              const Real &g33_  = g(I33,i);
-
-              // Set lowered components
-              Real ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
-              Real ud_1 = g10_ *u0prime + g11_ *u1prime + g12_ *u2prime + g13_ *u3prime;
-              Real ud_2 = g20_ *u0prime + g21_ *u1prime + g22_ *u2prime + g23_ *u3prime;
-              Real ud_3 = g30_ *u0prime + g31_ *u1prime + g32_ *u2prime + g33_ *u3prime;
-
-              // E = ud_0;
-              // L = ud_3;
-              // udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
-
-
-              Real git_ui = g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
-              Real gij_ui_uj = g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime + 2.0*g(I13,i)*u1prime*u3prime
-                       + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
-                       + g(I33,i)*u3prime*u3prime;
-              Real a_const = g00_*SQR(u0prime) -2.0*g00_*SQR(u0prime) + SQR(g00_*u0prime) * gij_ui_uj/SQR(git_ui);
-              Real b_const = 2.0 * g00_*u0prime * gij_ui_uj/SQR(git_ui) - 2.0*u0prime;
-              Real c_const = (gij_ui_uj/SQR(git_ui) + 1.0);
-
-              Real A_const = (- b_const - std::sqrt( SQR(b_const) - 4.0 * a_const*c_const ) )/ (2*a_const);
-              Real B_const = -1.0 / (git_ui) * (1.0 + A_const * g00_ * u0prime);
-
-              // Real constant = g00_*SQR(A_const*u0prime) + 2.0*A_const*B_const *git_ui*u0prime + SQR(B_const)*gij_ui_uj;
-
-              u0prime *= A_const; //1.0/std::sqrt(-udotu) ;
-              u1prime *= B_const; //1.0/std::sqrt(-udotu) ;
-              u2prime *= B_const; //1.0/std::sqrt(-udotu) ;
-              u3prime *= B_const; //1.0/std::sqrt(-udotu) ;
-
-
-              // ud_0 = g00_ *u0prime + g01_ *u1prime + g02_ *u2prime + g03_ *u3prime;
-              // ud_1 = g10_ *u0prime + g11_ *u1prime + g12_ *u2prime + g13_ *u3prime;
-              // ud_2 = g20_ *u0prime + g21_ *u1prime + g22_ *u2prime + g23_ *u3prime;
-              // ud_3 = g30_ *u0prime + g31_ *u1prime + g32_ *u2prime + g33_ *u3prime;
-
-              // E = ud_0;
-              // L = ud_3;
-              // udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // if (rprime > 0.8*rh){
-              //   // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              //     fprintf(stderr, "Second Boosted BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n a_const: %g b_const: %g c_const: %g A_const: %g B_const: %g Equation_constant: %g \n ",
-              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime,a_const,b_const,c_const,A_const,B_const ,constant);
-
-              //   // }
-              // }
-
-
-
-              uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
-              uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
-              uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
-
-              
-
-              // Real dceiling = 1e3;
-              // Real Pceiling = 1e3;
-
-              // if (prim(IDN,k,j,i)>dceiling)prim(IDN,k,j,i)=dceiling;
-              // if (prim(IPR,k,j,i)>Pceiling)prim(IPR,k,j,i)=Pceiling;
-              prim(IDN,k,j,i) = dfloor;
-              prim(IVX,k,j,i) = uu1;
-              prim(IVY,k,j,i) = uu2;
-              prim(IVZ,k,j,i) = uu3;
-              prim(IPR,k,j,i) = pfloor;
-
-
-              uu1 = prim(IVX,k,j,i);
-              uu2 = prim(IVY,k,j,i);
-              uu3 = prim(IVZ,k,j,i);
-              tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-                       + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-                       + g(I33,i)*uu3*uu3;
-              gamma = std::sqrt(1.0 + tmp);
-
-
-              if (gamma>gamma_max){
-
-                fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a2: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a2x,a2y,a2z);
-
-                // Real ratio = gamma_max/gamma;
-
-                // u0prime *= ratio;
-                // u1prime *= ratio;
-                // u2prime *= ratio;
-                // u3prime *= ratio;
-
-                // gamma = gamma_max;
-
-
-                // uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
-                // uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
-                // uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
-
-
-                // prim(IVX,k,j,i) = uu1;
-                // prim(IVY,k,j,i) = uu2;
-                // prim(IVZ,k,j,i) = uu3;
-
-              }
-
-
-
-              // if (gamma>1e3){
-              //   fprintf(stderr, "HUGE gamma in horizon 2: %g \n xyzprime: %g %g %g rprime: %g \n", gamma,xprime,yprime,zprime,rprime);
-              // }
-              // user_out_var(0,k,j,i) = gamma;
-
-              // Calculate 4-velocity
-              alpha = std::sqrt(-1.0/gi(I00,i));
-              u0 = gamma/alpha;
-              u1 = uu1 - alpha * gamma * gi(I01,i);
-              u2 = uu2 - alpha * gamma * gi(I02,i);
-              u3 = uu3 - alpha * gamma * gi(I03,i);
-              Real u_0, u_1, u_2, u_3;
-
-              // pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &ud_0, &ud_1, &ud_2, &ud_3);
-
-              // E = ud_0;
-              // L = ud_3;
-              // udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
-
-
-              // // //  CHECK if this is actually a free fall solution!! //
-              // if (rprime > 0.8*rh){
-              //   // if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              //     fprintf(stderr, "Resulting velocities! E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n gamma: %g vxyz: %g %g %g\n ",
-              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3,gamma,u1/u0,u2/u0,u3/u0 );
-
-              //   // }
-              // }
-
-
-              // user_out_var(1,k,j,i) = u0;
-              // user_out_var(2,k,j,i) = u1;
-              // user_out_var(3,k,j,i) = u2;
-              // user_out_var(4,k,j,i) = u3;
-              if (MAGNETIC_FIELDS_ENABLED) {
-    
-
-                pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
-
-                // Calculate 4-magnetic field
-                Real bb1 = pmb->pfield->bcc(IB1,k,j,i);
-                Real bb2 = pmb->pfield->bcc(IB2,k,j,i);
-                Real bb3 = pmb->pfield->bcc(IB3,k,j,i);
-                Real b0 = g(I01,i)*u0*bb1 + g(I02,i)*u0*bb2 + g(I03,i)*u0*bb3
-                        + g(I11,i)*u1*bb1 + g(I12,i)*u1*bb2 + g(I13,i)*u1*bb3
-                        + g(I12,i)*u2*bb1 + g(I22,i)*u2*bb2 + g(I23,i)*u2*bb3
-                        + g(I13,i)*u3*bb1 + g(I23,i)*u3*bb2 + g(I33,i)*u3*bb3;
-                Real b1 = (bb1 + b0 * u1) / u0;
-                Real b2 = (bb2 + b0 * u2) / u0;
-                Real b3 = (bb3 + b0 * u3) / u0;
-                Real b_0, b_1, b_2, b_3;
-                pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
-
-                // Calculate bsq
-                Real b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
-
-                if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
-                if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
-            
-              }
-              
-          }
-
-
-
 
 }}}
 
 
-orbit_quantities.DeleteAthenaArray();
 
 
 
@@ -3135,26 +2794,7 @@ void get_prime_coords(Real x, Real y, Real z,
 
 //From BHframe to lab frame
 
-void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, AthenaArray<Real> &orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
-
-
-  Real vxbh,vybh,vzbh;
-  if (BH_INDEX==1){
-    vxbh = orbit_quantities(IV1X);
-    vybh = orbit_quantities(IV1Y);
-    vzbh = orbit_quantities(IV1Z);
-
-  }
-  else if (BH_INDEX==2){
-    vxbh = orbit_quantities(IV2X);
-    vybh = orbit_quantities(IV2Y);
-    vzbh = orbit_quantities(IV2Z);
-  }
-  else{
-    fprintf(stderr,"Choose a valid BH_INDEX!!!: %g",BH_INDEX);
-    exit(0);
-  }
-
+void BoostVector(Real t,Real a0, Real a1, Real a2, Real a3, Real vxbh, Real vybh, Real vzbh, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
 
 
   Real vsq = SQR(vxbh) + SQR(vybh) + SQR(vzbh);

@@ -140,8 +140,8 @@ class Coordinates {
   // ...to return private variables
   Real GetMass() {return bh_mass_;}
   Real Getxbh() {return bh_x_;}
-  Real Getybh() {return bh_x_;}
-  Real Getzbh() {return bh_x_;}
+  Real Getybh() {return bh_y_;}
+  Real Getzbh() {return bh_z_;}
 
   Real GetSpinx() {return bh_spinx_;}
   Real GetSpiny() {return bh_spiny_;}
