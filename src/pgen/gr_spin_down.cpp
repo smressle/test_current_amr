@@ -120,8 +120,6 @@ void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real
 void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks );
 void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_pert );
 
- void emf_source(MeshBlock *pmb,const Real time, const Real dt,const AthenaArray<Real> &prim,  const AthenaArray<Real> &bcc, const AthenaArray<Real> &cons, EdgeField &e);
-
 Real MyTimeStep(MeshBlock *pmb);
 
 
@@ -150,34 +148,6 @@ static Real t0_orbits,dt_orbits;
 static int nt;
 AthenaArray<Real> t_orbits,orbit_array;
 
-
-int IX1 = 0;
-int IY1 = 1;
-int IZ1 = 2;
-
-int IX2 = 3;
-int IY2 = 4;
-int IZ2 = 5;
-
-
-int IA1X = 6;
-int IA1Y = 7;
-int IA1Z = 8;
-
-int IA2X = 9;
-int IA2Y = 10;
-int IA2Z = 11;
-
-
-int IV1X = 12;
-int IV1Y = 13;
-int IV1Z = 14;
-
-int IV2X = 15;
-int IV2Y = 16;
-int IV2Z = 17;
-
-int Norbit = IV2Z - IX1+1;
 
 
 int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR */
@@ -2034,155 +2004,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 }
 
-/*
-* -------------------------------------------------------------------
-*     The source terms for the emf used in the induction equation
-* -------------------------------------------------------------------
-*/
-void emf_source(MeshBlock *pmb,const Real time, const Real dt,const AthenaArray<Real> &prim,  const AthenaArray<Real> &bcc, const AthenaArray<Real> &cons, EdgeField &e)
-{
 
-    Real r,th,ph;
-    AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
-    AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
-
-
-    // Prepare index bounds
-    int il = pmb->is - NGHOST;
-    int iu = pmb->ie + NGHOST;
-    int jl = pmb->js;
-    int ju = pmb->je;
-    if (pmb->block_size.nx2 > 1) {
-      jl -= (NGHOST);
-      ju += (NGHOST);
-    }
-    int kl = pmb->ks;
-    int ku = pmb->ke;
-    if (pmb->block_size.nx3 > 1) {
-      kl -= (NGHOST);
-      ku += (NGHOST);
-    }
-    AthenaArray<Real> orbit_quantities;
-    orbit_quantities.NewAthenaArray(Norbit);
-
-    get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
-
-    Real a1x = orbit_quantities(IA1X);
-    Real a1y = orbit_quantities(IA1Y);
-    Real a1z = orbit_quantities(IA1Z);
-
-    Real a2x = orbit_quantities(IA2X);
-    Real a2y = orbit_quantities(IA2Y);
-    Real a2z = orbit_quantities(IA2Z);
-
-    Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
-    Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
-
-    Real rh =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
-    // Real r_inner_boundary = rh*0.95;
-
-    Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
-     for (int k=pmb->ks; k<=pmb->ke+1; ++k) {
-  #pragma omp parallel for schedule(static)
-      for (int j=pmb->js; j<=pmb->je+1; ++j) {
-  #pragma simd
-        for (int i=pmb->is; i<=pmb->ie+1; ++i) {
-            
-            
-
-          // E1 is defined on x2 and x3 faces, x1 cell center, ect.
-          Real x,y,z;
-          Real xprime,yprime,zprime,rprime,Rprime;
-          Real thprime,phiprime;
-          Real t = pmb->pmy_mesh->metric_time;
-          if (i<pmb->ie+1){
-            x = pmb->pcoord->x1v(i);
-            y = pmb->pcoord->x2f(j);
-            z = pmb->pcoord->x3f(k);
-
-            get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh){
-
-              e.x1e(k,j,i) = 0.0;
-
-            }
-
-            get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh2){
-
-              e.x1e(k,j,i) = 0.0;
-
-            }
-
-          }
-
-
-          if (j<pmb->je+1){
-            x = pmb->pcoord->x1f(i);
-            y = pmb->pcoord->x2v(j);
-            z = pmb->pcoord->x3f(k);
-
-            get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh){
-
-              e.x2e(k,j,i) = 0.0;
-
-            }
-
-            get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh2){
-
-              e.x2e(k,j,i) = 0.0;
-
-            }
-
-          }
-
-          if (k<pmb->ke+1){
-            x = pmb->pcoord->x1f(i);
-            y = pmb->pcoord->x2f(j);
-            z = pmb->pcoord->x3v(k);
-
-            get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh){
-
-              e.x3e(k,j,i) = 0.0;
-
-            }
-
-            get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-            GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
-
-            if (rprime<rh2){
-
-              e.x3e(k,j,i) = 0.0;
-
-            }
-
-          }
-
-
-
-
-
-
-
-}}}
-
-
-
-return;
-}
 
 void inner_boundary_source_function(MeshBlock *pmb, const Real time, const Real dt, const AthenaArray<Real> *flux,
   const AthenaArray<Real> &cons_old,const AthenaArray<Real> &cons_half, AthenaArray<Real> &cons,
