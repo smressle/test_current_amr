@@ -1911,8 +1911,8 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
   if (METRIC_EVOLUTION && pmb->pmy_mesh->update_metric_this_timestep) {
 
     // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"Before UpdateMetric in b");
-      pmb->pcoord->UpdateUserMetric(t_end_stage,pmb->pmy_mesh->previous_metric_t,pmb);
-      if (pmb->pmy_mesh->multilevel) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb->pmy_mesh->previous_metric_t,pmb);
+      pmb->pcoord->UpdateUserMetric(t_end_stage,pmb->pmy_mesh->metric_t,pmb);
+      if (pmb->pmy_mesh->multilevel) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb->pmy_mesh->metric_t,pmb);
 
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After UpdateMetric in b");
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After UpdateMetric in b1");

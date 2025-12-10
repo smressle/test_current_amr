@@ -1768,6 +1768,191 @@ void GRUser::FluxToGlobal3(
   return;
 }
 
+
+int is_in_block(RegionSize block_size, const Real x, const Real y, const Real z){
+  Real x1, x2, x3;
+
+  x1 = x;
+  x2 = y;
+  x3 = z;
+
+
+  int is_in_x1 = (block_size.x1min <= x1) && (block_size.x1max >= x1);
+  int is_in_x2 = (block_size.x2min <= x2) && (block_size.x2max >= x2);
+  int is_in_x3 = (block_size.x3min <= x3) && (block_size.x3max >= x3);
+
+  if (block_size.nx3>1) return is_in_x3 * is_in_x2 * is_in_x1;
+  else return is_in_x2 * is_in_x1;
+
+
+
+/* Convert position to location of cell.  Note well: assumes a uniform grid in each meshblock */
+void get_ijk(MeshBlock *pmb,const Real x, const Real y, const Real z , int *i, int *j, int *k){
+    Real dx = pmb->pcoord->dx1f(0);
+    Real dy = pmb->pcoord->dx2f(0);
+    Real dz = pmb->pcoord->dx3f(0);
+
+   *i = int ( (x-pmb->block_size.x1min)/dx) + pmb->is;
+   *j = int ( (y-pmb->block_size.x2min)/dy) + pmb->js;
+   *k = int ( (z-pmb->block_size.x3min)/dz) + pmb->ks;
+
+   if (*i>pmb->ie) *i = pmb->ie;
+   if (*j>pmb->je) *j = pmb->je;
+   if (*k>pmb->ke) *k = pmb->ke;
+    
+}
+
+void GRUser::ComputeHorizonFluxes(MeshBlock *pmb){
+    Real &m = bh_mass_;
+    Real &xbh = bh_x_;
+    Real &ybh = bh_y_;
+    Real &zbh = bh_z_;
+    Real &ax = bh_spinx_;
+    Real &ay = bh_spiny_;
+    Real &az = bh_spinz_;
+    Real &vx = bh_speedx_;
+    Real &vy = bh_speedy_;
+    Real &vz = bh_speedz_;
+    Real &pdotx = bh_pdotx_;
+    Real &pdoty = bh_pdoty_;
+    Real &pdotz = bh_pdotz_;
+    Real &jdotx = bh_jdotx_;
+    Real &jdoty = bh_jdoty_;
+    Real &jdotz = bh_jdotz_;
+    Real &edot = bh_edot_;
+
+    Real a = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) )
+
+    Real rh =  m * ( 1.0 + std::sqrt(1.0-SQR(a/m)) );
+
+    
+    Real r = rh * 1.01;
+
+    Real gamma_adi = pmy_block->peos->GetGamma();
+
+
+    
+    int N_phi = 64 ;
+    int N_theta = 64;
+    
+    Real dphi = 2.*PI/(N_phi*1.-1.);
+    
+
+    Real dtheta = PI/(N_theta*1.-1.);
+    Real Omega = 4.*PI;
+    
+    
+
+    Real result = 0.;
+    for (int i_theta=0; i_theta<N_theta; ++i_theta) {
+        for (int i_phi=0; i_phi<N_phi; ++i_phi) {
+            Real phi = i_phi * dphi;
+            Real theta = i_theta * dtheta;
+            int i,j,k;
+                            
+            Real x = r * std::cos(phi) * std::sin(theta);
+            Real y = r * std::sin(phi) * std::sin(theta);
+            Real z = r * std::cos(theta);
+            Real fac = 1.;
+            if ( is_in_block(pmb->block_size,x,y,z) ){
+                
+                get_ijk(pmb,x,y,z,&i,&j,&k);
+
+                const Real &g_00 = metric_cell_kji_(0,I00,k,j,i);
+                const Real &g_01 = metric_cell_kji_(0,I01,k,j,i);
+                const Real &g_02 = metric_cell_kji_(0,I02,k,j,i);
+                const Real &g_03 = metric_cell_kji_(0,I03,k,j,i);
+                const Real &g_11 = metric_cell_kji_(0,I11,k,j,i);
+                const Real &g_12 = metric_cell_kji_(0,I12,k,j,i);
+                const Real &g_13 = metric_cell_kji_(0,I13,k,j,i);
+                const Real &g_22 = metric_cell_kji_(0,I22,k,j,i);
+                const Real &g_23 = metric_cell_kji_(0,I23,k,j,i);
+                const Real &g_33 = metric_cell_kji_(0,I33,k,j,i);
+                const Real &g00 = metric_cell_kji_(1,I00,k,j,i);
+                const Real &g01 = metric_cell_kji_(1,I01,k,j,i);
+                const Real &g02 = metric_cell_kji_(1,I02,k,j,i);
+                const Real &g03 = metric_cell_kji_(1,I03,k,j,i);
+                const Real &g11 = metric_cell_kji_(1,I11,k,j,i);
+                const Real &g12 = metric_cell_kji_(1,I12,k,j,i);
+                const Real &g13 = metric_cell_kji_(1,I13,k,j,i);
+                const Real &g22 = metric_cell_kji_(1,I22,k,j,i);
+                const Real &g23 = metric_cell_kji_(1,I23,k,j,i);
+                const Real &g33 = metric_cell_kji_(1,I33,k,j,i);
+                Real alpha = std::sqrt(-1.0/g00);
+
+                // Extract primitives
+                const Real &rho = pmb->phydro->w(IDN,k,j,i);
+                const Real &pgas = pmb->phydro->w(IEN,k,j,i);
+                const Real &uu1 = pmb->phydro->w(IVX,k,j,i);
+                const Real &uu2 = pmb->phydro->w(IVY,k,j,i);
+                const Real &uu3 = pmb->phydro->w(IVZ,k,j,i);
+
+                // Calculate 4-velocity
+                Real uu_sq = g_11*uu1*uu1 + 2.0*g_12*uu1*uu2 + 2.0*g_13*uu1*uu3
+                             + g_22*uu2*uu2 + 2.0*g_23*uu2*uu3
+                             + g_33*uu3*uu3;
+                Real gamma = std::sqrt(1.0 + uu_sq);
+                Real u0 = gamma / alpha;
+                Real u1 = uu1 - alpha * gamma * g01;
+                Real u2 = uu2 - alpha * gamma * g02;
+                Real u3 = uu3 - alpha * gamma * g03;
+
+                // Extract and calculate magnetic field
+                Real b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0;
+                Real b_sq = 0.0;
+                if (MAGNETIC_FIELDS_ENABLED) {
+                  Real u_1 = g_01*u0 + g_11*u1 + g_12*u2 + g_13*u3;
+                  Real u_2 = g_02*u0 + g_12*u1 + g_22*u2 + g_23*u3;
+                  Real u_3 = g_03*u0 + g_13*u1 + g_23*u2 + g_33*u3;
+                  const Real &bb1 = pmb->pfield->bcc(IB1,k,j,i);
+                  const Real &bb2 = pmb->pfield->bcc(IB2,k,j,i);
+                  const Real &bb3 = pmb->pfield->bcc(IB3,k,j,i);
+                  b0 = u_1*bb1 + u_2*bb2 + u_3*bb3;
+                  b1 = (bb1 + b0 * u1) / u0;
+                  b2 = (bb2 + b0 * u2) / u0;
+                  b3 = (bb3 + b0 * u3) / u0;
+                  Real b_0 = g_00*b0 + g_01*b1 + g_02*b2 + g_03*b3;
+                  Real b_1 = g_01*b0 + g_11*b1 + g_12*b2 + g_13*b3;
+                  Real b_2 = g_02*b0 + g_12*b1 + g_22*b2 + g_23*b3;
+                  Real b_3 = g_03*b0 + g_13*b1 + g_23*b2 + g_33*b3;
+                  b_sq = b_0*b0 + b_1*b1 + b_2*b2 + b_3*b3;
+                }
+
+                // Calculate stress-energy tensor
+                Real wtot = rho + gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
+                Real ptot = pgas + 0.5*b_sq;
+                Real tt_ud_00;
+                tt_ud_00  = wtot * u0 * u_0 + ptot * 1.0 - b0 * b_0;
+                tt_ud[I01] = wtot * u0 * u_1 + ptot * 0,0 - b0 * b_1;
+                tt_ud[I02] = wtot * u0 * u_2 + ptot * 0.0 - b0 * b_2;
+                tt_ud[I03] = wtot * u0 * u_3 + ptot * 0.0 - b0 * b_3;
+                tt_ud[I11] = wtot * u1 * u_1 + ptot * 1.0 - b1 * b_1;
+                tt_ud[I12] = wtot * u1 * u_2 + ptot * 0.0 - b1 * b_2;
+                tt_ud[I13] = wtot * u1 * u_3 + ptot * 0.0 - b1 * b_3;
+                tt_ud[I22] = wtot * u2 * u_2 + ptot * 1.0 - b2 * b_2;
+                tt_ud[I23] = wtot * u2 * u_3 + ptot * 0.0 - b2 * b_3;
+                tt_ud[I33] = wtot * u3 * u_3 + ptot * 1.0 - b3 * b_3;
+                        
+
+                if (i_phi == 0 || i_phi == N_phi-1) fac = fac*0.5;
+                if ( (i_theta ==0 || i_theta == N_theta-1) && (pmb->block_size.nx3>1) ) fac = fac*0.5;
+
+                Real dOmega =  std::sin(theta)*dtheta*dphi * fac;
+                
+                edot += pmb->phydro->w(IDN,k,j,i) * dOmega / Omega;
+              
+                
+                
+            }
+            
+            
+            
+        }
+    }
+    
+    return result;
+}
+
 void GRUser::UpdateUserMetric(Real metric_t, Real previous_metric_t, MeshBlock *pmb)
 {
   // Set object names
