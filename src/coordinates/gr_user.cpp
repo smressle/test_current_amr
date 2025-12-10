@@ -1919,11 +1919,12 @@ void GRUser::ComputeHorizonFluxes(MeshBlock *pmb){
                 }
 
                 // Calculate stress-energy tensor
+                // Need T_0^r, T_1^r, T_2^r, T_3^r, T_phi^r in each direction
                 Real wtot = rho + gamma_adi/(gamma_adi-1.0) * pgas + b_sq;
                 Real ptot = pgas + 0.5*b_sq;
                 Real tt_ud_00;
                 tt_ud_00  = wtot * u0 * u_0 + ptot * 1.0 - b0 * b_0;
-                tt_ud[I01] = wtot * u0 * u_1 + ptot * 0,0 - b0 * b_1;
+                tt_ud_10  = wtot * u0 * u_1 + ptot * 0,0 - b0 * b_1;
                 tt_ud[I02] = wtot * u0 * u_2 + ptot * 0.0 - b0 * b_2;
                 tt_ud[I03] = wtot * u0 * u_3 + ptot * 0.0 - b0 * b_3;
                 tt_ud[I11] = wtot * u1 * u_1 + ptot * 1.0 - b1 * b_1;
@@ -1937,9 +1938,9 @@ void GRUser::ComputeHorizonFluxes(MeshBlock *pmb){
                 if (i_phi == 0 || i_phi == N_phi-1) fac = fac*0.5;
                 if ( (i_theta ==0 || i_theta == N_theta-1) && (pmb->block_size.nx3>1) ) fac = fac*0.5;
 
-                Real dOmega =  std::sin(theta)*dtheta*dphi * fac;
+                Real dOmega =  gdet * dtheta*dphi * fac;
                 
-                edot += pmb->phydro->w(IDN,k,j,i) * dOmega / Omega;
+                edot += tt_ud_00 * dOmega / Omega;
               
                 
                 
