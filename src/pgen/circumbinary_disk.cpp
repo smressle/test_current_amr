@@ -196,7 +196,6 @@ static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
 static Real log_h_edge, log_h_peak;                // calculated torus parameters
 static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
-static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
 static b_configs field_config;                     // type of magnetic field
 static Real potential_cutoff;                      // sets region of torus to magnetize
 static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
@@ -207,8 +206,6 @@ static Real potential_r_exp_cut, potential_theta_scale_height;
 static Real N_loops_theta; 
 static Real extra_field_norm;   
 static Real beta_min;                              // min ratio of gas to mag pressure
-static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
-static int sample_n_phi;                           // number of cells in 3D sample grid
 static Real sample_r_rat;                          // sample grid geometric spacing ratio
 static Real sample_cutoff;                         // density cutoff for sample grid
 static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
@@ -216,21 +213,110 @@ static Real x3_min, x3_max;                        // 3D limits in chosen coordi
 static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
 static Real phi_min, phi_max;                      // limits in phi for 3D samples
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
-static Real dfloor,pfloor;                         // density and pressure floors
+enum b_configs {vertical, normal, renorm, MAD,multi_loop};
+
 // static Real rh;                            
         // horizon radius
 static Real n_pow;
-
 // Constants Needed for Torus
 static Real lin;
 static Real c_const;
 static Real n_pow;
 static Real ud_t_in;
-static Real rho_peak;
-static Real pgas_over_rho_peak;
 static Real kappa_init;
 
 
+
+
+//----------------------------------------------------------------------------------------
+// Functions for Chakrabarti Torus
+
+  Real gtphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -2.0*a*r/sigma * sin2;
+  }
+  Real gtt(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -(1.0 - 2.0*r/sigma);
+  }
+  Real gphiphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return (r2 + a2 + 2.0*a2*r/sigma * sin2) * sin2;
+  }
+
+
+  Real gitphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -2.0*r/(sigma*delta)*a;
+   } 
+
+  Real gitt(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return -1.0/delta * (r2 + a2 +2*r*a2/sigma*sin2);
+  }
+
+  Real giphiphi(Real r, Real a, Real theta){
+    Real cos2 =  SQR( std::cos(theta) );
+    Real sin2 = SQR( std::sin(theta) );
+    Real a2 = SQR(a) ;
+    Real r2 = SQR(r);
+    Real delta = r2 - 2.0*r + a2;
+    Real sigma = r2 + a2 * cos2;
+
+    return (delta - a2*sin2)/(sigma*delta*sin2);
+  }
+
+
+  Real  lambda_func(Real r,Real a,Real theta,Real l){
+    return std::sqrt(-gphiphi(r,a,theta)/gtt(r,a,theta) );
+  }
+  Real l_kep(Real a,Real r){
+
+    Real Omega = 1.0/(std::pow(r,1.5) + a);
+
+    //Omega = - (gtphi + l gtt)/(gphiphi + l gtphi)
+    //l (Omega gtphi + gtt) = -gtphi - Omega gphiphi
+    // l = - (gtphi + Omega gphiphi)/(Omega gtphi + gtt)
+    // Equation 2.4a in Chakrabarti
+    Real l = - (gtphi(r,a,PI/2.0) + Omega * gphiphi(r,a,PI/2.0) ) / ( Omega * gtphi(r,a,PI/2.0) + gtt(r,a,PI/2.0) );
+    return l;
+  }
+
+
+  Real f(Real l, Real c_const,Real n_pow){
+    Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
+    return std::pow( std::fabs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
+  }
 
 //This function performs L * A = A_new 
 void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
@@ -755,105 +841,6 @@ else return 1;
   // return -1;
 }
 
-//----------------------------------------------------------------------------------------
-// Function for setting initial conditions
-// Inputs:
-//   pin: parameters
-// Outputs: (none)
-// Notes:
-//   initializes Fishbone-Moncrief torus
-//     sets both primitive and conserved variables
-//   defines and enrolls fixed r- and theta-direction boundary conditions
-//   references Fishbone & Moncrief 1976, ApJ 207 962 (FM)
-//              Fishbone 1977, ApJ 215 323 (F)
-//   assumes x3 is axisymmetric direction
-
-  Real gtphi(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return -2.0*a*r/sigma * sin2;
-  }
-  Real gtt(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return -(1.0 - 2.0*r/sigma);
-  }
-  Real gphiphi(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return (r2 + a2 + 2.0*a2*r/sigma * sin2) * sin2;
-  }
-
-
-  Real gitphi(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return -2.0*r/(sigma*delta)*a;
-   } 
-
-  Real gitt(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return -1.0/delta * (r2 + a2 +2*r*a2/sigma*sin2);
-  }
-
-  Real giphiphi(Real r, Real a, Real theta){
-    Real cos2 =  SQR( std::cos(theta) );
-    Real sin2 = SQR( std::sin(theta) );
-    Real a2 = SQR(a) ;
-    Real r2 = SQR(r);
-    Real delta = r2 - 2.0*r + a2;
-    Real sigma = r2 + a2 * cos2;
-
-    return (delta - a2*sin2)/(sigma*delta*sin2);
-  }
-
-
-  Real  lambda_func(Real r,Real a,Real theta,Real l){
-    return std::sqrt(-gphiphi(r,a,theta)/gtt(r,a,theta) );
-  }
-  Real l_kep(Real a,Real r){
-
-    Real Omega = 1.0/(std::pow(r,1.5) + a);
-
-    //Omega = - (gtphi + l gtt)/(gphiphi + l gtphi)
-    //l (Omega gtphi + gtt) = -gtphi - Omega gphiphi
-    // l = - (gtphi + Omega gphiphi)/(Omega gtphi + gtt)
-    // Equation 2.4a in Chakrabarti
-    Real l = - (gtphi(r,a,PI/2.0) + Omega * gphiphi(r,a,PI/2.0) ) / ( Omega * gtphi(r,a,PI/2.0) + gtt(r,a,PI/2.0) );
-    return l;
-  }
-
-
-  Real f(Real l, Real c_const,Real n_pow){
-    Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
-    return std::pow( std::fabs(1.0 - std::pow( c_const,(2.0/n_pow) ) * std::pow(l,(alpha_pow) ) ), (1.0/(alpha_pow) ) );
-  }
 
 
 //----------------------------------------------------------------------------------------
