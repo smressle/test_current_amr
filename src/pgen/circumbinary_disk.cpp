@@ -134,7 +134,7 @@ static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
 
 
 static Real q;          // black hole mass and spin
-//Real q; 
+static Real m_tot;     // total black hole mass
 // static Real r_inner_boundary,r_inner_boundary_2;
 // static Real rh2;
 // static Real eccentricity, tau, mean_angular_motion;
@@ -495,6 +495,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   std::string orbit_file_name;
   orbit_file_name =  pin->GetOrAddString("problem","orbit_filename", "orbits.in");
   set_orbit_arrays(orbit_file_name);
+  m_tot = 1.0+q;
 
 
   // if (MAGNETIC_FIELDS_ENABLED) EnrollUserExplicitEMFSourceFunction(emf_source);
@@ -516,31 +517,30 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
 
 
-  Real lmb = l_kep(a,rmb);
-  Real lms = l_kep(a,rms);
+  Real lmb = l_kep(a,rmb/m_tot);
+  Real lms = l_kep(a,rms/m_tot);
 
   Real rc = r_peak;
-  Real lc = l_kep(a,rc);
+  Real lc = l_kep(a,rc/m_tot);
 
 
     // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
 
-  Real lambda_in = std::sqrt(-gphiphi(rin,a,PI/2.0)/gtt(rin,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
-  Real lambda_c = std::sqrt(-gphiphi(rc,a,PI/2.0)/gtt(rc,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
+  Real lambda_in = std::sqrt(-gphiphi(rin/m_tot,a,PI/2.0)/gtt(rin/m_tot,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
+  Real lambda_c = std::sqrt(-gphiphi(rc/m_tot,a,PI/2.0)/gtt(rc/m_tot,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
 
 
   lin = lc/std::exp(n_pow*std::log(lambda_c/lambda_in) );
   c_const = lc/std::pow(lambda_c,n_pow);
 
-  Real q_pow = 2.0-n_pow;
-  Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
+  Real alpha_pow = (2.0*n_pow-2.0)/n_pow;
 
-  ud_t_in = -1.0/std::sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + SQR(lin)*giphiphi(rin,a,PI/2.0) ) );
+  ud_t_in = -1.0/std::sqrt( - (gitt(rin/m_tot,a,PI/2.0) - 2.0*lin*gitphi(rin/m_tot,a,PI/2.0) + SQR(lin)*giphiphi(rin/m_tot,a,PI/2.0) ) );
 
 
 
   // Compute Peak Density //
-  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
+  Real denom_sq = -( gitt(rc/m_tot,a,PI/2.0) - 2.0*lc*gitphi(rc/m_tot,a,PI/2.0) + SQR(lc)*giphiphi(rc/m_tot,a,PI/2.0) );
   Real ud_t_c = -1.0/std::sqrt(denom_sq);
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
@@ -916,11 +916,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             &theta, &phi);
 
 
-        Real lambda_sol = std::sqrt(-gphiphi(r,a,theta)/gtt(r,a,theta) ) ;
+        Real lambda_sol = std::sqrt(-gphiphi(r/m_tot,a,theta)/gtt(r/m_tot,a,theta) ) ;
 
         Real l_sol = c_const * std::pow( lambda_sol, n_pow);
         
-        Real denom_sq = -( gitt(r,a,theta) - 2.0*l_sol*gitphi(r,a,theta) + SQR(l_sol)*giphiphi(r,a,theta) );
+        Real denom_sq = -( gitt(r/m_tot,a,theta) - 2.0*l_sol*gitphi(r/m_tot,a,theta) + SQR(l_sol)*giphiphi(r/m_tot,a,theta) );
         Real ud_t,eps; 
         if (denom_sq>0){
           ud_t = -1.0/std::sqrt(denom_sq);
@@ -963,7 +963,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           // g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2 = -1/u^t^2 
           // u^t = sqrt( -1/ (g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2)  )
 
-          uu_t_sol = std::sqrt( -1.0/ (gtt(r,a,theta) + 2.0*gtphi(r,a,theta) * Omega + gphiphi(r,a,theta) * SQR( Omega) )  );
+          uu_t_sol = std::sqrt( -1.0/ (gtt(r/m_tot,a,theta) + 2.0*gtphi(r/m_tot,a,theta) * Omega + gphiphi(r/m_tot,a,theta) * SQR( Omega) )  );
           uu_phi_sol = uu_t_sol * Omega;
         }
 
@@ -2206,7 +2206,6 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 
 
-  Real q =1.0;
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
@@ -2822,7 +2821,7 @@ void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, Athena
     vzbh = orbit_quantities(IV2Z);
   }
   else{
-    fprintf(stderr,"Choose a valid BH_INDEX!!!: %g",BH_INDEX);
+    fprintf(stderr,"Choose a valid BH_INDEX!!!: %d",BH_INDEX);
     exit(0);
   }
 
