@@ -255,14 +255,72 @@ static Real Determinant(Real a11, Real a12, Real a21, Real a22) {
 
 void Mesh::InitUserMeshData(ParameterInput *pin) {
   // Read problem-specific parameters from input file
+    // Read problem-specific parameters from input file
   rho_min = pin->GetReal("hydro", "rho_min");
   rho_pow = pin->GetReal("hydro", "rho_pow");
   pgas_min = pin->GetReal("hydro", "pgas_min");
   pgas_pow = pin->GetReal("hydro", "pgas_pow");
+  k_adi = pin->GetReal("problem", "k_adi");
+  rin = pin->GetReal("problem", "rin");
+  r_peak = pin->GetReal("problem", "r_peak");
+  n_pow = pin->GetReal("problem", "n_pow");
+  rho_max = pin->GetReal("problem", "rho_max");
+
+  if (MAGNETIC_FIELDS_ENABLED) {
+    std::string field_config_str = pin->GetString("problem",
+                                                  "field_config");
+    if (field_config_str == "normal") {
+      field_config = normal;
+    } 
+    else if (field_config_str == "multi_loop"){
+      field_config = multi_loop;
+    }
+      else if (field_config_str == "renorm") {
+      field_config = renorm;
+    } else if (field_config_str == "MAD"){
+      field_config = MAD;
+    } else {
+      std::stringstream msg;
+      msg << "### FATAL ERROR in Problem Generator\n"
+          << "unrecognized field_config="
+          << field_config_str << std::endl;
+      throw std::runtime_error(msg.str().c_str());
+    }
+
+    potential_cutoff = pin->GetReal("problem", "potential_cutoff");
+    potential_r_pow = pin->GetReal("problem", "potential_r_pow");
+    potential_rho_pow = pin->GetReal("problem", "potential_rho_pow");
+    potential_sinth_pow = pin->GetOrAddReal("problem", "potential_sinth_pow",0.0);
+    potential_costh_pow = pin->GetOrAddReal("problem", "potential_costh_pow",0.0);
+
+    potential_theta_min = pin->GetOrAddReal("problem", "potential_theta_min",0.0);
+    potential_theta_max = pin->GetOrAddReal("problem", "potential_theta_max",PI);
+
+
+    extra_field_norm = pin->GetOrAddReal("problem", "extra_field_norm",1.0);
+
+    loop_radius = pin->GetOrAddReal("problem","loop_radius",10.0);
+    potential_r_exp_cut  = pin->GetOrAddReal("problem","potential_r_exp_cut",1e6);
+    potential_theta_scale_height = pin->GetOrAddReal("problem","potential_theta_scale_height",1e6);
+    N_loops_theta = pin->GetOrAddReal("problem","N_loops_theta",1.0);
+
+    beta_min = pin->GetReal("problem", "beta_min");
+
+    x1_min = pin->GetReal("mesh", "x1min");
+    x1_max = pin->GetReal("mesh", "x1max");
+    x2_min = pin->GetReal("mesh", "x2min");
+    x2_max = pin->GetReal("mesh", "x2max");
+    x3_min = pin->GetReal("mesh", "x3min");
+    x3_max = pin->GetReal("mesh", "x3max");
+  }
+  pert_amp = pin->GetOrAddReal("problem", "pert_amp", 0.0);
+  pert_kr = pin->GetOrAddReal("problem", "pert_kr", 0.0);
+  pert_kz = pin->GetOrAddReal("problem", "pert_kz", 0.0);
 
 
 
-   if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
+
+  if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
 
 
@@ -322,7 +380,49 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   gamma_max = pin->GetOrAddReal("hydro", "gamma_max", 1000.0);
 
+      //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
+
+  Real a = 0;
+  Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
+  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
+  Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
+  Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
+
+
+  Real lmb = l_kep(a,rmb);
+  Real lms = l_kep(a,rms);
+
+  Real lc = l_kep(a,rc);
+
+
+    // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
+
+  Real lambda_in = std::sqrt(-gphiphi(rin,a,PI/2.0)/gtt(rin,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
+  Real lambda_c = std::sqrt(-gphiphi(rc,a,PI/2.0)/gtt(rc,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
+
+
+  lin = lc/std::exp(n_pow*std::log(lambda_c/lambda_in) );
+  c_const = lc/std::pow(lambda_c,n_pow);
+
+  Real q_pow = 2.0-n_pow;
+  Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
+
+  ud_t_in = -1.0/std::sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + SQR(lin)*giphiphi(rin,a,PI/2.0) ) );
+
+
+
+  // Compute Peak Density //
+  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
+  Real ud_t_c = -1.0/std::sqrt(denom_sq);
+  Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
+  rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
+  pgas_over_rho_peak = eps_c * (gam-1.0);
+  Real gamma_adi = pin->GetReal("hydro", "gamma");
+  kappa_init = k_adi * std::pow(rho_peak,gamma_adi-1.0);
+
   EnrollUserExplicitSourceFunction(NobleCooling);
+
+
 
 
   return;
@@ -379,6 +479,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
   dfloor=pin->GetOrAddReal("hydro","dfloor",(1024*(FLT_MIN)));
   pfloor=pin->GetOrAddReal("hydro","pfloor",(1024*(FLT_MIN)));
+
+
 
 
   return;
@@ -612,7 +714,7 @@ else return 1;
   // return -1;
 }
 
-static Real gamma_adi, k_adi;                      // hydro parameters
+static Real k_adi;                      // hydro parameters
 static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
 static Real log_h_edge, log_h_peak;                // calculated torus parameters
@@ -638,8 +740,18 @@ static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D s
 static Real phi_min, phi_max;                      // limits in phi for 3D samples
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
 static Real dfloor,pfloor;                         // density and pressure floors
-// static Real rh;                                    // horizon radius
+// static Real rh;                            
+        // horizon radius
 static Real n_pow;
+
+// Constants Needed for Torus
+static Real lin;
+static Real c_const;
+static Real n_pow;
+static Real ud_t_in;
+static Real rho_peak;
+static Real pgas_over_rho_peak;
+static Real kappa_init;
 
 
 //----------------------------------------------------------------------------------------
@@ -787,49 +899,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   Real gamma_adi = peos->GetGamma();
   Real gam = gamma_adi;
 
-  Real a = pin->GetOrAddReal("problem", "a", 0.0);
-  Real rh =  ( m + std::sqrt( SQR(m) -SQR(a)) );
+  Real a = 0;
 
 
 
 
-  //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
-
-  Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
-  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
-  Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
-  Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
-
-
-  Real lmb = l_kep(a,rmb);
-  Real lms = l_kep(a,rms);
-
-  Real lc = l_kep(a,rc);
-
-
-    // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
-
-  Real lambda_in = std::sqrt(-gphiphi(rin,a,PI/2.0)/gtt(rin,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
-  Real lambda_c = std::sqrt(-gphiphi(rc,a,PI/2.0)/gtt(rc,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
-
-
-  Real lin = lc/std::exp(n_pow*std::log(lambda_c/lambda_in) );
-  Real c_const = lc/std::pow(lambda_c,n_pow);
-
-  Real q_pow = 2.0-n_pow;
-  Real alpha_pow = (2.0*n_pow-2.0)/n_pow; //q_pow/(q_pow-2.0);
-
-  Real ud_t_in = -1.0/std::sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + SQR(lin)*giphiphi(rin,a,PI/2.0) ) );
-
-
-
-  // Compute Peak Density //
-  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
-  Real ud_t_c = -1.0/std::sqrt(denom_sq);
-  Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
-  rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
-  pgas_over_rho_peak = eps_c * (gam-1.0);
-  Real pgas_peak = pgas_over_rho_peak * rho_peak;
 
 
   AthenaArray<bool> in_torus; 
@@ -977,30 +1051,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   // Initialize magnetic fields
   if (MAGNETIC_FIELDS_ENABLED) {
 
-
-
-    // Determine limits of sample grid
-    Real r_vals[8], theta_vals[8], phi_vals[8];
-    for (int p = 0; p < 8; ++p) {
-      Real x1_val = (p%2 == 0) ? x1_min : x1_max;
-      Real x2_val = ((p/2)%2 == 0) ? x2_min : x2_max;
-      Real x3_val = ((p/4)%2 == 0) ? x3_min : x3_max;
-      GetBoyerLindquistCoordinates(x1_val, x2_val, x3_val,0,0,0, r_vals+p, theta_vals+p,
-          phi_vals+p);
-    }
-    // r_min = *std::min_element(r_vals, r_vals+8);
-    r_max = *std::max_element(r_vals, r_vals+8);
-    // theta_min = *std::min_element(theta_vals, theta_vals+8);
-    // theta_max = *std::max_element(theta_vals, theta_vals+8);
-    // phi_min = *std::min_element(phi_vals, phi_vals+8);
-    // phi_max = *std::max_element(phi_vals, phi_vals+8);
-
-    r_min = rh;
-    theta_min = 0.01; 
-    theta_max = PI-0.01;
-    phi_min = 0.0;
-    phi_max = 2.0*PI;
-
     // Prepare arrays of vector potential values
     AthenaArray<Real> a_phi_edges, a_phi_cells;
     AthenaArray<Real> a_theta_0, a_theta_1, a_theta_2, a_theta_3;
@@ -1025,7 +1075,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
                 Real press = phydro->w(IPR,k,j,i);
-                Real press_cutoff = std::max(press-potential_cutoff*pgas_peak, static_cast<Real>(0.0));
+                Real press_cutoff = std::max(press-potential_cutoff*pgas_over_rho_peak, static_cast<Real>(0.0));
 
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
@@ -1056,7 +1106,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
                 Real press = phydro->w(IPR,k,j,i);
-                Real press_cutoff = std::max(press-potential_cutoff*pgas_peak, static_cast<Real>(0.0));
+                Real press_cutoff = std::max(press-potential_cutoff*pgas_over_rho_peak, static_cast<Real>(0.0));
 
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
                 if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
