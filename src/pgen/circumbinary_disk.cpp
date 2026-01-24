@@ -191,6 +191,47 @@ static Real SMALL = 1e-7;
 Real gamma_max;
 
 
+static Real k_adi;                      // hydro parameters
+static Real rin, r_peak, l, rho_max;            // fixed torus parameters
+static Real psi, sin_psi, cos_psi;                 // tilt parameters
+static Real log_h_edge, log_h_peak;                // calculated torus parameters
+static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
+static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
+static b_configs field_config;                     // type of magnetic field
+static Real potential_cutoff;                      // sets region of torus to magnetize
+static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
+static Real potential_sinth_pow,potential_costh_pow;
+static Real potential_theta_min, potential_theta_max;
+static Real loop_radius;
+static Real potential_r_exp_cut, potential_theta_scale_height;
+static Real N_loops_theta; 
+static Real extra_field_norm;   
+static Real beta_min;                              // min ratio of gas to mag pressure
+static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
+static int sample_n_phi;                           // number of cells in 3D sample grid
+static Real sample_r_rat;                          // sample grid geometric spacing ratio
+static Real sample_cutoff;                         // density cutoff for sample grid
+static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
+static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
+static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
+static Real phi_min, phi_max;                      // limits in phi for 3D samples
+static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
+static Real dfloor,pfloor;                         // density and pressure floors
+// static Real rh;                            
+        // horizon radius
+static Real n_pow;
+
+// Constants Needed for Torus
+static Real lin;
+static Real c_const;
+static Real n_pow;
+static Real ud_t_in;
+static Real rho_peak;
+static Real pgas_over_rho_peak;
+static Real kappa_init;
+
+
+
 //This function performs L * A = A_new 
 void matrix_multiply_vector_lefthandside(const AthenaArray<Real> &L , const Real A[4], Real A_new[4]){
 
@@ -713,46 +754,6 @@ else return 1;
 // if (any_at_current_level==1) return 0;
   // return -1;
 }
-
-static Real k_adi;                      // hydro parameters
-static Real rin, r_peak, l, rho_max;            // fixed torus parameters
-static Real psi, sin_psi, cos_psi;                 // tilt parameters
-static Real log_h_edge, log_h_peak;                // calculated torus parameters
-static Real pgas_over_rho_peak, rho_peak;          // more calculated torus parameters
-static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
-static b_configs field_config;                     // type of magnetic field
-static Real potential_cutoff;                      // sets region of torus to magnetize
-static Real potential_r_pow, potential_rho_pow;    // set how vector potential scales
-static Real potential_sinth_pow,potential_costh_pow;
-static Real potential_theta_min, potential_theta_max;
-static Real loop_radius;
-static Real potential_r_exp_cut, potential_theta_scale_height;
-static Real N_loops_theta; 
-static Real extra_field_norm;   
-static Real beta_min;                              // min ratio of gas to mag pressure
-static int sample_n_r, sample_n_theta;             // number of cells in 2D sample grid
-static int sample_n_phi;                           // number of cells in 3D sample grid
-static Real sample_r_rat;                          // sample grid geometric spacing ratio
-static Real sample_cutoff;                         // density cutoff for sample grid
-static Real x1_min, x1_max, x2_min, x2_max;        // 2D limits in chosen coordinates
-static Real x3_min, x3_max;                        // 3D limits in chosen coordinates
-static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
-static Real phi_min, phi_max;                      // limits in phi for 3D samples
-static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
-static Real dfloor,pfloor;                         // density and pressure floors
-// static Real rh;                            
-        // horizon radius
-static Real n_pow;
-
-// Constants Needed for Torus
-static Real lin;
-static Real c_const;
-static Real n_pow;
-static Real ud_t_in;
-static Real rho_peak;
-static Real pgas_over_rho_peak;
-static Real kappa_init;
-
 
 //----------------------------------------------------------------------------------------
 // Function for setting initial conditions
