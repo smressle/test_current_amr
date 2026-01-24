@@ -37,7 +37,6 @@
 #endif
 
 // Declarations
-enum b_configs {vertical, normal, renorm, MAD};
 void FixedBoundary(MeshBlock *pmb, Coordinates *pcoord, AthenaArray<Real> &prim,
                    FaceField &bb, Real time, Real dt,
                    int is, int ie, int js, int je, int ks, int ke, int ghost);
@@ -191,6 +190,8 @@ static Real SMALL = 1e-7;
 Real gamma_max;
 
 
+enum b_configs {vertical, normal, renorm, MAD,multi_loop};
+
 static Real k_adi;                      // hydro parameters
 static Real rin, r_peak, l, rho_max;            // fixed torus parameters
 static Real psi, sin_psi, cos_psi;                 // tilt parameters
@@ -213,11 +214,9 @@ static Real x3_min, x3_max;                        // 3D limits in chosen coordi
 static Real r_min, r_max, theta_min, theta_max;    // limits in r,theta for 2D samples
 static Real phi_min, phi_max;                      // limits in phi for 3D samples
 static Real pert_amp, pert_kr, pert_kz;            // parameters for initial perturbations
-enum b_configs {vertical, normal, renorm, MAD,multi_loop};
 
 // static Real rh;                            
         // horizon radius
-static Real n_pow;
 // Constants Needed for Torus
 static Real lin;
 static Real c_const;
@@ -507,6 +506,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   gamma_max = pin->GetOrAddReal("hydro", "gamma_max", 1000.0);
 
+
+  Real gamma_adi = pin->GetReal("hydro", "gamma");
+
       //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
 
   Real a = 0;
@@ -519,6 +521,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real lmb = l_kep(a,rmb);
   Real lms = l_kep(a,rms);
 
+  Real rc = r_peak
   Real lc = l_kep(a,rc);
 
 
@@ -544,8 +547,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
   pgas_over_rho_peak = eps_c * (gam-1.0);
-  Real gamma_adi = pin->GetReal("hydro", "gamma");
-  kappa_init = k_adi * std::pow(rho_peak,gamma_adi-1.0);
+  
+  kappa_init = k_adi * std::pow(rho_peak,gam-1.0);
 
   EnrollUserExplicitSourceFunction(NobleCooling);
 
