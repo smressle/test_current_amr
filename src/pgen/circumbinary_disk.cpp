@@ -123,7 +123,6 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               AthenaArray<Real> &cons_scalar);
 
 
-Real MyTimeStep(MeshBlock *pmb);
 
 
 // Global variables
@@ -477,7 +476,6 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  EnrollUserTimeStepFunction(MyTimeStep);
 
 
   EnrollUserRadSourceFunction(inner_boundary_source_function);
