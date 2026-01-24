@@ -507,7 +507,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   gamma_max = pin->GetOrAddReal("hydro", "gamma_max", 1000.0);
 
 
-  Real gamma_adi = pin->GetReal("hydro", "gamma");
+  Real gam = pin->GetReal("hydro", "gamma");
 
       //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
 
@@ -521,7 +521,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real lmb = l_kep(a,rmb);
   Real lms = l_kep(a,rms);
 
-  Real rc = r_peak
+  Real rc = r_peak;
   Real lc = l_kep(a,rc);
 
 
@@ -2246,12 +2246,12 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         Real Omega_com = (1.0+q)/( std::pow(r_com,1.5) );
 
         Real xprime,yprime,zprime,rprime_1,Rprime;
-        get_prime_coords(1,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime_1,&Rprime);
+        get_prime_coords(1,pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime_1,&Rprime);
         Real radius, theta,phi;
         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities(IA1X),orbit_quantities(IA1Y),orbit_quantities(IA1Z),
           &radius,&theta, &phi);
 
-        Real xprime,yprime,zprime,rprime_2,Rprime;
+        Real rprime_2;
 
         get_prime_coords(2,pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities,&xprime,&yprime, &zprime, &rprime_2,&Rprime);
         
@@ -2272,7 +2272,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         if (rprime_2<r_isco_secondary) Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(r_isco_secondary/(q+SMALL),1.5) + a2/(q+SMALL));
 
 
-        Real Y = prim(IPR,k,j,i)/std::ppw(prim(IDN,k,j,i), gamma_adi)/kappa_init;
+        Real Y = prim(IPR,k,j,i)/std::pow(prim(IDN,k,j,i), gamma_adi)/kappa_init;
 
 
         Real L_cool;

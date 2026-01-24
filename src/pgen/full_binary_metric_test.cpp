@@ -955,9 +955,9 @@ void set_orbit_arrays(std::string orbit_file_name){
 
 
 
-    fscanf(input_file, "%i %f \n", &nt, &q);
+    fscanf(input_file, "%i %lf \n", &nt, &q);
     // int nt = 10;
-    q = 1.0;
+    // q = 1.0;
 
        
     fprintf(stderr,"nt in set_orbit_arrays: %d \n q in set_orbit_arrays: %g \n", nt,q);
