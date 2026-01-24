@@ -1541,58 +1541,6 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 
     Real th_temp = std::acos( a_dot_x/ (amag * r) );
 
-    // AthenaArray<Real> g_ks;
-    // g_ks.NewAthenaArray(NMETRIC);
-    // ks_metric(r,th_temp,amag,g_ks);
-
-    //     // Extract metric coefficients
-    // const Real &g_00 = g_ks(I00);
-    // const Real &g_01 = g_ks(I01);
-    // const Real &g_02 = g_ks(I02);
-    // const Real &g_03 = g_ks(I03);
-    // const Real &g_10 = g_ks(I01);
-    // const Real &g_11 = g_ks(I11);
-    // const Real &g_12 = g_ks(I12);
-    // const Real &g_13 = g_ks(I13);
-    // const Real &g_20 = g_ks(I02);
-    // const Real &g_21 = g_ks(I12);
-    // const Real &g_22 = g_ks(I22);
-    // const Real &g_23 = g_ks(I23);
-    // const Real &g_30 = g_ks(I03);
-    // const Real &g_31 = g_ks(I13);
-    // const Real &g_32 = g_ks(I23);
-    // const Real &g_33 = g_ks(I33);
-
-    // // Set lowered components
-    // Real ud_0 = g_00*( *uut) + g_01*uur  + g_03*uuphi;
-    // Real ud_1 = g_10*( *uut) + g_11*uur  + g_13*uuphi;
-    // Real ud_2 = g_20*( *uut) + g_21*uur  + g_23*uuphi;
-    // Real ud_3 = g_30*( *uut) + g_31*uur  + g_33*uuphi;
-
-    // Real E = ud_0;
-    // Real L = ud_3;
-    // Real udotu = (*uut)*ud_0 + uur*ud_1 + uuphi*ud_3;
-
-
-    // //  CHECK if this is actually a free fall solution!! //
-    // Real rh = ( 1.0 + std::sqrt(SQR(1.0)-SQR(amag)) );
-    // if (r> 0.8*rh){
-    //   if ( ( std::fabs(E+1)>1e-2) or (std::fabs(L)>1e-2) or (fabs(udotu+1)>1e-2) ){
-
-    //     fprintf(stderr, "Original KS coordinates \n E: %g L: %g udotu: %g \n  r: %g thprime: %g \n u: %g %g %g %g \n",
-    //       E,L,udotu,r,th_temp, (*uut),uur,0,uuphi );
-    //     exit(0);
-
-    //   }
-    // }
-
-    // g_ks.DeleteAthenaArray();
-
-
-
-
-
-
 
 
     Real dx_du,dx_dv,dx_dw;
@@ -1651,57 +1599,6 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real uuw = uur * dw_dr + uuphi * dw_dphi;
 
 
-    // AthenaArray<Real> g_cks_unrotated;
-    // g_cks_unrotated.NewAthenaArray(NMETRIC);
-
-    // Real R_tmp = std::sqrt( SQR(u) + SQR(v) + SQR(w) );
-    // Real r_tmp = std::sqrt( SQR(R_tmp) - SQR(amag) + std::sqrt( SQR(SQR(R_tmp) - SQR(amag)) + 4.0*SQR(amag*w) )  )/std::sqrt(2.0);
-
-    // unboosted_cks_metric(1.0,u,v,w, r_tmp, R_tmp , 0,0,0,0,0,amag,g_cks_unrotated);
-    // //unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted ){
-
-
-    //     // Extract metric coefficients
-    // const Real &g00 = g_cks_unrotated(I00);
-    // const Real &g01 = g_cks_unrotated(I01);
-    // const Real &g02 = g_cks_unrotated(I02);
-    // const Real &g03 = g_cks_unrotated(I03);
-    // const Real &g10 = g_cks_unrotated(I01);
-    // const Real &g11 = g_cks_unrotated(I11);
-    // const Real &g12 = g_cks_unrotated(I12);
-    // const Real &g13 = g_cks_unrotated(I13);
-    // const Real &g20 = g_cks_unrotated(I02);
-    // const Real &g21 = g_cks_unrotated(I12);
-    // const Real &g22 = g_cks_unrotated(I22);
-    // const Real &g23 = g_cks_unrotated(I23);
-    // const Real &g30 = g_cks_unrotated(I03);
-    // const Real &g31 = g_cks_unrotated(I13);
-    // const Real &g32 = g_cks_unrotated(I23);
-    // const Real &g33 = g_cks_unrotated(I33);
-
-    // // Set lowered components
-    // ud_0 = g00*(*uut)  + g01*uuu + g02*uuv + g03*uuw;
-    // ud_1 = g10*(*uut)  + g11*uuu + g12*uuv + g13*uuw;
-    // ud_2 = g20*(*uut)  + g21*uuu + g22*uuv + g23*uuw;
-    // ud_3 = g30*(*uut)  + g31*uuu + g32*uuv + g33*uuw;
-
-    // E = ud_0;
-    // L = ud_3;
-    // udotu = (*uut)*ud_0 + uuu*ud_1 + uuv*ud_2 + uuw*ud_3;
-
-
-    // //  CHECK if this is actually a free fall solution!! //
-    // if (r_tmp> 0.8*rh){
-    //   if ( ( std::fabs(E+1)>1e-2) or (fabs(udotu+1)>1e-2) ){
-
-    //     fprintf(stderr, "Unrotated CKS coordinates \n E: %g L: %g udotu: %g \n  r: %g th: %g \n u: %g %g %g %g \n a: %g %g %g \n uvw: %g %g %g \n xyz: %g %g %g \ng: %g %g %g %g \n",
-    //       E,L,udotu,r_tmp,th_temp, (*uut),uuu,uuv,uuw,ax,ay,az,u,v,w,x1,x2,x3,g_cks_unrotated(I00), g_cks_unrotated(I01),g_cks_unrotated(I02),g_cks_unrotated(I03));
-    //     exit(0);
-
-    //   }
-    // }
-
-    // g_cks_unrotated.DeleteAthenaArray();
 
     *uux1 = uuu * dx_du + uuv * dx_dv + uuw * dx_dw;
     *uux2 = uuu * dy_du + uuv * dy_dv + uuw * dy_dw;
@@ -1787,109 +1684,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           Real thprime,phiprime;
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
 
-          // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-
-          // get_prime_coords(2,x,y,z, orbit_quantities,&xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
-
-          // Real thprime2,phiprime2;
-          // GetBoyerLindquistCoordinates(xprime2,yprime2,zprime2,a2x,a2y,a2z, &rprime2, &thprime2, &phiprime2);
-
-
-          // const Real &a11 = g(I00,i);
-          // const Real &a12 = g(I01,i);
-          // const Real &a13 = g(I02,i);
-          // const Real &a14 = g(I03,i);
-          // const Real &a21 = g(I01,i);
-          // const Real &a22 = g(I11,i);
-          // const Real &a23 = g(I12,i);
-          // const Real &a24 = g(I13,i);
-          // const Real &a31 = g(I02,i);
-          // const Real &a32 = g(I12,i);
-          // const Real &a33 = g(I22,i);
-          // const Real &a34 = g(I23,i);
-          // const Real &a41 = g(I03,i);
-          // const Real &a42 = g(I13,i);
-          // const Real &a43 = g(I23,i);
-          // const Real &a44 = g(I33,i);
-          // Real det = a11 * Determinant(a22, a23, a24, a32, a33, a34, a42, a43, a44)
-          //          - a12 * Determinant(a21, a23, a24, a31, a33, a34, a41, a43, a44)
-          //          + a13 * Determinant(a21, a22, a24, a31, a32, a34, a41, a42, a44)
-          //          - a14 * Determinant(a21, a22, a23, a31, a32, a33, a41, a42, a43);
-
-          // if (prim(IPR,k,j,i)>1e10){
-          //   fprintf(stderr,"rho: %g %g %g %g %g %g %g press: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_vs: %g %g %g %g %g %g %g \n DETERMINANT: %g \n",
-          //     prim(IDN,k,j,i),prim(IDN,k+1,j,i),prim(IDN,k-1,j,i),prim(IDN,k,j+1,i),prim(IDN,k,j-1,i),
-          //     prim(IDN,k,j,i+1),prim(IDN,k,j,i-1),
-          //     prim(IPR,k,j,i),prim(IPR,k+1,j,i),prim(IPR,k-1,j,i),prim(IPR,k,j+1,i),prim(IPR,k,j-1,i),
-          //     prim(IPR,k,j,i+1),prim(IPR,k,j,i-1),
-          //     prim_old(IDN,k,j,i),prim_old(IDN,k+1,j,i),prim_old(IDN,k-1,j,i),prim_old(IDN,k,j+1,i),prim_old(IDN,k,j-1,i),
-          //     prim_old(IDN,k,j,i+1),prim_old(IDN,k,j,i-1),
-          //     prim_old(IPR,k,j,i),prim_old(IPR,k+1,j,i),prim_old(IPR,k-1,j,i),prim_old(IPR,k,j+1,i),prim_old(IPR,k,j-1,i),
-          //     prim_old(IPR,k,j,i+1),prim_old(IPR,k,j,i-1),
-          //     x,y,z,xprime,yprime,zprime,rprime,
-          //     xprime2,yprime2,zprime2,rprime2,
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i+1)) + SQR(pmb->pfield->bcc(IB2,k,j,i+1)) + SQR(pmb->pfield->bcc(IB3,k,j,i+1)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i-1)) + SQR(pmb->pfield->bcc(IB2,k,j,i-1)) + SQR(pmb->pfield->bcc(IB3,k,j,i-1)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j+1,i)) + SQR(pmb->pfield->bcc(IB2,k,j+1,i)) + SQR(pmb->pfield->bcc(IB3,k,j+1,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j-1,i)) + SQR(pmb->pfield->bcc(IB2,k,j-1,i)) + SQR(pmb->pfield->bcc(IB3,k,j-1,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k-1,j,i)) + SQR(pmb->pfield->bcc(IB2,k-1,j,i)) + SQR(pmb->pfield->bcc(IB3,k-1,j,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k+1,j,i)) + SQR(pmb->pfield->bcc(IB2,k+1,j,i)) + SQR(pmb->pfield->bcc(IB3,k+1,j,i)),
-          //     g(I00,i),g(I01,i),g(I02,i),g(I03,i),g(I11,i),g(I12,i),g(I13,i),g(I22,i),g(I23,i), g(I33,i),
-          //     gi(I00,i),gi(I01,i),gi(I02,i),gi(I03,i),gi(I11,i),gi(I12,i),gi(I13,i),gi(I22,i),gi(I23,i), gi(I33,i),
-          //     SQR(prim(IVX,k,j,i)) + SQR(prim(IVY,k,j,i)) + SQR(prim(IVZ,k,j,i)),
-          //     SQR(prim(IVX,k+1,j,i)) + SQR(prim(IVY,k+1,j,i)) + SQR(prim(IVZ,k+1,j,i)),
-          //     SQR(prim(IVX,k-1,j,i)) + SQR(prim(IVY,k-1,j,i)) + SQR(prim(IVZ,k-1,j,i)),
-          //     SQR(prim(IVX,k,j+1,i)) + SQR(prim(IVY,k,j+1,i)) + SQR(prim(IVZ,k,j+1,i)),
-          //     SQR(prim(IVX,k,j-1,i)) + SQR(prim(IVY,k,j-1,i)) + SQR(prim(IVZ,k,j-1,i)),
-          //     SQR(prim(IVX,k,j,i+1)) + SQR(prim(IVY,k,j,i+1)) + SQR(prim(IVZ,k,j,i+1)),
-          //     SQR(prim(IVX,k,j,i-1)) + SQR(prim(IVY,k,j,i-1)) + SQR(prim(IVZ,k,j,i-1)),
-          //     det
-              // );
-
-
-          //     fprintf(stderr,"u_rho: %g %g %g %g %g %g %g u_en: %g %g %g %g %g %g %g \n rho_old: %g %g %g %g %g %g %g \n press_old: %g %g %g %g %g %g %g \n xyz: %g %g %g \n xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n fake_bsq: %g %g %g %g %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n fake_Msq: %g %g %g %g %g %g %g \n",
-          //     pmb->phydro->u(IDN,k,j,i),pmb->phydro->u(IDN,k+1,j,i),pmb->phydro->u(IDN,k-1,j,i),pmb->phydro->u(IDN,k,j+1,i),pmb->phydro->u(IDN,k,j-1,i),
-          //     pmb->phydro->u(IDN,k,j,i+1),pmb->phydro->u(IDN,k,j,i-1),
-          //     pmb->phydro->u(IPR,k,j,i),pmb->phydro->u(IPR,k+1,j,i),pmb->phydro->u(IPR,k-1,j,i),pmb->phydro->u(IPR,k,j+1,i),pmb->phydro->u(IPR,k,j-1,i),
-          //     pmb->phydro->u(IPR,k,j,i+1),pmb->phydro->u(IPR,k,j,i-1),
-          //     prim_old(IDN,k,j,i),prim_old(IDN,k+1,j,i),prim_old(IDN,k-1,j,i),prim_old(IDN,k,j+1,i),prim_old(IDN,k,j-1,i),
-          //     prim_old(IDN,k,j,i+1),prim_old(IDN,k,j,i-1),
-          //     prim_old(IPR,k,j,i),prim_old(IPR,k+1,j,i),prim_old(IPR,k-1,j,i),prim_old(IPR,k,j+1,i),prim_old(IPR,k,j-1,i),
-          //     prim_old(IPR,k,j,i+1),prim_old(IPR,k,j,i-1),
-          //     x,y,z,xprime,yprime,zprime,rprime,
-          //     xprime2,yprime2,zprime2,rprime2,
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)) + SQR(pmb->pfield->bcc(IB2,k,j,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i+1)) + SQR(pmb->pfield->bcc(IB2,k,j,i+1)) + SQR(pmb->pfield->bcc(IB3,k,j,i+1)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j,i-1)) + SQR(pmb->pfield->bcc(IB2,k,j,i-1)) + SQR(pmb->pfield->bcc(IB3,k,j,i-1)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j+1,i)) + SQR(pmb->pfield->bcc(IB2,k,j+1,i)) + SQR(pmb->pfield->bcc(IB3,k,j+1,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k,j-1,i)) + SQR(pmb->pfield->bcc(IB2,k,j-1,i)) + SQR(pmb->pfield->bcc(IB3,k,j-1,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k-1,j,i)) + SQR(pmb->pfield->bcc(IB2,k-1,j,i)) + SQR(pmb->pfield->bcc(IB3,k-1,j,i)),
-          //     SQR(pmb->pfield->bcc(IB1,k+1,j,i)) + SQR(pmb->pfield->bcc(IB2,k+1,j,i)) + SQR(pmb->pfield->bcc(IB3,k+1,j,i)),
-          //     g(I00,i),g(I01,i),g(I02,i),g(I03,i),g(I11,i),g(I12,i),g(I13,i),g(I22,i),g(I23,i), g(I33,i),
-          //     gi(I00,i),gi(I01,i),gi(I02,i),gi(I03,i),gi(I11,i),gi(I12,i),gi(I13,i),gi(I22,i),gi(I23,i), gi(I33,i),
-          //     SQR(pmb->phydro->u(IVX,k,j,i)) + SQR(pmb->phydro->u(IVY,k,j,i)) + SQR(pmb->phydro->u(IVZ,k,j,i)),
-          //     SQR(pmb->phydro->u(IVX,k+1,j,i)) + SQR(pmb->phydro->u(IVY,k+1,j,i)) + SQR(pmb->phydro->u(IVZ,k+1,j,i)),
-          //     SQR(pmb->phydro->u(IVX,k-1,j,i)) + SQR(pmb->phydro->u(IVY,k-1,j,i)) + SQR(pmb->phydro->u(IVZ,k-1,j,i)),
-          //     SQR(pmb->phydro->u(IVX,k,j+1,i)) + SQR(pmb->phydro->u(IVY,k,j+1,i)) + SQR(pmb->phydro->u(IVZ,k,j+1,i)),
-          //     SQR(pmb->phydro->u(IVX,k,j-1,i)) + SQR(pmb->phydro->u(IVY,k,j-1,i)) + SQR(pmb->phydro->u(IVZ,k,j-1,i)),
-          //     SQR(pmb->phydro->u(IVX,k,j,i+1)) + SQR(pmb->phydro->u(IVY,k,j,i+1)) + SQR(pmb->phydro->u(IVZ,k,j,i+1)),
-          //     SQR(pmb->phydro->u(IVX,k,j,i-1)) + SQR(pmb->phydro->u(IVY,k,j,i-1)) + SQR(pmb->phydro->u(IVZ,k,j,i-1))
-          //     );
-          //   exit(0);
-          // }
-
-
-          // if is_face_in_boundary(1, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-          //   pmb->pfield->b.x1f(k,j,i) = bb_old.x1f(k,j,i);
-          // }
-          // if is_face_in_boundary(2, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-          //   pmb->pfield->b.x2f(k,j,i) = bb_old.x2f(k,j,i);
-          // }
-          // if is_face_in_boundary(3, i,j,k, a1x,a1y,a1z,a2x,a2y, a2z,rh,rh2,pmb ){
-          //   pmb->pfield->b.x3f(k,j,i) = bb_old.x3f(k,j,i);
-          // }
-
 
 
           if (rprime < rh*0.8) {
@@ -1933,51 +1727,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
               get_free_fall_solution(rprime, xprime,yprime, zprime, a1x,a1y,a1z, &u0, &u1,&u2,&u3);
 
-              // AthenaArray<Real> g_unboosted;
-              // g_unboosted.NewAthenaArray(NMETRIC);
-              // unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV1X), orbit_quantities(IV1Y), orbit_quantities(IV1Z),a1x,a1y,a1z,g_unboosted );
-
-              // // Extract metric coefficients
-              // const Real &g_00 = g_unboosted(I00);
-              // const Real &g_01 = g_unboosted(I01);
-              // const Real &g_02 = g_unboosted(I02);
-              // const Real &g_03 = g_unboosted(I03);
-              // const Real &g_10 = g_unboosted(I01);
-              // const Real &g_11 = g_unboosted(I11);
-              // const Real &g_12 = g_unboosted(I12);
-              // const Real &g_13 = g_unboosted(I13);
-              // const Real &g_20 = g_unboosted(I02);
-              // const Real &g_21 = g_unboosted(I12);
-              // const Real &g_22 = g_unboosted(I22);
-              // const Real &g_23 = g_unboosted(I23);
-              // const Real &g_30 = g_unboosted(I03);
-              // const Real &g_31 = g_unboosted(I13);
-              // const Real &g_32 = g_unboosted(I23);
-              // const Real &g_33 = g_unboosted(I33);
-
-              // // Set lowered components
-              // Real ud_0 = g_00*u0 + g_01*u1 + g_02*u2 + g_03*u3;
-              // Real ud_1 = g_10*u0 + g_11*u1 + g_12*u2 + g_13*u3;
-              // Real ud_2 = g_20*u0 + g_21*u1 + g_22*u2 + g_23*u3;
-              // Real ud_3 = g_30*u0 + g_31*u1 + g_32*u2 + g_33*u3;
-
-              // Real E = ud_0;
-              // Real L = ud_3;
-              // Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // if (rprime > 0.8*rh){
-              //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              //     fprintf(stderr, "E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
-              //     exit(0);
-
-              //   }
-              // }
-
-              // g_unboosted.DeleteAthenaArray();
 
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(1,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
@@ -2085,25 +1834,6 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
                 fprintf(stderr,"gamma: %g rprime: %g xyzprime: %g %g %g \n a1: %g %g %g \n",gamma,rprime,xprime,yprime,zprime,a1x,a1y,a1z);
 
-                // Real ratio = gamma_max/gamma;
-
-                // u0prime *= ratio;
-                // u1prime *= ratio;
-                // u2prime *= ratio;
-                // u3prime *= ratio;
-
-                // gamma = gamma_max;
-
-
-                // uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
-                // uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
-                // uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
-
-
-                // prim(IVX,k,j,i) = uu1;
-                // prim(IVY,k,j,i) = uu2;
-                // prim(IVZ,k,j,i) = uu3;
-
               }
 
 
@@ -2193,121 +1923,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
               get_free_fall_solution(rprime, xprime,yprime, zprime, a2x,a2y,a2z, &u0, &u1,&u2,&u3);
 
-              // AthenaArray<Real> g_unboosted;
-              // g_unboosted.NewAthenaArray(NMETRIC);
-              // unboosted_cks_metric(1.0,xprime,yprime, zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z,g_unboosted );
-
-              // // Extract metric coefficients
-              // const Real &g00 = g_unboosted(I00);
-              // const Real &g01 = g_unboosted(I01);
-              // const Real &g02 = g_unboosted(I02);
-              // const Real &g03 = g_unboosted(I03);
-              // const Real &g10 = g_unboosted(I01);
-              // const Real &g11 = g_unboosted(I11);
-              // const Real &g12 = g_unboosted(I12);
-              // const Real &g13 = g_unboosted(I13);
-              // const Real &g20 = g_unboosted(I02);
-              // const Real &g21 = g_unboosted(I12);
-              // const Real &g22 = g_unboosted(I22);
-              // const Real &g23 = g_unboosted(I23);
-              // const Real &g30 = g_unboosted(I03);
-              // const Real &g31 = g_unboosted(I13);
-              // const Real &g32 = g_unboosted(I23);
-              // const Real &g33 = g_unboosted(I33);
-
-              // // Set lowered components
-              // Real ud_0 = g00*u0 + g01*u1 + g02*u2 + g03*u3;
-              // Real ud_1 = g10*u0 + g11*u1 + g12*u2 + g13*u3;
-              // Real ud_2 = g20*u0 + g21*u1 + g22*u2 + g23*u3;
-              // Real ud_3 = g30*u0 + g31*u1 + g32*u2 + g33*u3;
-
-              // Real E = ud_0;
-              // Real L = ud_3;
-              // Real udotu = u0*ud_0 + u1*ud_1 + u2*ud_2 + u3*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // if (rprime > 0.8*rh2){
-              //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              //     fprintf(stderr, "Second BH E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-              //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0,u1,u2,u3 );
-              //     exit(0);
-
-              //   }
-              // }
-
-              // g_unboosted.DeleteAthenaArray();
 
               Real u0prime,u1prime,u2prime,u3prime;
               BoostVector(2,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
 
-              // AthenaArray<Real> g_boosted;
-              // g_boosted.NewAthenaArray(NMETRIC);
-              // boosted_BH_metric_addition(1.0,xprime,yprime,zprime, rprime, Rprime, orbit_quantities(IV2X), orbit_quantities(IV2Y), orbit_quantities(IV2Z),a2x,a2y,a2z, g_boosted );
-
-              // g_boosted(I00) += -1.0;
-              // g_boosted(I11) += 1.0;
-              // g_boosted(I22) += 1.0;
-              // g_boosted(I33) += 1.0;
-
-              //               // Extract metric coefficients
-              // const Real &g_00 = g_boosted(I00);
-              // const Real &g_01 = g_boosted(I01);
-              // const Real &g_02 = g_boosted(I02);
-              // const Real &g_03 = g_boosted(I03);
-              // const Real &g_10 = g_boosted(I01);
-              // const Real &g_11 = g_boosted(I11);
-              // const Real &g_12 = g_boosted(I12);
-              // const Real &g_13 = g_boosted(I13);
-              // const Real &g_20 = g_boosted(I02);
-              // const Real &g_21 = g_boosted(I12);
-              // const Real &g_22 = g_boosted(I22);
-              // const Real &g_23 = g_boosted(I23);
-              // const Real &g_30 = g_boosted(I03);
-              // const Real &g_31 = g_boosted(I13);
-              // const Real &g_32 = g_boosted(I23);
-              // const Real &g_33 = g_boosted(I33);
-
-              // // Set lowered components
-              // ud_0 = g_00*u0prime + g_01*u1prime + g_02*u2prime + g_03*u3prime;
-              // ud_1 = g_10*u0prime + g_11*u1prime + g_12*u2prime + g_13*u3prime;
-              // ud_2 = g_20*u0prime + g_21*u1prime + g_22*u2prime + g_23*u3prime;
-              // ud_3 = g_30*u0prime + g_31*u1prime + g_32*u2prime + g_33*u3prime;
-
-              // E = ud_0;
-              // L = ud_3;
-              // udotu = u0prime*ud_0 + u1prime*ud_1 + u2prime*ud_2 + u3prime*ud_3;
-
-
-              // //  CHECK if this is actually a free fall solution!! //
-              // // if (rprime > 0.8*rh2){
-              // //   if ( ( std::fabs(E+1)>1e-2)  or (fabs(udotu+1)>1e-2) ){
-
-              // //     fprintf(stderr, "Second BH boosted and isolated E: %g L: %g udotu: %g \n xyz: %g %g %g\n rprime: %g thprime: %g phiprime: %g \n u: %g %g %g %g \n",
-              // //       E,L,udotu,xprime,yprime,zprime,rprime,thprime,phiprime, u0prime,u1prime,u2prime,u3prime );
-              // //     exit(0);
-
-              // //   }
-              // // }
-              // g_boosted.DeleteAthenaArray();
-
-              // //Make sure four vector is normalized
-              // Real c_const = 1.0 + g(I11,i)*u1prime*u1prime + 2.0*g(I12,i)*u1prime*u2prime+ 2.0*g(I13,i)*u1prime*u3prime
-              //          + g(I22,i)*u2prime*u2prime + 2.0*g(I23,i)*u2prime*u3prime
-              //          + g(I33,i)*u3prime*u3prime;
-
-              // Real b_const = 2.0 * ( g(I01,i)*u1prime + g(I02,i)*u2prime + g(I03,i)*u3prime );
-
-              // Real a_const = g(I00,i);
-
-              // if (std::fabs(a_const)<std::numeric_limits<double>::epsilon()){
-              //   u0prime = -c_const/b_const;
-
-              // }
-              // else{
-              //   u0prime = (-b_const + std::sqrt( SQR(b_const) - 4.0*a_const*c_const ) )/(2.0*a_const);
-              // }
 
  
 
@@ -2597,12 +2216,14 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
 
 
+
+  Real q =1.0;
   AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
   AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
 
   Real gamma_adi = pmb->peos->GetGamma();
 
-  Real k_target = 0.0005;
+  // Real k_target = 0.0005;
 
 
 
@@ -2621,42 +2242,73 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
       for (int i=pmb->is; i<=pmb->ie; ++i) {
 
+
+        Real r_com,theta_com, phi_com;
+        GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), 0,0,0,
+          &r_com,&theta_com, &phi_com);
+
+        Real binary_separation_distance = std::sqrt( 
+                                              SQR(orbit_quantities(IX1)-orbit_quantities(IX2)) + 
+                                              SQR(orbit_quantities(IY1)-orbit_quantities(IY2)) +
+                                              SQR(orbit_quantities(IZ1)-orbit_quantities(IZ2)) );
+
+        Real Omega_com = (1.0+q)/( std::pow(r_com,1.5) );
+
+        Real xprime,yprime,zprime,rprime_1,Rprime;
+        get_prime_coords(1,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime_1,&Rprime);
         Real radius, theta,phi;
         GetBoyerLindquistCoordinates(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities(IA1X),orbit_quantities(IA1Y),orbit_quantities(IA1Z),
           &radius,&theta, &phi);
 
-        Real xprime,yprime,zprime,rprime,Rprime;
-        get_prime_coords(pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
-        Real rhprime = ( q + std::sqrt(SQR(q)-SQR(a2)) );
+        Real xprime,yprime,zprime,rprime_2,Rprime;
+
+        get_prime_coords(2,pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities,&xprime,&yprime, &zprime, &rprime_2,&Rprime);
+        
+        Real rhprime1 = ( 1.0 + std::sqrt(SQR(1.0)-SQR(a1)) );
+        Real rhprime2 = ( q + std::sqrt(SQR(q)-SQR(a2)) );
 
         Real ug = prim(IPR,k,j,i)/(gamma_adi-1.0);
 
-        Real Omega = 1.0/( std::pow(radius,1.5) + a1);
-        Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime/(q+SMALL),1.5) + a2/(q+SMALL));
+        Real Omega_primary = 1.0/( std::pow(rprime_1,1.5) + a1);
+        Real Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(rprime_2/(q+SMALL),1.5) + a2/(q+SMALL));
 
         // Omega_secondary = Omega_secondary*q;
 
-        Real r_isco = risco_calc_general( 1, a1, m );
+        Real r_isco_primary = risco_calc_general( 1, a1, m );
         Real r_isco_secondary = risco_calc_general( 1, a2/(q+SMALL), q ); //neads a/M, returns isco in units of M_1
 
-        if (radius<r_isco) Omega = 1.0/( std::pow(r_isco,1.5) + a1);
-        if (rprime<r_isco_secondary) Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(r_isco_secondary/(q+SMALL),1.5) + a2/(q+SMALL));
+        if (rprime_1<r_isco_primary) Omega_primary = 1.0/( std::pow(r_isco_primary,1.5) + a1);
+        if (rprime_2<r_isco_secondary) Omega_secondary = 1.0/(q+SMALL) * 1.0/( std::pow(r_isco_secondary/(q+SMALL),1.5) + a2/(q+SMALL));
 
-        Real Target_Temperature = target_temperature_func( radius,H_over_r_target,a1,m);
-        Real Target_Temperature_secondary = target_temperature_func( rprime/(q+SMALL),H_over_r_target,a2/(q+SMALL),q);
 
-        Real Y = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature;
-        Real Y_secondary = prim(IPR,k,j,i)/prim(IDN,k,j,i)/Target_Temperature_secondary;
+        Real Y = prim(IPR,k,j,i)/std::ppw(prim(IDN,k,j,i), gamma_adi)/kappa_init;
 
 
         Real L_cool;
 
-        if (Target_Temperature>=Target_Temperature_secondary){
-          L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        Real Omega_com_1point5 = 1.0/( std::pow(1.5*binary_separation_distance,1.5) );
+
+        // Avara 2023
+
+        if (r_com>binary_separation_distance){
+          L_cool = Omega_com * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+
+        }
+        else if (rprime_1<0.45*binary_separation_distance){
+          L_cool = Omega_primary * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        }
+        else if (rprime_1<0.45*binary_separation_distance){
+          L_cool = Omega_secondary * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         }
         else{
-          L_cool = Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
+          L_cool = Omega_com_1point5 * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         }
+        // if (Target_Temperature>=Target_Temperature_secondary){
+        //   L_cool = Omega * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
+        // }
+        // else{
+        //   L_cool = Omega_secondary * ug * std::sqrt( Y_secondary-1.0 +  std::fabs(Y_secondary-1.0) );
+        // }
 
         // if (Target_Temperature>=Target_Temperature_secondary){
         //   L_cool = Omega * ug * std::pow( Y-1.0 +  std::fabs(Y-1.0),1.0 );
@@ -2706,9 +2358,10 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         // Calculate Boyer-Lindquist coordinates of cell
         Real rh = ( m + std::sqrt(SQR(m)-SQR(a1)) );
-        if (radius < rh) L_cool = 0.0;
 
-        if (rprime < rhprime) L_cool = 0.0;
+        if (rprime_1 < rhprime1) L_cool = 0.0;
+        if (rprime_2 < rhprime2) L_cool = 0.0;
+
 
         // Real L_cool_max = 0.2 * ug /dt; /// L_cool * dt < 0.2 * ug
         // if (L_cool> L_cool_max) L_cool = L_cool_max;
@@ -4203,354 +3856,6 @@ void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real 
   // return r;
 }
 
-// Real EquationOfState::GetRadius2(Real t, Real x1, Real x2, Real x3){
 
-//   AthenaArray<Real> orbit_quantities;
-//   orbit_quantities.NewAthenaArray(Norbit);
 
-//   get_orbit_quantities(t,orbit_quantities);
-
-//   Real x = x1;
-//   Real y = x2;
-//   Real z = x3;
-//   Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-//   get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
-
-//   orbit_quantities.DeleteAthenaArray();
-
-//   return rprime2;
-//   // Real xprime,yprime,zprime,rprime,Rprime;
-//   // get_prime_coords(2,x1,x2,x3, pmy_block_->pmy_mesh->time, &xprime,&yprime,&zprime,&rprime, &Rprime);
-
-//   // return rprime;
-// }
-Real max_wave_speed_gr(int DIR, int i, int j, int k,MeshBlock *pmb,AthenaArray<Real> &w,AthenaArray<Real> &g_,AthenaArray<Real> &gi_,AthenaArray<Real> &bcc,FaceField b ) {
-  Real Acov[4],Acon[4],Bcon[4],Bcov[4];
-
-  for (int mu=0; mu<=3; ++mu){
-    Acov[mu] = 0.0;
-    Bcov[mu] = 0.0;
-    Acon[mu] = 0.0;
-    Bcon[mu] = 0.0;
-  }
-
-  Acov[DIR] = 1.0;
-  Bcov[0] = 1.0;
-
-
-  Acon[0] = gi_(I00,i)*Acov[0] + gi_(I01,i)*Acov[1] + gi_(I02,i)*Acov[2] + gi_(I03,i)*Acov[3];
-  Acon[1] = gi_(I01,i)*Acov[0] + gi_(I11,i)*Acov[1] + gi_(I12,i)*Acov[2] + gi_(I13,i)*Acov[3];
-  Acon[2] = gi_(I02,i)*Acov[0] + gi_(I12,i)*Acov[1] + gi_(I22,i)*Acov[2] + gi_(I23,i)*Acov[3];
-  Acon[3] = gi_(I03,i)*Acov[0] + gi_(I13,i)*Acov[1] + gi_(I23,i)*Acov[2] + gi_(I33,i)*Acov[3];
-
-  Bcon[0] = gi_(I00,i)*Bcov[0] + gi_(I01,i)*Bcov[1] + gi_(I02,i)*Bcov[2] + gi_(I03,i)*Bcov[3];
-  Bcon[1] = gi_(I01,i)*Bcov[0] + gi_(I11,i)*Bcov[1] + gi_(I12,i)*Bcov[2] + gi_(I13,i)*Bcov[3];
-  Bcon[2] = gi_(I02,i)*Bcov[0] + gi_(I12,i)*Bcov[1] + gi_(I22,i)*Bcov[2] + gi_(I23,i)*Bcov[3];
-  Bcon[3] = gi_(I03,i)*Bcov[0] + gi_(I13,i)*Bcov[1] + gi_(I23,i)*Bcov[2] + gi_(I33,i)*Bcov[3];
-
-  Real Asq = Acon[0]*Acov[0] + Acon[1]*Acov[1] + Acon[2]*Acov[2] + Acon[3]*Acov[3];
-  Real Bsq = Bcon[0]*Bcov[0] + Bcon[1]*Bcov[1] + Bcon[2]*Bcov[2] + Bcon[3]*Bcov[3];
-
-
-  Real uu1 = w(IVX,k,j,i);
-  Real uu2 = w(IVY,k,j,i);
-  Real uu3 = w(IVZ,k,j,i);
-  Real tmp = g_(I11,i)*uu1*uu1 + 2.0*g_(I12,i)*uu1*uu2 + 2.0*g_(I13,i)*uu1*uu3
-           + g_(I22,i)*uu2*uu2 + 2.0*g_(I23,i)*uu2*uu3
-           + g_(I33,i)*uu3*uu3;
-  Real gamma = std::sqrt(1.0 + tmp);
-
-  // Calculate 4-velocity
-  Real alpha = std::sqrt(-1.0/gi_(I00,i));
-  Real u0 = gamma/alpha;
-  Real u1 = uu1 - alpha * gamma * gi_(I01,i);
-  Real u2 = uu2 - alpha * gamma * gi_(I02,i);
-  Real u3 = uu3 - alpha * gamma * gi_(I03,i);
-
-  Real Au = u0*Acov[0] + u1*Acov[1] + u2*Acov[2] + u3*Acov[3];
-
-
-  Real Bu = u0*Bcov[0] + u1*Bcov[1] + u2*Bcov[2] + u3*Bcov[3];
-
-  Real AB = Acon[0]*Bcov[0] + Acon[1]*Bcov[1] + Acon[2]*Bcov[2] + Acon[3]*Bcov[3];
-
-  Real Au2 = Au*Au;
-  Real Bu2 = Bu*Bu;
-  Real AuBu = Au*Bu;
-
-  Real b_sq;
-
-  if (MAGNETIC_FIELDS_ENABLED) {
-
-
-    Real u_0,u_1,u_2,u_3;
-    pmb->pcoord->LowerVectorCell(u0, u1, u2, u3, k, j, i, &u_0, &u_1, &u_2, &u_3);
-
-    // Calculate 4-magnetic field
-    Real bb1 = bcc(IB1,k,j,i); /// + std::abs(b_x1f(k,j,i) - bcc(IB1,k,j,i));
-    Real bb2 = bcc(IB2,k,j,i);
-    Real bb3 = bcc(IB3,k,j,i);
-
-    if (DIR==1) bb1 += std::abs(b.x1f(k,j,i) - bcc(IB1,k,j,i));
-    if (DIR==2) bb2 += std::abs(b.x2f(k,j,i) - bcc(IB2,k,j,i));
-    if (DIR==3) bb3 += std::abs(b.x3f(k,j,i) - bcc(IB3,k,j,i));
-
-    Real b0 = g_(I01,i)*u0*bb1 + g_(I02,i)*u0*bb2 + g_(I03,i)*u0*bb3
-            + g_(I11,i)*u1*bb1 + g_(I12,i)*u1*bb2 + g_(I13,i)*u1*bb3
-            + g_(I12,i)*u2*bb1 + g_(I22,i)*u2*bb2 + g_(I23,i)*u2*bb3
-            + g_(I13,i)*u3*bb1 + g_(I23,i)*u3*bb2 + g_(I33,i)*u3*bb3;
-    Real b1 = (bb1 + b0 * u1) / u0;
-    Real b2 = (bb2 + b0 * u2) / u0;
-    Real b3 = (bb3 + b0 * u3) / u0;
-    Real b_0, b_1, b_2, b_3;
-    pmb->pcoord->LowerVectorCell(b0, b1, b2, b3, k, j, i, &b_0, &b_1, &b_2, &b_3);
-
-    // Calculate bsq
-    b_sq = b0*b_0 + b1*b_1 + b2*b_2 + b3*b_3;
-
-  }
-  else{
-    b_sq = 0.0;
-  }
-  Real gam = pmb->peos->GetGamma();
-  // Find fast magnetosonic speed
-  Real rho = w(IDN,k,j,i);
-  Real u = w(IPR,k,j,i) / (gam-1.0); 
-  Real ef = rho + gam*u;
-  Real ee = b_sq + ef;
-  Real va2 = b_sq/ee;
-  Real cs2 = gam*(gam - 1.)*u/ef;
-
-  Real cms2 = cs2 + va2 - cs2*va2;
-
-  // Real SMALL = 1e-10;
-
-  cms2 = (cms2 < 0) ? SMALL : cms2;
-  cms2 = (cms2 > 1) ? 1 : cms2;
-
-  // Require that speed of wave measured by observer q->ucon is cms2
-
-  Real A = Bu2 - (Bsq + Bu2)*cms2;
-  Real B = 2.*(AuBu - (AB + AuBu)*cms2);
-  Real C = Au2 - (Asq + Au2)*cms2;
-
-  Real discr = B*B - 4.*A*C;
-  discr = (discr < 0.) ? 0. : discr;
-  discr = std::sqrt(discr);
-
-  Real vp = -(-B + discr)/(2.*A);
-  Real vm = -(-B - discr)/(2.*A);
-
-  Real cmax = (vp > vm) ? vp : vm;
-  Real cmin = (vp > vm) ? vm : vp;
-
-    // (*cmax)[k][j][i] = fabs(MY_MAX(MY_MAX(0., (*cmaxL)[k][j][i]), (*cmaxR)[k][j][i]));
-    // (*cmin)[k][j][i] = fabs(MY_MAX(MY_MAX(0., -(*cminL)[k][j][i]), -(*cminR)[k][j][i]));
-    // (*ctop)[dir][k][j][i] = MY_MAX((*cmax)[k][j][i], (*cmin)[k][j][i]);
-  Real ctop = std::max(std::fabs(cmax),std::fabs(cmin));
-
-
-  // AthenaArray<Real> orbit_quantities;
-  // orbit_quantities.NewAthenaArray(Norbit);
-
-  // get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
-
-  // Real x = pmb->pcoord->x1v(i);
-  // Real y = pmb->pcoord->x2v(j);
-  // Real z = pmb->pcoord->x3v(k);
-  // Real xprime1,yprime1,zprime1,rprime1,Rprime1;
-  // get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
-  // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-  // get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
-
-  // if (ctop>2)
-  // fprintf(stderr,"dir: %d ijk: %d %d %d \n xyz: %g %g %g \n cms2: %g ABC: %g %g %g \n Bu2: %g Au2: %g vp: %g vm: %g \n ctop: %g xyzprime1: %g %g %g rprime1: %g \n xyzprime2: %g %g %g rprime2: %g \n U: %g %g %g %g \n cmax: %g cmin: %g AB: %g Asq: %g Bsq: %g\n gis: %g %g %g %g %g %g %g \n Acov: %g %g %g %g \n Acon: %g %g %g %g \n Bcov: %g %g %g %g \n Bcon: %g %g %g %g \n",
-  //   DIR, i,j,k, pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k),cms2,A,B,C,Bu2,Au2,vp,vm,ctop,xprime1,yprime1,zprime1,rprime1,xprime2,yprime2,zprime2,rprime2,u0,u1,u2,u3,cmax,cmin,AB,Asq,Bsq,
-  //   gi_(I00,i),gi_(I01,i),gi_(I11,i),gi_(I02,i),gi_(I22,i),gi_(I03,i),gi_(I33,i),
-  //   Acov[0],Acov[1],Acov[2],Acov[3], Acon[0],Acon[1],Acon[2],Acon[3],
-  //   Bcov[0],Bcov[1],Bcov[2],Bcov[3], Bcon[0],Bcon[1],Bcon[2],Bcon[3]);
-
-
-  // orbit_quantities.DeleteAthenaArray();
-  return ctop;
-
-
-
-}
-
-
-Real MyTimeStep(MeshBlock *pmb)
-{
-  Real min_dt=FLT_MAX;
-
-  int il = pmb->is - NGHOST;
-  int iu = pmb->ie + NGHOST;
-  int jl = pmb->js;
-  int ju = pmb->je;
-  if (pmb->block_size.nx2 > 1) {
-    jl -= (NGHOST);
-    ju += (NGHOST);
-  }
-  int kl = pmb->ks;
-  int ku = pmb->ke;
-  if (pmb->block_size.nx3 > 1) {
-    kl -= (NGHOST);
-    ku += (NGHOST);
-  }
-
-  AthenaArray<Real> g, gi,dt1,dt2,dt3;
-  g.NewAthenaArray(NMETRIC, iu+1);
-  gi.NewAthenaArray(NMETRIC, iu+1);
-  dt1.NewAthenaArray(pmb->ncells1);
-  dt2.NewAthenaArray(pmb->ncells1);
-  dt3.NewAthenaArray(pmb->ncells1);
-  for (int k=pmb->ks; k<=pmb->ke; ++k) {
-    for (int j=pmb->js; j<=pmb->je; ++j) {
-      pmb->pcoord->CenterWidth1(k, j, pmb->is, pmb->ie, dt1);
-      pmb->pcoord->CenterWidth2(k, j, pmb->is, pmb->ie, dt2);
-      pmb->pcoord->CenterWidth3(k, j, pmb->is, pmb->ie, dt3);
-      pmb->pcoord->CellMetric(k,j,pmb->is,pmb->ie,g,gi); 
-        for (int i=pmb->is; i<=pmb->ie; ++i) {
-
-
-          // Real cl1 = ( -g_(I01,i) + std::sqrt( SQR(g_(I01,i)) - g_(I00,i)*g_(I11,i) ) ) / g_(I11,i);
-          // Real cl2 = ( -g_(I02,i) + std::sqrt( SQR(g_(I02,i)) - g_(I00,i)*g_(I22,i) ) ) / g_(I22,i);
-          // Real cl3 = ( -g_(I03,i) + std::sqrt( SQR(g_(I03,i)) - g_(I00,i)*g_(I33,i) ) ) / g_(I33,i);
-
-          // Real cl1 = max_wave_speed_gr(1,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl2 = max_wave_speed_gr(2,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-          // Real cl3 = max_wave_speed_gr(3,i,j,k,pmb,pmb->phydro->w,g,gi,pmb->pfield->bcc,pmb->pfield->b);
-
-
-           // SR case: do nothing (assume maximum characteristic is c = 1)
-      // GR case: divide cell widths by coordinate speed of light (not necessarily unity)
-
-          Real speed1a = -(std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
-              - gi(I01,i)) / gi(I00,i);
-
-          Real speed1b = (std::sqrt(SQR(gi(I01,i)) - gi(I00,i) * gi(I11,i))
-              - gi(I01,i)) / gi(I00,i);
-
-          Real speed1 = std::max(std::abs(speed1a),std::abs(speed1b));
-
-          Real speed2a = -(std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
-              - gi(I02,i)) / gi(I00,i);
-          Real speed2b = (std::sqrt(SQR(gi(I02,i)) - gi(I00,i) * gi(I22,i))
-              - gi(I02,i)) / gi(I00,i);
-
-          Real speed2 = std::max(std::abs(speed2a),std::abs(speed2b));
-
-          Real speed3a = -(std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
-              - gi(I03,i)) / gi(I00,i);
-          Real speed3b = (std::sqrt(SQR(gi(I03,i)) - gi(I00,i) * gi(I33,i))
-              - gi(I03,i)) / gi(I00,i);
-
-
-          Real speed3 = std::max(std::abs(speed3a),std::abs(speed3b));
-
-          // dt1(i) = pmb->pcoord->dx1f(i) /speed1;
-          // dt2(i) = pmb->pcoord->dx2f(j) /speed2;
-          // dt3(i) = pmb->pcoord->dx3f(k) /speed3;
-
-          dt1(i) /= speed1;
-          dt2(i) /=speed2;
-          dt3(i) /=speed3;
-
-
-          // AthenaArray<Real> orbit_quantities;
-          // orbit_quantities.NewAthenaArray(Norbit);
-
-          // get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
-
-          // Real x = pmb->pcoord->x1v(i);
-          // Real y = pmb->pcoord->x2v(j);
-          // Real z = pmb->pcoord->x3v(k);
-          // Real xprime1,yprime1,zprime1,rprime1,Rprime1;
-          // get_prime_coords(1,x,y,z, orbit_quantities, &xprime1,&yprime1, &zprime1, &rprime1,&Rprime1);
-          // Real xprime2,yprime2,zprime2,rprime2,Rprime2;
-          // get_prime_coords(2,x,y,z, orbit_quantities, &xprime2,&yprime2, &zprime2, &rprime2,&Rprime2);
-
-          // Real a1x = orbit_quantities(IA1X);
-          // Real a1y = orbit_quantities(IA1Y);
-          // Real a1z = orbit_quantities(IA1Z);
-
-          // Real a2x = orbit_quantities(IA2X);
-          // Real a2y = orbit_quantities(IA2Y);
-          // Real a2z = orbit_quantities(IA2Z);
-
-          // Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
-          // Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
-
-
-          // Real rh1 =  ( m + std::sqrt( SQR(m) -SQR(a1)) );
-          // Real rh2 =  ( m + std::sqrt( SQR(m) -SQR(a2)) );
-
-
-          // Real uu1 = pmb->phydro->w(IVX,k,j,i);
-          // Real uu2 = pmb->phydro->w(IVY,k,j,i);
-          // Real uu3 = pmb->phydro->w(IVZ,k,j,i);
-          // Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
-          //          + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
-          //          + g(I33,i)*uu3*uu3;
-          // Real gamma = std::sqrt(1.0 + tmp);
-
-          // // Calculate 4-velocity
-          // Real alpha = std::sqrt(-1.0/gi(I00,i));
-          // Real u0 = gamma/alpha;
-          // Real u1 = uu1 - alpha * gamma * gi(I01,i);
-          // Real u2 = uu2 - alpha * gamma * gi(I02,i);
-          // Real u3 = uu3 - alpha * gamma * gi(I03,i);
-          // // if (( rprime1<rh1 and rprime1>0.8*rh1) or ( rprime2<rh2 and rprime2>0.8*rh2))
-          // // fprintf(stderr,"dx: %g %g %g \n rprime1: %g rprime 2: %g \n speed1: %g speed2: %g speed3: %g \n gii: %g %g %g \n xyzprime1: %g %g %g \n xyzprime2: %g %g %G \n ginvers: %g %g %g \n v: %g %g %g \n",
-          // // pmb->pcoord->dx1f(i),pmb->pcoord->dx2f(j),pmb->pcoord->dx1f(3), rprime1,rprime2, speed1,speed2,speed3,std::sqrt(g(I11,i)),std::sqrt(g(I22,i)),std::sqrt(g(I33,i)),xprime1,yprime1,zprime1,xprime2,yprime2,zprime2,
-          // //  gi(I01,i),gi(I00,i),gi(I11,i),u1/u0,u2/u0,u3/u0);
-
-
-          // orbit_quantities.DeleteAthenaArray();
-
-          // //(cour*dx[mu]/(*ctop)[mu][k][j][i]);
-          // dt1(i) = pmb->pcoord->dx1f(i) / cl1;
-          // dt2(i) = pmb->pcoord->dx2f(j) / cl2;
-          // dt3(i) = pmb->pcoord->dx3f(k) / cl3;
-      }
-
-            // compute minimum of (v1 +/- C)
-      for (int i=pmb->is; i<=pmb->ie; ++i) {
-        Real& dt_1 = dt1(i);
-        min_dt = std::min(min_dt, dt_1);
-      }
-
-      // if grid is 2D/3D, compute minimum of (v2 +/- C)
-      if (pmb->block_size.nx2 > 1) {
-        for (int i=pmb->is; i<=pmb->ie; ++i) {
-          Real& dt_2 = dt2(i);
-          min_dt= std::min(min_dt, dt_2);
-        }
-      }
-
-      // if grid is 3D, compute minimum of (v3 +/- C)
-      if (pmb->block_size.nx3 > 1) {
-        for (int i=pmb->is; i<=pmb->ie; ++i) {
-          Real& dt_3 = dt3(i);
-          min_dt = std::min(min_dt, dt_3);
-        }
-      }
-    }
-  }
-
-  // calculate the timestep limited by the diffusion processes
-
-
-  min_dt *= pmb->pmy_mesh->cfl_number;
-  // scale the theoretical stability limit by a safety factor = the hyperbolic CFL limit
-  // (user-selected or automaticlaly enforced). May add independent parameter "cfl_diff"
-  // in the future (with default = cfl_number).
-
-  g.DeleteAthenaArray();
-  gi.DeleteAthenaArray();
-  dt1.DeleteAthenaArray();
-  dt2.DeleteAthenaArray();
-  dt3.DeleteAthenaArray();
-  return min_dt;
-}
 
