@@ -135,13 +135,8 @@ static Real rho_min, rho_pow, pgas_min, pgas_pow;  // background parameters
 
 static Real q;          // black hole mass and spin
 static Real m_tot;     // total black hole mass
-// static Real r_inner_boundary,r_inner_boundary_2;
-// static Real rh2;
-// static Real eccentricity, tau, mean_angular_motion;
 static Real t0; //time at which second BH is at polar axis
-static Real orbit_inclination;
 static Real field_norm;
-static Real H_over_r_target;
 
 
 static Real t0_orbits,dt_orbits;
@@ -445,7 +440,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
 
 
-  if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
+  // if (MAGNETIC_FIELDS_ENABLED) field_norm =  pin->GetReal("problem", "field_norm");
 
 
 
