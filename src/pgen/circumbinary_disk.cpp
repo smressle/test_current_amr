@@ -1013,7 +1013,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
         Real rho_sol,pgas_sol,uu1,uu2,uu3;
         bool is_in_torus;
-        get_Chakrabarti_torus_single_BH(pin,, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
+        get_Chakrabarti_torus_single_BH(pin, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
                                         &rho_sol, &pgas_sol, &uu1, &uu2, &uu2, &is_in_torus);
 
         in_torus(k,j,i) = is_in_torus;
