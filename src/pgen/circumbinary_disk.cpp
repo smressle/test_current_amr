@@ -2395,7 +2395,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real ug_frac = dt * L_cool/ug;
 
-        pmb->user_out_var(0,k,j,i) = L_cool * u_0;
+        // pmb->user_out_var(0,k,j,i) = L_cool * u_0;
 
         // pmb->user_out_var(1,k,j,i) = pmb->pcoord->GetCellVolume(k,j,i)/
         //                   (pmb->pcoord->dx1f(i)*pmb->pcoord->dx2f(j)*pmb->pcoord->dx3f(k));
