@@ -845,9 +845,10 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     Real gam = pin->GetReal("hydro", "gamma");
 
     AthenaArray<Real> g_single_bh, gi_single_bh;
-    bool invertible = gluInvertMatrix(g_single_bh,gi_single_bh);
     g_single_bh.NewAthenaArray(NMETRIC);
     gi_single_bh.NewAthenaArray(NMETRIC);
+    bool invertible = gluInvertMatrix(g_single_bh,gi_single_bh);
+
 
 
     single_bh_metric(a,x,y,z, pin,g_single_bh);
