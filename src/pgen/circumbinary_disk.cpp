@@ -1408,8 +1408,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
 
             pfield->b.x3f(k,j,i) *= normalization;
-              
 
+            if (std::isnan(pfield->b.x3f(k,j,i))){
+              fprintf(stderr,"NAN in field \n det: %g Ax_2: %g Ax_1: %g \n", det,Ax_2,Ax_1);
+            
+            }
           }
         }
       }
