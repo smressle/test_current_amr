@@ -839,7 +839,7 @@ else return 1;
 }
 
 
-void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z, Real a, Real *rho, Real *press, Real *vel1, Real *vel2, Real *vel3 ){
+void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z, Real a, Real *rho, Real *press, Real *vel1, Real *vel2, Real *vel3, bool *is_in_torus){
 
 
     Real gam = pin->GetReal("hydro", "gamma");
@@ -882,7 +882,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     Real rho_sol, ug_sol,pgas_sol;
     Real uu_t_sol,uu_phi_sol;
     if (eps<0 or r<rin) {
-      // in_torus(k,j,i) = false;
+      *is_in_torus = false;
 
       rho_sol = 0.0;
       ug_sol = 0.0;
@@ -891,7 +891,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
       uu_phi_sol = 0.0;
     }
     else{
-      // in_torus(k,j,i) = true;
+      *is_in_torus = true;
 
       rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
 
@@ -1011,57 +1011,12 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0,0,0, &r,
             &theta, &phi);
 
+        Real rho_sol,pgas_sol,uu1,uu2,uu3;
+        bool is_in_torus;
+        get_Chakrabarti_torus_single_BH(pin,, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
+                                        &rho_sol, &pgas_sol, &uu1, &uu2, &uu2, &is_in_torus);
 
-        Real lambda_sol = std::sqrt(-gphiphi(r/m_tot,a,theta)/gtt(r/m_tot,a,theta) ) ;
-
-        Real l_sol = c_const * std::pow( lambda_sol, n_pow);
-        
-        Real denom_sq = -( gitt(r/m_tot,a,theta) - 2.0*l_sol*gitphi(r/m_tot,a,theta) + SQR(l_sol)*giphiphi(r/m_tot,a,theta) );
-        Real ud_t,eps; 
-        if (denom_sq>0){
-          ud_t = -1.0/std::sqrt(denom_sq);
-          eps = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t * f(l_sol,c_const,n_pow)) -1.0);
-
-          if (std::isnan(eps)){
-            fprintf(stderr,"eps is NAN! \n r theta phi: %g %g %g \n ud_t_in: %g f_in: %g ud_t: %g f: %g \n n_pow: %g c_const: %g l: %g lin: %g \n",r,theta,phi, ud_t_in,f(lin,c_const,n_pow),ud_t,f(l_sol,c_const,n_pow),n_pow,c_const,l_sol,lin);
-            exit(0);
-          }
-        }
-        else{
-          ud_t = -1.0;
-          eps = -1.0;
-        }
-
-         // Determine if we are in the torus
-        Real rho_sol, ug_sol,pgas_sol;
-        Real uu_t_sol,uu_phi_sol;
-        if (eps<0 or r<rin) {
-          in_torus(k,j,i) = false;
-
-          rho_sol = 0.0;
-          ug_sol = 0.0;
-          pgas_sol = 0.0;
-          uu_t_sol = 1.0;
-          uu_phi_sol = 0.0;
-        }
-        else{
-          in_torus(k,j,i) = true;
-
-          rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
-
-          ug_sol = eps * rho_sol;
-          pgas_sol = ug_sol * (gam-1.0);
-
-          Real Omega = l_sol / SQR(  lambda_sol) ;
-
-          //g_mu_nu u^mu u^nu = -1
-          // g_tt u^t^2 + 2*g_tphi* u^t u^phi + g_phiphi * u^phi^2 = -1
-          // g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2 = -1/u^t^2 
-          // u^t = sqrt( -1/ (g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2)  )
-
-          uu_t_sol = std::sqrt( -1.0/ (gtt(r/m_tot,a,theta) + 2.0*gtphi(r/m_tot,a,theta) * Omega + gphiphi(r/m_tot,a,theta) * SQR( Omega) )  );
-          uu_phi_sol = uu_t_sol * Omega;
-        }
+        in_torus(k,j,i) = is_in_torus;
 
         // Calculate background primitives
         Real rho = rho_min * std::pow(r, rho_pow);
@@ -1082,23 +1037,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
           rho = rho_sol /rho_peak;
           pgas = pgas_sol / rho_peak;
 
-          // Calculate velocities in Boyer-Lindquist coordinates
-          Real u0_bl, u1_bl, u2_bl, u3_bl;
-          // CalculateVelocityInTiltedTorus(r, theta, phi, &u0_bl, &u1_bl, &u2_bl, &u3_bl);
 
-          u0_bl = uu_t_sol;
-          u1_bl = 0.0;
-          u2_bl = 0.0;
-          u3_bl = uu_phi_sol;
-
-          // Transform to preferred coordinates
-          Real u0, u1, u2, u3;
-          TransformVector(u0_bl, 0.0, u2_bl, u3_bl, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, 0,&u0, &u1, &u2, &u3);
-          uu1 = u1 - gi(I01,i)/gi(I00,i) * u0;
-          uu2 = u2 - gi(I02,i)/gi(I00,i) * u0;
-          uu3 = u3 - gi(I03,i)/gi(I00,i) * u0;
-
-          // fprintf(stderr,"In Torus\n r theta phi: %g %g %g \n rho %g press: %g uu: %g %g %g %g \n v: %g %g %g \n eps: %g rho_peak: %g \n ",r,theta,phi,rho,pgas,u0,u1,u2,u3,uu1,uu2,uu3,eps,rho_peak);
         }
 
         // Set primitive values, including cylindrically symmetric radial velocity
