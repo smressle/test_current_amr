@@ -115,6 +115,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted );
 void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks );
 void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_pert );
+void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
 
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
@@ -837,6 +838,106 @@ else return 1;
   // return -1;
 }
 
+
+void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z, Real a, Real *rho, Real *press, Real *vel1, Real *vel2, Real *vel3 ){
+
+
+    Real gam = pin->GetReal("hydro", "gamma");
+
+    AthenaArray<Real> g_single_bh, gi_single_bh;
+    bool invertible = gluInvertMatrix(g_single_bh,gi_single_bh);
+    g_single_bh.NewAthenaArray(NMETRIC);
+    gi_single_bh.NewAthenaArray(NMETRIC);
+
+
+    single_bh_metric(x,y,z, pin,g_single_bh);
+
+        // Calculate Boyer-Lindquist coordinates of cell
+    Real r, theta, phi;
+    GetBoyerLindquistCoordinates(x,y,z,0,0,a, &r,
+        &theta, &phi);
+
+
+    Real lambda_sol = std::sqrt(-gphiphi(r,a,theta)/gtt(r,a,theta) ) ;
+
+    Real l_sol = c_const * std::pow( lambda_sol, n_pow);
+    
+    Real denom_sq = -( gitt(r,a,theta) - 2.0*l_sol*gitphi(r,a,theta) + SQR(l_sol)*giphiphi(r,a,theta) );
+    Real ud_t,eps; 
+    if (denom_sq>0){
+      ud_t = -1.0/std::sqrt(denom_sq);
+      eps = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t * f(l_sol,c_const,n_pow)) -1.0);
+
+      if (std::isnan(eps)){
+        fprintf(stderr,"eps is NAN! \n r theta phi: %g %g %g \n ud_t_in: %g f_in: %g ud_t: %g f: %g \n n_pow: %g c_const: %g l: %g lin: %g \n",r,theta,phi, ud_t_in,f(lin,c_const,n_pow),ud_t,f(l_sol,c_const,n_pow),n_pow,c_const,l_sol,lin);
+        exit(0);
+      }
+    }
+    else{
+      ud_t = -1.0;
+      eps = -1.0;
+    }
+
+     // Determine if we are in the torus
+    Real rho_sol, ug_sol,pgas_sol;
+    Real uu_t_sol,uu_phi_sol;
+    if (eps<0 or r<rin) {
+      in_torus(k,j,i) = false;
+
+      rho_sol = 0.0;
+      ug_sol = 0.0;
+      pgas_sol = 0.0;
+      uu_t_sol = 1.0;
+      uu_phi_sol = 0.0;
+    }
+    else{
+      in_torus(k,j,i) = true;
+
+      rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
+
+      ug_sol = eps * rho_sol;
+      pgas_sol = ug_sol * (gam-1.0);
+
+      Real Omega = l_sol / SQR(  lambda_sol) ;
+
+      //g_mu_nu u^mu u^nu = -1
+      // g_tt u^t^2 + 2*g_tphi* u^t u^phi + g_phiphi * u^phi^2 = -1
+      // g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2 = -1/u^t^2 
+      // u^t = sqrt( -1/ (g_tt + 2 g_tpih * Omega + g_phiphi*Omega**2)  )
+
+      uu_t_sol = std::sqrt( -1.0/ (gtt(r,a,theta) + 2.0*gtphi(r,a,theta) * Omega + gphiphi(r,a,theta) * SQR( Omega) )  );
+      uu_phi_sol = uu_t_sol * Omega;
+    }
+
+
+    // velocities in Boyer-Lindquist coordinates
+    Real u0_bl, u1_bl, u2_bl, u3_bl;
+
+    u0_bl = uu_t_sol;
+    u1_bl = 0.0;
+    u2_bl = 0.0;
+    u3_bl = uu_phi_sol;
+
+    Real u0, u1, u2, u3;
+    TransformVector(u0_bl, 0.0, u2_bl, u3_bl, x, y, z, a,&u0, &u1, &u2, &u3);
+
+
+    uu1 = u1 - gi_single_bh(I01)/gi_single_bh(I00) * u0;
+    uu2 = u2 - gi_single_bh(I02)/gi_single_bh(I00) * u0;
+    uu3 = u3 - gi_single_bh(I03)/gi_single_bh(I00) * u0;
+
+    g_single_bh.DeleteAthenaArray();
+    gi_single_bh.DeleteAthenaArray();
+
+    *rho = rho_sol;
+    *press = pgas_sol;
+    *vel1 = uu1;
+    *vel2 = uu2;
+    *vel3 = uu3;
+
+    return;
+
+}
 
 
 //----------------------------------------------------------------------------------------
@@ -3840,5 +3941,75 @@ void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real 
 }
 
 
+void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
+    AthenaArray<Real> &g)
+{
+  // Extract inputs
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
 
+  a = pin->GetReal("coord", "a");
+  Real a_spin = a;
+
+  if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
+  if ((std::fabs(z)<SMALL) && ( z<0  )) z= -SMALL;
+
+  // if ((std::fabs(x)<SMALL) && (x>=0)) x= SMALL;
+  // if ((std::fabs(x)<SMALL) && (x<0)) x= -SMALL;
+
+  // if ((std::fabs(y)<SMALL) && (y>=0)) y= SMALL;
+  // if ((std::fabs(y)<SMALL) && (y<0)) y= -SMALL;  
+
+  if ( (std::fabs(x)<0.1) && (std::fabs(y)<0.1) && (std::fabs(z)<0.1) ){
+    x = 0.1;
+    y = 0.1;
+    z = 0.1;
+  }
+
+  Real R = std::sqrt(SQR(x) + SQR(y) + SQR(z));
+  Real r = SQR(R) - SQR(a) + std::sqrt( SQR( SQR(R) - SQR(a) ) + 4.0*SQR(a)*SQR(z) );
+  r = std::sqrt(r/2.0);
+
+
+  //if (r<0.01) r = 0.01;
+
+
+  Real eta[4],l_lower[4],l_upper[4];
+
+  Real f = 2.0 * SQR(r)*r / (SQR(SQR(r)) + SQR(a)*SQR(z));
+  l_upper[0] = -1.0;
+  l_upper[1] = (r*x + a_spin*y)/( SQR(r) + SQR(a) );
+  l_upper[2] = (r*y - a_spin*x)/( SQR(r) + SQR(a) );
+  l_upper[3] = z/r;
+
+  l_lower[0] = 1.0;
+  l_lower[1] = l_upper[1];
+  l_lower[2] = l_upper[2];
+  l_lower[3] = l_upper[3];
+
+  eta[0] = -1.0;
+  eta[1] = 1.0;
+  eta[2] = 1.0;
+  eta[3] = 1.0;
+
+
+
+
+  // Set covariant components
+  g(I00) = eta[0] + f * l_lower[0]*l_lower[0] ;
+  g(I01) =          f * l_lower[0]*l_lower[1] ;
+  g(I02) =          f * l_lower[0]*l_lower[2] ;
+  g(I03) =          f * l_lower[0]*l_lower[3] ;
+  g(I11) = eta[1] + f * l_lower[1]*l_lower[1] ;
+  g(I12) =          f * l_lower[1]*l_lower[2] ;
+  g(I13) =          f * l_lower[1]*l_lower[3] ;
+  g(I22) = eta[2] + f * l_lower[2]*l_lower[2] ;
+  g(I23) =          f * l_lower[2]*l_lower[3] ;
+  g(I33) = eta[3] + f * l_lower[3]*l_lower[3] ;
+
+
+
+  return;
+}
 
