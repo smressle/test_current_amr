@@ -115,7 +115,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
 void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted );
 void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks );
 void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_pert );
-void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
+void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
 
 void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
@@ -850,7 +850,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     gi_single_bh.NewAthenaArray(NMETRIC);
 
 
-    single_bh_metric(x,y,z, pin,g_single_bh);
+    single_bh_metric(a,x,y,z, pin,g_single_bh);
 
         // Calculate Boyer-Lindquist coordinates of cell
     Real r, theta, phi;
@@ -3941,7 +3941,7 @@ void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real 
 }
 
 
-void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
+void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g)
 {
   // Extract inputs
@@ -3949,7 +3949,6 @@ void single_bh_metric(Real x1, Real x2, Real x3, ParameterInput *pin,
   Real y = x2;
   Real z = x3;
 
-  a = pin->GetReal("coord", "a");
   Real a_spin = a;
 
   if ((std::fabs(z)<SMALL) && ( z>=0 )) z=  SMALL;
