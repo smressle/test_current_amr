@@ -1069,7 +1069,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   AthenaArray<Real> &gi_ = ruser_meshblock_data[1];
 
 
-  // // Initialize magnetic fields
+  // Initialize magnetic fields
   // if (MAGNETIC_FIELDS_ENABLED) {
 
   //   // Prepare arrays of vector potential values
@@ -1418,10 +1418,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
   
 
-    // Free vector potential arrays
-      a_phi_edges.DeleteAthenaArray();
-      a_phi_cells.DeleteAthenaArray();
-  }
+  //   // Free vector potential arrays
+  //     a_phi_edges.DeleteAthenaArray();
+  //     a_phi_cells.DeleteAthenaArray();
+  // }
 
   // Impose density and pressure floors
   for (int k = kl; k <= ku; ++k) {
