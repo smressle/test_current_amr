@@ -544,7 +544,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   
   kappa_init = k_adi * std::pow(rho_peak,gam-1.0);
 
-  fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const\n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const);
+  fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const: %g \n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const);
 
   EnrollUserExplicitSourceFunction(NobleCooling);
 
