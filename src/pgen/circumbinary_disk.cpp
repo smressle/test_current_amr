@@ -507,23 +507,15 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
       //SEE DE VILLIERS+ 2003 https://arxiv.org/pdf/astro-ph/0307260.pdf
 
   Real a = 0;
-  Real rmb = 2.0 - a + 2.0 * std::sqrt(1.0-a);   //Equation 20 of https://arxiv.org/abs/1707.05680
-  Real Z1 = 1.0 + std::pow( (1.0-SQR(a)), 0.33333) * ( std::pow( (1.0+a),0.3333) + std::pow( (1.0-a), 0.3333) );
-  Real Z2 = std::sqrt(3.0*SQR(a) + SQR(Z1));
-  Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
-
-
-  Real lmb = l_kep(a,rmb);  //don't divide by mtot
-  Real lms = l_kep(a,rms);  //don't divide by mtot
 
   Real rc = r_peak;
-  Real lc = l_kep(a,rc/m_tot);
+  Real lc = l_kep(a,rc);
 
 
     // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
 
-  Real lambda_in = std::sqrt(-gphiphi(rin/m_tot,a,PI/2.0)/gtt(rin/m_tot,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
-  Real lambda_c = std::sqrt(-gphiphi(rc/m_tot,a,PI/2.0)/gtt(rc/m_tot,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
+  Real lambda_in = std::sqrt(-gphiphi(rin,a,PI/2.0)/gtt(rin,a,PI/2.0) ); //lambda_func(rin,a,PI/2.0,lin)
+  Real lambda_c = std::sqrt(-gphiphi(rc,a,PI/2.0)/gtt(rc,a,PI/2.0) ); //3lambda_func(rc,a,PI/2.0,lc)
 
 
   lin = lc/std::exp(n_pow*std::log(lambda_c/lambda_in) );
@@ -531,12 +523,12 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   Real alpha_pow = (2.0*n_pow-2.0)/n_pow;
 
-  ud_t_in = -1.0/std::sqrt( - (gitt(rin/m_tot,a,PI/2.0) - 2.0*lin*gitphi(rin/m_tot,a,PI/2.0) + SQR(lin)*giphiphi(rin/m_tot,a,PI/2.0) ) );
+  ud_t_in = -1.0/std::sqrt( - (gitt(rin,a,PI/2.0) - 2.0*lin*gitphi(rin,a,PI/2.0) + SQR(lin)*giphiphi(rin,a,PI/2.0) ) );
 
 
 
   // Compute Peak Density //
-  Real denom_sq = -( gitt(rc/m_tot,a,PI/2.0) - 2.0*lc*gitphi(rc/m_tot,a,PI/2.0) + SQR(lc)*giphiphi(rc/m_tot,a,PI/2.0) );
+  Real denom_sq = -( gitt(rc,a,PI/2.0) - 2.0*lc*gitphi(rc,a,PI/2.0) + SQR(lc)*giphiphi(rc,a,PI/2.0) );
   Real ud_t_c = -1.0/std::sqrt(denom_sq);
   Real eps_c = 1.0/gam * (ud_t_in * f(lin,c_const,n_pow)/(ud_t_c * f(lc,c_const,n_pow)) -1.0);
   rho_peak = std::pow( (eps_c * (gam-1.0)/k_adi), (1.0/(gam-1.0)) );
