@@ -536,8 +536,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   
   kappa_init = k_adi * std::pow(rho_peak,gam-1.0);
 
-  fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const: %g f: %g %g\n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const,
-    f(lc,c_const,n_pow), f(lin,c_const,n_pow));
+  // fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const: %g f: %g %g\n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const,
+  //   f(lc,c_const,n_pow), f(lin,c_const,n_pow));
 
   EnrollUserExplicitSourceFunction(NobleCooling);
 
@@ -842,11 +842,11 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     AthenaArray<Real> g_single_bh, gi_single_bh;
     g_single_bh.NewAthenaArray(NMETRIC);
     gi_single_bh.NewAthenaArray(NMETRIC);
-    bool invertible = gluInvertMatrix(g_single_bh,gi_single_bh);
-
 
 
     single_bh_metric(a,x,y,z, pin,g_single_bh);
+    bool invertible = gluInvertMatrix(g_single_bh,gi_single_bh);
+
 
         // Calculate Boyer-Lindquist coordinates of cell
     Real r, theta, phi;
