@@ -1015,7 +1015,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         in_torus(k,j,i) = is_in_torus;
 
 
-        fprintf(stderr,"xyz: %g %g %g \n rho: %g P: %g uu: %g %g %g mtot: %g rho_peak: %g\n",pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), rho_sol,pgas_sol,uu1,uu2,uu2,m_tot,rho_peak);
+        // fprintf(stderr,"xyz: %g %g %g \n rho: %g P: %g uu: %g %g %g mtot: %g rho_peak: %g\n",pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), rho_sol,pgas_sol,uu1,uu2,uu2,m_tot,rho_peak);
 
         // Calculate background primitives
         Real rho = rho_min * std::pow(r, rho_pow);
