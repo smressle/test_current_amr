@@ -513,8 +513,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real rms = (3.0 + Z2 - std::sqrt( (3.0-Z1) * (3.0 + Z1 + 2.0*Z2) ) ); // Eq 1.136 in https://s3.cern.ch/inspire-prod-files-e/ebb8246d045759f2a7947d05492e894c ()Luciano Rezzolla An Introduction to Astrophysical Black Holes and Their Dynamical Production
 
 
-  Real lmb = l_kep(a,rmb/m_tot);
-  Real lms = l_kep(a,rms/m_tot);
+  Real lmb = l_kep(a,rmb);  //don't divide by mtot
+  Real lms = l_kep(a,rms);  //don't divide by mtot
 
   Real rc = r_peak;
   Real lc = l_kep(a,rc/m_tot);
