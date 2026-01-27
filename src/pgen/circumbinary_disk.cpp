@@ -882,7 +882,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     Real rho_sol, ug_sol,pgas_sol;
     Real uu_t_sol,uu_phi_sol;
     if (eps<0 or r<rin) {
-      in_torus(k,j,i) = false;
+      // in_torus(k,j,i) = false;
 
       rho_sol = 0.0;
       ug_sol = 0.0;
@@ -891,7 +891,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
       uu_phi_sol = 0.0;
     }
     else{
-      in_torus(k,j,i) = true;
+      // in_torus(k,j,i) = true;
 
       rho_sol = std::pow( (eps * (gam-1.0)/k_adi), (1.0/(gam-1.0)) ) ;
 
@@ -922,9 +922,9 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     TransformVector(u0_bl, 0.0, u2_bl, u3_bl, x, y, z, a,&u0, &u1, &u2, &u3);
 
 
-    uu1 = u1 - gi_single_bh(I01)/gi_single_bh(I00) * u0;
-    uu2 = u2 - gi_single_bh(I02)/gi_single_bh(I00) * u0;
-    uu3 = u3 - gi_single_bh(I03)/gi_single_bh(I00) * u0;
+    Real uu1 = u1 - gi_single_bh(I01)/gi_single_bh(I00) * u0;
+    Real uu2 = u2 - gi_single_bh(I02)/gi_single_bh(I00) * u0;
+    Real uu3 = u3 - gi_single_bh(I03)/gi_single_bh(I00) * u0;
 
     g_single_bh.DeleteAthenaArray();
     gi_single_bh.DeleteAthenaArray();
