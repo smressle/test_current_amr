@@ -1021,9 +1021,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         // Calculate background primitives
         Real rho = rho_min * std::pow(r, rho_pow);
         Real pgas = pgas_min * std::pow(r, pgas_pow);
-        Real uu1 = 0.0;
-        Real uu2 = 0.0;
-        Real uu3 = 0.0;
+
 
         Real perturbation = 0.0;
         // Overwrite primitives inside torus
