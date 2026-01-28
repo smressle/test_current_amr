@@ -536,8 +536,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   
   kappa_init = k_adi * std::pow(rho_peak,gam-1.0);
 
-  // fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const: %g f: %g %g\n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const,
-  //   f(lc,c_const,n_pow), f(lin,c_const,n_pow));
+   fprintf(stderr,"eps_c: %g gam: %g, k_adi: %g ud_t_in: %g rin: %g rc: %g lc: %g udtc: %g c_const: %g f: %g %g kappa_init\n",eps_c,gam,k_adi,ud_t_in,rin,rc,lc,ud_t_c,c_const,
+     f(lc,c_const,n_pow), f(lin,c_const,n_pow),kappa_init);
 
   EnrollUserExplicitSourceFunction(NobleCooling);
 
@@ -915,7 +915,7 @@ void get_Chakrabarti_torus_single_BH(ParameterInput *pin, Real x,Real y, Real z,
     u3_bl = uu_phi_sol;
 
     Real u0, u1, u2, u3;
-    TransformVector(u0_bl, 0.0, u2_bl, u3_bl, x, y, z, a,&u0, &u1, &u2, &u3);
+    TransformVector(u0_bl, u1_bl, u2_bl, u3_bl, x, y, z, a,&u0, &u1, &u2, &u3);
 
 
     Real uu1 = u1 - gi_single_bh(I01)/gi_single_bh(I00) * u0;
@@ -1010,7 +1010,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         Real rho_sol,pgas_sol,uu1,uu2,uu3;
         bool is_in_torus;
         get_Chakrabarti_torus_single_BH(pin, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
-                                        &rho_sol, &pgas_sol, &uu1, &uu2, &uu2, &is_in_torus);
+                                        &rho_sol, &pgas_sol, &uu1, &uu2, &uu3, &is_in_torus);
 
         in_torus(k,j,i) = is_in_torus;
 
