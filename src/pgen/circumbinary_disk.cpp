@@ -2320,7 +2320,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         else if (rprime_1<0.45*binary_separation_distance){
           L_cool = Omega_primary * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         }
-        else if (rprime_1<0.45*binary_separation_distance){
+        else if (rprime_2<0.45*binary_separation_distance){
           L_cool = Omega_secondary * ug * std::sqrt( Y-1.0 +  std::fabs(Y-1.0) );
         }
         else{
