@@ -509,7 +509,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real a = 0;
 
   Real rc = r_peak;
-  Real lc = l_kep(a,rc)*m_tot;
+  Real lc = l_kep(a,rc);
 
 
     // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
@@ -1011,6 +1011,12 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         bool is_in_torus;
         get_Chakrabarti_torus_single_BH(pin, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
                                         &rho_sol, &pgas_sol, &uu1, &uu2, &uu3, &is_in_torus);
+
+        uu1 = uu1*m_tot;
+        uu2 = uu2*m_tot;
+        uu3 = uu3*m_tot;
+
+
 
         in_torus(k,j,i) = is_in_torus;
 
