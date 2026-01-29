@@ -509,7 +509,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   Real a = 0;
 
   Real rc = r_peak;
-  Real lc = l_kep(a,rc);
+  Real lc = l_kep(a,rc)*m_tot;
 
 
     // return 1.0/np.sqrt( - (gtphi(r,a,theta) + gtt(r,a,theta)*l) / (l*gphiphi(r,a,theta) + l**2.0*gtphi(r,a,theta) )  )
