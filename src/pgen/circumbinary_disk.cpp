@@ -1012,9 +1012,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         get_Chakrabarti_torus_single_BH(pin, pcoord->x1v(i)/m_tot, pcoord->x2v(j)/m_tot, pcoord->x3v(k)/m_tot, a, 
                                         &rho_sol, &pgas_sol, &uu1, &uu2, &uu3, &is_in_torus);
 
-        uu1 = uu1*m_tot;
-        uu2 = uu2*m_tot;
-        uu3 = uu3*m_tot;
+        // uu1 = uu1*m_tot;
+        // uu2 = uu2*m_tot;
+        // uu3 = uu3*m_tot;
 
 
 
