@@ -648,52 +648,52 @@ int RefinementCondition(MeshBlock *pmb)
   // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
 
-  for (int k = pmb->ks; k<=pmb->ke;k++){
-    for(int j=pmb->js; j<=pmb->je; j++) {
-      for(int i=pmb->is; i<=pmb->ie; i++) {
+  // for (int k = pmb->ks; k<=pmb->ke;k++){
+  //   for(int j=pmb->js; j<=pmb->je; j++) {
+  //     for(int i=pmb->is; i<=pmb->ie; i++) {
 
 
-          for (int n_level = 1; n_level<=max_second_bh_refinement_level; n_level++){
+  //         for (int n_level = 1; n_level<=max_second_bh_refinement_level; n_level++){
           
-            // Real x = pmb->pcoord->x1v(i);
-            // Real y = pmb->pcoord->x2v(j);
-            // Real z = pmb->pcoord->x3v(k);
+  //           Real x = pmb->pcoord->x1v(i);
+  //           Real y = pmb->pcoord->x2v(j);
+  //           Real z = pmb->pcoord->x3v(k);
 
-            // Real xprime,yprime,zprime,rprime,Rprime;
-            // get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+  //           Real xprime,yprime,zprime,rprime,Rprime;
+  //           get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
 
             
-            // Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+  //           Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
         
-            // //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
-            // // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
-            // // }
-            // if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
-            //   && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
-            //   if (n_level>max_level_required) max_level_required=n_level;
-            //   any_in_refinement_region=1;
+  //           //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
+  //           // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
+  //           // }
+  //           if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
+  //             && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
+  //             if (n_level>max_level_required) max_level_required=n_level;
+  //             any_in_refinement_region=1;
 
-            //   if (current_level < n_level){
-            //     // if (current_level==max_refinement_level){
-            //     // Real xbh, ybh, zbh;
-            //     // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-            //     // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-            //     // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-            //     // }
-            //     orbit_quantities.DeleteAthenaArray();
-            //       return  1;
-            //   }
-              if (current_level==n_level) any_at_current_level=1;
-            }
+  //             if (current_level < n_level){
+  //               // if (current_level==max_refinement_level){
+  //               // Real xbh, ybh, zbh;
+  //               // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
+  //               // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
+  //               // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
+  //               // }
+  //               orbit_quantities.DeleteAthenaArray();
+  //                 return  1;
+  //             }
+  //             if (current_level==n_level) any_at_current_level=1;
+  //           }
 
 
           
-          }
+  //         }
 
-        }
-      }
-    }
+  //       }
+  //     }
+  //   }
       
 
   //second loop: check if any part of block is within refinement levels for primary black hole
