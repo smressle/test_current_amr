@@ -608,8 +608,6 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 int RefinementCondition(MeshBlock *pmb)
 {
-
-  // return 0;
   int refine = 0;
 
     Real DX,DY,DZ;
@@ -619,8 +617,8 @@ int RefinementCondition(MeshBlock *pmb)
 
 
   Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
-  Real bh2_focus_radius = 3.125*q;
-  // Real bh1_focus_radius = 3.125;
+  Real bh2_focus_radius = 12*q;
+  //Real bh2_focus_radius = 3.125*0.1;
 
   int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
 
@@ -637,17 +635,15 @@ int RefinementCondition(MeshBlock *pmb)
   AthenaArray<Real> orbit_quantities;
   orbit_quantities.NewAthenaArray(Norbit);
 
-  get_orbit_quantities(pmb->pmy_mesh->time,orbit_quantities);
+  get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
 
-  Real binary_separation_distance = std::sqrt( 
-                                              SQR(orbit_quantities(IX1)-orbit_quantities(IX2)) + 
-                                              SQR(orbit_quantities(IY1)-orbit_quantities(IY2)) +
-                                              SQR(orbit_quantities(IZ1)-orbit_quantities(IZ2)) );
 
-  Real binary_radius = binary_separation_distance/2.0;
+  Real v2x = orbit_quantities(IV2X);
+  Real v2y = orbit_quantities(IV2Y);
+  Real v2z = orbit_quantities(IV2Z);
+  Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
+  Real bh2_bondi_radius = 2.0 * q /SQR(v2);
 
-  //this is the n such that total_box_radius/2**n is greater than binary_radius while for n+1 it is smaller
-  int n_max_for_smr=  static_cast<int>(std::ceil(std::log2(total_box_radius/binary_radius) )) - 1;
 
   // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
@@ -656,30 +652,23 @@ int RefinementCondition(MeshBlock *pmb)
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
 
-          if (n_max_for_smr+2>max_second_bh_refinement_level) break;
-          for (int n_level = n_max_for_smr+2; n_level<=max_second_bh_refinement_level; n_level++){
+
+          for (int n_level = 1; n_level<=max_second_bh_refinement_level; n_level++){
           
             Real x = pmb->pcoord->x1v(i);
             Real y = pmb->pcoord->x2v(j);
             Real z = pmb->pcoord->x3v(k);
 
             Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(2,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            //Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
-            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
-
-            
-            Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
-            Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
-            Real mesh_block_widthz = pmb->block_size.nx3 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
+            get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+            Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
 
         
             //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
             // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
             // }
-            if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
-              yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
-              zprime<(box_radius-mesh_block_widthz/2.0) && zprime > -(box_radius-mesh_block_widthz/2.0) ){
+            if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
+              && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region=1;
 
@@ -711,75 +700,40 @@ int RefinementCondition(MeshBlock *pmb)
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
           
-          if (n_max_for_smr+2>max_smr_refinement_level) break;
-          for (int n_level = n_max_for_smr+2; n_level<=max_smr_refinement_level; n_level++){
-          
-            Real x = pmb->pcoord->x1v(i);
-            Real y = pmb->pcoord->x2v(j);
-            Real z = pmb->pcoord->x3v(k);
-
-            Real xprime,yprime,zprime,rprime,Rprime;
-            get_prime_coords(1,x,y,z,orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
-            Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
-
-            Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
-            Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
-            Real mesh_block_widthz = pmb->block_size.nx3 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
-
-            // Real fake_xprime = x - orbit_quantities(IX1);
-            // Real fake_yprime = y - orbit_quantities(IY1);
-            // Real fake_zprime = z - orbit_quantities(IZ1);
-          
-
-             // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
-             //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
-             //    }
-            // if (fake_xprime<box_radius && fake_xprime > -box_radius && fake_yprime<box_radius
-            //   && fake_yprime > -box_radius && fake_zprime<box_radius && fake_zprime > -box_radius ){
-            if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
-              yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
-              zprime<(box_radius-mesh_block_widthz/2.0) && zprime > -(box_radius-mesh_block_widthz/2.0) ){
-
-              if (n_level>max_level_required) max_level_required=n_level;
-              any_in_refinement_region = 1;
-              if (current_level < n_level){
-                // if (current_level==max_refinement_level){
-                // Real xbh, ybh, zbh;
-                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-                // }
-
-                  //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
-                    //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
-                  orbit_quantities.DeleteAthenaArray();
-                  return  1;
-              }
-              if (current_level==n_level) any_at_current_level=1;
-            }
-
-
-
-          
-          }
-
-  }
- }
-}
-
-  //third loop: default SMR levels that stop when it reaches the binary orbital radius
-
-  for (int k = pmb->ks; k<=pmb->ke;k++){
-    for(int j=pmb->js; j<=pmb->je; j++) {
-      for(int i=pmb->is; i<=pmb->ie; i++) {
-          
-          for (int n_level = 1; n_level<=n_max_for_smr; n_level++){
+          for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
           
             Real x = pmb->pcoord->x1v(i);
             Real y = pmb->pcoord->x2v(j);
             Real z = pmb->pcoord->x3v(k);
 
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
+
+            Real z_radius;
+
+            // if (n_level==1) z_radius = 250.0*0.9999;
+            // if (n_level==2) z_radius = 125.0*0.9999;
+            // if (n_level==3) z_radius = 62.5*0.9999;
+            // if (n_level==4) z_radius = 31.25*0.9999;
+            // if (n_level==5) z_radius = 13.5*0.9999;
+            // if (n_level==6) z_radius = 6.3*0.9999;
+            // if (n_level==7) z_radius = 3.2*0.9999;
+            // if (n_level==8) z_radius = 1.6*0.9999;
+
+            // if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
+
+
+            if (n_level==1) z_radius = 196.0*0.9999;
+            if (n_level==2) z_radius = 98.0*0.9999;
+            if (n_level==3) z_radius = 49.0*0.9999;
+            if (n_level==4) z_radius = 24.5*0.9999;
+            // if (n_level==5) z_radius = 4.8*0.9999;
+            // if (n_level==6) z_radius = 2.4*0.9999;
+            // if (n_level==7) z_radius = 1.2*0.9999;
+
+            if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+
+            // if (n_level==4) box_radius = 75.0 * 0.9999;
 
           
 
@@ -787,7 +741,7 @@ int RefinementCondition(MeshBlock *pmb)
              //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
              //    }
             if (x<box_radius && x > -box_radius && y<box_radius
-              && y > -box_radius && z<box_radius && z > -box_radius ){
+              && y > -box_radius && z<z_radius && z > -z_radius ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
@@ -802,7 +756,6 @@ int RefinementCondition(MeshBlock *pmb)
 
                   //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
                     //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
-                  orbit_quantities.DeleteAthenaArray();
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -816,6 +769,7 @@ int RefinementCondition(MeshBlock *pmb)
   }
  }
 }
+
 
 // if (current_level==max_refinement_level){
 //     Real xbh, ybh, zbh;
