@@ -3075,7 +3075,7 @@ void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &o
   // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(a_mag) + std::sqrt( SQR( SQR(*Rprime) - SQR(a_mag) ) + 4.0*SQR(a_dot_x_prime) );
-  if (std::fabs(a_dot_x_prime))
+  // if (std::fabs(a_dot_x_prime))
   *rprime = std::sqrt(*rprime/2.0);
 
 
@@ -3551,10 +3551,14 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       Real a1 = std::sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
       Real a2 = std::sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
 
-      Real xprime,yprime,zprime,rprime,Rprime;
+      Real xprime,yprime,zprime,rprime,Rprime,Rprime1;
+
+
+      get_prime_coords(1,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime1);
+
       get_prime_coords(2,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
 
-      if (Rprime<=a2 or R<=a1){
+      if (Rprime<=a2 or Rprime1<=a1){
 
         for (int n = 0; n < NMETRIC; ++n) {
              dg_dx1(n) = 0.0;

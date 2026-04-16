@@ -1647,6 +1647,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
   Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
 
+  Real orbital_radius = std::sqrt( SQR(IX1) + SQR(IY1) + SQR(IZ1) );
+
+  Real excision_radius = orbital_radius * 1.2;
+
 
 
    for (int k=kl; k<=ku; ++k) {
@@ -1661,6 +1665,8 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           Real x = pmb->pcoord->x1v(i);
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
+
+          Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
           Real t = pmb->pmy_mesh->metric_time;
 
           Real xprime,yprime,zprime,rprime,Rprime;
@@ -1671,6 +1677,41 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
 
 
+
+
+
+          if (pseudo_r <= excision_radius){
+
+
+              // Calculate normal frame Lorentz factor
+              Real uu1 = 0.0;
+              Real uu2 = 0.0;
+              Real uu3 = 0.0;
+              // Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+              //          + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+              //          + g(I33,i)*uu3*uu3;
+              // Real gamma = std::sqrt(1.0 + tmp);
+
+              // // Calculate 4-velocity
+              // Real alpha = std::sqrt(-1.0/gi(I00,i));
+              // Real u0 = gamma/alpha;
+              // Real u1 = uu1 - alpha * gamma * gi(I01,i);
+              // Real u2 = uu2 - alpha * gamma * gi(I02,i);
+              // Real u3 = uu3 - alpha * gamma * gi(I03,i);
+
+
+              // uu1 = u1prime - gi(I01,i) / gi(I00,i) * u0prime;
+              // uu2 = u2prime - gi(I02,i) / gi(I00,i) * u0prime;
+              // uu3 = u3prime - gi(I03,i) / gi(I00,i) * u0prime;
+
+              
+              prim(IDN,k,j,i) = dfloor;
+              prim(IVX,k,j,i) = uu1;
+              prim(IVY,k,j,i) = uu2;
+              prim(IVZ,k,j,i) = uu3;
+              prim(IPR,k,j,i) = pfloor;
+
+          }
 
           if (rprime < rh*0.8) {
             rprime = rh*0.8;
@@ -2786,7 +2827,7 @@ void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &o
   // if (std::fabs(*zprime)<SMALL) *zprime= SMALL;
   *Rprime = std::sqrt(SQR(*xprime) + SQR(*yprime) + SQR(*zprime));
   *rprime = SQR(*Rprime) - SQR(a_mag) + std::sqrt( SQR( SQR(*Rprime) - SQR(a_mag) ) + 4.0*SQR(a_dot_x_prime) );
-  if (std::fabs(a_dot_x_prime))
+  // if (std::fabs(a_dot_x_prime))
   *rprime = std::sqrt(*rprime/2.0);
 
 
@@ -3262,10 +3303,12 @@ void Binary_BH_Metric(Real t, Real x1, Real x2, Real x3,
       Real a1 = std::sqrt( SQR(orbit_quantities(IA1X)) + SQR(orbit_quantities(IA1Y)) + SQR(orbit_quantities(IA1Z)));
       Real a2 = std::sqrt( SQR(orbit_quantities(IA2X)) + SQR(orbit_quantities(IA2Y)) + SQR(orbit_quantities(IA2Z)));
 
-      Real xprime,yprime,zprime,rprime,Rprime;
+      Real xprime,yprime,zprime,rprime,Rprime,Rprime1;
+      get_prime_coords(1,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime1);
+
       get_prime_coords(2,x,y,z,orbit_quantities,&xprime,&yprime,&zprime,&rprime,&Rprime);
 
-      if (Rprime<=a2 or R<=a1){
+      if (Rprime<=a2 or Rprime1<=a1){
 
         for (int n = 0; n < NMETRIC; ++n) {
              dg_dx1(n) = 0.0;
