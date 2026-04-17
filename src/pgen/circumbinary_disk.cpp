@@ -3173,6 +3173,9 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
+
+  Real black_hole_smoothing_radius = 4.0;
+
   Real eta[4];
 
   eta[0] = -1.0;
@@ -3183,6 +3186,17 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   //////////////First Black Hole//////////////////
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
+  if (rprime<black_hole_smoothing_radius){
+      Real thprime,phiprime;
+      GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+      if (rprime < black_hole_smoothing_radius) {
+            rprime = black_hole_smoothing_radius;
+            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
+      }
+
+  }
 
 
   AthenaArray<Real> g_pert;
@@ -3208,6 +3222,16 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
 
   get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+  if (rprime<black_hole_smoothing_radius){
+    Real thprime,phiprime;
+    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+    if (rprime < black_hole_smoothing_radius) {
+          rprime = black_hole_smoothing_radius;
+          convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+    }
+
+  }
 
   boosted_BH_metric_addition(q,xprime,yprime,zprime,rprime,Rprime, v2x,v2y,v2z, a2x,a2y,a2z,g_pert );
 
