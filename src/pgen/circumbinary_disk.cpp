@@ -2141,7 +2141,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
                 if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
                 if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
 
-                if std::isnan(bb1) {
+                if (std::isnan(bb1)) {
                   fprintf(stderr,"NAN in field at xyz: %g %g %g \n", x,y,z);
                   exit(0);
                 }
