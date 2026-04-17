@@ -1649,7 +1649,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
   Real orbital_radius = std::sqrt( SQR(IX1) + SQR(IY1) + SQR(IZ1) );
 
-  Real excision_radius = orbital_radius * 1.2;
+  Real excision_radius = 0.0; //orbital_radius * 1.2;
 
 
 
@@ -2140,6 +2140,11 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
                 if (b_sq/prim(IDN,k,j,i) > bsq_over_rho_max) prim(IDN,k,j,i) = b_sq/bsq_over_rho_max;
                 if (prim(IPR,k,j,i)*2.0 < beta_floor*b_sq) prim(IPR,k,j,i) = beta_floor*b_sq/2.0;
+
+                if std::isnan(bb1) {
+                  fprintf(stderr,"NAN in field at xyz: %g %g %g \n", x,y,z);
+                  exit(0);
+                }
             
               }
               
