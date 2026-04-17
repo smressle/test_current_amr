@@ -1666,6 +1666,15 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
           Real y = pmb->pcoord->x2v(j);
           Real z = pmb->pcoord->x3v(k);
 
+          if (std::isnan(pmb->pfield->bcc(IB1,k,j,i))) {
+            fprintf(stderr,"NAN in field before inner boundary at xyz: %g %g %g \n", x,y,z);
+                  fprintf(stderr,"rho: %g  P: %g v: %g %g %g \n", prim(IDN,k,j,i),prim(IPR,k,j,i),
+                    prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
+                  for (int n=0; n<NMETRIC; ++n) fprintf(stderr,"n: %d g: %g gi: %g \n",n,g(n,i),gi(n,i));
+                  exit(0);
+          }
+            
+
           Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
           Real t = pmb->pmy_mesh->metric_time;
 
@@ -2147,10 +2156,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
             if (std::isnan(pmb->pfield->bcc(IB1,k,j,i))) {
-                  fprintf(stderr,"NAN in field at xyz: %g %g %g \n", x,y,z);
+                  fprintf(stderr,"NAN in field after inner boundary at xyz: %g %g %g \n", x,y,z);
                   fprintf(stderr,"rho: %g  P: %g v: %g %g %g \n", prim(IDN,k,j,i),prim(IPR,k,j,i),
                     prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
-                  for (int n=0; n<=NMETRIC; ++n) fprintf(stderr,"n: %d g: %g gi: %g \n",n,g(n,i),gi(n,i));
+                  for (int n=0; n<NMETRIC; ++n) fprintf(stderr,"n: %d g: %g gi: %g \n",n,g(n,i),gi(n,i));
                   exit(0);
                 }
             
@@ -2277,6 +2286,15 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
     for (int j=pmb->js; j<=pmb->je; ++j) {
       pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
       for (int i=pmb->is; i<=pmb->ie; ++i) {
+
+
+        if (std::isnan(pmb->pfield->bcc(IB1,k,j,i))) {
+          fprintf(stderr,"NAN in field before cooling at xyz: %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k));
+                  fprintf(stderr,"rho: %g  P: %g v: %g %g %g \n", prim(IDN,k,j,i),prim(IPR,k,j,i),
+                    prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
+                  exit(0);
+        }
+            
 
 
         Real r_com,theta_com, phi_com;
@@ -2408,6 +2426,16 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
         cons(IM3,k,j,i) += -dt * L_cool * u_3;
 
         Real ug_frac = dt * L_cool/ug;
+
+
+
+        if (std::isnan(pmb->pfield->bcc(IB1,k,j,i))) {
+          fprintf(stderr,"NAN in field after cooling at xyz: %g %g %g \n", pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k));
+                  fprintf(stderr,"rho: %g  P: %g v: %g %g %g \n", prim(IDN,k,j,i),prim(IPR,k,j,i),
+                    prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
+                  exit(0);
+        }
+            
 
         // pmb->user_out_var(0,k,j,i) = L_cool * u_0;
 
