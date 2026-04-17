@@ -2148,6 +2148,9 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
             if (std::isnan(pmb->pfield->bcc(IB1,k,j,i))) {
                   fprintf(stderr,"NAN in field at xyz: %g %g %g \n", x,y,z);
+                  fprintf(stderr,"rho: %g  P: %g v: %g %g %g \n", prim(IDN,k,j,i),prim(IPR,k,j,i),
+                    prim(IVX,k,j,i),prim(IVY,k,j,i),prim(IVZ,k,j,i));
+                  for (int n=0; n<=NMETRIC; ++n) fprintf(stderr,"n: %d g: %g gi: %g \n",n,g(n,i),gi(n,i));
                   exit(0);
                 }
             
