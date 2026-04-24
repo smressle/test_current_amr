@@ -1938,7 +1938,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
             convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
           }
 
-          if (rprime < rh2 or or rprime < black_hole_smoothing_radius){
+          if (rprime < rh2 or rprime < black_hole_smoothing_radius){
 
               Real bsq_over_rho_max = 1.0;
               Real beta_floor = 0.2;
