@@ -139,6 +139,9 @@ static Real m_tot;     // total black hole mass
 static Real t0; //time at which second BH is at polar axis
 static Real field_norm;
 
+static Real black_hole_smoothing_radius; // radius inside which to smooth the metric.
+
+
 
 static Real t0_orbits,dt_orbits;
 
@@ -471,6 +474,9 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   EnrollUserMetric(Cartesian_GR);
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
+
+  black_hole_smoothing_radius = 4.0;
+
 
 
 
@@ -1727,7 +1733,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
             convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
           }
 
-          if (rprime < rh){
+          if (rprime < rh or rprime < black_hole_smoothing_radius){
 
               Real bsq_over_rho_max = 1.0;
               Real beta_floor = 0.2;
@@ -1932,7 +1938,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
             convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
           }
 
-          if (rprime < rh2){
+          if (rprime < rh2 or or rprime < black_hole_smoothing_radius){
 
               Real bsq_over_rho_max = 1.0;
               Real beta_floor = 0.2;
@@ -3212,7 +3218,6 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
 
 
-  Real black_hole_smoothing_radius = 4.0;
 
   Real eta[4];
 
