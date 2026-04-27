@@ -2312,7 +2312,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
                                               SQR(orbit_quantities(IY1)-orbit_quantities(IY2)) +
                                               SQR(orbit_quantities(IZ1)-orbit_quantities(IZ2)) );
 
-        Real Omega_com = (1.0+q)/( std::pow(r_com,1.5) );
+        Real Omega_com = std::sqrt(1.0+q)/( std::pow(r_com,1.5) );
 
         Real xprime,yprime,zprime,rprime_1,Rprime;
         get_prime_coords(1,pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3v(k), orbit_quantities, &xprime,&yprime, &zprime, &rprime_1,&Rprime);
@@ -2346,7 +2346,7 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
 
         Real L_cool;
 
-        Real Omega_com_1point5 = 1.0/( std::pow(1.5*binary_separation_distance,1.5) );
+        Real Omega_com_1point5 = std::sqrt(1.0+q)/( std::pow(1.5*binary_separation_distance,1.5) );
 
         // Avara 2023
 
