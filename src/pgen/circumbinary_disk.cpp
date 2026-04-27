@@ -3026,13 +3026,13 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
         g_old3m.NewAthenaArray(NMETRIC);
         
 
-        smoothed_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1m);
-        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old2m);
-        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old3m);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1m);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old2m);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old3m);
 
-        smoothed_bh_metric(pcoord->x1f(i+1), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1p);
-        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j+1), pcoord->x3v(k), pin,g_old2p);
-        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k+1), pin,g_old3p);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1f(i+1), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1p);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2f(j+1), pcoord->x3v(k), pin,g_old2p);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k+1), pin,g_old3p);
 
         Real det_old1m = Determinant(g_old1m);
         Real det_old2m = Determinant(g_old2m);
@@ -3100,7 +3100,7 @@ void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
 
         Real det_new = Determinant(g_tmp);
 
-        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+        smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
 
         bool invertible =gluInvertMatrix(g_old,gi_old);
 
@@ -3247,9 +3247,9 @@ for (int dir=0; dir<=2; ++dir){
 
         Real det_new = Determinant(g_tmp);
 
-        if (dir==0) smoothed_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
-        if (dir==1) smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
-        if (dir==2) smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
+        if (dir==0) smoothed_bh_metric(pmy_mesh->time,pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+        if (dir==1) smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
+        if (dir==2) smoothed_bh_metric(pmy_mesh->time,pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
 
 
         Real det_old = Determinant(g_old);
