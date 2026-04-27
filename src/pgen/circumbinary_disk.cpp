@@ -112,8 +112,6 @@ void interp_orbits(Real t, int iorbit, AthenaArray<Real> &arr, Real *result);
 
 void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay_, Real az_, Real *uut, Real *uux1,
                                          Real *uux2, Real *uux3);
-void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted );
-void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks );
 void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_pert );
 void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,AthenaArray<Real> &g);
 
@@ -140,6 +138,8 @@ static Real t0; //time at which second BH is at polar axis
 static Real field_norm;
 
 static Real black_hole_smoothing_radius; // radius inside which to smooth the metric.
+static Real black_hole_smoothing_radius_before_restart; // radius inside which to smooth the metric.
+
 
 
 
@@ -476,6 +476,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
   black_hole_smoothing_radius = 4.0;
+  black_hole_smoothing_radius_before_restart = 4.0;
+
 
 
 
@@ -651,58 +653,102 @@ int RefinementCondition(MeshBlock *pmb)
   Real bh2_bondi_radius = 2.0 * q /SQR(v2);
 
 
-  // fprintf(stderr,"current level: %d max_refinement_level: %d max_smr_refinement: %d max_bh2_refinement: %d \n",current_level,max_refinement_level,max_smr_refinement_level,max_second_bh_refinement_level);
   //first loop: check if any part of block is within refinement levels for secondary black hole
 
-  // for (int k = pmb->ks; k<=pmb->ke;k++){
-  //   for(int j=pmb->js; j<=pmb->je; j++) {
-  //     for(int i=pmb->is; i<=pmb->ie; i++) {
+if (max_second_bh_refinement_level>0){
 
-
-  //         for (int n_level = 1; n_level<=max_second_bh_refinement_level; n_level++){
-          
-  //           Real x = pmb->pcoord->x1v(i);
-  //           Real y = pmb->pcoord->x2v(j);
-  //           Real z = pmb->pcoord->x3v(k);
-
-  //           Real xprime,yprime,zprime,rprime,Rprime;
-  //           get_prime_coords(x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+    for (int k = pmb->ks; k<=pmb->ke;k++){
+      for(int j=pmb->js; j<=pmb->je; j++) {
+        for(int i=pmb->is; i<=pmb->ie; i++) {
 
             
-  //           Real box_radius = bh2_focus_radius * std::pow(2.,max_second_bh_refinement_level - n_level)*0.9999;
+              Real x = pmb->pcoord->x1v(i);
+              Real y = pmb->pcoord->x2v(j);
+              Real z = pmb->pcoord->x3v(k);
 
-        
-  //           //           if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
-  //           // fprintf(stderr,"current level (AMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
-  //           // }
-  //           if (xprime < box_radius && xprime > -box_radius && yprime < box_radius
-  //             && yprime > -box_radius && zprime < box_radius && zprime > -box_radius ){
-  //             if (n_level>max_level_required) max_level_required=n_level;
-  //             any_in_refinement_region=1;
+              Real xprime,yprime,zprime,rprime,Rprime;
+              get_prime_coords(2,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+              Real box_radius = 12.0; //total_box_radius/std::pow(2.,max_second_bh_refinement_level-2.0)*0.9999;
 
-  //             if (current_level < n_level){
-  //               // if (current_level==max_refinement_level){
-  //               // Real xbh, ybh, zbh;
-  //               // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-  //               // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-  //               // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-  //               // }
-  //               orbit_quantities.DeleteAthenaArray();
-  //                 return  1;
-  //             }
-  //             if (current_level==n_level) any_at_current_level=1;
-  //           }
+              Real z_radius = 1.53125;
 
+              
+              Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
+              Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
+              Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
 
           
-  //         }
+  
+              if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+                yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+                zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+                max_level_required=max_second_bh_refinement_level;
+                any_in_refinement_region=1;
 
-  //       }
-  //     }
-  //   }
+                if (current_level < max_second_bh_refinement_level){
       
+                  orbit_quantities.DeleteAthenaArray();
+                    return  1;
+                }
+                if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
+              }
 
-  //second loop: check if any part of block is within refinement levels for primary black hole
+
+            
+            }
+
+          }
+        }
+      
+        
+
+    //second loop: check if any part of block is within refinement levels for primary black hole
+
+    for (int k = pmb->ks; k<=pmb->ke;k++){
+      for(int j=pmb->js; j<=pmb->je; j++) {
+        for(int i=pmb->is; i<=pmb->ie; i++) {
+
+            
+              Real x = pmb->pcoord->x1v(i);
+              Real y = pmb->pcoord->x2v(j);
+              Real z = pmb->pcoord->x3v(k);
+
+              Real xprime,yprime,zprime,rprime,Rprime;
+              get_prime_coords(1,x,y,z, orbit_quantities, &xprime,&yprime, &zprime, &rprime,&Rprime);
+              Real box_radius = 12.0; //total_box_radius/std::pow(2.,max_second_bh_refinement_level-2.0)*0.9999;
+
+              Real z_radius = 1.53125;
+
+              
+              Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
+              Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
+              Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
+
+          
+  
+              if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+                yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+                zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+                max_level_required=max_second_bh_refinement_level;
+                any_in_refinement_region=1;
+
+                if (current_level < max_second_bh_refinement_level){
+      
+                  orbit_quantities.DeleteAthenaArray();
+                    return  1;
+                }
+                if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
+              }
+
+
+            
+            }
+
+          }
+        }
+}
+
+  //third loop: resolve circumbinary disk
 
   for (int k = pmb->ks; k<=pmb->ke;k++){
     for(int j=pmb->js; j<=pmb->je; j++) {
@@ -718,36 +764,19 @@ int RefinementCondition(MeshBlock *pmb)
 
             Real z_radius;
 
-            // if (n_level==1) z_radius = 250.0*0.9999;
-            // if (n_level==2) z_radius = 125.0*0.9999;
-            // if (n_level==3) z_radius = 62.5*0.9999;
-            // if (n_level==4) z_radius = 31.25*0.9999;
-            // if (n_level==5) z_radius = 13.5*0.9999;
-            // if (n_level==6) z_radius = 6.3*0.9999;
-            // if (n_level==7) z_radius = 3.2*0.9999;
-            // if (n_level==8) z_radius = 1.6*0.9999;
-
-            // if (n_level>=5) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
-            // Real z_radius = 0.8* std::pow(2.0,max_smr_refinement_level-n_level+1);
 
 
             if (n_level==1) z_radius = 196.0*0.9999;
             if (n_level==2) z_radius = 98.0*0.9999;
             if (n_level==3) z_radius = 49.0*0.9999;
             if (n_level==4) z_radius = 24.5*0.9999;
-            // if (n_level==5) z_radius = 4.8*0.9999;
+            // if (n_level==5) z_radius = 12.25*0.9999;
             // if (n_level==6) z_radius = 2.4*0.9999;
             // if (n_level==7) z_radius = 1.2*0.9999;
 
             if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
 
-            // if (n_level==4) box_radius = 75.0 * 0.9999;
-
-          
-
-             // if (k==pmb->ks && j ==pmb->js && i ==pmb->is){
-             //   fprintf(stderr,"current level (SMR): %d n_level: %d box_radius: %g \n x: %g y: %g z: %g\n",current_level,n_level,box_radius,x,y,z);
-             //    }
+ 
             if (x<box_radius && x > -box_radius && y<box_radius
               && y > -box_radius && z<z_radius && z > -z_radius ){
 
@@ -755,15 +784,6 @@ int RefinementCondition(MeshBlock *pmb)
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
-                // if (current_level==max_refinement_level){
-                // Real xbh, ybh, zbh;
-                // get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-                // fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_level: %d n_level: %d \n box radius: %g \n", pmb->block_size.x1min,pmb->block_size.x1max,
-                // pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, n_level,box_radius);
-                // }
-
-                  //fprintf(stderr,"current level: %d n_level: %d box_radius: %g \n xmin: %g ymin: %g zmin: %g xmax: %g ymax: %g zmax: %g\n",current_level,
-                    //n_level,box_radius,pmb->block_size.x1min,pmb->block_size.x2min,pmb->block_size.x3min,pmb->block_size.x1max,pmb->block_size.x2max,pmb->block_size.x3max);
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
@@ -779,20 +799,10 @@ int RefinementCondition(MeshBlock *pmb)
 }
 
 
-// if (current_level==max_refinement_level){
-//     Real xbh, ybh, zbh;
-//     get_bh_position(pmb->pmy_mesh->time,&xbh,&ybh,&zbh);
-//     fprintf(stderr,"x1 min max: %g %g x2 min max: %g %g x3 min max: %g %g \n bh position: %g %g %g \n current_leve: %d max_level_required: %d \n", pmb->block_size.x1min,pmb->block_size.x1max,
-//     pmb->block_size.x2min,pmb->block_size.x2max,pmb->block_size.x3min,pmb->block_size.x3max,xbh,ybh,zbh,current_level, max_level_required);
-// }
-
 orbit_quantities.DeleteAthenaArray();
 if (current_level>max_level_required) return -1;
 else if (current_level==max_level_required) return 0;
 else return 1;
-//if (any_in_refinement_region==0) return -1;
-// if (any_at_current_level==1) return 0;
-  // return -1;
 }
 
 
@@ -1436,10 +1446,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   return;
 }
 
-void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-
-return;
-}
 
 
 void set_orbit_arrays(std::string orbit_file_name){
@@ -2938,6 +2944,402 @@ void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, Athena
 
 }
 
+/// Keep divB=0 with new metric
+
+void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
+  int SCALE_DIVERGENCE = false; 
+  //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
+
+
+  if (!SCALE_DIVERGENCE) return;
+  fprintf(stderr,"Scaling divergence \n");
+
+
+  AthenaArray<Real> &g = ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = ruser_meshblock_data[1];
+
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= (NGHOST);
+    ju += (NGHOST);
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= (NGHOST);
+    ku += (NGHOST);
+  }
+
+
+  AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  AthenaArray<Real> b_old;
+
+  // b_old.NewAthenaArray(3, ncells3, ncells2, ncells1);
+
+
+  face1.NewAthenaArray((ie-is)+2*NGHOST+2);
+  face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face2m.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
+  face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
+
+
+  AthenaArray<Real> divb_old, face1rat,face2rat,face3rat; 
+  face1rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face2rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face3rat.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+
+  AthenaArray<Real> face1rat_used,face2rat_used,face3rat_used; 
+  face1rat_used.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face2rat_used.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  face3rat_used.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  divb_old.NewAthenaArray((ke-ks)+1+2*NGHOST,(je-js)+1+2*NGHOST,(ie-is)+1+2*NGHOST);
+  Real divbmax_old = 0;
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+
+
+        AthenaArray<Real> g_old1p;
+        AthenaArray<Real> g_old1m;
+        AthenaArray<Real> g_old2p;
+        AthenaArray<Real> g_old2m;
+        AthenaArray<Real> g_old3p;
+        AthenaArray<Real> g_old3m;
+
+        g_old1p.NewAthenaArray(NMETRIC);
+        g_old2p.NewAthenaArray(NMETRIC);
+        g_old3p.NewAthenaArray(NMETRIC);
+        g_old1m.NewAthenaArray(NMETRIC);
+        g_old2m.NewAthenaArray(NMETRIC);
+        g_old3m.NewAthenaArray(NMETRIC);
+        
+
+        smoothed_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1m);
+        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old2m);
+        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old3m);
+
+        smoothed_bh_metric(pcoord->x1f(i+1), pcoord->x2v(j), pcoord->x3v(k), pin,g_old1p);
+        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j+1), pcoord->x3v(k), pin,g_old2p);
+        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k+1), pin,g_old3p);
+
+        Real det_old1m = Determinant(g_old1m);
+        Real det_old2m = Determinant(g_old2m);
+        Real det_old3m = Determinant(g_old3m);
+        Real det_old1p = Determinant(g_old1p);
+        Real det_old2p = Determinant(g_old2p);
+        Real det_old3p = Determinant(g_old3p);
+
+
+        Real face1m_ = std::sqrt(-det_old1m) * pcoord->dx2f(j) * pcoord->dx3f(k);
+        Real face1p_ = std::sqrt(-det_old1p) * pcoord->dx2f(j) * pcoord->dx3f(k);
+        Real face2m_ = std::sqrt(-det_old2m) * pcoord->dx1f(i) * pcoord->dx3f(k);
+        Real face2p_ = std::sqrt(-det_old2p) * pcoord->dx1f(i) * pcoord->dx3f(k);
+        Real face3m_ = std::sqrt(-det_old3m) * pcoord->dx1f(i) * pcoord->dx2f(j);
+        Real face3p_ = std::sqrt(-det_old3p) * pcoord->dx1f(i) * pcoord->dx2f(j);
+
+        face1rat(k,j,i) = face1m_/face1(i);
+        face2rat(k,j,i) = face2m_/face2m(i);
+        face3rat(k,j,i) = face3m_/face3m(i);
+
+
+
+
+
+        divb_old(k,j,i)=(face1p_*pfield->b.x1f(k,j,i+1)-face1m_*pfield->b.x1f(k,j,i)
+                        +face2p_*pfield->b.x2f(k,j+1,i)-face2m_*pfield->b.x2f(k,j,i)
+                        +face3p_*pfield->b.x3f(k+1,j,i)-face3m_*pfield->b.x3f(k,j,i));
+        if (divbmax_old<std::abs(divb_old(k,j,i))) divbmax_old = std::abs(divb_old(k,j,i));
+
+        g_old1m.DeleteAthenaArray();
+        g_old1p.DeleteAthenaArray();
+        g_old2m.DeleteAthenaArray();
+        g_old2p.DeleteAthenaArray();
+        g_old3m.DeleteAthenaArray();
+        g_old3p.DeleteAthenaArray();
+
+        }
+      }
+    }
+
+
+   for (int k=kl; k<=ku; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=jl; j<=ju; ++j) {
+      pcoord->CellMetric(k, j, il, iu,g, gi);
+#pragma simd
+      for (int i=il; i<=iu; ++i) {
+
+                // Prepare scratch arrays
+        AthenaArray<Real> g_tmp,g_old,gi_old,g_diff;
+        g_tmp.NewAthenaArray(NMETRIC);
+        g_old.NewAthenaArray(NMETRIC);
+        gi_old.NewAthenaArray(NMETRIC);
+        g_diff.NewAthenaArray(NMETRIC);
+        g_tmp(I00) = g(I00,i);
+        g_tmp(I01) = g(I01,i);
+        g_tmp(I02) = g(I02,i);
+        g_tmp(I03) = g(I03,i);
+        g_tmp(I11) = g(I11,i);
+        g_tmp(I12) = g(I12,i);
+        g_tmp(I13) = g(I13,i);
+        g_tmp(I22) = g(I22,i);
+        g_tmp(I23) = g(I23,i);
+        g_tmp(I33) = g(I33,i);
+
+        Real det_new = Determinant(g_tmp);
+
+        smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+
+        bool invertible =gluInvertMatrix(g_old,gi_old);
+
+
+
+        g_diff(I00) = g_tmp(I00) - g_old(I00);
+        g_diff(I01) = g_tmp(I01) - g_old(I01);
+        g_diff(I02) = g_tmp(I02) - g_old(I02);
+        g_diff(I03) = g_tmp(I03) - g_old(I03);
+        g_diff(I11) = g_tmp(I11) - g_old(I11);
+        g_diff(I12) = g_tmp(I12) - g_old(I12);
+        g_diff(I13) = g_tmp(I13) - g_old(I13);
+        g_diff(I22) = g_tmp(I22) - g_old(I22);
+        g_diff(I23) = g_tmp(I23) - g_old(I23);
+        g_diff(I33) = g_tmp(I33) - g_old(I33);
+
+
+        Real uu1 = phydro->w(IVX,k,j,i);
+        Real uu2 = phydro->w(IVY,k,j,i);
+        Real uu3 = phydro->w(IVZ,k,j,i);
+        Real tmp = g_old(I11)*uu1*uu1 + 2.0*g_old(I12)*uu1*uu2 + 2.0*g_old(I13)*uu1*uu3
+                 + g_old(I22)*uu2*uu2 + 2.0*g_old(I23)*uu2*uu3
+                 + g_old(I33)*uu3*uu3;
+        Real gamma = std::sqrt(1.0 + tmp);
+        // user_out_var(0,k,j,i) = gamma;
+
+        // Calculate 4-velocity
+        Real alpha = std::sqrt(-1.0/gi_old(I00));
+        Real u0 = gamma/alpha;
+        Real u1 = uu1 - alpha * gamma * gi_old(I01);
+        Real u2 = uu2 - alpha * gamma * gi_old(I02);
+        Real u3 = uu3 - alpha * gamma * gi_old(I03);
+
+        Real b0 = 0.0, b1 = 0.0, b2 = 0.0, b3 = 0.0;
+        Real b_sq = 0.0;
+
+        if (MAGNETIC_FIELDS_ENABLED) {
+    
+                // Calculate 4-magnetic field
+                Real bb1 = pfield->bcc(IB1,k,j,i);
+                Real bb2 = pfield->bcc(IB2,k,j,i);
+                Real bb3 = pfield->bcc(IB3,k,j,i);
+                b0 = g_old(I01)*u0*bb1 + g_old(I02)*u0*bb2 + g_old(I03)*u0*bb3
+                        + g_old(I11)*u1*bb1 + g_old(I12)*u1*bb2 + g_old(I13)*u1*bb3
+                        + g_old(I12)*u2*bb1 + g_old(I22)*u2*bb2 + g_old(I23)*u2*bb3
+                        + g_old(I13)*u3*bb1 + g_old(I23)*u3*bb2 + g_old(I33)*u3*bb3;
+                b1 = (bb1 + b0 * u1) / u0;
+                b2 = (bb2 + b0 * u2) / u0;
+                b3 = (bb3 + b0 * u3) / u0;
+                Real b_0, b_1, b_2, b_3;
+
+                b_0 = g_old(I00)*b0 + g_old(I01)*b1 + g_old(I02)*b2 + g_old(I03)*b3;
+                b_1 = g_old(I01)*b0 + g_old(I11)*b1 + g_old(I12)*b2 + g_old(I13)*b3;
+                b_2 = g_old(I02)*b0 + g_old(I12)*b1 + g_old(I22)*b2 + g_old(I23)*b3;
+                b_3 = g_old(I03)*b0 + g_old(I13)*b1 + g_old(I23)*b2 + g_old(I33)*b3;
+                b_sq = b_0*b0 + b_1*b1 + b_2*b2 + b_3*b3;
+            
+      }
+
+        Real gamma_adi = peos->GetGamma();
+        Real wtot = phydro->w(IDN,k,j,i) + gamma_adi/(gamma_adi-1.0) * phydro->w(IPR,k,j,i) + b_sq;
+        Real ptot = phydro->w(IPR,k,j,i) + 0.5*b_sq;
+        Real tt[NMETRIC];
+        tt[I00] = wtot * u0 * u0 + ptot * g_old(I00) - b0 * b0;
+        tt[I01] = wtot * u0 * u1 + ptot * g_old(I01) - b0 * b1;
+        tt[I02] = wtot * u0 * u2 + ptot * g_old(I02) - b0 * b2;
+        tt[I03] = wtot * u0 * u3 + ptot * g_old(I03) - b0 * b3;
+        tt[I11] = wtot * u1 * u1 + ptot * g_old(I11) - b1 * b1;
+        tt[I12] = wtot * u1 * u2 + ptot * g_old(I12) - b1 * b2;
+        tt[I13] = wtot * u1 * u3 + ptot * g_old(I13) - b1 * b3;
+        tt[I22] = wtot * u2 * u2 + ptot * g_old(I22) - b2 * b2;
+        tt[I23] = wtot * u2 * u3 + ptot * g_old(I23) - b2 * b3;
+        tt[I33] = wtot * u3 * u3 + ptot * g_old(I33) - b3 * b3;
+
+
+        // addition of perturber is like changing dg/dt in one timestep, cooresponding to a 
+        // source term of 1/2 dgmu nu/dt T^mu nu
+        // so mulitply by dt to get addition, with is the secondary part of the metric.  
+        Real s_E = 0.0;
+        for (int n = 0; n < NMETRIC; ++n) {
+          s_E += g_diff(n) * tt[n];
+        }
+        s_E -= 0.5 * (  g_diff(I00) * tt[I00]
+                      + g_diff(I11) * tt[I11]
+                      + g_diff(I22) * tt[I22]
+                      + g_diff(I33) * tt[I33]);
+
+
+        phydro->u(IEN,k,j,i) += s_E;
+
+        Real det_old = Determinant(g_old);
+
+         Real fac = std::sqrt(-det_old)/std::sqrt(-det_new);
+          for (int n_cons=IDN; n_cons<= IEN; ++n_cons){
+            phydro->u(n_cons,k,j,i) *=fac;
+          }
+
+        g_tmp.DeleteAthenaArray();
+        g_old.DeleteAthenaArray();
+        gi_old.DeleteAthenaArray();
+        g_diff.DeleteAthenaArray();
+
+      }
+    }
+  }
+
+
+for (int dir=0; dir<=2; ++dir){
+  int dk = 0;
+  int dj = 0;
+  int di = 0;
+
+  if (dir==0) di = 1;
+  if (dir==1) dj = 1;
+  if (dir==2) dk = 1;
+
+   for (int k=kl; k<=ku+dk; ++k) {
+#pragma omp parallel for schedule(static)
+    for (int j=jl; j<=ju+dj; ++j) {
+      if (dir==0) pcoord->Face1Metric(k, j, il, iu+di,g, gi);
+      if (dir==1) pcoord->Face2Metric(k, j, il, iu+di,g, gi);
+      if (dir==2) pcoord->Face3Metric(k, j, il, iu+di,g, gi);
+
+      if (dir==0) pcoord->Face1Area(k,   j,   il, iu, face1);
+      if (dir==1) pcoord->Face2Area(k,   j,   il, iu+di,   face2m);
+      if (dir==2) pcoord->Face3Area(k,   j,   il, iu+di,   face3m);
+// #pragma simd
+      for (int i=il; i<=iu+di; ++i) {
+
+        // Prepare scratch arrays
+        AthenaArray<Real> g_tmp,g_old;
+        g_tmp.NewAthenaArray(NMETRIC);
+        g_old.NewAthenaArray(NMETRIC);
+        g_tmp(I00) = g(I00,i);
+        g_tmp(I01) = g(I01,i);
+        g_tmp(I02) = g(I02,i);
+        g_tmp(I03) = g(I03,i);
+        g_tmp(I11) = g(I11,i);
+        g_tmp(I12) = g(I12,i);
+        g_tmp(I13) = g(I13,i);
+        g_tmp(I22) = g(I22,i);
+        g_tmp(I23) = g(I23,i);
+        g_tmp(I33) = g(I33,i);
+
+        Real det_new = Determinant(g_tmp);
+
+        if (dir==0) smoothed_bh_metric(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3v(k), pin,g_old);
+        if (dir==1) smoothed_bh_metric(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3v(k), pin,g_old);
+        if (dir==2) smoothed_bh_metric(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3f(k), pin,g_old);
+
+
+        Real det_old = Determinant(g_old);
+
+
+        if (dir==0) pfield->b.x1f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1) pfield->b.x2f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2) pfield->b.x3f(k,j,i) *= std::sqrt(-det_old)/std::sqrt(-det_new);
+
+
+        if (dir==0 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face1rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==1 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face2rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
+        if (dir==2 && i>=is && i<=ie  && j<=je && j>=js && k<=ke && k>=ks) face3rat_used(k,j,i) = std::sqrt(-det_old)/std::sqrt(-det_new);
+
+
+        g_tmp.DeleteAthenaArray();
+        g_old.DeleteAthenaArray();
+
+      }
+    }
+  }
+}
+
+
+
+
+  Real divb,divbmax;
+  divbmax=0;
+  // AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+  FaceField &b = pfield->b;
+
+
+  for(int k=ks; k<=ke; k++) {
+    for(int j=js; j<=je; j++) {
+      pcoord->Face1Area(k,   j,   is, ie+1, face1);
+      pcoord->Face2Area(k,   j+1, is, ie,   face2p);
+      pcoord->Face2Area(k,   j,   is, ie,   face2m);
+      pcoord->Face3Area(k+1, j,   is, ie,   face3p);
+      pcoord->Face3Area(k,   j,   is, ie,   face3m);
+      for(int i=is; i<=ie; i++) {
+        divb=(face1(i+1)*b.x1f(k,j,i+1)-face1(i)*b.x1f(k,j,i)
+              +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
+              +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
+        if (divbmax<std::abs(divb)) divbmax = std::abs(divb);
+
+        }
+      }
+    }
+
+    //if (divbmax>1e-14) 
+    //fprintf(stderr,"divbmax in PreserveDivbNewMetric vs. old:  %g %g \n",divbmax,divbmax_old);
+  
+
+  face1.DeleteAthenaArray();
+  face2p.DeleteAthenaArray();
+  face2m.DeleteAthenaArray();
+  face3p.DeleteAthenaArray();
+  face3m.DeleteAthenaArray();
+
+  face1rat.DeleteAthenaArray();
+  face2rat.DeleteAthenaArray();
+  face3rat.DeleteAthenaArray();
+  face1rat_used.DeleteAthenaArray();
+  face2rat_used.DeleteAthenaArray();
+  face3rat_used.DeleteAthenaArray();
+
+  // b_old.DeleteAthenaArray();
+
+  divb_old.DeleteAthenaArray();
+
+  // Calculate cell-centered magnetic field
+  AthenaArray<Real> bb;
+  if (MAGNETIC_FIELDS_ENABLED) {
+    pfield->CalculateCellCenteredField(pfield->b, pfield->bcc, pcoord, il, iu, jl, ju, kl,
+        ku);
+  } else {
+    bb.NewAthenaArray(3, ku+1, ju+1, iu+1);
+  }
+
+  // Initialize conserved values
+  // if (MAGNETIC_FIELDS_ENABLED) {
+  //   peos->PrimitiveToConserved(phydro->w, pfield->bcc, phydro->u, pcoord, il, iu, jl, ju,
+  //       kl, ku);
+  // } else {
+  //   peos->PrimitiveToConserved(phydro->w, bb, phydro->u, pcoord, il, iu, jl, ju, kl, ku);
+  //   bb.DeleteAthenaArray();
+  // }
+
+
+return;
+}
+
+
 
 
 void Cartesian_GR(Real t, Real x1, Real x2, Real x3, ParameterInput *pin,
@@ -3075,116 +3477,6 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
 }
 
 
-void unboosted_cks_metric(Real q_rat,Real xprime, Real yprime, Real zprime, Real rprime, Real Rprime, Real vx, Real vy, Real vz,Real ax, Real ay, Real az,AthenaArray<Real> &g_unboosted ){
-
-  Real a_dot_x_prime = ax * xprime + ay * yprime + az * zprime;
-  Real a_mag = std::sqrt( SQR(ax) + SQR(ay) + SQR(az) );
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime>=0)){
-
-    Real diff = SMALL - a_dot_x_prime/(a_mag+SMALL);
-    a_dot_x_prime =  SMALL;
-
-    xprime = xprime + diff*ax/(a_mag+SMALL);
-    yprime = yprime + diff*ay/(a_mag+SMALL);
-    zprime = zprime + diff*az/(a_mag+SMALL);
-  }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
-
-    Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);
-    a_dot_x_prime =  -SMALL;
-
-    xprime = xprime + diff*ax/(a_mag+SMALL);
-    yprime = yprime + diff*ay/(a_mag+SMALL);
-    zprime = zprime + diff*az/(a_mag+SMALL);
-  } 
-  
-  Real thprime,phiprime;
-  GetBoyerLindquistCoordinates(xprime,yprime,zprime,ax,ay,az, &rprime, &thprime, &phiprime);
-
-
-/// prevent metric from getting nan sqrt(-gdet)
-
-  Real rhprime = ( q_rat + std::sqrt(SQR(q_rat)-SQR(a_mag)) );
-  if (rprime < rhprime*0.8) {
-    rprime = rhprime*0.8;
-    convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, ax,ay,az,&xprime,&yprime,&zprime);
-  }
-
-  a_dot_x_prime = ax * xprime + ay * yprime + az * zprime;
-
-  Real a_cross_x_prime[3];
-
-
-  a_cross_x_prime[0] = ay * zprime - az * yprime;
-  a_cross_x_prime[1] = az * xprime - ax * zprime;
-  a_cross_x_prime[2] = ax * yprime - ay * xprime;
-
-
-  Real rsq_p_asq_prime = SQR(rprime) + SQR(a_mag);
-
-  //First calculated all quantities in BH rest (primed) frame
-
-  Real l_lowerprime[4],l_upperprime[4];
-
-  Real fprime = q_rat *  2.0 * SQR(rprime)*rprime / (SQR(SQR(rprime)) + SQR(a_dot_x_prime));
-  l_upperprime[0] = -1.0;
-  l_upperprime[1] = (rprime * xprime - a_cross_x_prime[0] + a_dot_x_prime * ax/rprime)/(rsq_p_asq_prime);
-  l_upperprime[2] = (rprime * yprime - a_cross_x_prime[1] + a_dot_x_prime * ay/rprime)/(rsq_p_asq_prime);
-  l_upperprime[3] = (rprime * zprime - a_cross_x_prime[2] + a_dot_x_prime * az/rprime)/(rsq_p_asq_prime);
-
-  l_lowerprime[0] = 1.0;
-  l_lowerprime[1] = l_upperprime[1];
-  l_lowerprime[2] = l_upperprime[2];
-  l_lowerprime[3] = l_upperprime[3];
-
-
-  // Set covariant components
-  g_unboosted(I00) = -1.0 + fprime * l_lowerprime[0]*l_lowerprime[0];
-  g_unboosted(I01) = fprime * l_lowerprime[0]*l_lowerprime[1];
-  g_unboosted(I02) = fprime * l_lowerprime[0]*l_lowerprime[2];
-  g_unboosted(I03) = fprime * l_lowerprime[0]*l_lowerprime[3];
-  g_unboosted(I11) = 1.0 + fprime * l_lowerprime[1]*l_lowerprime[1];
-  g_unboosted(I12) = fprime * l_lowerprime[1]*l_lowerprime[2];
-  g_unboosted(I13) = fprime * l_lowerprime[1]*l_lowerprime[3];
-  g_unboosted(I22) = 1.0 + fprime * l_lowerprime[2]*l_lowerprime[2];
-  g_unboosted(I23) = fprime * l_lowerprime[2]*l_lowerprime[3];
-  g_unboosted(I33) = 1.0 + fprime * l_lowerprime[3]*l_lowerprime[3];
-
-
-  return;
-
-}
-
-
-void ks_metric(Real r, Real th,Real a,AthenaArray<Real> &g_ks ){
-
-  Real m = 1.0;
-
-  Real a2 = SQR(a);
-  Real sin2 = SQR( std::sin(th) ) ;
-  Real cos2 = SQR( std::cos(th) );
-
-  // Go through 1D block of cells
-
-    // Extract remaining useful quantities
-  Real r2 = SQR(r);
-  Real delta = r2 - 2.0*m*r + a2;
-  Real sigma = r2 + a2 * cos2;
-
-  // Set covariant metric coefficients
-  g_ks(I00) = -(1.0 - 2.0*m*r/sigma);
-  g_ks(I01) = 2.0*m*r/sigma;
-  g_ks(I03) = -2.0*m*a*r/sigma * sin2;
-  g_ks(I11) = 1.0 + 2.0*m*r/sigma;
-  g_ks(I13) = -(1.0 + 2.0*m*r/sigma) * a * sin2;
-  g_ks(I22) = sigma;
-  g_ks(I33) = (r2 + a2 + 2.0*m*a2*r/sigma * sin2) * sin2;
-
-  //First calculated all quantities in BH rest (primed) frame
-
-  return;
-
-}
 
 void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &orbit_quantities,
     AthenaArray<Real> &g)
@@ -3323,6 +3615,145 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   return;
 }
+
+void metric_for_derivatives_smoothed(Real t, Real x1, Real x2, Real x3, AthenaArray<Real> &orbit_quantities,
+    AthenaArray<Real> &g)
+{
+
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
+
+  Real a1x = orbit_quantities(IA1X);
+  Real a1y = orbit_quantities(IA1Y);
+  Real a1z = orbit_quantities(IA1Z);
+
+  Real a2x = orbit_quantities(IA2X);
+  Real a2y = orbit_quantities(IA2Y);
+  Real a2z = orbit_quantities(IA2Z);
+
+  Real a1 = std::sqrt( SQR(a1x) + SQR(a1y) + SQR(a1z) );
+  Real a2 = std::sqrt( SQR(a2x) + SQR(a2y) + SQR(a2z) );
+
+  Real v1x = orbit_quantities(IV1X);
+  Real v1y = orbit_quantities(IV1Y);
+  Real v1z = orbit_quantities(IV1Z);
+
+  Real v2x = orbit_quantities(IV2X);
+  Real v2y = orbit_quantities(IV2Y);
+  Real v2z = orbit_quantities(IV2Z);
+
+
+  Real v1 = std::sqrt( SQR(v1x) + SQR(v1y) + SQR(v1z) );
+  Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
+
+
+
+  Real eta[4];
+
+  eta[0] = -1.0;
+  eta[1] = 1.0;
+  eta[2] = 1.0;
+  eta[3] = 1.0;
+
+  //////////////First Black Hole//////////////////
+  Real xprime,yprime,zprime,rprime,Rprime;
+  get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+
+  if (rprime<black_hole_smoothing_radius_before_restart){
+      Real thprime,phiprime;
+      GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+      if (rprime < black_hole_smoothing_radius) {
+            rprime = black_hole_smoothing_radius;
+            convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a1x,a1y,a1z,&xprime,&yprime,&zprime);
+      }
+
+  }
+
+
+  AthenaArray<Real> g_pert;
+
+  g_pert.NewAthenaArray(NMETRIC);
+
+  boosted_BH_metric_addition(1.0,xprime,yprime,zprime,rprime,Rprime, v1x,v1y,v1z, a1x,a1y,a1z,g_pert );
+
+
+    // Set covariant components
+  g(I00) = eta[0] + g_pert(I00);
+  g(I01) =          g_pert(I01);
+  g(I02) =          g_pert(I02);
+  g(I03) =          g_pert(I03);
+  g(I11) = eta[1] + g_pert(I11);
+  g(I12) =          g_pert(I12);
+  g(I13) =          g_pert(I13);
+  g(I22) = eta[2] + g_pert(I22);
+  g(I23) =          g_pert(I23);
+  g(I33) = eta[3] + g_pert(I33);
+
+  //////////////Second Black Hole//////////////////
+
+
+  get_prime_coords(2,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
+
+  if (rprime<black_hole_smoothing_radius_before_restart){
+    Real thprime,phiprime;
+    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+    if (rprime < black_hole_smoothing_radius) {
+          rprime = black_hole_smoothing_radius;
+          convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
+    }
+
+  }
+
+  boosted_BH_metric_addition(q,xprime,yprime,zprime,rprime,Rprime, v2x,v2y,v2z, a2x,a2y,a2z,g_pert );
+
+    // Set covariant components
+  g(I00) += g_pert(I00);
+  g(I01) += g_pert(I01);
+  g(I02) += g_pert(I02);
+  g(I03) += g_pert(I03);
+  g(I11) += g_pert(I11);
+  g(I12) += g_pert(I12);
+  g(I13) += g_pert(I13);
+  g(I22) += g_pert(I22);
+  g(I23) += g_pert(I23);
+  g(I33) += g_pert(I33);
+
+
+  g_pert.DeleteAthenaArray();
+
+
+
+  // Real det = Determinant(g);
+  // if (det>=0){
+  //   fprintf(stderr, "sqrt -g is nan!! xyz: %g %g %g xyzbh: %g %g %g \n xyzprime: %g %g %g \n r th phi: %g %g %g \n r th phi prime: %g %g %g \n",
+  //     x,y,z,orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),
+  //     xprime,yprime,zprime,r,th,phi,rprime,thprime,phiprime);
+  //   exit(0);
+  // }
+
+
+
+  // fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n nt: %d q: %g t0: %g t0_orbits: %g dt_orbits: %g\n", 
+  //   t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
+  //   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
+  //   nt,q,t0,t0_orbits, dt_orbits);
+
+  // for (int imetric=0; imetric<NMETRIC; imetric++){
+  //   if (std::isnan(g(imetric))) {
+  //     fprintf(stderr,"ISNAN in metric!!\n imetric: %d \n",imetric);
+  //       fprintf(stderr,"t: %g a1xyz: %g %g %g a1: %g \n a2xyz: %g %g %g a2: %g \n v1xyz: %g %g %g \n v2xyz: %g %g %g\n xx2 y2 z2: %g %g %g \n r th ph: %g %g %g \n rprime thprime phiprime: %g %g %g \n xprime yprime zprime: %g %g %g \n q: %g \n xyz: %g %g %g \n", 
+  //         t, a1x,a1y,a1z,a1,a2x,a2y,a2z,a2,v1x,v1y,v1z,v2x,v2y,v2z, 
+  //   orbit_quantities(IX2),orbit_quantities(IY2),orbit_quantities(IZ2),r,th,phi,rprime,thprime,phiprime,xprime,yprime,zprime,
+  //   q, x, y, z );
+  //     exit(0);
+  //   }
+  // }
+
+  return;
+}
+
 
 
 
@@ -3951,6 +4382,43 @@ void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real 
   // return r;
 }
 
+
+void smoothed_bh_metric(Real t, Real x1, Real x2, Real x3,ParameterInput *pin,AthenaArray<Real> &g){
+
+
+  m = pin->GetReal("coord", "m");
+
+  //////////////Perturber Black Hole//////////////////
+
+  t0 = pin->GetOrAddReal("problem","t0", 0.0);
+  Real x = x1;
+  Real y = x2;
+  Real z = x3;
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+  metric_for_derivatives_smoothed(t,x1,x2,x3,orbit_quantities,g);
+
+  bool invertible = gluInvertMatrix(g,g_inv);
+
+  if (invertible==false) {
+    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
+    for (int n = 0; n < NMETRIC; ++n) {
+      fprintf(stderr,"nmetric: %d metric: %g \n", n,g(n));
+    }
+    exit(0);
+
+  }
+
+
+
+  orbit_quantities.DeleteAthenaArray();
+  return;
+
+}
 
 void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
     AthenaArray<Real> &g)
