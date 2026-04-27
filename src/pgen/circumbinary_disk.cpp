@@ -122,6 +122,9 @@ void NobleCooling(MeshBlock *pmb, const Real time, const Real dt,
               AthenaArray<Real> &cons_scalar);
 
 
+void smoothed_bh_metric(Real t, Real x1, Real x2, Real x3,ParameterInput *pin,AthenaArray<Real> &g);
+
+
 
 
 // Global variables
@@ -4401,17 +4404,6 @@ void smoothed_bh_metric(Real t, Real x1, Real x2, Real x3,ParameterInput *pin,At
   get_orbit_quantities(t,orbit_quantities);
 
   metric_for_derivatives_smoothed(t,x1,x2,x3,orbit_quantities,g);
-
-  bool invertible = gluInvertMatrix(g,g_inv);
-
-  if (invertible==false) {
-    fprintf(stderr,"Non-invertible matrix at xyz: %g %g %g\n", x,y,z);
-    for (int n = 0; n < NMETRIC; ++n) {
-      fprintf(stderr,"nmetric: %d metric: %g \n", n,g(n));
-    }
-    exit(0);
-
-  }
 
 
 
