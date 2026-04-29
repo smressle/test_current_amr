@@ -628,8 +628,7 @@ int RefinementCondition(MeshBlock *pmb)
 
 
   Real total_box_radius = (pmb->pmy_mesh->mesh_size.x1max - pmb->pmy_mesh->mesh_size.x1min)/2.0;
-  Real bh2_focus_radius = 12*q;
-  //Real bh2_focus_radius = 3.125*0.1;
+
 
   int current_level = int( std::log(DX/dx)/std::log(2.0) + 0.5);
 
@@ -647,13 +646,6 @@ int RefinementCondition(MeshBlock *pmb)
   orbit_quantities.NewAthenaArray(Norbit);
 
   get_orbit_quantities(pmb->pmy_mesh->metric_time,orbit_quantities);
-
-
-  Real v2x = orbit_quantities(IV2X);
-  Real v2y = orbit_quantities(IV2Y);
-  Real v2z = orbit_quantities(IV2Z);
-  Real v2 = std::sqrt( SQR(v2x) + SQR(v2y) + SQR(v2z) );
-  Real bh2_bondi_radius = 2.0 * q /SQR(v2);
 
 
   //first loop: check if any part of block is within refinement levels for secondary black hole
@@ -768,16 +760,28 @@ if (max_second_bh_refinement_level>0){
             Real z_radius;
 
 
+            if (box_radius>1000){
+              if (n_level==2) z_radius = 196.0*0.9999;
+              if (n_level==3) z_radius = 98.0*0.9999;
+              if (n_level==4) z_radius = 49.0*0.9999;
+              if (n_level==5) z_radius = 24.5*0.9999;
+              // if (n_level==5) z_radius = 12.25*0.9999;
+              // if (n_level==6) z_radius = 2.4*0.9999;
+              // if (n_level==7) z_radius = 1.2*0.9999;
 
-            if (n_level==1) z_radius = 196.0*0.9999;
-            if (n_level==2) z_radius = 98.0*0.9999;
-            if (n_level==3) z_radius = 49.0*0.9999;
-            if (n_level==4) z_radius = 24.5*0.9999;
-            // if (n_level==5) z_radius = 12.25*0.9999;
-            // if (n_level==6) z_radius = 2.4*0.9999;
-            // if (n_level==7) z_radius = 1.2*0.9999;
+              if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            }
+            else{
+              if (n_level==1) z_radius = 196.0*0.9999;
+              if (n_level==2) z_radius = 98.0*0.9999;
+              if (n_level==3) z_radius = 49.0*0.9999;
+              if (n_level==4) z_radius = 24.5*0.9999;
+              // if (n_level==5) z_radius = 12.25*0.9999;
+              // if (n_level==6) z_radius = 2.4*0.9999;
+              // if (n_level==7) z_radius = 1.2*0.9999;
 
-            if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+              if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+            }
 
  
             if (x<box_radius && x > -box_radius && y<box_radius
