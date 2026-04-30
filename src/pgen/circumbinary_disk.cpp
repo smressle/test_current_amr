@@ -769,7 +769,7 @@ if (max_second_bh_refinement_level>0){
               // if (n_level==6) z_radius = 2.4*0.9999;
               // if (n_level==7) z_radius = 1.2*0.9999;
 
-              if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
+              if (n_level>=3) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             }
             else{
               if (n_level==1) z_radius = 196.0*0.9999;
