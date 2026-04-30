@@ -760,7 +760,7 @@ if (max_second_bh_refinement_level>0){
             Real z_radius;
 
 
-            if (box_radius>1000){
+            if (total_box_radius>1000){
               if (n_level==2) z_radius = 196.0*0.9999;
               if (n_level==3) z_radius = 98.0*0.9999;
               if (n_level==4) z_radius = 49.0*0.9999;
