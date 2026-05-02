@@ -1668,7 +1668,7 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
   Real rh2 = ( q + std::sqrt( SQR(q) - SQR(a2)) );
 
-  Real orbital_radius = std::sqrt( SQR(IX1) + SQR(IY1) + SQR(IZ1) );
+  Real orbital_radius = std::sqrt( SQR(orbit_quantities(IX1)) + SQR(orbit_quantities(IY1)) + SQR(orbit_quantities(IZ1)) );
 
   Real excision_radius = 0.0; //orbital_radius * 1.2;
 
@@ -3531,8 +3531,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
-  fprintf(stderr,"black hole smoothing radius: %g \n a1: %g %g %g \n a2: %g %g %g \n v1: %g %g %g v2: %g %g %g \n",black_hole_smoothing_radius,
-    a1x,a1y,a1z,a2x,a2y,a2z,v1x,v1y,v1z,v2x,v2y,v2z);
+  // fprintf(stderr,"black hole smoothing radius: %g \n a1: %g %g %g \n a2: %g %g %g \n v1: %g %g %g v2: %g %g %g \n",black_hole_smoothing_radius,
+  //   a1x,a1y,a1z,a2x,a2y,a2z,v1x,v1y,v1z,v2x,v2y,v2z);
 
   if (rprime<black_hole_smoothing_radius){
       Real thprime,phiprime;
