@@ -2681,7 +2681,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
       y = y + diff*ay/(a+SMALL);
       z = z + diff*az/(a+SMALL);
     }
-    else if if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+    else if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
       Real diff = -SMALL - a_dot_x/(a+SMALL);;
       a_dot_x =  -SMALL;
