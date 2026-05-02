@@ -599,8 +599,8 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
   //   AllocateUserOutputVariables(N_user_vars);
   // }
   AllocateRealUserMeshBlockDataField(2);
-  ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+1+NGHOST);
-  ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+1+NGHOST);
+  ruser_meshblock_data[0].NewAthenaArray(NMETRIC, ie+2+NGHOST);
+  ruser_meshblock_data[1].NewAthenaArray(NMETRIC, ie+2+NGHOST);
 
 
 
