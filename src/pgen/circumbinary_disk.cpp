@@ -792,7 +792,7 @@ if (max_second_bh_refinement_level>0){
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
-                  orbit_quantities.DeleteAthenaArray()
+                  orbit_quantities.DeleteAthenaArray();
                   return  1;
               }
               if (current_level==n_level) any_at_current_level=1;
