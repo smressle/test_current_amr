@@ -1082,8 +1082,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
-                &r, &theta, &phi);
             int k_torus = k;
             int j_torus = j;
             int i_torus = i;
@@ -1091,6 +1089,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             if (k_torus==ku+1) k_torus =ku;
             if (j_torus==ju+1) j_torus =ju;
             if (i_torus==iu+1) i_torus =iu;
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
+                &r, &theta, &phi);
 
 
             if (r >= rin) {
