@@ -1041,6 +1041,13 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         phydro->w(IVX,k,j,i) = phydro->w1(IM1,k,j,i) = uu1 + pert_uur;
         phydro->w(IVY,k,j,i) = phydro->w1(IM2,k,j,i) = uu2 + pert_uutheta;
         phydro->w(IVZ,k,j,i) = phydro->w1(IM3,k,j,i) = uu3;
+
+        if (std::isnan(rho)){
+          fprintf(stderr,"ISNAN in rho at xyz: %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n gi: %g %g %g %g %g %g %g %g %g %g \n",
+            pcoord->x1v(i), pcoord->x2v(j),pcoord->x3v(k),
+            g(I00,i),g(I01,i),g(I02,i),g(I03,i),g(I11,i),g(I22,i),g(I33,i),g(I12,i),g(I13,i),g(I23,i),
+            gi(I00,i),gi(I01,i),gi(I02,i),gi(I03,i),gi(I11,i),gi(I22,i),gi(I33,i),gi(I12,i),gi(I13,i),gi(I23,i));
+        }
       }
     }
   }
@@ -1426,6 +1433,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         pgas = std::max(pgas, pgas_min * std::pow(r, pgas_pow));
         phydro->w1(IDN,k,j,i) = rho;
         phydro->w1(IEN,k,j,i) = pgas;
+
       }
     }
   }
