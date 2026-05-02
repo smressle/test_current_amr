@@ -185,7 +185,7 @@ int max_refinement_level = 0;    /*Maximum allowed level of refinement for AMR *
 int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement for AMR on secondary BH */
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
-static Real SMALL = 1e-7;
+#define SMALL  1e-7
 #define DEL 1e-4
 
 Real gamma_max;
@@ -2681,7 +2681,7 @@ static void GetBoyerLindquistCoordinates(Real x1, Real x2, Real x3, Real ax, Rea
       y = y + diff*ay/(a+SMALL);
       z = z + diff*az/(a+SMALL);
     }
-    if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
+    else if if ((std::fabs(a_dot_x)<SMALL) && (a_dot_x <0)){
 
       Real diff = -SMALL - a_dot_x/(a+SMALL);;
       a_dot_x =  -SMALL;
@@ -2906,7 +2906,7 @@ void get_prime_coords(int BH_INDEX, Real x, Real y, Real z, AthenaArray<Real> &o
     *yprime = *yprime + diff*ay/(a_mag+SMALL);
     *zprime = *zprime + diff*az/(a_mag+SMALL);;
   }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+  else if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
     Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);;
     a_dot_x_prime =  -SMALL;
@@ -3416,7 +3416,7 @@ void boosted_BH_metric_addition(Real q_rat,Real xprime, Real yprime, Real zprime
     yprime = yprime + diff*ay/(a_mag+SMALL);
     zprime = zprime + diff*az/(a_mag+SMALL);
   }
-  if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
+  else if ((std::fabs(a_dot_x_prime)<SMALL) && (a_dot_x_prime <0)){
 
     Real diff = -SMALL - a_dot_x_prime/(a_mag+SMALL);
     a_dot_x_prime =  -SMALL;
@@ -3604,7 +3604,7 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
 
   if (rprime<black_hole_smoothing_radius){
     Real thprime,phiprime;
-    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a1x,a1y,a1z, &rprime, &thprime, &phiprime);
+    GetBoyerLindquistCoordinates(xprime,yprime,zprime,a2x,a2y,a2z, &rprime, &thprime, &phiprime);
     if (rprime < black_hole_smoothing_radius) {
           rprime = black_hole_smoothing_radius;
           convert_spherical_to_cartesian_ks(rprime,thprime,phiprime, a2x,a2y,a2z,&xprime,&yprime,&zprime);
