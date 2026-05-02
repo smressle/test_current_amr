@@ -3530,6 +3530,8 @@ void metric_for_derivatives(Real t, Real x1, Real x2, Real x3, AthenaArray<Real>
   Real xprime,yprime,zprime,rprime,Rprime;
   get_prime_coords(1,x,y,z, orbit_quantities,&xprime,&yprime, &zprime, &rprime,&Rprime);
 
+  fprintf(stderr,"black hole smoothing radius: %g \n a1: %g %g %g \n a2: %g %g %g \n v1: %g %g %g v2: %g %g %g \n",black_hole_smoothing_radius,
+    a1x,a1y,a1z,a2x,a2y,a2z,v1x,v1y,v1z,v2x,v2y,v2z);
 
   if (rprime<black_hole_smoothing_radius){
       Real thprime,phiprime;
