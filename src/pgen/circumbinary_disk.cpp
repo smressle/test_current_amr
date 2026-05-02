@@ -1098,7 +1098,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
-                Real press = phydro->w(IPR,k,j,i);
+                Real press = phydro->w(IPR,k_torus,j_torus,i_torus);
                 Real press_cutoff = std::max(press-potential_cutoff*pgas_over_rho_peak, static_cast<Real>(0.0));
 
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
