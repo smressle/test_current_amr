@@ -1708,10 +1708,10 @@ void apply_inner_boundary_condition(MeshBlock *pmb,const AthenaArray<Real> &prim
 
 
    for (int k=kl; k<=ku; ++k) {
-#pragma omp parallel for schedule(static)
+// #pragma omp parallel for schedule(static)
     for (int j=jl; j<=ju; ++j) {
       pmb->pcoord->CellMetric(k, j, il, iu, g, gi);
-#pragma simd
+// #pragma simd
       for (int i=il; i<=iu; ++i) {
 
 
