@@ -186,7 +186,7 @@ int max_second_bh_refinement_level = 0;  /*Maximum allowed level of refinement f
 int max_smr_refinement_level = 0; /*Maximum allowed level of refinement for SMR on primary BH */
 
 static Real SMALL = 1e-7;
-#define DEL 1e-4;
+#define DEL 1e-4
 
 Real gamma_max;
 
@@ -1169,7 +1169,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
 
-             int k_torus = k;
+            int k_torus = k;
             int j_torus = j;
             int i_torus = i;
 
