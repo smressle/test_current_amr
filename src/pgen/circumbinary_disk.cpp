@@ -1082,11 +1082,20 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0,0,0,
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
                 &r, &theta, &phi);
+            int k_torus = k;
+            int j_torus = j;
+            int i_torus = i;
+
+            if (k_torus==ku+1) k_torus =ku;
+            if (j_torus==ju+1) j_torus =ju;
+            if (i_torus==iu+1) i_torus =iu;
+
+
             if (r >= rin) {
-              if (in_torus(k,j,i) == true) {
-                Real rho = phydro->w(IDN,k,j,i);
+              if (in_torus(k_torus,j_torus,i_torus) == true) {
+                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
                 Real press = phydro->w(IPR,k,j,i);
@@ -1159,12 +1168,21 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int k = kl; k<=ku+1; ++k) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
+
+             int k_torus = k;
+            int j_torus = j;
+            int i_torus = i;
+
+            if (k_torus==ku+1) k_torus =ku;
+            if (j_torus==ju+1) j_torus =ju;
+            if (i_torus==iu+1) i_torus =iu;
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0,0,0,
+
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
                 &r, &theta, &phi);
             if (r >= rin) {
-              if (in_torus(k,j,i) == true) {
-                Real rho = phydro->w(IDN,k,j,i);
+              if (in_torus(k_torus,j_torus,i_torus) == true) {
+                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
@@ -1229,11 +1247,18 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         for (int j = jl; j <= ju+1; ++j) {
           for (int i = il; i <= iu+1; ++i) {
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0,0,0,
+            int k_torus = k;
+            int j_torus = j;
+            int i_torus = i;
+
+            if (k_torus==ku+1) k_torus =ku;
+            if (j_torus==ju+1) j_torus =ju;
+            if (i_torus==iu+1) i_torus =iu;
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
                 &r, &theta, &phi);
             if (r >= rin) {
-              if (in_torus(k,j,i) == true) {
-                Real rho = phydro->w(IDN,k,j,i);
+              if (in_torus(k_torus,j_torus,i_torus) == true) {
+                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
                 a_phi_edges(k,j,i) = std::max( std::pow(r/20.0, 3.0) * std::pow(std::sin(theta),3.0) 
                     * rho * std::exp(-r/400.0)-0.2 ,static_cast<Real>(0.0)) ;
