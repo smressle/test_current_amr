@@ -757,7 +757,7 @@ if (max_second_bh_refinement_level>0){
 
             Real box_radius = total_box_radius/std::pow(2.,n_level)*0.9999;
 
-            Real z_radius;
+            Real z_radius = box_radius;
 
 
             if (total_box_radius>1000){
