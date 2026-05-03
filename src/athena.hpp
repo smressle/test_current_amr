@@ -18,8 +18,8 @@
 #include "athena_arrays.hpp"
 #include "defs.hpp"
 
-#include <fenv.h>
-feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+// #include <fenv.h>
+// feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 
 // primitive type alias that allows code to run with either floats or doubles
 #if SINGLE_PRECISION_ENABLED
