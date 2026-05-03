@@ -1787,7 +1787,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^3
       for (int k = kl; k <= ku+1; ++k) {
         for (int j = jl; j <= ju; ++j) {
-          pcoord->Face3Metric(k, j, il, iu+1,g_, gi_);
+          pcoord->Face3Metric(k, j, il, iu,g_, gi_);
           for (int i = il; i <= iu; ++i) {
 
             // Prepare scratch arrays
