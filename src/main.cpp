@@ -32,6 +32,10 @@
 #include <new>        // bad_alloc
 #include <string>     // string
 
+
+#include <cfenv>
+
+
 // Athena++ headers
 #include "athena.hpp"
 #include "fft/turbulence.hpp"
@@ -70,6 +74,8 @@ int main(int argc, char *argv[]) {
 
   //--- Step 1. --------------------------------------------------------------------------
   // Initialize MPI environment, if necessary
+
+  feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 
 #ifdef MPI_PARALLEL
 #ifdef OPENMP_PARALLEL
