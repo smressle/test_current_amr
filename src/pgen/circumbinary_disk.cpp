@@ -2789,9 +2789,9 @@ static void TransformAphi(Real a3_ks, Real x1,
     Real sqrt_term =  2.0*SQR(r)-SQR(R) + SQR(a);
 
     //dphi/dx =  partial phi/partial x + partial phi/partial r partial r/partial x 
-    *pa1 = a3_ks * ( -y/(SQR(x)+SQR(y))  + a*x*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
+    *pa1 = a3_ks * ( -y/(SQR(x)+SQR(y) + SMALL)  + a*x*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
     //dphi/dx =  partial phi/partial y + partial phi/partial r partial r/partial y 
-    *pa2 = a3_ks * (  x/(SQR(x)+SQR(y))  + a*y*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
+    *pa2 = a3_ks * (  x/(SQR(x)+SQR(y) + SMALL)  + a*y*r/( (SQR(a)+SQR(r))*sqrt_term ) ); 
     //dphi/dx =   partial phi/partial r partial r/partial z 
     *pa3 = a3_ks * ( a*z/(r*sqrt_term) );
   }
