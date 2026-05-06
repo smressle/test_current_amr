@@ -1579,7 +1579,7 @@ void get_free_fall_solution(Real r, Real x1, Real x2, Real x3, Real ax_, Real ay
     Real uuphi = -2 * amag * SQR(r)*r /(( SQR(SQR(r)) + SQR(a_dot_x))*(std::sqrt(2.0)*std::sqrt( SQR(amag) + SQR(r))*std::sqrt(r) + 2*r));
     
 
-    Real th_temp = std::acos( a_dot_x/ (amag * r) );
+    // Real th_temp = std::acos( a_dot_x/ (amag * r) );
 
 
 
