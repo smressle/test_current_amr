@@ -573,6 +573,19 @@ void CalculateNormalConserved(
     dd(i) = alpha * rho_u0;  // (N 21)
 
     ee(i) = -qq_n  ; 
+
+    if (!std::isfinite(mm1) || !std::isfinite(mm2) || !std::isfinite(mm3)) {
+      printf("BAD mm: %d %d %d\n", mm1, mm2, mm3);
+      fflush(stdout);
+      abort();
+    }
+
+    if (!std::isfine(g_12) || !std::isfine(g_13) || !std::isfine(g_23) || !std::isfinite(g_11) || !std::isfinite(g_22) || !std::isfinite(g_33)) {
+      printf("BAD metric: g11=%d g22=%d g33=%d\n", g_11, g_22, g_33);
+      printf("BAD metric: g12=%d g13=%d g23=%d\n", g_12, g_13, g_23);
+      fflush(stdout);
+      abort();
+    }
     mm(0,i) = g_11*SQR(mm1) + 2.0*g_12*mm1*mm2 + 2.0*g_13*mm1*mm3
               + g_22*SQR(mm2) + 2.0*g_23*mm2*mm3
               + g_33*SQR(mm3);
