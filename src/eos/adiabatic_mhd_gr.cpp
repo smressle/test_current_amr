@@ -575,14 +575,14 @@ void CalculateNormalConserved(
     ee(i) = -qq_n  ; 
 
     if (!std::isfinite(mm1) || !std::isfinite(mm2) || !std::isfinite(mm3)) {
-      printf("BAD mm: %d %d %d\n", mm1, mm2, mm3);
+      printf("BAD mm: %g %g %g\n", mm1, mm2, mm3);
       fflush(stdout);
       abort();
     }
 
     if (!std::isfine(g_12) || !std::isfine(g_13) || !std::isfine(g_23) || !std::isfinite(g_11) || !std::isfinite(g_22) || !std::isfinite(g_33)) {
-      printf("BAD metric: g11=%d g22=%d g33=%d\n", g_11, g_22, g_33);
-      printf("BAD metric: g12=%d g13=%d g23=%d\n", g_12, g_13, g_23);
+      printf("BAD metric: g11=%g g22=%g g33=%g\n", g_11, g_22, g_33);
+      printf("BAD metric: g12=%g g13=%g g23=%g\n", g_12, g_13, g_23);
       fflush(stdout);
       abort();
     }
