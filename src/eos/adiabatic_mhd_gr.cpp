@@ -580,7 +580,7 @@ void CalculateNormalConserved(
       abort();
     }
 
-    if (!std::isfine(g_12) || !std::isfine(g_13) || !std::isfine(g_23) || !std::isfinite(g_11) || !std::isfinite(g_22) || !std::isfinite(g_33)) {
+    if (!std::isfinite(g_12) || !std::isfinite(g_13) || !std::isfinite(g_23) || !std::isfinite(g_11) || !std::isfinite(g_22) || !std::isfinite(g_33)) {
       printf("BAD metric: g11=%g g22=%g g33=%g\n", g_11, g_22, g_33);
       printf("BAD metric: g12=%g g13=%g g23=%g\n", g_12, g_13, g_23);
       fflush(stdout);
