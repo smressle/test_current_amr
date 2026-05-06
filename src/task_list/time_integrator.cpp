@@ -1719,8 +1719,19 @@ TaskStatus TimeIntegratorTaskList::AddSourceTerms(MeshBlock *pmb, int stage) {
       // Scaled coefficient for RHS update
       Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
       // Evaluate the source terms at the time at the beginning of the stage
-      ph->hsrc.AddSourceTerms(t_start_stage, dt, ph->flux, ph->w, ps->r, pf->bcc,
+      if (NSCALARS>0) ph->hsrc.AddSourceTerms(t_start_stage, dt, ph->flux, ph->w, ps->r, pf->bcc,
                                    ph->u, ps->s);
+      else {
+        AthenaArray<Real> ps_r,ps_s;
+        ps_r.NewAthenaArray(1,1,1,1);
+        ps_s.NewAthenaArray(1,1,1,1);
+        ph->hsrc.AddSourceTerms(t_start_stage, dt, ph->flux, ph->w, ps_r, pf->bcc,
+                                   ph->u, ps_s);
+        ps_r.DeleteAthenaArray();
+        ps_s.DeleteAthenaArray();
+
+
+      }
     }
     return TaskStatus::next;
   }
@@ -1766,20 +1777,51 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
     // }
 
     if (ALLOCATE_U2){
-      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
-        ph->u2, ph->u1,ph->u,
-        ph->w2,ph->w,ph->w1,
-        pf->b1,pf->b,
-        ps->s2, ps->s1, ps->s,
-        ps->r, ps->r);
+      if (NSCALARS>0){
+        ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+          ph->u2, ph->u1,ph->u,
+          ph->w2,ph->w,ph->w1,
+          pf->b1,pf->b,
+          ps->s2, ps->s1, ps->s,
+          ps->r, ps->r);
+      }
+      else{
+          AthenaArray<Real> ps_r,ps_s;
+          ps_r.NewAthenaArray(1,1,1,1);
+          ps_s.NewAthenaArray(1,1,1,1);
+          ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+            ph->u2, ph->u1,ph->u,
+            ph->w2,ph->w,ph->w1,
+            pf->b1,pf->b,
+            ps_s, ps_s, ps_s,
+            ps_r, ps_r);
+          ps_r.DeleteAthenaArray();
+          ps_s.DeleteAthenaArray();
+      }
     }
     else{
-      ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
-        ph->u1, ph->u1,ph->u,
-        ph->w,ph->w,ph->w1,
-        pf->b1,pf->b,
-        ps->s1, ps->s1, ps->s,
-        ps->r, ps->r);
+      if (NSCALARS>0){
+        ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+          ph->u1, ph->u1,ph->u,
+          ph->w,ph->w,ph->w1,
+          pf->b1,pf->b,
+          ps->s1, ps->s1, ps->s,
+          ps->r, ps->r);
+      }
+      else{
+        AthenaArray<Real> ps_r,ps_s;
+        ps_r.NewAthenaArray(1,1,1,1);
+        ps_s.NewAthenaArray(1,1,1,1);
+        ph->hsrc.AddRadSourceTerms(t_start_stage,dt,ph->flux,
+          ph->u1, ph->u1,ph->u,
+          ph->w,ph->w,ph->w1,
+          pf->b1,pf->b,
+          ps_s, ps_s, ps_s,
+          ps_r, ps_r);
+        ps_r.DeleteAthenaArray();
+        ps_s.DeleteAthenaArray();
+
+      }
     }
 
 
