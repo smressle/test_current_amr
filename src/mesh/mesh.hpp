@@ -252,11 +252,18 @@ class Mesh {
   AthenaArray<Real> *ruser_mesh_data;
   AthenaArray<int> *iuser_mesh_data;
 
+
+  int N_radial_bins_for_density_midplane;
+  int N_phi_bins_for_density_midplane;
+  Real r_max_for_density_midplane,r_min_for_density_midplane;
+  AthenaArray<Real> mass_weighted_theta_for_density_midplane,total_mass_for_density_midplane;
+
   // functions
   void Initialize(int res_flag, ParameterInput *pin);
   void SetBlockSizeAndBoundaries(LogicalLocation loc, RegionSize &block_size,
                                  BoundaryFlag *block_bcs);
   void NewTimeStep();
+  void FindDensityMidplane();
   void OutputCycleDiagnostics();
   void LoadBalancingAndAdaptiveMeshRefinement(ParameterInput *pin);
   int CreateAMRMPITag(int lid, int ox1, int ox2, int ox3);

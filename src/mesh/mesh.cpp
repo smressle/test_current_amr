@@ -101,7 +101,8 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     muj(), nuj(), muj_tilde(), gammaj_tilde(),
     nbnew(), nbdel(),
     step_since_lb(), gflag(), turb_flag(), amr_updated(multilevel),
-    update_metric_this_timestep(false),
+    update_metric_this_timestep(false), N_radial_bins_for_density_midplane(512),
+    N_phi_bins_for_density_midplane(256),
     // private members:
     next_phys_id_(), num_mesh_threads_(pin->GetOrAddInteger("mesh", "num_threads", 1)),
     gids_(), gide_(),
@@ -125,6 +126,20 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   MeshBlock *pfirst{};
   BoundaryFlag block_bcs[6];
   std::int64_t nbmax;
+
+  mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
+
+  Real Lx1 = mesh_size.x1max-mesh_size.x1min;
+  Real L_max = Lx1;
+  Real Lx2 = mesh_size.x2max-mesh_size.x2min;
+  L_max = std::max(L_max,Lx2);
+  Real Lx3 = mesh_size.x3max-mesh_size.x3min;
+  L_max = std::max(L_max,Lx3);
+
+  r_max_for_density_midplane = L_max/2.0*1.4;
+  r_min_for_density_midplane = 1.0;
 
   // mesh test
   if (mesh_test > 0) Globals::nranks = mesh_test;
@@ -608,7 +623,8 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     muj(), nuj(), muj_tilde(), gammaj_tilde(),
     nbnew(), nbdel(),
     step_since_lb(), gflag(), turb_flag(), amr_updated(multilevel),
-    update_metric_this_timestep(false),
+    update_metric_this_timestep(false), N_radial_bins_for_density_midplane(512),
+    N_phi_bins_for_density_midplane(256), 
     // private members:
     next_phys_id_(), num_mesh_threads_(pin->GetOrAddInteger("mesh", "num_threads", 1)),
     gids_(), gide_(),
@@ -632,6 +648,24 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   MeshBlock *pfirst{};
   IOWrapperSizeT *offset{};
   IOWrapperSizeT datasize, listsize, headeroffset;
+
+
+  mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
+  Real Lx1 = mesh_size.x1max-mesh_size.x1min;
+  Real L_max = Lx1;
+  Real Lx2 = mesh_size.x2max-mesh_size.x2min;
+  L_max = std::max(L_max,Lx2);
+  Real Lx3 = mesh_size.x3max-mesh_size.x3min;
+  L_max = std::max(L_max,Lx3);
+
+  r_max_for_density_midplane = L_max/2.0*1.4;
+  r_min_for_density_midplane = 1.0;
+
+
+
+
 
   // mesh test
   if (mesh_test > 0) Globals::nranks = mesh_test;
@@ -962,6 +996,10 @@ Mesh::~Mesh() {
   }
   if (nint_user_mesh_data_>0) delete [] iuser_mesh_data;
   if (EOS_TABLE_ENABLED) delete peos_table;
+
+  mass_weighted_theta_for_density_midplane.DeleteAthenaArray();
+  total_mass_for_density_midplane.DeleteAthenaArray();
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -1111,6 +1149,15 @@ void Mesh::OutputMeshStructure(int ndim) {
   delete [] cost_per_rank;
 
   return;
+}
+
+void Mesh::FindDensityMidplane(){
+  MeshBlock *pmb = my_blocks(0);
+
+    for (int i=0; i<nblocal; ++i) {
+    pmb = my_blocks(i);
+
+  }
 }
 
 //----------------------------------------------------------------------------------------
