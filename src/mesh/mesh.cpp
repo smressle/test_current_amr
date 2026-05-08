@@ -1156,6 +1156,37 @@ void Mesh::FindDensityMidplane(){
 
     for (int i=0; i<nblocal; ++i) {
     pmb = my_blocks(i);
+    int ks = pmb->ks, ke = pmb->ke;
+    int js = pmb->js, je = pmb->je;
+    int is = pmb->is, ie = pmb->ie;
+
+    Real dlogr = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
+    Real i_float = 
+
+    for (int k=ks; k<=ke; ++k) {
+      for (int j=js; j<=je; ++j) {
+          for (int i=is; i<=ie; ++i) {
+            Real x = pmb->x1v(i);
+            Real y = pmb->x2v(j);
+            Real z = pmb->x3v(k);
+
+            Real r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+            Real th_arg = z/r;
+            if (th_arg>1) th_arg=1.0;
+            if (th_arg<-1) th_arg=-1.0;
+            Real theta = std::acos(th_arg);
+            Real phi = std::atan2(y,x);
+
+            Real ir_float = std::log(r/r_min_for_density_midplane)/dlogr;
+            int ir   = static_cast<int>(std::floor(i_float));
+
+            if ( (ir<0) or (ir>N_radial_bins_for_density_midplane-1) ) continue;
+
+
+          }
+        }
+      }
+
 
   }
 }
