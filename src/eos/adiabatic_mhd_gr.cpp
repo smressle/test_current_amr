@@ -21,7 +21,7 @@
 #include "../mesh/mesh.hpp"                // MeshBlock
 #include "../parameter_input.hpp"          // ParameterInput
 #include "eos.hpp"
-#include <cfenv>
+// #include <cfenv>
 
 
 namespace {
@@ -233,13 +233,13 @@ void EquationOfState::ConservedToPrimitive(
         Real gamma, pmag;
         int old_excepts = fegetexcept();
 
-        fedisableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+        // fedisableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 
         bool success = ConservedToPrimitiveNormal(normal_dd_, normal_ee_, normal_mm_,
                                                   normal_bb_, normal_tt_, gamma_adi,
                                                   prim_old(IPR,k,j,i), k, j, i, prim,
                                                   &gamma, &pmag);
-        feenableexcept(old_excepts);
+        // feenableexcept(old_excepts);
         // if (gamma>1e5){
         //   fprintf(stderr,"Huge Gamma after ConstoPrimNormal!: %g \n success: %d normal_dd: %g normal_ee: %g normal_mm: %g %g %g %g \n normal_bb: %g %g %g %g \n normal_tt: %g \n consrho: %g consm: %g %g %g cons_en: %g \n",
         //     gamma,success*1,normal_dd_(i),normal_ee_(i),normal_mm_(0,i),
@@ -299,14 +299,14 @@ void EquationOfState::ConservedToPrimitive(
 
 
           // Recalculate primitives
-          int old_excepts = fegetexcept();
+          // int old_excepts = fegetexcept();
 
-          fedisableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+          // fedisableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
           success = ConservedToPrimitiveNormal(normal_dd_, normal_ee_, normal_mm_,
                                                normal_bb_, normal_tt_, gamma_adi,
                                                prim_old(IPR,k,j,i), k, j, i, prim, &gamma,
                                                &pmag);
-          feenableexcept(old_excepts);
+          // feenableexcept(old_excepts);
 
           // Real T_new = prim(IPR,k,j,i)/prim(IDN,k,j,i);
 

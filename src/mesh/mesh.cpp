@@ -1172,6 +1172,21 @@ void Mesh::FindDensityMidplane(){
   Real dlogr = dlogr_for_density_midplane;
   Real dphi  = dphi_for_density_midplane;
 
+
+  for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) {
+
+    r_cells(ir) =
+        r_min_for_density_midplane
+        * std::exp(ir * dlogr);
+
+  }
+
+  for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph) {
+
+    phi_cells(iph) = (iph ) * dphi;
+
+  }
+
   mass_weighted_theta_for_density_midplane.ZeroClear();
   total_mass_for_density_midplane.ZeroClear();
   for (int n=0; n<nblocal; ++n) {
