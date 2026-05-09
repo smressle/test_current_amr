@@ -1245,6 +1245,30 @@ void Mesh::FindDensityMidplane(){
   vol.DeleteAthenaArray();
 
 
+  if (Globals::my_rank == 0) {
+
+    std::ofstream fout("density_midplane.bin",
+                       std::ios::out | std::ios::binary);
+
+    // optional header
+    fout.write(reinterpret_cast<char*>(&N_radial_bins_for_density_midplane),
+               sizeof(int));
+
+    fout.write(reinterpret_cast<char*>(&N_phi_bins_for_density_midplane),
+               sizeof(int));
+
+    // write theta array
+    fout.write(
+        reinterpret_cast<char*>(
+            mass_weighted_theta_for_density_midplane.data()),
+        sizeof(Real)
+        * N_radial_bins_for_density_midplane
+        * N_phi_bins_for_density_midplane);
+
+    fout.close();
+}
+
+
 }
 
 //----------------------------------------------------------------------------------------
