@@ -764,6 +764,7 @@ if (max_second_bh_refinement_level>0){
 
             // /****** / Find location of  midplane for density /****/
             Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+            if (pseudo_r <= 0.0) continue;
             Real theta_arg = z/pseudo_r;
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
@@ -822,7 +823,7 @@ if (max_second_bh_refinement_level>0){
 
             if (pseudo_r<box_radius && 
               pseudo_theta < theta_density_midplane + pseudo_theta_scale_height &&
-              pseudo_theta > theta_density_midplane - pseudo_theta_scale_height){\
+              pseudo_theta > theta_density_midplane - pseudo_theta_scale_height){
 
 
               if (n_level>max_level_required) max_level_required=n_level;

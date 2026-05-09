@@ -1163,6 +1163,12 @@ void Mesh::FindDensityMidplane(){
   MeshBlock *pmb = my_blocks(0);
   AthenaArray<Real> vol(pmb->ncells1);
 
+
+  AthenaArray<Real> r_cells,phi_cells;
+
+  r_cells.NewAthenaArray(N_radial_bins_for_density_midplane);
+  phi_cells.NewAthenaArray(N_phi_bins_for_density_midplane);
+
   Real dlogr = dlogr_for_density_midplane;
   Real dphi  = dphi_for_density_midplane;
 
@@ -1266,6 +1272,17 @@ void Mesh::FindDensityMidplane(){
     fout.write(reinterpret_cast<char*>(&N_phi_bins_for_density_midplane),
                sizeof(int));
 
+
+    fout.write(reinterpret_cast<char*>(r_cells.data()),
+           sizeof(Real)
+           * N_radial_bins_for_density_midplane);
+
+    // write phi array
+    fout.write(reinterpret_cast<char*>(phi_cells.data()),
+           sizeof(Real)
+           * N_phi_bins_for_density_midplane);
+
+
     // write theta array
     fout.write(
         reinterpret_cast<char*>(
@@ -1276,6 +1293,9 @@ void Mesh::FindDensityMidplane(){
 
     fout.close();
 }
+
+r_cells.DeleteAthenaArray();
+phi_cells.DeleteAthenaArray();
 
 
 }
