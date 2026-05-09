@@ -783,6 +783,8 @@ if (max_second_bh_refinement_level>0){
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
           }
 
+          Real z_density_midplane = pseudo_r * std::cos(theta_density_midplane);
+
           
           for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
 
@@ -822,9 +824,11 @@ if (max_second_bh_refinement_level>0){
             Real pseudo_theta_scale_height = std::atan2(z_radius,box_radius);
 
 
-            if (pseudo_r<box_radius && 
-              pseudo_theta < theta_density_midplane + pseudo_theta_scale_height &&
-              pseudo_theta > theta_density_midplane - pseudo_theta_scale_height){
+
+
+
+            if (x<box_radius && x > -box_radius && y<box_radius
+              && y > -box_radius && z< z_density_midplane+ z_radius && z > z_density_midplane-z_radius ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
@@ -835,6 +839,19 @@ if (max_second_bh_refinement_level>0){
               }
               if (current_level==n_level) any_at_current_level=1;
             }
+            // if (pseudo_r<box_radius && 
+            //   pseudo_theta < theta_density_midplane + pseudo_theta_scale_height &&
+            //   pseudo_theta > theta_density_midplane - pseudo_theta_scale_height){
+
+
+            //   if (n_level>max_level_required) max_level_required=n_level;
+            //   any_in_refinement_region = 1;
+            //   if (current_level < n_level){
+            //       orbit_quantities.DeleteAthenaArray();
+            //       return  1;
+            //   }
+            //   if (current_level==n_level) any_at_current_level=1;
+            // }
 
  
             // if (x<box_radius && x > -box_radius && y<box_radius
