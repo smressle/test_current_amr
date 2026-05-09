@@ -1169,9 +1169,9 @@ void Mesh::FindDensityMidplane(){
       for (int j=js; j<=je; ++j) {
         pmb->pcoord->CellVolume(k, j, pmb->is, pmb->ie, vol);
           for (int i=is; i<=ie; ++i) {
-            Real x = pmb->x1v(i);
-            Real y = pmb->x2v(j);
-            Real z = pmb->x3v(k);
+            Real x = pmb->pcoord->x1v(i);
+            Real y = pmb->pcoord->x2v(j);
+            Real z = pmb->pcoord->x3v(k);
 
             Real r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
             if (r<= 0.0) continue;
