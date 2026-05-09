@@ -767,21 +767,21 @@ if (max_second_bh_refinement_level>0){
             Real theta_arg = z/pseudo_r;
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
-            Real pseudo_theta = std::acos(th_arg);
+            Real pseudo_theta = std::acos(theta_arg);
             Real pseudo_phi = std::atan2(y,x);
             pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
             if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
 
-            Real ir_float = std::log(pseudo_r/pmy_mesh->r_min_for_density_midplane)/pmy_mesh->dlogr_for_density_midplane;
+            Real ir_float = std::log(pseudo_r/pmb->pmy_mesh->r_min_for_density_midplane)/pmb->pmy_mesh->dlogr_for_density_midplane;
             int ir   = static_cast<int>(std::floor(ir_float));
 
-            Real iph_float = phi/pmy_mesh->dphi_for_density_midplane;
+            Real iph_float = pseudo_phi/pmb->pmy_mesh->dphi_for_density_midplane;
             int iph   = static_cast<int>(std::floor(iph_float));
-            iph = std::max(0, std::min(iph, pmy_mesh->N_phi_bins_for_density_midplane-1));
+            iph = std::max(0, std::min(iph, pmb->pmy_mesh->N_phi_bins_for_density_midplane-1));
 
-            if ( (ir<0) or (ir>pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
+            if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
             else{
-              theta_density_midplane = mass_weighted_theta_for_density_midplane(ir,iph);
+              theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
             }
 
 
@@ -817,14 +817,14 @@ if (max_second_bh_refinement_level>0){
               if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             }
 
-            pseudo_theta_scale_height = std::atan2(z_radius,pseudo_r);
+            Real pseudo_theta_scale_height = std::atan2(z_radius,pseudo_r);
 
 
             if (pseudo_r<box_radius && 
               pseudo_theta < theta_density_midplane + pseudo_theta_scale_height &&
               pseudo_theta > theta_density_midplane - pseudo_theta_scale_height){\
 
-              
+
               if (n_level>max_level_required) max_level_required=n_level;
               any_in_refinement_region = 1;
               if (current_level < n_level){
