@@ -819,7 +819,7 @@ if (max_second_bh_refinement_level>0){
               if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             }
 
-            Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+            Real pseudo_theta_scale_height = std::atan2(z_radius,box_radius);
 
 
             if (pseudo_r<box_radius && 
