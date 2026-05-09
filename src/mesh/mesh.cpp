@@ -129,6 +129,8 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   BoundaryFlag block_bcs[6];
   std::int64_t nbmax;
 
+
+// Variables for Computing Density Midplane
   mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
   total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
@@ -142,6 +144,9 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
 
   r_max_for_density_midplane = L_max/2.0*1.4;
   r_min_for_density_midplane = 1.0;
+
+  dlogr_for_density_midplane = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
+  dphi_for_density_midplane = 2.0*PI/(N_phi_bins_for_density_midplane+1.0);
 
   // mesh test
   if (mesh_test > 0) Globals::nranks = mesh_test;
@@ -665,7 +670,8 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   r_max_for_density_midplane = L_max/2.0*1.4;
   r_min_for_density_midplane = 1.0;
 
-
+  dlogr_for_density_midplane = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
+  dphi_for_density_midplane = 2.0*PI/(N_phi_bins_for_density_midplane+1.0);
 
 
 
@@ -1156,8 +1162,9 @@ void Mesh::OutputMeshStructure(int ndim) {
 void Mesh::FindDensityMidplane(){
   MeshBlock *pmb = my_blocks(0);
   AthenaArray<Real> vol(pmb->ncells1);
-  Real dlogr = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
-  Real dphi = 2.0*PI/(N_phi_bins_for_density_midplane+1.0);
+
+  Real dlogr = dlogr_for_density_midplane;
+  Real dphi  = dphi_for_density_midplane;
 
   mass_weighted_theta_for_density_midplane.ZeroClear();
   total_mass_for_density_midplane.ZeroClear();

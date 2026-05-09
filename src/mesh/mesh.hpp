@@ -255,6 +255,8 @@ class Mesh {
 
   int N_radial_bins_for_density_midplane;
   int N_phi_bins_for_density_midplane;
+  Real dlogr_for_density_midplane;
+  Real dphi_for_density_midplane;
   Real r_max_for_density_midplane,r_min_for_density_midplane;
   AthenaArray<Real> mass_weighted_theta_for_density_midplane,total_mass_for_density_midplane;
 
