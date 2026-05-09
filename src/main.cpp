@@ -280,6 +280,8 @@ int main(int argc, char *argv[]) {
       pmesh = new Mesh(pinput, restartfile, mesh_flag);
     }
 
+    pmesh->FindDensityMidplane();
+
     // fprintf(stderr,"MESH INITIZLIZED \n");
 #ifdef ENABLE_EXCEPTIONS
   }
@@ -483,6 +485,11 @@ int main(int argc, char *argv[]) {
 
     if (METRIC_EVOLUTION && pmesh->ncycle % 10 == 0){ // && pmesh->ncycle >0) {
         pmesh->update_metric_this_timestep = true;
+    }
+
+
+    if (pmesh->ncycle % 50 == 0){
+      pmesh->FindDensityMidplane();
     }
 
 

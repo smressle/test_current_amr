@@ -1153,39 +1153,49 @@ void Mesh::OutputMeshStructure(int ndim) {
 
 void Mesh::FindDensityMidplane(){
   MeshBlock *pmb = my_blocks(0);
+  AthenaArray<Real> vol(pmb->ncells1);
+  Real dlogr = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
+  Real dphi = 2.0*PI/(N_phi_bins_for_density_midplane+1.0);
 
-    for (int i=0; i<nblocal; ++i) {
-    pmb = my_blocks(i);
+  mass_weighted_theta_for_density_midplane.ZeroClear();
+  total_mass_for_density_midplane.ZeroClear();
+  for (int n=0; n<nblocal; ++n) {
+    pmb = my_blocks(n);
     int ks = pmb->ks, ke = pmb->ke;
     int js = pmb->js, je = pmb->je;
     int is = pmb->is, ie = pmb->ie;
 
-    Real dlogr = std::log(r_max_for_density_midplane/r_min_for_density_midplane)/(N_radial_bins_for_density_midplane-1);
-    Real dphi = 2.0*PI/(N_phi_bins_for_density_midplane+1.0);
-
     for (int k=ks; k<=ke; ++k) {
       for (int j=js; j<=je; ++j) {
+        pmb->pcoord->CellVolume(k, j, pmb->is, pmb->ie, vol);
           for (int i=is; i<=ie; ++i) {
             Real x = pmb->x1v(i);
             Real y = pmb->x2v(j);
             Real z = pmb->x3v(k);
 
             Real r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+            if (r<= 0.0) continue;
             Real th_arg = z/r;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;
             Real theta = std::acos(th_arg);
             Real phi = std::atan2(y,x);
+            phi = std::fmod(phi, 2.0*PI);
+            if (phi < 0.0) phi += 2.0*PI;
 
             Real ir_float = std::log(r/r_min_for_density_midplane)/dlogr;
-            int ir   = static_cast<int>(std::floor(i_float));
+            int ir   = static_cast<int>(std::floor(ir_float));
 
             if ( (ir<0) or (ir>N_radial_bins_for_density_midplane-1) ) continue;
 
             Real iph_float = phi/dphi;
             int iph   = static_cast<int>(std::floor(iph_float));
+            iph = std::max(0, std::min(iph, N_phi_bins_for_density_midplane-1));
 
-            if 
+
+            mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+            total_mass_for_density_midplane(ir,iph) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+
 
 
 
@@ -1195,6 +1205,46 @@ void Mesh::FindDensityMidplane(){
 
 
   }
+
+#ifdef MPI_PARALLEL
+      int size = N_radial_bins_for_density_midplane
+               * N_phi_bins_for_density_midplane;
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_theta_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    total_mass_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+      
+
+#endif
+
+      for (int ir=0; ir<N_radial_bins_for_density_midplane; ++ir) {
+      for (int iph=0; iph<N_phi_bins_for_density_midplane; ++iph) {
+
+        if (total_mass_for_density_midplane(ir,iph) > 0.0) {
+          mass_weighted_theta_for_density_midplane(ir,iph)
+            /= total_mass_for_density_midplane(ir,iph);
+        }
+        else{
+          mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+        }
+
+      }
+    }
+
+
+  vol.DeleteAthenaArray();
+
+
 }
 
 //----------------------------------------------------------------------------------------
