@@ -752,38 +752,39 @@ if (max_second_bh_refinement_level>0){
   for (int k = pmb->ks; k<=pmb->ke;k++){
     for(int j=pmb->js; j<=pmb->je; j++) {
       for(int i=pmb->is; i<=pmb->ie; i++) {
+
+          Real theta_density_midplane = PI/2.0;
+        
+          Real x = pmb->pcoord->x1v(i);
+          Real y = pmb->pcoord->x2v(j);
+          Real z = pmb->pcoord->x3v(k);
+
+
+          // /****** / Find location of  midplane for density /****/
+          Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+          if (pseudo_r <= 0.0) continue;
+          Real theta_arg = z/pseudo_r;
+          if (theta_arg>1) theta_arg=1.0;
+          if (theta_arg<-1) theta_arg=-1.0;
+          Real pseudo_theta = std::acos(theta_arg);
+          Real pseudo_phi = std::atan2(y,x);
+          pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
+          if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
+
+          Real ir_float = std::log(pseudo_r/pmb->pmy_mesh->r_min_for_density_midplane)/pmb->pmy_mesh->dlogr_for_density_midplane;
+          int ir   = static_cast<int>(std::floor(ir_float));
+
+          Real iph_float = pseudo_phi/pmb->pmy_mesh->dphi_for_density_midplane;
+          int iph   = static_cast<int>(std::floor(iph_float));
+          iph = std::max(0, std::min(iph, pmb->pmy_mesh->N_phi_bins_for_density_midplane-1));
+
+          if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
+          else{
+            theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+          }
+
           
           for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
-
-            Real theta_density_midplane = PI/2.0;
-          
-            Real x = pmb->pcoord->x1v(i);
-            Real y = pmb->pcoord->x2v(j);
-            Real z = pmb->pcoord->x3v(k);
-
-
-            // /****** / Find location of  midplane for density /****/
-            Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-            if (pseudo_r <= 0.0) continue;
-            Real theta_arg = z/pseudo_r;
-            if (theta_arg>1) theta_arg=1.0;
-            if (theta_arg<-1) theta_arg=-1.0;
-            Real pseudo_theta = std::acos(theta_arg);
-            Real pseudo_phi = std::atan2(y,x);
-            pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
-            if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
-
-            Real ir_float = std::log(pseudo_r/pmb->pmy_mesh->r_min_for_density_midplane)/pmb->pmy_mesh->dlogr_for_density_midplane;
-            int ir   = static_cast<int>(std::floor(ir_float));
-
-            Real iph_float = pseudo_phi/pmb->pmy_mesh->dphi_for_density_midplane;
-            int iph   = static_cast<int>(std::floor(iph_float));
-            iph = std::max(0, std::min(iph, pmb->pmy_mesh->N_phi_bins_for_density_midplane-1));
-
-            if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
-            else{
-              theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
-            }
 
 
             /********/ 
