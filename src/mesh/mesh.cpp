@@ -25,6 +25,8 @@
 #include <string>     // c_str()
 #include <vector>
 
+#include <fstream>
+
 // Athena++ headers
 #include "../athena.hpp"
 #include "../athena_arrays.hpp"
