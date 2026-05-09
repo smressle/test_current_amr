@@ -231,7 +231,7 @@ void EquationOfState::ConservedToPrimitive(
 
         // Set primitives
         Real gamma, pmag;
-        int old_excepts = fegetexcept();
+        // int old_excepts = fegetexcept();
 
         // fedisableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 
