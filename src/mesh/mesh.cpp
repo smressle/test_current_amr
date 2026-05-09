@@ -134,6 +134,10 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
   total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
+    for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
+      for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph)
+        mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+
 
   Real Lx1 = mesh_size.x1max-mesh_size.x1min;
   Real L_max = Lx1;
@@ -659,6 +663,10 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
   mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
   total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
+  for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
+    for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph)
+      mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
 
   Real Lx1 = mesh_size.x1max-mesh_size.x1min;
   Real L_max = Lx1;
