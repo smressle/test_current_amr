@@ -796,6 +796,12 @@ if (max_second_bh_refinement_level>0){
 
             Real z_radius = box_radius;
 
+            Real mesh_block_widthx = pmb->block_size.nx1 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0) / std::pow(2.0,n_level);
+            Real mesh_block_widthy = pmb->block_size.nx2 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0) / std::pow(2.0,n_level);
+            Real mesh_block_widthz = pmb->block_size.nx3 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0) / std::pow(2.0,n_level);
+
+        
+
 
             if (total_box_radius>1000){
               if (n_level==1) z_radius = 392.0*0.9999;
@@ -827,8 +833,10 @@ if (max_second_bh_refinement_level>0){
 
 
 
-            if (x<box_radius && x > -box_radius && y<box_radius
-              && y > -box_radius && z< z_density_midplane+ z_radius && z > z_density_midplane-z_radius ){
+            if (x < (box_radius-mesh_block_widthx/2.0) && x > -(box_radius-mesh_block_widthx/2.0) && 
+                y < (box_radius-mesh_block_widthy/2.0) && y > -(box_radius-mesh_block_widthy/2.0) && 
+                z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
+                z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
 
 
               if (n_level>max_level_required) max_level_required=n_level;
