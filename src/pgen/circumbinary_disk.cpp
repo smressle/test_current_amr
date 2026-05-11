@@ -840,8 +840,8 @@ if (max_second_bh_refinement_level>0){
             //     z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
             //     z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
 
-            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz/2.0) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz/2.0) ) {
+            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
 
 
               if (n_level>max_level_required) max_level_required=n_level;
