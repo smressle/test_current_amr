@@ -827,16 +827,21 @@ if (max_second_bh_refinement_level>0){
               if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             }
 
-            Real pseudo_theta_scale_height = std::atan2(z_radius,box_radius);
+            Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+
+            Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
 
 
 
 
 
-            if (x < (box_radius-mesh_block_widthx/2.0) && x > -(box_radius-mesh_block_widthx/2.0) && 
-                y < (box_radius-mesh_block_widthy/2.0) && y > -(box_radius-mesh_block_widthy/2.0) && 
-                z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
-                z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
+            // if (x < (box_radius-mesh_block_widthx/2.0) && x > -(box_radius-mesh_block_widthx/2.0) && 
+            //     y < (box_radius-mesh_block_widthy/2.0) && y > -(box_radius-mesh_block_widthy/2.0) && 
+            //     z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
+            //     z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
+
+            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
 
 
               if (n_level>max_level_required) max_level_required=n_level;
