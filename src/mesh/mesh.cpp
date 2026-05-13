@@ -1283,39 +1283,39 @@ void Mesh::FindDensityMidplane(){
   vol.DeleteAthenaArray();
 
 
-  if (Globals::my_rank == 0) {
+//   if (Globals::my_rank == 0) {
 
-    std::ofstream fout("density_midplane.bin",
-                       std::ios::out | std::ios::binary);
+//     std::ofstream fout("density_midplane.bin",
+//                        std::ios::out | std::ios::binary);
 
-    // optional header
-    fout.write(reinterpret_cast<char*>(&N_radial_bins_for_density_midplane),
-               sizeof(int));
+//     // optional header
+//     fout.write(reinterpret_cast<char*>(&N_radial_bins_for_density_midplane),
+//                sizeof(int));
 
-    fout.write(reinterpret_cast<char*>(&N_phi_bins_for_density_midplane),
-               sizeof(int));
-
-
-    fout.write(reinterpret_cast<char*>(r_cells.data()),
-           sizeof(Real)
-           * N_radial_bins_for_density_midplane);
-
-    // write phi array
-    fout.write(reinterpret_cast<char*>(phi_cells.data()),
-           sizeof(Real)
-           * N_phi_bins_for_density_midplane);
+//     fout.write(reinterpret_cast<char*>(&N_phi_bins_for_density_midplane),
+//                sizeof(int));
 
 
-    // write theta array
-    fout.write(
-        reinterpret_cast<char*>(
-            mass_weighted_theta_for_density_midplane.data()),
-        sizeof(Real)
-        * N_radial_bins_for_density_midplane
-        * N_phi_bins_for_density_midplane);
+//     fout.write(reinterpret_cast<char*>(r_cells.data()),
+//            sizeof(Real)
+//            * N_radial_bins_for_density_midplane);
 
-    fout.close();
-}
+//     // write phi array
+//     fout.write(reinterpret_cast<char*>(phi_cells.data()),
+//            sizeof(Real)
+//            * N_phi_bins_for_density_midplane);
+
+
+//     // write theta array
+//     fout.write(
+//         reinterpret_cast<char*>(
+//             mass_weighted_theta_for_density_midplane.data()),
+//         sizeof(Real)
+//         * N_radial_bins_for_density_midplane
+//         * N_phi_bins_for_density_midplane);
+
+//     fout.close();
+// }
 
 r_cells.DeleteAthenaArray();
 phi_cells.DeleteAthenaArray();
