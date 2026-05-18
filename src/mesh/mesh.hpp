@@ -143,6 +143,9 @@ class MeshBlock {
   void UserWorkBeforeOutput(ParameterInput *pin); // called in Mesh fn (friend class)
   void UserWorkInLoop();                          // called in TimeIntegratorTaskList
 
+
+  void get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh2,Real *ybh2,Real *zbh2);
+
  private:
   // data
   Real new_block_dt_, new_block_dt_hyperbolic_, new_block_dt_parabolic_,
@@ -259,6 +262,9 @@ class Mesh {
   Real dphi_for_density_midplane;
   Real r_max_for_density_midplane,r_min_for_density_midplane;
   AthenaArray<Real> mass_weighted_theta_for_density_midplane,total_mass_for_density_midplane;
+  AthenaArray<Real> mass_weighted_theta_for_density_midplane_bh_1,total_mass_for_density_midplane_bh_1;
+  AthenaArray<Real> mass_weighted_theta_for_density_midplane_bh_2,total_mass_for_density_midplane_bh_2;
+
 
   // functions
   void Initialize(int res_flag, ParameterInput *pin);

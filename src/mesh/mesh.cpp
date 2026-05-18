@@ -132,11 +132,21 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
 
 // Variables for Computing Density Midplane
   mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  mass_weighted_theta_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  mass_weighted_theta_for_density_midplane_bh_2.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
   total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane_bh_2.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
     for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
-      for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph)
+      for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph){
         mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+        mass_weighted_theta_for_density_midplane_bh_1(ir,iph) = PI/2.0;
+        mass_weighted_theta_for_density_midplane_bh_2(ir,iph) = PI/2.0;
+
+
+      }
 
 
   Real Lx1 = mesh_size.x1max-mesh_size.x1min;
@@ -662,11 +672,19 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
 
 
   mass_weighted_theta_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  mass_weighted_theta_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  mass_weighted_theta_for_density_midplane_bh_2.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
   total_mass_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  total_mass_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
   for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
-    for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph)
+    for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph){
       mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+      mass_weighted_theta_for_density_midplane_bh_1(ir,iph) = PI/2.0;
+      mass_weighted_theta_for_density_midplane_bh_2(ir,iph) = PI/2.0;
+    }
 
   Real Lx1 = mesh_size.x1max-mesh_size.x1min;
   Real L_max = Lx1;
@@ -1014,7 +1032,13 @@ Mesh::~Mesh() {
   if (EOS_TABLE_ENABLED) delete peos_table;
 
   mass_weighted_theta_for_density_midplane.DeleteAthenaArray();
+  mass_weighted_theta_for_density_midplane_bh_1.DeleteAthenaArray();
+  mass_weighted_theta_for_density_midplane_bh_2.DeleteAthenaArray();
+
   total_mass_for_density_midplane.DeleteAthenaArray();
+  total_mass_for_density_midplane_bh_1.DeleteAthenaArray();
+  total_mass_for_density_midplane_bh_2.DeleteAthenaArray();
+
 
 }
 
@@ -1181,6 +1205,12 @@ void Mesh::FindDensityMidplane(){
   Real dphi  = dphi_for_density_midplane;
 
 
+  Real xbh1,ybh1,zbh1;
+  Real xbh2,ybh2,zbh2;
+
+  get_bh_positions( time, &xbh1,&ybh1,&zbh1, &xbh2,&ybh2,&zbh2);
+
+
   for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) {
 
     r_cells(ir) =
@@ -1196,7 +1226,13 @@ void Mesh::FindDensityMidplane(){
   }
 
   mass_weighted_theta_for_density_midplane.ZeroClear();
+  mass_weighted_theta_for_density_midplane_bh_1.ZeroClear();
+  mass_weighted_theta_for_density_midplane_bh_2.ZeroClear();
+
   total_mass_for_density_midplane.ZeroClear();
+  total_mass_for_density_midplane_bh_1.ZeroClear();
+  total_mass_for_density_midplane_bh_2.ZeroClear();
+
   for (int n=0; n<nblocal; ++n) {
     pmb = my_blocks(n);
     int ks = pmb->ks, ke = pmb->ke;
@@ -1212,27 +1248,81 @@ void Mesh::FindDensityMidplane(){
             Real z = pmb->pcoord->x3v(k);
 
             Real r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
+
+            Real r_bh1 = std::sqrt( SQR(x-xbh1) + SQR(y-ybh1) + SQR(z-zbh1) );
+            Real r_bh2 = std::sqrt( SQR(x-xbh2) + SQR(y-ybh2) + SQR(z-zbh2) );
             if (r<= 0.0) continue;
             Real th_arg = z/r;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;
             Real theta = std::acos(th_arg);
+
+
+            if (r_bh1<= 0.0) continue;
+            th_arg = (z-zbh1)/r_bh1;
+            if (th_arg>1) th_arg=1.0;
+            if (th_arg<-1) th_arg=-1.0;
+            Real theta_bh1 = std::acos(th_arg);
+
+          if (r_bh2<= 0.0) continue;
+            th_arg = (z-zbh2)/r_bh2;
+            if (th_arg>1) th_arg=1.0;
+            if (th_arg<-1) th_arg=-1.0;
+            Real theta_bh2 = std::acos(th_arg);
+
+            
             Real phi = std::atan2(y,x);
             phi = std::fmod(phi, 2.0*PI);
             if (phi < 0.0) phi += 2.0*PI;
 
+
+            Real phi_bh1 = std::atan2(y-ybh1,x-xbh1);
+            phi_bh1 = std::fmod(phi_bh1, 2.0*PI);
+            if (phi_bh1 < 0.0) phi_bh1 += 2.0*PI;
+
+            Real phi_bh2 = std::atan2(y-ybh2,x-xbh2);
+            phi_bh2 = std::fmod(phi_bh2, 2.0*PI);
+            if (phi_bh2 < 0.0) phi_bh2 += 2.0*PI;
+
             Real ir_float = std::log(r/r_min_for_density_midplane)/dlogr;
             int ir   = static_cast<int>(std::floor(ir_float));
 
-            if ( (ir<0) or (ir>N_radial_bins_for_density_midplane-1) ) continue;
+            bool valid_total_r = ( (ir>=0) && (ir<N_radial_bins_for_density_midplane) );
+
+
+            Real ir_bh1_float = std::log(r_bh1/r_min_for_density_midplane)/dlogr;
+            int ir_bh1   = static_cast<int>(std::floor(ir_bh1_float));
+
+            bool valid_r_bh1 = ( (ir_bh1>=0) && (ir_bh1<N_radial_bins_for_density_midplane) );
+
+            Real ir_bh2_float = std::log(r_bh2/r_min_for_density_midplane)/dlogr;
+            int ir_bh2   = static_cast<int>(std::floor(ir_bh2_float));
+
+            bool valid_r_bh2 = ( (ir_bh2>=0) && (ir_bh2<N_radial_bins_for_density_midplane) );
+
 
             Real iph_float = phi/dphi;
             int iph   = static_cast<int>(std::floor(iph_float));
             iph = std::max(0, std::min(iph, N_phi_bins_for_density_midplane-1));
 
+            Real iph_bh1_float = phi_bh1/dphi;
+            int iph_bh1   = static_cast<int>(std::floor(iph_bh1_float));
+            iph_bh1 = std::max(0, std::min(iph_bh1, N_phi_bins_for_density_midplane-1));
+
+            Real iph_bh2_float = phi_bh2/dphi;
+            int iph_bh2   = static_cast<int>(std::floor(iph_bh2_float));
+            iph_bh2 = std::max(0, std::min(iph_bh2, N_phi_bins_for_density_midplane-1));
+
 
             mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i); 
             total_mass_for_density_midplane(ir,iph) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+
+
+            mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+            total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+
+            mass_weighted_theta_for_density_midplane_bh_2(ir_bh2,iph_bh2) += theta_bh2 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+            total_mass_for_density_midplane_bh_2(ir_bh2,iph_bh2) += pmb->phydro->w(IDN,k,j,i) * vol(i);
 
 
 
@@ -1256,7 +1346,36 @@ void Mesh::FindDensityMidplane(){
                     MPI_COMM_WORLD);
 
       MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_theta_for_density_midplane_bh_1.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_theta_for_density_midplane_bh_2.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+
+      MPI_Allreduce(MPI_IN_PLACE,
                     total_mass_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    total_mass_for_density_midplane_bh_1.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);      
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    total_mass_for_density_midplane_bh_2.data(),
                     size,
                     MPI_ATHENA_REAL,
                     MPI_SUM,
@@ -1274,6 +1393,24 @@ void Mesh::FindDensityMidplane(){
         }
         else{
           mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+        }
+
+
+        if (total_mass_for_density_midplane_bh_1(ir,iph) > 0.0) {
+          mass_weighted_theta_for_density_midplane_bh_1(ir,iph)
+            /= total_mass_for_density_midplane_bh_1(ir,iph);
+        }
+        else{
+          mass_weighted_theta_for_density_midplane_bh_1(ir,iph) = PI/2.0;
+        }
+
+
+        if (total_mass_for_density_midplane_bh_2(ir,iph) > 0.0) {
+          mass_weighted_theta_for_density_midplane_bh_2(ir,iph)
+            /= total_mass_for_density_midplane_bh_2(ir,iph);
+        }
+        else{
+          mass_weighted_theta_for_density_midplane_bh_2(ir,iph) = PI/2.0;
         }
 
       }

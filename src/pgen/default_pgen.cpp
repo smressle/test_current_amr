@@ -151,3 +151,20 @@ void __attribute__((weak)) EquationOfState::GetRadii(Real t, Real x1, Real x2, R
 //   // do nothing
 //   return -1.0;
 // }
+
+
+void __attribute__((weak)) Mesh::get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh2,Real *ybh2,Real *zbh2){
+
+
+  *xbh1 = 0.0;
+  *xbh2 = 0.0;
+
+  *ybh1 = 0.0;
+  *ybh2 = 0.0;
+
+  *zbh1 = 0.0;
+  *zbh2 = 0.0;
+
+  return;
+
+}

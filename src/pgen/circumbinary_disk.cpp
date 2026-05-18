@@ -4475,6 +4475,29 @@ bool gluInvertMatrix(AthenaArray<Real> &m, AthenaArray<Real> &inv)
 }
 
 
+void Mesh::get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh2,Real *ybh2,Real *zbh2){
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+
+  *xbh1 = orbit_quantities(IX1);
+  *xbh2 = orbit_quantities(IX2);
+
+  *ybh1 = orbit_quantities(IY1);
+  *ybh2 = orbit_quantities(IY2);
+
+  *zbh1 = orbit_quantities(IZ1);
+  *zbh2 = orbit_quantities(IZ2);
+
+  orbit_quantities.DeleteAthenaArray();
+
+  return;
+}
+
+
 //THIS IS SUPER INEFFICIENT 
 void EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3,  Real a, Real *r, Real *r2){
 
