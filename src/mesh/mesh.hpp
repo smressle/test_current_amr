@@ -144,8 +144,6 @@ class MeshBlock {
   void UserWorkInLoop();                          // called in TimeIntegratorTaskList
 
 
-  void get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh2,Real *ybh2,Real *zbh2);
-
  private:
   // data
   Real new_block_dt_, new_block_dt_hyperbolic_, new_block_dt_parabolic_,
@@ -289,6 +287,9 @@ class Mesh {
   // void CalculateMetric(ParameterInput *pin); //for updating metric at each time
 
   void PreserveDivbAddingBH(ParameterInput *pin); //for updating metric at each time
+
+  void get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh2,Real *ybh2,Real *zbh2);
+
 
 
 
