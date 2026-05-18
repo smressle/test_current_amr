@@ -1314,15 +1314,21 @@ void Mesh::FindDensityMidplane(){
             iph_bh2 = std::max(0, std::min(iph_bh2, N_phi_bins_for_density_midplane-1));
 
 
-            mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-            total_mass_for_density_midplane(ir,iph) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            if (valid_total_r){
+              mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              total_mass_for_density_midplane(ir,iph) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            }
 
 
-            mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-            total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            if (valid_r_bh1){
+              mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            }
 
-            mass_weighted_theta_for_density_midplane_bh_2(ir_bh2,iph_bh2) += theta_bh2 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-            total_mass_for_density_midplane_bh_2(ir_bh2,iph_bh2) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            if (valid_r_bh2){
+              mass_weighted_theta_for_density_midplane_bh_2(ir_bh2,iph_bh2) += theta_bh2 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              total_mass_for_density_midplane_bh_2(ir_bh2,iph_bh2) += pmb->phydro->w(IDN,k,j,i) * vol(i);
+            }
 
 
 

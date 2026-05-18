@@ -692,7 +692,7 @@ if (max_second_bh_refinement_level>0){
 
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
-                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_2(ir,iph);
               }
 
               
@@ -785,7 +785,7 @@ if (max_second_bh_refinement_level>0){
 
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
-                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_1(ir,iph);
               }
 
 
