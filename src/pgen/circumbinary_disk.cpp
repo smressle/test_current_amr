@@ -478,7 +478,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  black_hole_smoothing_radius = 4.0;
+  black_hole_smoothing_radius = 0.0;
   black_hole_smoothing_radius_before_restart = 4.0;
 
 
@@ -3163,7 +3163,7 @@ void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, Athena
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
