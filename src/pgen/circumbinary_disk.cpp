@@ -660,7 +660,7 @@ if (max_second_bh_refinement_level>0){
       for(int j=pmb->js; j<=pmb->je; j++) {
         for(int i=pmb->is; i<=pmb->ie; i++) {
 
-            
+              Real theta_density_midplane = PI/2.0;
               Real x = pmb->pcoord->x1v(i);
               Real y = pmb->pcoord->x2v(j);
               Real z = pmb->pcoord->x3v(k);
@@ -671,16 +671,47 @@ if (max_second_bh_refinement_level>0){
 
               Real z_radius = 1.53125;
 
+
+              // /****** / Find location of  midplane for density /****/
+              Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX2)) + SQR(y-orbit_quantities(IY2)) + SQR(z-orbit_quantities(IZ2)) );
+              if (pseudo_r <= 0.0) continue;
+              Real theta_arg = (z-orbit_quantities(IZ2)) /pseudo_r;
+              if (theta_arg>1) theta_arg=1.0;
+              if (theta_arg<-1) theta_arg=-1.0;
+              Real pseudo_theta = std::acos(theta_arg);
+              Real pseudo_phi = std::atan2(y-orbit_quantities(IY2),x-orbit_quantities(IX2));
+              pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
+              if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
+
+              Real ir_float = std::log(pseudo_r/pmb->pmy_mesh->r_min_for_density_midplane)/pmb->pmy_mesh->dlogr_for_density_midplane;
+              int ir   = static_cast<int>(std::floor(ir_float));
+
+              Real iph_float = pseudo_phi/pmb->pmy_mesh->dphi_for_density_midplane;
+              int iph   = static_cast<int>(std::floor(iph_float));
+              iph = std::max(0, std::min(iph, pmb->pmy_mesh->N_phi_bins_for_density_midplane-1));
+
+              if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
+              else{
+                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+              }
+
               
               Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
               Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
               Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
 
           
-  
-              if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
-                yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
-                zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+
+              Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+
+              Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
+
+
+
+
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
+
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
 
@@ -690,7 +721,21 @@ if (max_second_bh_refinement_level>0){
                     return  1;
                 }
                 if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
-              }
+            }
+  
+              // if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+              //   yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+              //   zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+              //   max_level_required=max_second_bh_refinement_level;
+              //   any_in_refinement_region=1;
+
+              //   if (current_level < max_second_bh_refinement_level){
+      
+              //     orbit_quantities.DeleteAthenaArray();
+              //       return  1;
+              //   }
+              //   if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
+              // }
 
 
             
@@ -707,7 +752,8 @@ if (max_second_bh_refinement_level>0){
       for(int j=pmb->js; j<=pmb->je; j++) {
         for(int i=pmb->is; i<=pmb->ie; i++) {
 
-            
+              Real theta_density_midplane = PI/2.0;
+
               Real x = pmb->pcoord->x1v(i);
               Real y = pmb->pcoord->x2v(j);
               Real z = pmb->pcoord->x3v(k);
@@ -718,16 +764,47 @@ if (max_second_bh_refinement_level>0){
 
               Real z_radius = 1.53125;
 
+
+              // /****** / Find location of  midplane for density /****/
+              Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX1)) + SQR(y-orbit_quantities(IY1)) + SQR(z-orbit_quantities(IZ1)) );
+              if (pseudo_r <= 0.0) continue;
+              Real theta_arg = (z-orbit_quantities(IZ1)) /pseudo_r;
+              if (theta_arg>1) theta_arg=1.0;
+              if (theta_arg<-1) theta_arg=-1.0;
+              Real pseudo_theta = std::acos(theta_arg);
+              Real pseudo_phi = std::atan2(y-orbit_quantities(IY1),x-orbit_quantities(IX1));
+              pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
+              if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
+
+              Real ir_float = std::log(pseudo_r/pmb->pmy_mesh->r_min_for_density_midplane)/pmb->pmy_mesh->dlogr_for_density_midplane;
+              int ir   = static_cast<int>(std::floor(ir_float));
+
+              Real iph_float = pseudo_phi/pmb->pmy_mesh->dphi_for_density_midplane;
+              int iph   = static_cast<int>(std::floor(iph_float));
+              iph = std::max(0, std::min(iph, pmb->pmy_mesh->N_phi_bins_for_density_midplane-1));
+
+              if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
+              else{
+                theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+              }
+
+
               
               Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
               Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
               Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
 
-          
-  
-              if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
-                yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
-                zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+        
+              Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+
+              Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
+
+
+
+
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
+
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
 
@@ -737,7 +814,22 @@ if (max_second_bh_refinement_level>0){
                     return  1;
                 }
                 if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
-              }
+            }
+  
+  
+              // if (xprime<(box_radius-mesh_block_widthx/2.0) && xprime > -(box_radius-mesh_block_widthx/2.0) && 
+              //   yprime<(box_radius-mesh_block_widthy/2.0) && yprime > -(box_radius-mesh_block_widthy/2.0) && 
+              //   zprime<(z_radius-mesh_block_widthz/2.0) && zprime > -(z_radius-mesh_block_widthz/2.0) ){
+              //   max_level_required=max_second_bh_refinement_level;
+              //   any_in_refinement_region=1;
+
+              //   if (current_level < max_second_bh_refinement_level){
+      
+              //     orbit_quantities.DeleteAthenaArray();
+              //       return  1;
+              //   }
+              //   if (current_level==max_second_bh_refinement_level) any_at_current_level=1;
+              // }
 
 
             
