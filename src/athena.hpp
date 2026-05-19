@@ -77,6 +77,25 @@ struct LogicalLocation { // aggregate and POD type
 //! prototype for overloading the comparison operator (defined in meshblock_tree.cpp)
 bool operator==(const LogicalLocation &l1, const LogicalLocation &l2);
 
+
+//! \fn inline std::int64_t rotl(std::int64_t i, int s)
+//  \brief left bit rotation function for 64bit integers (unsafe if s > 64)
+
+inline std::int64_t rotl(std::int64_t i, int s) {
+  return (i << s) | (i >> (64 - s));
+}
+
+
+//! \struct LogicalLocationHash
+//  \brief Hash function object for LogicalLocation
+
+struct LogicalLocationHash {
+ public:
+  std::size_t operator()(const LogicalLocation &l) const {
+    return static_cast<std::size_t>(l.lx1^rotl(l.lx2,21)^rotl(l.lx3,42));
+  }
+};
+
 //----------------------------------------------------------------------------------------
 //! \struct RegionSize
 //! \brief physical size and number of cells in a Mesh or a MeshBlock
@@ -96,7 +115,7 @@ struct RegionSize {  // aggregate and POD type; do NOT reorder member declaratio
 struct FaceField {
   AthenaArray<Real> x1f, x2f, x3f;
   FaceField() = default;
-  FaceField(int ncells3, int ncells2, int ncells1,
+  FaceField(int ncellfs3, int ncells2, int ncells1,
             AthenaArray<Real>::DataStatus init=AthenaArray<Real>::DataStatus::allocated) :
       x1f(ncells3, ncells2, ncells1+1, init), x2f(ncells3, ncells2+1, ncells1, init),
       x3f(ncells3+1, ncells2, ncells1, init) {}
