@@ -653,10 +653,10 @@ void MeshRefinement::ProlongateSharedFieldX1(
         const Real& fx2m = pco->x2s1(fj);
         const Real& fx2p = pco->x2s1(fj+1);
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-          pco->Face1Area(fk,   fj,   fsi, fei+1, sarea_x1_[0][0]);
-          pco->Face1Area(fk,   fj+1, fsi, fei+1, sarea_x1_[0][1]);
-          pco->Face1Area(fk+1, fj,   fsi, fei+1, sarea_x1_[1][0]);
-          pco->Face1Area(fk+1, fj+1, fsi, fei+1, sarea_x1_[1][1]);
+          pco->Face1Area(fk,   fj,   fsi, fei, sarea_x1_[0][0]);
+          pco->Face1Area(fk,   fj+1, fsi, fei, sarea_x1_[0][1]);
+          pco->Face1Area(fk+1, fj,   fsi, fei, sarea_x1_[1][0]);
+          pco->Face1Area(fk+1, fj+1, fsi, fei, sarea_x1_[1][1]);
           pcoarsec->Face1Area(k, j, si, ei, csarea_x1_);
         }
         for (int i=si; i<=ei; i++) {
