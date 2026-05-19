@@ -115,7 +115,7 @@ struct RegionSize {  // aggregate and POD type; do NOT reorder member declaratio
 struct FaceField {
   AthenaArray<Real> x1f, x2f, x3f;
   FaceField() = default;
-  FaceField(int ncellfs3, int ncells2, int ncells1,
+  FaceField(int ncells3, int ncells2, int ncells1,
             AthenaArray<Real>::DataStatus init=AthenaArray<Real>::DataStatus::allocated) :
       x1f(ncells3, ncells2, ncells1+1, init), x2f(ncells3, ncells2+1, ncells1, init),
       x3f(ncells3+1, ncells2, ncells1, init) {}
