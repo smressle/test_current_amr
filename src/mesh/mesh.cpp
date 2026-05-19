@@ -620,10 +620,6 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
     for (AthenaArray<Real> &var_cc : my_blocks(0)->vars_cc_) {
       nx4_tot += var_cc.GetDim4();
     }
-    // radiation variables are not included in vars_cc as they need different order
-    if ((NR_RADIATION_ENABLED|| IM_RADIATION_ENABLED)) {
-      nx4_tot += my_blocks(0)->pnrrad->ir.GetDim1();
-    }
 
     // cell-centered quantities enrolled in SMR/AMR
     bssame = bnx1*bnx2*bnx3*nx4_tot;
@@ -1068,10 +1064,6 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
     int nx4_tot = 0;
     for (AthenaArray<Real> &var_cc : my_blocks(0)->vars_cc_) {
       nx4_tot += var_cc.GetDim4();
-    }
-    // radiation variables are not included in vars_cc as they need different order
-    if ((NR_RADIATION_ENABLED|| IM_RADIATION_ENABLED)) {
-      nx4_tot += my_blocks(0)->pnrrad->ir.GetDim1();
     }
 
     // cell-centered quantities enrolled in SMR/AMR
