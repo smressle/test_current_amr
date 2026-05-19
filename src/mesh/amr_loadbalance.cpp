@@ -1197,15 +1197,6 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
   }
 
 
-  if ((NR_RADIATION_ENABLED|| IM_RADIATION_ENABLED)) {
-    // copy from pmb block
-    AthenaArray<Real> &var_cc = pb->pnrrad->ir;
-    AthenaArray<Real> &coarse_cc = pb->pnrrad->coarse_ir_;
-    int nu = var_cc.GetDim1() - 1;
-
-    pmr->ProlongateCellCenteredValues(coarse_cc, var_cc, -1, 0, nu,
-                   pb->cis, pb->cie, pb->cjs, pb->cje, pb->cks, pb->cke);
-  }
 
   int il = pb->cis, iu = pb->cie+1, jl = pb->cjs, ju = pb->cje + f2,
       kl = pb->cks, ku = pb->cke + f3;
