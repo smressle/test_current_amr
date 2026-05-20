@@ -323,7 +323,7 @@ int FaceCenteredBoundaryVariable::LoadFluxBoundaryBufferToCoarser(
 
   AthenaArray<Real> cle;
 
-  cle.NewAthenaArray(pmb->cie+1); 
+  cle.NewAthenaArray(pmb->cie+2); 
   int p = 0;
   if (nb.ni.type == NeighborConnect::face) {
     if (pmb->block_size.nx3 > 1) { // 3D
