@@ -772,8 +772,8 @@ void MeshRefinement::ProlongateSharedFieldX2(
       for (int j=sj; j<=ej; j++) {
         int fj = (j - pmb->cjs)*2 + pmb->js;
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-          pco->Face2Area(fk,   fj,  fsi, fei+1, sarea_x2_[0][0]);
-          pco->Face2Area(fk+1, fj,  fsi, fei+1, sarea_x2_[1][0]);
+          pco->Face2Area(fk,   fj,  fsi, fei, sarea_x2_[0][0]);
+          pco->Face2Area(fk+1, fj,  fsi, fei, sarea_x2_[1][0]);
           pcoarsec->Face2Area(k, j, si, ei, csarea_x2_);
          }
         for (int i=si; i<=ei; i++) {
@@ -900,8 +900,8 @@ void MeshRefinement::ProlongateSharedFieldX3(
         const Real& fx2m = pco->x2s3(fj);
         const Real& fx2p = pco->x2s3(fj+1);
         if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
-            pco->Face3Area(fk,   fj,  fsi, fei+1, sarea_x3_[0][0]);
-            pco->Face3Area(fk, fj+1,  fsi, fei+1, sarea_x3_[0][1]);
+            pco->Face3Area(fk,   fj,  fsi, fei, sarea_x3_[0][0]);
+            pco->Face3Area(fk, fj+1,  fsi, fei, sarea_x3_[0][1]);
             pcoarsec->Face3Area(k, j, si, ei, csarea_x3_);
         }
         for (int i=si; i<=ei; i++) {
