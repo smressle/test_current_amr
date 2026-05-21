@@ -695,13 +695,13 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   for (int i=0; i<nblocal; ++i)
     my_blocks(i)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
 
-  // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-  //       my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
+  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
 
   Initialize(2, pin);
 
-    // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-    //     my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
+    if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
 
   ResetLoadBalanceVariables();
 
@@ -842,10 +842,10 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cks, pb->cke+f3, p);
 
 
-    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-    //                     pb->cis, pb->cie,
-    //                      pb->cjs, pb->cje,
-    //                      pb->cks, pb->cke);
+    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+                        pb->cis, pb->cie,
+                         pb->cjs, pb->cje,
+                         pb->cks, pb->cke);
   }
   return;
 }
@@ -913,10 +913,10 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                          pob->cks, pob->cke+f3);
 
 
-    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-    //                     pob->cis, pob->cie,
-    //                      pob->cjs, pob->cje,
-    //                      pob->cks, pob->cke);
+    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+                        pob->cis, pob->cie,
+                         pob->cjs, pob->cje,
+                         pob->cks, pob->cke);
     FaceField &src_b = *coarse_fc;
     FaceField &dst_b = *std::get<0>(*pmb_fc_it); // pmb->pfield->b;
     for (int k=kl, fk=pob->cks; fk<=pob->cke; k++, fk++) {
@@ -1220,6 +1220,10 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
                                  pb->cis, pb->cie, pb->cjs, pb->cje, kl, ku);
     pmr->ProlongateInternalField(*var_fc, pb->cis, pb->cie,
                                  pb->cjs, pb->cje, pb->cks, pb->cke);
+
+
+    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
+    pb->cjs, pb->cje, pb->cks, pb->cke);
 
 
   }
