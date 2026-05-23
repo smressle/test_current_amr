@@ -1513,37 +1513,37 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
       int fk = (k - pmb->cks)*2 + pmb->ks;
       for (int j=sj; j<=ej; j++) {
         int fj = (j - pmb->cjs)*2 + pmb->js;
-        pco->Face1Area(fk,   fj,   fsi, fei+2, sarea_x1_[0][0]);
-        pco->Face1Area(fk,   fj+1, fsi, fei+2, sarea_x1_[0][1]);
-        pco->Face1Area(fk+1, fj,   fsi, fei+2, sarea_x1_[1][0]);
-        pco->Face1Area(fk+1, fj+1, fsi, fei+2, sarea_x1_[1][1]);
+        pco->Face1Area(fk,   fj,   fsi, fei+1, sarea_x1_[0][0]);
+        pco->Face1Area(fk,   fj+1, fsi, fei+1, sarea_x1_[0][1]);
+        pco->Face1Area(fk+1, fj,   fsi, fei+1, sarea_x1_[1][0]);
+        pco->Face1Area(fk+1, fj+1, fsi, fei+1, sarea_x1_[1][1]);
 
-        pco->Face1Area(fk,   fj+2, fsi, fei+2, sarea_x1_[0][2]);
-        pco->Face1Area(fk+2, fj,   fsi, fei+2, sarea_x1_[2][0]);
-        pco->Face1Area(fk+1, fj+2, fsi, fei+2, sarea_x1_[1][2]);
-        pco->Face1Area(fk+2, fj+1, fsi, fei+2, sarea_x1_[2][1]);   
-        pco->Face1Area(fk+2, fj+2, fsi, fei+2, sarea_x1_[2][2]);   
+        pco->Face1Area(fk,   fj+2, fsi, fei+1, sarea_x1_[0][2]);
+        pco->Face1Area(fk+2, fj,   fsi, fei+1, sarea_x1_[2][0]);
+        pco->Face1Area(fk+1, fj+2, fsi, fei+1, sarea_x1_[1][2]);
+        pco->Face1Area(fk+2, fj+1, fsi, fei+1, sarea_x1_[2][1]);   
+        pco->Face1Area(fk+2, fj+2, fsi, fei+1, sarea_x1_[2][2]);   
          
-        pco->Face2Area(fk,   fj,   fsi, fei+1,   sarea_x2_[0][0]);
-        pco->Face2Area(fk,   fj+1, fsi, fei+1,   sarea_x2_[0][1]);
-        pco->Face2Area(fk,   fj+2, fsi, fei+1,   sarea_x2_[0][2]);
-        pco->Face2Area(fk+1, fj,   fsi, fei+1,   sarea_x2_[1][0]);
-        pco->Face2Area(fk+1, fj+1, fsi, fei+1,   sarea_x2_[1][1]);
-        pco->Face2Area(fk+1, fj+2, fsi, fei+1,   sarea_x2_[1][2]);
-        pco->Face2Area(fk+2, fj+1, fsi, fei+1,   sarea_x2_[2][1]);
-        pco->Face2Area(fk+2,   fj, fsi, fei+1,   sarea_x2_[2][0]);
-        pco->Face2Area(fk+2, fj+2, fsi, fei+1,   sarea_x2_[2][2]);
+        pco->Face2Area(fk,   fj,   fsi, fei,   sarea_x2_[0][0]);
+        pco->Face2Area(fk,   fj+1, fsi, fei,   sarea_x2_[0][1]);
+        pco->Face2Area(fk,   fj+2, fsi, fei,   sarea_x2_[0][2]);
+        pco->Face2Area(fk+1, fj,   fsi, fei,   sarea_x2_[1][0]);
+        pco->Face2Area(fk+1, fj+1, fsi, fei,   sarea_x2_[1][1]);
+        pco->Face2Area(fk+1, fj+2, fsi, fei,   sarea_x2_[1][2]);
+        pco->Face2Area(fk+2, fj+1, fsi, fei,   sarea_x2_[2][1]);
+        pco->Face2Area(fk+2,   fj, fsi, fei,   sarea_x2_[2][0]);
+        pco->Face2Area(fk+2, fj+2, fsi, fei,   sarea_x2_[2][2]);
 
 
-        pco->Face3Area(fk,   fj,   fsi, fei+1,   sarea_x3_[0][0]);
-        pco->Face3Area(fk,   fj+1, fsi, fei+1,   sarea_x3_[0][1]);
-        pco->Face3Area(fk+1, fj,   fsi, fei+1,   sarea_x3_[1][0]);
-        pco->Face3Area(fk+1, fj+1, fsi, fei+1,   sarea_x3_[1][1]);
-        pco->Face3Area(fk+2, fj,   fsi, fei+1,   sarea_x3_[2][0]);
-        pco->Face3Area(fk+2, fj+1, fsi, fei+1,   sarea_x3_[2][1]);
-        pco->Face3Area(fk,   fj+2, fsi, fei+1,   sarea_x3_[0][2]);
-        pco->Face3Area(fk+1, fj+2, fsi, fei+1,   sarea_x3_[1][2]);
-        pco->Face3Area(fk+2, fj+2, fsi, fei+1,   sarea_x3_[2][2]);
+        pco->Face3Area(fk,   fj,   fsi, fei,   sarea_x3_[0][0]);
+        pco->Face3Area(fk,   fj+1, fsi, fei,   sarea_x3_[0][1]);
+        pco->Face3Area(fk+1, fj,   fsi, fei,   sarea_x3_[1][0]);
+        pco->Face3Area(fk+1, fj+1, fsi, fei,   sarea_x3_[1][1]);
+        pco->Face3Area(fk+2, fj,   fsi, fei,   sarea_x3_[2][0]);
+        pco->Face3Area(fk+2, fj+1, fsi, fei,   sarea_x3_[2][1]);
+        pco->Face3Area(fk,   fj+2, fsi, fei,   sarea_x3_[0][2]);
+        pco->Face3Area(fk+1, fj+2, fsi, fei,   sarea_x3_[1][2]);
+        pco->Face3Area(fk+2, fj+2, fsi, fei,   sarea_x3_[2][2]);
 
 
         pcoarsec->Face1Area(k, j, si, ei+1, csarea_x1_);
@@ -1571,7 +1571,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
                 if (fabs(coarse_flux*0.125-dfine_flux)>1e-14){
-                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g fifjfk: %d %d %d ijk: %d %d %d  di dj dk: %d %d %d \n finex1p : %g Ax1p: %g finex1: %g Ax1: %g \nfinex2p : %g Ax2p: %g finex2: %g Ax2: %g \n finex3p : %g Ax3p: %g finex3: %g Ax3: %g \n ",
+                   fprintf(stderr,"Prolong internal Violates DivB!! \n new_flux: %g old_flux: %g fifjfk: %d %d %d ijk: %d %d %d  di dj dk: %d %d %d \n finex1p : %g Ax1p: %g finex1: %g Ax1: %g \nfinex2p : %g Ax2p: %g finex2: %g Ax2: %g \n finex3p : %g Ax3p: %g finex3: %g Ax3: %g \n ",
                     dfine_flux,coarse_flux,fi,fj,fk, i,j,k,di,dj,dk,
                     fine.x1f(dk+fk,dj+fj,di+fi+1),sarea_x1_[0+dk][0+dj](di+fi+1),
                     fine.x1f(dk+fk,dj+fj,di+fi),sarea_x1_[0+dk][0+dj](di+fi),
@@ -1582,7 +1582,7 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
                 }
 
                 if(fabs(coarse_flux)>1e-10 or fabs(dfine_flux)>1e-10){
-                  fprintf(stderr,"Large divB in Prolongate INternal!! coarse: %g fine_local: %g  \n ",coarse_flux,dfine_flux);
+                  fprintf(stderr,"Large divB in Prolongate Internal!! coarse: %g fine_local: %g  \n ",coarse_flux,dfine_flux);
 
                     exit(0);
                 }

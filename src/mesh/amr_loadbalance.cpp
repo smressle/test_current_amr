@@ -1201,12 +1201,12 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
   int il = pb->cis, iu = pb->cie+1, jl = pb->cjs, ju = pb->cje + f2,
       kl = pb->cks, ku = pb->cke + f3;
   // Step FFC8. skip the surface fields contacting previously refined MeshBlocks
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x1]) il++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x1]) iu--;
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x2]) jl++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x2]) ju--;
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x3]) kl++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x3]) ku--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x1]) il++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x1]) iu--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x2]) jl++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x2]) ju--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x3]) kl++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x3]) ku--;
 
   for (auto fc_pair : pmr->pvars_fc_) {
     FaceField *var_fc = std::get<0>(fc_pair);
