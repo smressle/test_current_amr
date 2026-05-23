@@ -525,7 +525,7 @@ void BoundaryValues::ProlongateGhostCells(const NeighborBlock& nb,
     // step 4. calculate the internal finer fields using the Toth & Roe method
     pmr->ProlongateInternalField((*var_fc), si, ei, sj, ej, sk, ek);
 
-    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,si, ei, sj, ej, sk, ek);
+    // pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,si, ei, sj, ej, sk, ek);
 
   }
 

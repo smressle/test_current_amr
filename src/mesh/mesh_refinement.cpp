@@ -68,6 +68,7 @@ MeshRefinement::MeshRefinement(MeshBlock *pmb, ParameterInput *pin) :
   }else{
     qx1 = 1;
   }
+
   int nc1 = pmb->ncells1;
   fvol_[0][0].NewAthenaArray(nc1);
   fvol_[0][1].NewAthenaArray(nc1);
