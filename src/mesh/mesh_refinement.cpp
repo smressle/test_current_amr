@@ -1110,16 +1110,16 @@ void MeshRefinement::ProlongateInternalField(
                           pco->GetEdge2Length(fk+1,fj+1,fi+1));
           Real Sdx3 = SQR(pco->GetEdge3Length(fk,fj+1,fi+1) +
                           pco->GetEdge3Length(fk+1,fj+1,fi+1));
-          // Uxx  *= 0.125; Vyy *= 0.125; Wzz *= 0.125;
-          // Uxyz *= 0.125/(Sdx2 + Sdx3);
-          // Vxyz *= 0.125/(Sdx1 + Sdx3);
-          // Wxyz *= 0.125/(Sdx1 + Sdx2);
+          Uxx  *= 0.125; Vyy *= 0.125; Wzz *= 0.125;
+          Uxyz *= 0.125/(Sdx2 + Sdx3);
+          Vxyz *= 0.125/(Sdx1 + Sdx3);
+          Wxyz *= 0.125/(Sdx1 + Sdx2);
 
 
-          Uxx  *= 0; Vyy *= 0; Wzz *= 0;
-          Uxyz *= 0/(Sdx2 + Sdx3);
-          Vxyz *= 0/(Sdx1 + Sdx3);
-          Wxyz *= 0/(Sdx1 + Sdx2);
+          // Uxx  *= 0; Vyy *= 0; Wzz *= 0;
+          // Uxyz *= 0/(Sdx2 + Sdx3);
+          // Vxyz *= 0/(Sdx1 + Sdx3);
+          // Wxyz *= 0/(Sdx1 + Sdx2);
           fine.x1f(fk  ,fj  ,fi+1) =
               (0.5*(fine.x1f(fk  ,fj  ,fi  )*sarea_x1_[0][0](fi  ) +
                     fine.x1f(fk  ,fj  ,fi+2)*sarea_x1_[0][0](fi+2))
@@ -1570,8 +1570,8 @@ void MeshRefinement::CheckFieldDivergenceAfterRestrict(FaceField &fine, FaceFiel
 
 
                 if (fabs(coarse_flux*0.125-dfine_flux)>1e-14){
-                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g ijk: %d %d %d  di dj dk: %d %d %d \n finex1p : %g Ax1p: %g finex1: %g Ax1: %g \nfinex2p : %g Ax2p: %g finex2: %g Ax2: %g \n finex3p : %g Ax3p: %g finex3: %g Ax3: %g \n ",
-                    dfine_flux,coarse_flux,i,j,k,di,dj,dk,
+                   fprintf(stderr,"Prolong interal Violates DivB!! \n new_flux: %g old_flux: %g fifjfk: %d %d %d ijk: %d %d %d  di dj dk: %d %d %d \n finex1p : %g Ax1p: %g finex1: %g Ax1: %g \nfinex2p : %g Ax2p: %g finex2: %g Ax2: %g \n finex3p : %g Ax3p: %g finex3: %g Ax3: %g \n ",
+                    dfine_flux,coarse_flux,fi,fj,fk, i,j,k,di,dj,dk,
                     fine.x1f(dk+fk,dj+fj,di+fi+1),sarea_x1_[0+dk][0+dj](di+fi+1),
                     fine.x1f(dk+fk,dj+fj,di+fi),sarea_x1_[0+dk][0+dj](di+fi),
                     fine.x2f(dk+fk,dj+fj+1,di+fi), sarea_x2_[0+dk][1+dj](di+fi),
