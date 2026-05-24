@@ -1233,7 +1233,7 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
 
 
 
-   pb->pfield->CheckFieldDivergence(pb->pfield->b,"Just after ProlongateMeshblock");
+   pb->pfield->CheckFieldDivergence(pb->pfield->b,"Just after ProlongateMeshblock in ProlongateMeshblock");
   return;
 }
 
