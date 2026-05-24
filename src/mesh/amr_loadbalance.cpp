@@ -652,6 +652,9 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
     }
   }
 
+    if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+        my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Just after ProlongateMeshblock");
+
 
   // deallocate arrays
   delete [] loclist;
@@ -1227,6 +1230,10 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
 
 
   }
+
+
+
+   pb->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Just after ProlongateMeshblock");
   return;
 }
 
