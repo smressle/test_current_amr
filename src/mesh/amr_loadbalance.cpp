@@ -650,17 +650,17 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
       MeshBlock *pb = FindMeshBlock(n);
       ProlongateMeshBlock(pb);
       if (MAGNETIC_FIELDS_ENABLED) 
-        pb->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After prolongate c2f");
+        pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate c2f");
     }
     if(oloc.level==nloc.level){
       MeshBlock *pb = FindMeshBlock(n);
       if (MAGNETIC_FIELDS_ENABLED) 
-        pb->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After prolongate same level");
+        pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate same level");
     }
     if (oloc.level > nloc.level){
       MeshBlock *pb = FindMeshBlock(n);
             if (MAGNETIC_FIELDS_ENABLED) 
-        pb->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After prolongate f2c");
+        pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate f2c");
     }
 
 
