@@ -1689,8 +1689,8 @@ TaskStatus TimeIntegratorTaskList::IntegrateField(MeshBlock *pmb, int stage) {
 
       pf->CT(stage_wghts[stage-1].beta*pmb->pmy_mesh->dt, pf->b);
 
-
-      if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After IntegrateField in b");
+      bool dummy_bool = false;
+      if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After IntegrateField in b");
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After IntegrateField in b1");
 
     }
@@ -1950,13 +1950,14 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
                        + stage_wghts[(stage-1)].ebeta*pmb->pmy_mesh->dt;  
                            // Scaled coefficient for RHS update
     // if (METRIC_EVOLUTION) pmb->pcoord->UpdateUserMetric(pmb->pmy_mesh->metric_time,pmb);
+  bool dummy_bool;
   if (METRIC_EVOLUTION && pmb->pmy_mesh->update_metric_this_timestep) {
 
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"Before UpdateMetric in b");
+    if (MAGNETIC_FIELDS_ENABLED) dummy_bool =  pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"Before UpdateMetric in b");
       pmb->pcoord->UpdateUserMetric(t_end_stage,pmb);
       if (pmb->pmy_mesh->multilevel) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb);
 
-      if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After UpdateMetric in b");
+      if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After UpdateMetric in b");
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After UpdateMetric in b1");
    }
 
@@ -2096,10 +2097,10 @@ TaskStatus TimeIntegratorTaskList::SetBoundariesHydro(MeshBlock *pmb, int stage)
 //! Functions to set Field boundaries
 
 TaskStatus TimeIntegratorTaskList::SetBoundariesField(MeshBlock *pmb, int stage) {
+  bool dummy_bool;
   if (stage <= nstages) {
     pmb->pfield->fbvar.SetBoundaries();
-
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After SetBoundariesField in b");
+    if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After SetBoundariesField in b");
     // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After SetBoundariesField in b1");
 
     return TaskStatus::success;
@@ -2251,7 +2252,8 @@ TaskStatus TimeIntegratorTaskList::Prolongation(MeshBlock *pmb, int stage) {
     Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
     pbval->ProlongateBoundaries(t_end_stage, dt, pmb->pbval->bvars_main_int);
 
-  if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After boundary prolongation in b");
+  bool dummy_bool;
+  if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After boundary prolongation in b");
   // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After boundary prolongation in b1");
 
 
@@ -2275,6 +2277,7 @@ TaskStatus TimeIntegratorTaskList::Primitives(MeshBlock *pmb, int stage) {
   if (pbval->nblevel[0][1][1] != -1) kl -= NGHOST;
   if (pbval->nblevel[2][1][1] != -1) ku += NGHOST;
 
+  bool dummy_bool;
   if (stage <= nstages) {
     // At beginning of this task, ph->w contains previous stage's W(U) output
     // and ph->w1 is used as a register to store the current stage's output.
@@ -2286,7 +2289,7 @@ TaskStatus TimeIntegratorTaskList::Primitives(MeshBlock *pmb, int stage) {
                                     ph->w1, pf->bcc, pmb->pcoord,
                                     il, iu, jl, ju, kl, ku);
 
-    if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Cons2prim in b");
+    if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Cons2prim in b");
     // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After Cons2prim in b1");
     if (pmb->porb->orbital_advection_defined) {
       pmb->porb->ResetOrbitalSystemConversionFlag();

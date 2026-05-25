@@ -204,12 +204,14 @@ void Field::AddEMFSourceTerms(const Real time, const Real dt,
   return;
 }
 
-void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
+bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
   MeshBlock *pmb = pmy_block;
 
   int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
   AthenaArray<Real> face1, face2p, face2m, face3p, face3m;
+
+  bool bad_divergence = false;
 
   face1.NewAthenaArray((ie-is)+2*NGHOST+2);
   face2p.NewAthenaArray((ie-is)+2*NGHOST+1);
@@ -231,6 +233,7 @@ void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
         Real machine_precision = 1e-11; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
         if (std::fabs(divb)>machine_precision){
+          bad_divergence=true;
           fprintf(stderr, "nonzero divergence!! at location:  %s\n xyz: %g %g %g x3 faces: %g %g \n divb: %g machine precision: %g  \n ijk: %d %d %d\n face1: %g %g face2: %g %g face3: %g %g \n bx1: %g %g bx2: %g %g bx3: %g %g \n",
             code_location.c_str(),
             pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), pmb->pcoord->x3f(k),pmb->pcoord->x3f(k+1),
@@ -248,6 +251,6 @@ void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
   face2m.DeleteAthenaArray();
   face3p.DeleteAthenaArray();
   face3m.DeleteAthenaArray();
-  return;
+  return bad_divergence;
 }
 
