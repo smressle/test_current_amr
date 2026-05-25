@@ -662,6 +662,7 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
       MeshBlock *pb = FindMeshBlock(n);
             if (MAGNETIC_FIELDS_ENABLED) 
         dummy_bool =pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate f2c");
+        if (dummy_bool) fprintf(stderr,"bad meshblock n: %d on: %g gid: %g \n",n,on,pb->gid);
     }
 
 
