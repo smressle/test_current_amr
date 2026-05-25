@@ -233,7 +233,7 @@ void Field::CheckFieldDivergence(FaceField &b, std::string code_location){
         if (std::fabs(divb)>machine_precision){
           fprintf(stderr, "nonzero divergence!! at location:  %s\n xyz: %g %g %g x3 faces: %g %g \n divb: %g machine precision: %g  \n ijk: %d %d %d\n face1: %g %g face2: %g %g face3: %g %g \n bx1: %g %g bx2: %g %g bx3: %g %g \n",
             code_location.c_str(),
-            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), pmb->pcoord->x3f(k),pmb->pcoord->x3f(k+1)
+            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3v(k), pmb->pcoord->x3f(k),pmb->pcoord->x3f(k+1),
             divb,machine_precision,i,j,k,
             face1(i+1),face1(i),face2p(i),face2m(i),face3p(i),face3m(i),
             b.x1f(k,j,i+1), b.x1f(k,j,i), b.x2f(k,j+1,i),b.x2f(k,j,i),
