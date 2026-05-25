@@ -1444,36 +1444,36 @@ void Mesh::ReceiveAndSetFaceFieldCorrection(int *newrank) {
       MPI_Wait(&(t.req), MPI_STATUS_IGNORE);
 #endif
     int p = 0;
-    for (FaceField &var_fc : pmb->vars_fc_) {
-      switch (t.face) {
-        case BoundaryFace::inner_x1:
-          BufferUtility::UnpackData(buf, var_fc.x1f, pmb->is, pmb->is,
-                                    pmb->js, pmb->je, pmb->ks, pmb->ke, p);
-          break;
-        case BoundaryFace::outer_x1:
-          BufferUtility::UnpackData(buf, var_fc.x1f, pmb->ie+1, pmb->ie+1,
-                                    pmb->js, pmb->je, pmb->ks, pmb->ke, p);
-          break;
-        case BoundaryFace::inner_x2:
-          BufferUtility::UnpackData(buf, var_fc.x2f, pmb->is, pmb->ie,
-                                    pmb->js, pmb->js, pmb->ks, pmb->ke, p);
-          break;
-        case BoundaryFace::outer_x2:
-          BufferUtility::UnpackData(buf, var_fc.x2f, pmb->is, pmb->ie,
-                                    pmb->je+f2, pmb->je+f2, pmb->ks, pmb->ke, p);
-          break;
-        case BoundaryFace::inner_x3:
-          BufferUtility::UnpackData(buf, var_fc.x3f, pmb->is, pmb->ie,
-                                    pmb->js, pmb->je, pmb->ks, pmb->ks, p);
-          break;
-        case BoundaryFace::outer_x3:
-          BufferUtility::UnpackData(buf, var_fc.x3f, pmb->is, pmb->ie,
-                                    pmb->js, pmb->je, pmb->ke+f3, pmb->ke+f3, p);
-          break;
-        default:
-          break;
-      }
-    }
+    // for (FaceField &var_fc : pmb->vars_fc_) {
+    //   switch (t.face) {
+    //     case BoundaryFace::inner_x1:
+    //       BufferUtility::UnpackData(buf, var_fc.x1f, pmb->is, pmb->is,
+    //                                 pmb->js, pmb->je, pmb->ks, pmb->ke, p);
+    //       break;
+    //     case BoundaryFace::outer_x1:
+    //       BufferUtility::UnpackData(buf, var_fc.x1f, pmb->ie+1, pmb->ie+1,
+    //                                 pmb->js, pmb->je, pmb->ks, pmb->ke, p);
+    //       break;
+    //     case BoundaryFace::inner_x2:
+    //       BufferUtility::UnpackData(buf, var_fc.x2f, pmb->is, pmb->ie,
+    //                                 pmb->js, pmb->js, pmb->ks, pmb->ke, p);
+    //       break;
+    //     case BoundaryFace::outer_x2:
+    //       BufferUtility::UnpackData(buf, var_fc.x2f, pmb->is, pmb->ie,
+    //                                 pmb->je+f2, pmb->je+f2, pmb->ks, pmb->ke, p);
+    //       break;
+    //     case BoundaryFace::inner_x3:
+    //       BufferUtility::UnpackData(buf, var_fc.x3f, pmb->is, pmb->ie,
+    //                                 pmb->js, pmb->je, pmb->ks, pmb->ks, p);
+    //       break;
+    //     case BoundaryFace::outer_x3:
+    //       BufferUtility::UnpackData(buf, var_fc.x3f, pmb->is, pmb->ie,
+    //                                 pmb->js, pmb->je, pmb->ke+f3, pmb->ke+f3, p);
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // }
   }
 
   // Step FFC7. Finalize MPI send
