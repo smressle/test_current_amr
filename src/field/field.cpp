@@ -234,12 +234,12 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
               +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
         if (std::fabs(pmb->pcoord->x1v(i)+188.0)<0.2 && std::fabs(pmb->pcoord->x2v(j)+188.0)<0.2 &&  std::fabs(pmb->pcoord->x3f(k)-24.0)<0.2){
-          fprintf(stderr, "B above interface at %s ijk: %d %d %d B: %g \n xyz: %g %g %g \n ", code_location,i,j,k,b.x3f(k,j,i),
-            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k));
+          fprintf(stderr, "B above interface at %s ijk: %d %d %d B: %g \n xyz: %g %g %g \n gid: %d", code_location,i,j,k,b.x3f(k,j,i),
+            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k),pmb->gid);
         }   
         if (std::fabs(pmb->pcoord->x1v(i)+188.0)<0.2 && std::fabs(pmb->pcoord->x2v(j)+188.0)<0.2 &&  std::fabs(pmb->pcoord->x3f(k+1)-24.0)<0.2){
-          fprintf(stderr, "B below interface at %s ijk: %d %d %d B %g\n xyz: %g %g %g \n", code_location,i,j,k+1,b.x3f(k+1,j,i),
-            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k+1));
+          fprintf(stderr, "B below interface at %s ijk: %d %d %d B %g\n xyz: %g %g %g \n gid: %d ", code_location,i,j,k+1,b.x3f(k+1,j,i),
+            pmb->pcoord->x1v(i),pmb->pcoord->x2v(j),pmb->pcoord->x3f(k+1),pmb->gid);
         }  //zm 20 zp: 24)
 
         Real machine_precision = 1e-11; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
