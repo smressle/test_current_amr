@@ -43,8 +43,6 @@ class MeshRefinement {
   friend class Mesh;
   // needs to access pcoarsec
   friend class OrbitalAdvection;
-  // needs to access pcoarsec
-  friend class Field;
   // needs to access pcoarcec
   friend class FaceCenteredBoundaryVariable;
   friend class CellCenteredBoundaryVariable;
