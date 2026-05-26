@@ -233,6 +233,13 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
               +face2p(i)*b.x2f(k,j+1,i)-face2m(i)*b.x2f(k,j,i)
               +face3p(i)*b.x3f(k+1,j,i)-face3m(i)*b.x3f(k,j,i));
 
+        if (std::fabs(pmb->x1v(i)+188.0)<1e-2 && std::fabs(pmb->x2v(j)+188.0)<1e-2 &&  std::fabs(pmb->x3f(k)-24.0)<1e-2){
+          fprintf(stderr, "B above interface ijk: %d %d %d B: %g \n ", i,j,k,b.x3f(k,j,i));
+        }   
+        if (std::fabs(pmb->x1v(i)+188.0)<1e-2 && std::fabs(pmb->x2v(j)+188.0)<1e-2 &&  std::fabs(pmb->x3f(k+1)-24.0)<1e-2){
+          fprintf(stderr, "B below interface ijk: %d %d %d B %g\n ", i,j,k+1,b.x3f(k+1,j,i));
+        }  //zm 20 zp: 24)
+
         Real machine_precision = 1e-11; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
         if (std::fabs(divb)>machine_precision){
           int ci = (i-is)/2 + pmb->cis;
