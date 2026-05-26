@@ -43,6 +43,8 @@ class MeshRefinement {
   friend class Mesh;
   // needs to access pcoarsec
   friend class OrbitalAdvection;
+  // needs to access pcoarsec
+  friend class Field;
   // needs to access pcoarcec
   friend class FaceCenteredBoundaryVariable;
   friend class CellCenteredBoundaryVariable;
@@ -98,7 +100,10 @@ class MeshRefinement {
   void SetHydroRefinement(HydroBoundaryQuantity hydro_type);
 
   void UpdateCoarseMetric(Real t, MeshBlock *pmb);
-
+  
+  inline const Coordinates* GetCoarseCoordinates() const {
+      return pcoarsec;
+    }
  private:
   // data
   MeshBlock *pmy_block_;

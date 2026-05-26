@@ -219,6 +219,8 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
   face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
   face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
+  const Coordinates *pcc = pmb->pmr->GetCoarseCoordinates();
+
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {
       pmb->pcoord->Face1Area(k,   j,   is, ie+1, face1);
@@ -244,8 +246,8 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
             face1(i+1),face1(i),face2p(i),face2m(i),face3p(i),face3m(i),
             b.x1f(k,j,i+1), b.x1f(k,j,i), b.x2f(k,j+1,i),b.x2f(k,j,i),
            b.x3f(k+1,j,i), b.x3f(k,j,i), 
-           ci,cj,ck, pmb->pmr->pcoarsec->x1v(ci),pmb->pmr->pcoarsec->x2v(cj),pmb->pmr->pcoarsec->x3f(ck),
-           pmb->pmr->pcoarsec->x3f(ck+1));
+           ci,cj,ck, pcc->x1v(ci),pcc->x2v(cj),pcc->x3f(ck),
+           pcc->x3f(ck+1));
         }
       }
     }
