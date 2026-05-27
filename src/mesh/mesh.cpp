@@ -1920,38 +1920,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
     }
 
 
-      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
-#pragma omp parallel for num_threads(nthreads)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i);
-        pmb->pfield->fbvar.SendFluxCorrection();
 
-      }
-
-      bool done = false;
-
-      while (!done) {
-        done = true;
-
-#pragma omp parallel for reduction(&&:done) num_threads(nthreads)
-          for (int i = 0; i < nblocal; ++i) {
-            MeshBlock *pmb = my_blocks(i);
-
-            bool block_done =
-                pmb->pfield->fbvar.ReceiveFluxCorrection();
-
-            done = done && block_done;
-        }
-      }
-
-#pragma omp parallel for num_threads(nthreads)
-            for (int i=0; i<nblocal; ++i) {
-              MeshBlock *pmb = my_blocks(i);
-              pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
-
-            }
-            
-          }
 
 
     // add initial perturbation for decaying or impulsive turbulence
@@ -1979,6 +1948,50 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pbval->StartReceivingSubset(BoundaryCommSubset::mesh_init,
                                     pbval->bvars_main_int);
       }
+
+
+      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
+#pragma omp for private(pmb)
+        for (int i=0; i<nblocal; ++i) {
+          pmb = my_blocks(i);
+          pmb->pfield->fbvar.SendFluxCorrection();
+        }
+        
+      bool done = false;
+
+      while (!done) {
+
+  #pragma omp single
+        done = true;
+
+        bool local_done = true;
+
+  #pragma omp for private(pmb)
+        for (int i = 0; i < nblocal; ++i) {
+          pmb = my_blocks(i);
+
+          bool block_done =
+              pmb->pfield->fbvar.ReceiveFluxCorrection();
+
+          local_done = local_done && block_done;
+        }
+
+  #pragma omp critical
+        {
+          done = done && local_done;
+        }
+
+  #pragma omp barrier
+      }
+
+#pragma omp for private(pmb)
+              for (int i=0; i<nblocal; ++i) {
+                pmb = my_blocks(i);
+                pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
+
+              }
+            
+       }
 
       // send conserved variables
 #pragma omp for private(pmb,pbval)
