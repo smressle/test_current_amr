@@ -1899,6 +1899,15 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
   do {
 
+
+      if (res_flag == 0) {
+#pragma omp parallel for num_threads(nthreads)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i);
+        pmb->pbval->CheckUserBoundaries();
+        pmb->ProblemGenerator(pin);
+      }
+    }
     // Create send/recv MPI_Requests for all BoundaryData objects
 #pragma omp parallel for num_threads(nthreads)
     for (int i=0; i<nblocal; ++i) {
@@ -1910,14 +1919,25 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
 
+
       if (res_flag == 0) {
 #pragma omp parallel for num_threads(nthreads)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i);
-        pmb->ProblemGenerator(pin);
-        pmb->pbval->CheckUserBoundaries();
+        pmb->pfield->fbvar.SendFluxCorrection();
+
       }
+#pragma omp parallel for num_threads(nthreads)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i);
+        pfield->fbvar.ReceiveFluxCorrection();
+
+      }
+
+
+      pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
     }
+
 
     // add initial perturbation for decaying or impulsive turbulence
     if (((turb_flag == 1) || (turb_flag == 2)) && (res_flag == 0))

@@ -204,6 +204,111 @@ void Field::AddEMFSourceTerms(const Real time, const Real dt,
   return;
 }
 
+
+void RecomputeMagneticFieldFromCorrectedVectorPotential(){
+    MeshBlock *pmb = pmy_block;
+    int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
+
+    AthenaArray<Real> area;
+    area.NewAthenaArray(ie+NGHOST+2);
+
+  AthenaArray<Real> &a_x_edges = e.x1e, &a_y_edges = e.x2e, &a_z_edges = e.x3e;
+
+
+
+      // Set B^1
+      for (int k = ks; k <= ke; ++k) {
+        for (int j = js; j <= je; ++j) {
+          pmb->pcoord->Face1Area(k,   j,   is, ie+1, area);
+          for (int i = is; i <= ie+1; ++i) {
+
+            //d Az /dy
+
+            Real lenm = pmb->pcoord->GetEdge3Length(k,j,i);
+            Real lenp = pmb->pcoord->GetEdge3Length(k,j+1,i);
+
+            b.x1f(k,j,i) = 1.0/area(i) * (a_z_edges(k,j+1,i)*lenp - a_z_edges(k,j,i)*lenm)  ;
+
+            //d Ay/dz
+
+
+            lenm = pmb->pcoord->GetEdge2Length(k,j,i);
+            lenp = pmb->pcoord->GetEdge2Length(k+1,j,i);
+
+            b.x1f(k,j,i) -= 1.0/area(i) * (a_y_edges(k+1,j,i)*lenp - a_y_edges(k,j,i)*lenm)  ;
+
+            b.x1f(k,j,i) *= normalization;
+
+          }
+        }
+      }
+
+      // Set B^2
+      for (int k = ks; k <= ke; ++k) {
+        for (int j = js; j <= je+1; ++j) {
+          pmb->pcoord->Face2Area(k,   j,   is, ie, area);
+          for (int i = is; i <= ie; ++i) {
+
+
+            //d Ax /dz
+            Real lenm = pmb->pcoord->GetEdge1Length(k,j,i);
+            Real lenp = pmb->pcoord->GetEdge1Length(k+1,j,i);
+
+            b.x2f(k,j,i) = 1.0/area(i) * (a_x_edges(k+1,j,i)*lenp - a_x_edges(k,j,i)*lenm);
+
+            //d Az/dx
+            Real Az_2,Az_1;
+
+            lenm = pmb->pcoord->GetEdge1Length(k,j,i);
+            lenp = pmb->pcoord->GetEdge1Length(k,j,i+1);
+
+            b.x2f(k,j,i) -= 1.0/area(i) * (a_z_edges(k,j,i+1)*lenp - a_z_edges(k,j,i)*lenm) ;
+
+            b.x2f(k,j,i) *= normalization;
+                  
+          }
+        }
+      }
+
+      // Set B^3
+      for (int k = ks; k <= ke+1; ++k) {
+        for (int j = js; j <= je; ++j) {
+          pmb->pcoord->Face3Area(k,   j,   is, ie, area);
+          for (int i = is; i <= ie; ++i) {
+
+
+            //d Ay /dx
+
+            Real lenm = pmb->pcoord->GetEdge2Length(k,j,i);
+            Real lenp = pmb->pcoord->GetEdge2Length(k,j,i+1);
+                  
+
+            pfield->b.x3f(k,j,i) = 1.0/area(i) * (a_y_edges(k,j,i+1)*lenp - a_y_edges(k,j,i)*lenm);
+
+            //d Ax/dy
+
+            lenm = pmb->pcoord->GetEdge1Length(k,j,i);
+            lenp = pmb->pcoord->GetEdge1Length(k,j+1,i);
+
+            b.x3f(k,j,i) -= 1.0/area(i) * (a_x_edges(k,j+1,i)*lenp - a_x_edges(k,j,i)*lenm);
+
+            b.x3f(k,j,i) *= normalization;
+
+            if (std::isnan(pfield->b.x3f(k,j,i))){
+              fprintf(stderr,"NAN in field \n  %g Ax_2: %g Ax_1: %g \n", a_x_edges(k,j+1,i),a_x_edges(k,j,i));
+            
+            }
+          }
+        }
+      }
+
+    
+
+  
+      area.DeleteAthenaArray();
+
+
+}
 bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
   MeshBlock *pmb = pmy_block;

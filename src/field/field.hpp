@@ -75,6 +75,8 @@ class Field {
 
   bool CheckFieldDivergence(FaceField &b, std::string code_location);
 
+  void RecomputeMagneticFieldFromCorrectedVectorPotential();
+
  private:
   // scratch space used to compute fluxes
   AthenaArray<Real> cc_e_;
