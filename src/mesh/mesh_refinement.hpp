@@ -99,7 +99,7 @@ class MeshRefinement {
 
   void UpdateCoarseMetric(Real t, MeshBlock *pmb);
   
-  inline const Coordinates* GetCoarseCoordinates() const {
+  inline Coordinates* GetCoarseCoordinates()  {
       return pcoarsec;
     }
  private:
