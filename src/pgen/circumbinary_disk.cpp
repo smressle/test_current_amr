@@ -4604,40 +4604,40 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
 //! \fn void SendVectorPotentialCorrection()
 //! \brief Restrict, pack and send the surface Vector Potential to the coarse neighbor(s) if needed
 
-void SendVectorPotentialCorrection(MeshBlock *pmb) {
+// void SendVectorPotentialCorrection(MeshBlock *pmb) {
 
-  // Send non-polar EMF values
-  for (int n=0; n<pbval_->nneighbor; n++) {
-    NeighborBlock& nb = pbval_->neighbor[n];
-    if ((nb.ni.type != NeighborConnect::face) && (nb.ni.type != NeighborConnect::edge))
-      break;
-    if (bd_var_flcor_.sflag[nb.bufid] == BoundaryStatus::completed) continue;
-    int p = 0;
-    if (nb.snb.level == pmb->loc.level) {
-      if ((nb.ni.type == NeighborConnect::face)
-          || ((nb.ni.type == NeighborConnect::edge)
-              && (edge_flag_[nb.eid]))) {
-        p = LoadFluxBoundaryBufferSameLevel(bd_var_flcor_.send[nb.bufid], nb);
-      } else {
-        continue;
-      }
-    } else if (nb.snb.level == pmb->loc.level-1) {
-      p = LoadFluxBoundaryBufferToCoarser(bd_var_flcor_.send[nb.bufid], nb);
-    } else {
-      continue;
-    }
-    if (nb.snb.rank == Globals::my_rank) { // on the same MPI rank
-      CopyFluxCorrectionBufferSameProcess(nb, p);
-    }
-#ifdef MPI_PARALLEL
-    else
-      MPI_Start(&(bd_var_flcor_.req_send[nb.bufid]));
-#endif
-    bd_var_flcor_.sflag[nb.bufid] = BoundaryStatus::completed;
-  }
+//   // Send non-polar EMF values
+//   for (int n=0; n<pbval_->nneighbor; n++) {
+//     NeighborBlock& nb = pbval_->neighbor[n];
+//     if ((nb.ni.type != NeighborConnect::face) && (nb.ni.type != NeighborConnect::edge))
+//       break;
+//     if (bd_var_flcor_.sflag[nb.bufid] == BoundaryStatus::completed) continue;
+//     int p = 0;
+//     if (nb.snb.level == pmb->loc.level) {
+//       if ((nb.ni.type == NeighborConnect::face)
+//           || ((nb.ni.type == NeighborConnect::edge)
+//               && (edge_flag_[nb.eid]))) {
+//         p = LoadFluxBoundaryBufferSameLevel(bd_var_flcor_.send[nb.bufid], nb);
+//       } else {
+//         continue;
+//       }
+//     } else if (nb.snb.level == pmb->loc.level-1) {
+//       p = LoadFluxBoundaryBufferToCoarser(bd_var_flcor_.send[nb.bufid], nb);
+//     } else {
+//       continue;
+//     }
+//     if (nb.snb.rank == Globals::my_rank) { // on the same MPI rank
+//       CopyFluxCorrectionBufferSameProcess(nb, p);
+//     }
+// #ifdef MPI_PARALLEL
+//     else
+//       MPI_Start(&(bd_var_flcor_.req_send[nb.bufid]));
+// #endif
+//     bd_var_flcor_.sflag[nb.bufid] = BoundaryStatus::completed;
+//   }
 
-  return;
-}
+//   return;
+// }
 
 
 //----------------------------------------------------------------------------------------
