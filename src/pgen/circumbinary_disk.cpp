@@ -1251,6 +1251,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
  if (field_config == multi_loop) {
 
+    normalization = 1.0 * extra_field_norm;
+
       // Calculate edge-centered vector potential values for untilted disks
         for (int k = kl; k<=ku; ++k) {
         for (int j = jl; j <= ju; ++j) {
@@ -1287,7 +1289,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               TransformAphi(aphi,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
                 &tmp,&tmp,&Az);
 
-              a_z_edges(k,j,i) = Az;
+              a_z_edges(k,j,i) = Az * normalization;
     
               }
              }
@@ -1318,7 +1320,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               TransformAphi(aphi,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
                 &tmp,&Ay,&tmp);
 
-              a_y_edges(k,j,i) = Ay;
+              a_y_edges(k,j,i) = Ay * normalization;
     
               }
              }
@@ -1348,7 +1350,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
               TransformAphi(aphi,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
                 &Ax,&tmp,&tmp);
 
-              a_x_edges(k,j,i) = Ax;
+              a_x_edges(k,j,i) = Ax * normalization;
     
               }
              }
@@ -1366,7 +1368,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       //   normalization = std::sqrt(beta_min_actual/beta_min);
       // }
 
-        normalization = 1.0 * extra_field_norm;
+    
 
     // Calculate vector potential in renormalized case
     }
@@ -1418,7 +1420,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
     // pfield->fbvar.ReceiveFluxCorrection();
 
-    
+
     // pbval->ClearBoundarySubset(BoundaryCommSubset::all,
     //                                 pbval->bvars_main_int);
 

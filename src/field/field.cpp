@@ -205,14 +205,14 @@ void Field::AddEMFSourceTerms(const Real time, const Real dt,
 }
 
 
-void RecomputeMagneticFieldFromCorrectedVectorPotential(){
+void Field::RecomputeMagneticFieldFromCorrectedVectorPotential(){
     MeshBlock *pmb = pmy_block;
     int is=pmb->is, ie=pmb->ie, js=pmb->js, je=pmb->je, ks=pmb->ks, ke=pmb->ke;
 
     AthenaArray<Real> area;
     area.NewAthenaArray(ie+NGHOST+2);
 
-  AthenaArray<Real> &a_x_edges = e.x1e, &a_y_edges = e.x2e, &a_z_edges = e.x3e;
+    AthenaArray<Real> &a_x_edges = e.x1e, &a_y_edges = e.x2e, &a_z_edges = e.x3e;
 
 
 
@@ -236,8 +236,6 @@ void RecomputeMagneticFieldFromCorrectedVectorPotential(){
             lenp = pmb->pcoord->GetEdge2Length(k+1,j,i);
 
             b.x1f(k,j,i) -= 1.0/area(i) * (a_y_edges(k+1,j,i)*lenp - a_y_edges(k,j,i)*lenm)  ;
-
-            b.x1f(k,j,i) *= normalization;
 
           }
         }
@@ -264,7 +262,6 @@ void RecomputeMagneticFieldFromCorrectedVectorPotential(){
 
             b.x2f(k,j,i) -= 1.0/area(i) * (a_z_edges(k,j,i+1)*lenp - a_z_edges(k,j,i)*lenm) ;
 
-            b.x2f(k,j,i) *= normalization;
                   
           }
         }
@@ -291,8 +288,6 @@ void RecomputeMagneticFieldFromCorrectedVectorPotential(){
             lenp = pmb->pcoord->GetEdge1Length(k,j+1,i);
 
             b.x3f(k,j,i) -= 1.0/area(i) * (a_x_edges(k,j+1,i)*lenp - a_x_edges(k,j,i)*lenm);
-
-            b.x3f(k,j,i) *= normalization;
 
             if (std::isnan(pfield->b.x3f(k,j,i))){
               fprintf(stderr,"NAN in field \n  %g Ax_2: %g Ax_1: %g \n", a_x_edges(k,j+1,i),a_x_edges(k,j,i));
