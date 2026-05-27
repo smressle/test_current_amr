@@ -4748,3 +4748,240 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
   return;
 }
 
+
+//----------------------------------------------------------------------------------------
+//! \fn int LoadVectorPotentialBoundaryBufferToCoarser(Real *buf,
+//!                                                        const NeighborBlock& nb)
+//! \brief Set Vector Potential correction buffers for sending to a block on the coarser level
+
+int LoadVectorPotentialBoundaryBufferToCoarser(
+    MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3, const NeighborBlock& nb) {
+
+  MeshBlock *pmb = pmy_block_;
+  Coordinates *pco = pmb->pcoord;
+  Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
+  // use the surface area aray as the edge length array
+  AthenaArray<Real> le1; //= pbval_->sarea_[0];
+  AthenaArray<Real> le2; // = pbval_->sarea_[1];
+
+  AthenaArray<Real> cle;
+
+  cle.NewAthenaArray(pmb->cie+2);
+  le1.NewAthenaArray(pmb->ncells1+2);
+  le2.NewAthenaArray(pmb->ncells1+2);
+  int p = 0;
+  if (nb.ni.type == NeighborConnect::face) {
+      // x1 direction
+      if (nb.fid == BoundaryFace::inner_x1 || nb.fid == BoundaryFace::outer_x1) {
+        int i;
+        if (nb.fid == BoundaryFace::inner_x1) {
+          i = pmb->is;
+        } else {
+          i = pmb->ie + 1;  
+        }
+        // restrict and pack e2
+        for (int k=pmb->ks; k<=pmb->ke+1; k+=2) {
+          for (int j=pmb->js; j<=pmb->je; j+=2) {
+            Real el1 = pco->GetEdge2Length(k,j,i);
+            Real el2 = pco->GetEdge2Length(k,j+1,i);
+
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+            
+            buf[p++] = (a2(k,j,i)*el1 + a2(k,j+1,i)*el2)/(eltot);
+          }
+        }
+        // restrict and pack e3
+        for (int k=pmb->ks; k<=pmb->ke; k+=2) {
+          for (int j=pmb->js; j<=pmb->je+1; j+=2) {
+            Real el1, el2;
+            el1 = pco->GetEdge3Length(k,j,i);
+            el2 = pco->GetEdge3Length(k+1,j,i);
+
+
+
+            int ck = pmb->cks + (k-pmb->ks)/2;
+            int cj = pmb->cjs + (j-pmb->js)/2;
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+            buf[p++] = (a3(k,j,i)*el1 + a3(k+1,j,i)*el2)/(eltot);
+          }
+        }
+        // x2 direction
+      } else if (nb.fid == BoundaryFace::inner_x2 || nb.fid == BoundaryFace::outer_x2) {
+        int j;
+        if (nb.fid == BoundaryFace::inner_x2) {
+          j = pmb->js;
+        } else {
+          j = pmb->je + 1;
+        }
+        // restrict and pack e1
+        for (int k=pmb->ks; k<=pmb->ke+1; k+=2) {
+          pco->Edge1Length(k, j, pmb->is, pmb->ie, le1);
+          
+
+
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+        
+          for (int i=pmb->is; i<=pmb->ie; i+=2)
+          {
+
+
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = cle(ci);
+          
+            buf[p++] = (a1(k,j,i)*le1(i) + a1(k,j,i+1)*le1(i+1))/(eltot);
+          }
+        }
+        // restrict and pack e3
+        for (int k=pmb->ks; k<=pmb->ke; k+=2) {
+          pco->Edge3Length(k,   j, pmb->is, pmb->ie+1, le1);
+          pco->Edge3Length(k+1, j, pmb->is, pmb->ie+1, le2);
+
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Edge3Length(ck,cj,pmb->cis,pmb->cie+1,cle);
+          for (int i=pmb->is; i<=pmb->ie+1; i+=2)
+          {
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = cle(ci);
+            
+            buf[p++] = (a3(k,j,i)*le1(i) + a3(k+1,j,i)*le2(i))/(eltot);
+          }
+        }
+        // x3 direction
+      } else if (nb.fid == BoundaryFace::inner_x3 || nb.fid == BoundaryFace::outer_x3) {
+        int k;
+        if (nb.fid == BoundaryFace::inner_x3) {
+          k = pmb->ks;
+        } else {
+          k = pmb->ke + 1;
+        }
+        // restrict and pack e1
+        for (int j=pmb->js; j<=pmb->je+1; j+=2) {
+          pco->Edge1Length(k, j, pmb->is, pmb->ie, le1);
+        
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+
+          for (int i=pmb->is; i<=pmb->ie; i+=2){
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = cle(ci);
+          
+            buf[p++] = (a1(k,j,i)*le1(i) + a1(k,j,i+1)*le1(i+1))/(eltot);
+          }
+        }
+        // restrict and pack e2
+        for (int j=pmb->js; j<=pmb->je; j+=2) {
+          pco->Edge2Length(k,   j, pmb->is, pmb->ie+1, le1);
+          pco->Edge2Length(k, j+1, pmb->is, pmb->ie+1, le2);
+
+  
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Edge2Length(ck,cj,pmb->cis,pmb->cie+1,cle);
+          
+          for (int i=pmb->is; i<=pmb->ie+1; i+=2)
+          {
+            int ci = pmb->cis + (i-pmb->is)/2;
+            Real eltot = cle(ci);
+          
+            buf[p++] = (a2(k,j,i)*le1(i) + a2(k,j+1,i)*le2(i))/(eltot);
+          }
+        }
+      }
+     
+  } else if (nb.ni.type == NeighborConnect::edge) {
+      // x1x2 edge
+      if (nb.eid >= 0 && nb.eid < 4) {
+        int i, j;
+        if ((nb.eid & 1) == 0) {
+          i = pmb->is;
+        } else {
+          i = pmb->ie + 1;
+        }
+        if ((nb.eid & 2) == 0) {
+          j = pmb->js;
+        } else {
+          j = pmb->je + 1;
+        }
+        // restrict and pack e3
+        for (int k=pmb->ks; k<=pmb->ke; k+=2) {
+          Real el1, el2;
+          el1 = pco->GetEdge3Length(k,j,i);
+          el2 = pco->GetEdge3Length(k+1,j,i);
+
+
+
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          int ci = pmb->cis + (i-pmb->is)/2;
+          Real eltot = pcoarse->GetEdge3Length(ck,cj,ci);
+            
+          buf[p++] = (a3(k,j,i)*el1 + a3(k+1,j,i)*el2)/(eltot);
+        }
+        // x1x3 edge
+      } else if (nb.eid >= 4 && nb.eid < 8) {
+        int i, k;
+        if ((nb.eid & 1) == 0) {
+          i = pmb->is;
+        } else {
+          i = pmb->ie + 1;
+        }
+        if ((nb.eid & 2) == 0) {
+          k = pmb->ks;
+        } else {
+          k = pmb->ke + 1;
+        }
+        // restrict and pack e2
+        for (int j=pmb->js; j<=pmb->je; j+=2) {
+          Real el1 = pco->GetEdge2Length(k,j,i);
+          Real el2 = pco->GetEdge2Length(k,j+1,i);
+
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          int ci = pmb->cis + (i-pmb->is)/2;
+          Real eltot = pcoarse->GetEdge2Length(ck,cj,ci);
+        
+          buf[p++] = (a2(k,j,i)*el1 + a2(k,j+1,i)*el2)/(eltot);
+        }
+        // x2x3 edge
+      } else if (nb.eid >= 8 && nb.eid < 12) {
+        int j, k;
+        if ((nb.eid & 1) == 0) {
+          j = pmb->js;
+        } else {
+          j = pmb->je + 1;
+        }
+        if ((nb.eid & 2) == 0) {
+          k = pmb->ks;
+        } else {
+          k = pmb->ke + 1;
+        }
+        // restrict and pack e1
+          pco->Edge1Length(k, j, pmb->is, pmb->ie, le1);
+ 
+        
+          int ck = pmb->cks + (k-pmb->ks)/2;
+          int cj = pmb->cjs + (j-pmb->js)/2;
+          pcoarse->Edge1Length(ck,cj,pmb->cis,pmb->cie,cle);
+
+        for (int i=pmb->is; i<=pmb->ie; i+=2)
+        {
+          int ci = pmb->cis + (i-pmb->is)/2;
+          Real eltot = cle(ci);
+  
+          buf[p++] = (a1(k,j,i)*le1(i) + a1(k,j,i+1)*le1(i+1))/(eltot);
+        }
+      }
+    
+  }
+
+  cle.DeleteAthenaArray();
+  return p;
+}
