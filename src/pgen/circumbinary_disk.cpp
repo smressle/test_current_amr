@@ -1314,7 +1314,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
 
-              Real tmp,tmp,Ay;
+              Real Ay;
               TransformAphi(aphi,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
                 &tmp,&Ay,&tmp);
 
@@ -1344,7 +1344,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
 
-              Real tmp,tmp,Ax;
+              Real Ax;
               TransformAphi(aphi,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
                 &Ax,&tmp,&tmp);
 
@@ -1461,7 +1461,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             pfield->b.x3f(k,j,i) *= normalization;
 
             if (std::isnan(pfield->b.x3f(k,j,i))){
-              fprintf(stderr,"NAN in field \n det: %g Ax_2: %g Ax_1: %g \n", det,Ax_2,Ax_1);
+              fprintf(stderr,"NAN in field \n  %g Ax_2: %g Ax_1: %g \n", a_x_edges(k,j+1,i),a_x_edges(k,j,i));
             
             }
           }
@@ -4582,24 +4582,24 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
 
 
 
-//----------------------------------------------------------------------------------------
-//! \fn void BoundaryVariable::CopyFluxCorrectionBufferSameProcess(NeighborBlock& nb,
-//!                                                                int ssize)
-//!  \brief Same as CopyVariableBufferSameProcess but for flux correction
+// //----------------------------------------------------------------------------------------
+// //! \fn void BoundaryVariable::CopyFluxCorrectionBufferSameProcess(NeighborBlock& nb,
+// //!                                                                int ssize)
+// //!  \brief Same as CopyVariableBufferSameProcess but for flux correction
 
-void BoundaryVariable::CopyFluxCorrectionBufferSameProcess(Meshblock *pmb, NeighborBlock& nb, int ssize) {
-  // Locate target buffer
-  // 1) which MeshBlock?
-  MeshBlock *ptarget_block = pmb->pmy_mesh_->FindMeshBlock(nb.snb.gid);
-  // 2) which element in vector of BoundaryVariable *?
-  BoundaryData<> *ptarget_bdata =
-      &(ptarget_block->pbval->bvars[bvar_index]->bd_var_flcor_);
-  std::memcpy(ptarget_bdata->recv[nb.targetid], bd_var_flcor_.send[nb.bufid],
-              ssize*sizeof(Real));
-  // finally, set the BoundaryStatus flag on the destination buffer
-  ptarget_bdata->flag[nb.targetid] = BoundaryStatus::arrived;
-  return;
-}
+// void CopyFluxCorrectionBufferSameProcess(Meshblock *pmb, NeighborBlock& nb, int ssize) {
+//   // Locate target buffer
+//   // 1) which MeshBlock?
+//   MeshBlock *ptarget_block = pmb->pmy_mesh_->FindMeshBlock(nb.snb.gid);
+//   // 2) which element in vector of BoundaryVariable *?
+//   BoundaryData<> *ptarget_bdata =
+//       &(ptarget_block->pbval->bvars[bvar_index]->bd_var_flcor_);
+//   std::memcpy(ptarget_bdata->recv[nb.targetid], bd_var_flcor_.send[nb.bufid],
+//               ssize*sizeof(Real));
+//   // finally, set the BoundaryStatus flag on the destination buffer
+//   ptarget_bdata->flag[nb.targetid] = BoundaryStatus::arrived;
+//   return;
+// }
 //----------------------------------------------------------------------------------------
 //! \fn void SendVectorPotentialCorrection()
 //! \brief Restrict, pack and send the surface Vector Potential to the coarse neighbor(s) if needed
