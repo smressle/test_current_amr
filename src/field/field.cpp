@@ -219,7 +219,7 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
   face3p.NewAthenaArray((ie-is)+2*NGHOST+1);
   face3m.NewAthenaArray((ie-is)+2*NGHOST+1);
 
-  const Coordinates *pcc = pmb->pmr->GetCoarseCoordinates();
+  Coordinates *pcc = pmb->pmr->GetCoarseCoordinates();
 
   for(int k=ks; k<=ke; k++) {
     for(int j=js; j<=je; j++) {

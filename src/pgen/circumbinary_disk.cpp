@@ -4758,7 +4758,7 @@ int LoadVectorPotentialBoundaryBufferToCoarser(
     MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3, const NeighborBlock& nb) {
 
   Coordinates *pco = pmb->pcoord;
-  const Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
+  Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
   AthenaArray<Real> le1; 
   AthenaArray<Real> le2; 
 
