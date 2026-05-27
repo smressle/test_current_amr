@@ -1489,7 +1489,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       for (int k = ks; k <= ke; ++k) {
         for (int j = js; j <= je; ++j) {
           pcoord->Face1Metric(k, j, is, ie+1,g_, gi_);
-          pmb->pcoord->Face1Area(k,   j,   is, ie+1, area);
+          pcoord->Face1Area(k,   j,   is, ie+1, area);
           for (int i = is; i <= ie+1; ++i) {
 
 
@@ -1511,8 +1511,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&tmp,&Az_1);
                   
 
-            Real lenm = pco->GetEdge3Length(k,j,i);
-            Real lenp = pco->GetEdge3Length(k,j+1,i);
+            Real lenm = pcoord->GetEdge3Length(k,j,i);
+            Real lenp = pcoord->GetEdge3Length(k,j+1,i);
 
             pfield->b.x1f(k,j,i) = 1.0/area(i) * (Az_2*lenp - Az_1*lenm)  ;
 
@@ -1524,8 +1524,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&Ay_1,&tmp);
 
 
-            lenm= pco->GetEdge2Length(k,j,i);
-            lenp = pco->GetEdge2Length(k+1,j,i);
+            lenm= pcoord->GetEdge2Length(k,j,i);
+            lenp = pcoord->GetEdge2Length(k+1,j,i);
 
             pfield->b.x1f(k,j,i) -= 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm)  ;
 
@@ -1539,7 +1539,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       for (int k = ks; k <= ke; ++k) {
         for (int j = js; j <= je+1; ++j) {
           pcoord->Face2Metric(k, j, il, iu,g_, gi_);
-          pmb->pcoord->Face2Area(k,   j,   is, ie, area);
+          pcoord->Face2Area(k,   j,   is, ie, area);
           for (int i = is; i <= ie; ++i) {
 
             // Prepare scratch arrays
@@ -1560,8 +1560,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &Ax_1,&tmp,&tmp);
                   
 
-            Real lenm = pco->GetEdge1Length(k,j,i);
-            Real lenp = pco->GetEdge1Length(k+1,j,i);
+            Real lenm = pcoord->GetEdge1Length(k,j,i);
+            Real lenp = pcoord->GetEdge1Length(k+1,j,i);
 
             pfield->b.x2f(k,j,i) = 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
 
@@ -1572,8 +1572,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
                 &tmp,&tmp,&Az_1);
 
-            lenm = pco->GetEdge1Length(k,j,i);
-            lenp = pco->GetEdge1Length(k,j,i+1);
+            lenm = pcoord->GetEdge1Length(k,j,i);
+            lenp = pcoord->GetEdge1Length(k,j,i+1);
 
             pfield->b.x2f(k,j,i) -= 1.0/area(i) * (Az_2*lenp - Az_1*lenm) ;
 
@@ -1587,7 +1587,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       for (int k = ks; k <= ke+1; ++k) {
         for (int j = js; j <= je; ++j) {
           pcoord->Face3Metric(k, j, is, ie,g_, gi_);
-          pmb->pcoord->Face3Area(k,   j,   is, ie, area);
+          pcoord->Face3Area(k,   j,   is, ie, area);
           for (int i = is; i <= ie; ++i) {
 
             // Prepare scratch arrays
@@ -1608,8 +1608,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&Ay_1,&tmp);
 
 
-            Real lenm = pco->GetEdge2Length(k,j,i);
-            Real lenp = pco->GetEdge2Length(k,j,i+1);
+            Real lenm = pcoord->GetEdge2Length(k,j,i);
+            Real lenp = pcoord->GetEdge2Length(k,j,i+1);
                   
 
             pfield->b.x3f(k,j,i) = 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm);
@@ -1622,8 +1622,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &Ax_1,&tmp,&tmp);
 
 
-            lenm = pco->GetEdge1Length(k,j,i);
-            lenp = pco->GetEdge1Length(k,j+1,i);
+            lenm = pcoord->GetEdge1Length(k,j,i);
+            lenp = pcoord->GetEdge1Length(k,j+1,i);
 
             pfield->b.x3f(k,j,i) -= 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
 
