@@ -1898,18 +1898,6 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
   int nthreads = GetNumMeshThreads();
 
   do {
-    if (res_flag == 0) {
-#pragma omp parallel for num_threads(nthreads)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i);
-        pmb->ProblemGenerator(pin);
-        pmb->pbval->CheckUserBoundaries();
-      }
-    }
-
-    // add initial perturbation for decaying or impulsive turbulence
-    if (((turb_flag == 1) || (turb_flag == 2)) && (res_flag == 0))
-      ptrbd->Driving();
 
     // Create send/recv MPI_Requests for all BoundaryData objects
 #pragma omp parallel for num_threads(nthreads)
@@ -1921,6 +1909,19 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
       if (SELF_GRAVITY_ENABLED == 1)
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
+
+      if (res_flag == 0) {
+#pragma omp parallel for num_threads(nthreads)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i);
+        pmb->ProblemGenerator(pin);
+        pmb->pbval->CheckUserBoundaries();
+      }
+    }
+
+    // add initial perturbation for decaying or impulsive turbulence
+    if (((turb_flag == 1) || (turb_flag == 2)) && (res_flag == 0))
+      ptrbd->Driving();
 
     // solve gravity for the first time
     if (SELF_GRAVITY_ENABLED == 1)
