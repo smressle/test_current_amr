@@ -1482,7 +1482,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     }
 
     AthenaArray<Real> area;
-    area.NewAthenaArray(iu+2)
+    area.NewAthenaArray(iu+2);
 
 
       // Set B^1
