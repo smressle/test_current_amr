@@ -1930,12 +1930,17 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 #pragma omp parallel for num_threads(nthreads)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i);
-        pfield->fbvar.ReceiveFluxCorrection();
+        pmb->pfield->fbvar.ReceiveFluxCorrection();
 
       }
 
+#pragma omp parallel for num_threads(nthreads)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i);
+        pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
 
-      pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
+      }
+      
     }
 
 
