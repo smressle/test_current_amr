@@ -1927,12 +1927,22 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pfield->fbvar.SendFluxCorrection();
 
       }
-#pragma omp parallel for num_threads(nthreads)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i);
-        pmb->pfield->fbvar.ReceiveFluxCorrection();
 
-      }
+bool done = false;
+
+while (!done) {
+  done = true;
+
+#pragma omp parallel for reduction(&&:done) num_threads(nthreads)
+    for (int i = 0; i < nblocal; ++i) {
+      MeshBlock *pmb = my_blocks(i);
+
+      bool block_done =
+          pmb->pfield->fbvar.ReceiveFluxCorrection();
+
+      done = done && block_done;
+  }
+}
 
 #pragma omp parallel for num_threads(nthreads)
       for (int i=0; i<nblocal; ++i) {
