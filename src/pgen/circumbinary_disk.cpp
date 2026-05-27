@@ -1416,6 +1416,8 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
     pfield->fbvar.SendFluxCorrection();
     pfield->fbvar.ReceiveFluxCorrection();
+    pbval->ClearBoundarySubset(BoundaryCommSubset::all,
+                                    pmb->pbval->bvars_main_int);
 
 
     AthenaArray<Real> area;
