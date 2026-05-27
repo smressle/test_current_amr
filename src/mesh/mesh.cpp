@@ -1920,7 +1920,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
     }
 
 
-      if (res_flag == 0) {
+      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
 #pragma omp parallel for num_threads(nthreads)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i);
@@ -1928,30 +1928,30 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
       }
 
-bool done = false;
+      bool done = false;
 
-while (!done) {
-  done = true;
+      while (!done) {
+        done = true;
 
 #pragma omp parallel for reduction(&&:done) num_threads(nthreads)
-    for (int i = 0; i < nblocal; ++i) {
-      MeshBlock *pmb = my_blocks(i);
+          for (int i = 0; i < nblocal; ++i) {
+            MeshBlock *pmb = my_blocks(i);
 
-      bool block_done =
-          pmb->pfield->fbvar.ReceiveFluxCorrection();
+            bool block_done =
+                pmb->pfield->fbvar.ReceiveFluxCorrection();
 
-      done = done && block_done;
-  }
-}
+            done = done && block_done;
+        }
+      }
 
 #pragma omp parallel for num_threads(nthreads)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i);
-        pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
+            for (int i=0; i<nblocal; ++i) {
+              MeshBlock *pmb = my_blocks(i);
+              pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
 
-      }
-      
-    }
+            }
+            
+          }
 
 
     // add initial perturbation for decaying or impulsive turbulence

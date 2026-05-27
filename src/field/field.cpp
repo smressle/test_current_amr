@@ -280,7 +280,7 @@ void Field::RecomputeMagneticFieldFromCorrectedVectorPotential(){
             Real lenp = pmb->pcoord->GetEdge2Length(k,j,i+1);
                   
 
-            pfield->b.x3f(k,j,i) = 1.0/area(i) * (a_y_edges(k,j,i+1)*lenp - a_y_edges(k,j,i)*lenm);
+            b.x3f(k,j,i) = 1.0/area(i) * (a_y_edges(k,j,i+1)*lenp - a_y_edges(k,j,i)*lenm);
 
             //d Ax/dy
 
