@@ -289,7 +289,7 @@ void Field::RecomputeMagneticFieldFromCorrectedVectorPotential(){
 
             b.x3f(k,j,i) -= 1.0/area(i) * (a_x_edges(k,j+1,i)*lenp - a_x_edges(k,j,i)*lenm);
 
-            if (std::isnan(pfield->b.x3f(k,j,i))){
+            if (std::isnan(b.x3f(k,j,i))){
               fprintf(stderr,"NAN in field \n  %g Ax_2: %g Ax_1: %g \n", a_x_edges(k,j+1,i),a_x_edges(k,j,i));
             
             }
