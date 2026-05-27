@@ -1481,12 +1481,16 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       throw std::runtime_error(msg.str().c_str());
     }
 
+    AthenaArray<Real> area;
+    area.NewAthenaArray(iu+2)
+
 
       // Set B^1
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          pcoord->Face1Metric(k, j, il, iu+1,g_, gi_);
-          for (int i = il; i <= iu+1; ++i) {
+      for (int k = ks; k <= ke; ++k) {
+        for (int j = js; j <= je; ++j) {
+          pcoord->Face1Metric(k, j, is, ie+1,g_, gi_);
+          pmb->pcoord->Face1Area(k,   j,   is, ie+1, area);
+          for (int i = is; i <= ie+1; ++i) {
 
 
             // Prepare scratch arrays
@@ -1507,7 +1511,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&tmp,&Az_1);
                   
 
-            pfield->b.x1f(k,j,i) = 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx2f(j) );
+            Real lenm = pco->GetEdge3Length(k,j,i);
+            Real lenp = pco->GetEdge3Length(k,j+1,i);
+
+            pfield->b.x1f(k,j,i) = 1.0/area(i) * (Az_2*lenp - Az_1*lenm)  ;
 
             //d Ay/dz
             Real  Ay_2,Ay_1;
@@ -1516,7 +1523,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), 0,
                 &tmp,&Ay_1,&tmp);
 
-            pfield->b.x1f(k,j,i) -= 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx3f(k) );
+
+            lenm= pco->GetEdge2Length(k,j,i);
+            lenp = pco->GetEdge2Length(k+1,j,i);
+
+            pfield->b.x1f(k,j,i) -= 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm)  ;
 
             pfield->b.x1f(k,j,i) *= normalization;
 
@@ -1525,10 +1536,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       }
 
       // Set B^2
-      for (int k = kl; k <= ku; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
+      for (int k = ks; k <= ke; ++k) {
+        for (int j = js; j <= je+1; ++j) {
           pcoord->Face2Metric(k, j, il, iu,g_, gi_);
-          for (int i = il; i <= iu; ++i) {
+          pmb->pcoord->Face2Area(k,   j,   is, ie, area);
+          for (int i = is; i <= ie; ++i) {
 
             // Prepare scratch arrays
             AthenaArray<Real> g_scratch; 
@@ -1548,7 +1560,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &Ax_1,&tmp,&tmp);
                   
 
-            pfield->b.x2f(k,j,i) = 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx3f(k) );
+            Real lenm = pco->GetEdge1Length(k,j,i);
+            Real lenp = pco->GetEdge1Length(k+1,j,i);
+
+            pfield->b.x2f(k,j,i) = 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
 
             //d Az/dx
             Real Az_2,Az_1;
@@ -1557,7 +1572,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
                 &tmp,&tmp,&Az_1);
 
-            pfield->b.x2f(k,j,i) -= 1.0/std::sqrt(-det) * (Az_2-Az_1) / (pcoord->dx1f(i) );
+            lenm = pco->GetEdge1Length(k,j,i);
+            lenp = pco->GetEdge1Length(k,j,i+1);
+
+            pfield->b.x2f(k,j,i) -= 1.0/area(i) * (Az_2*lenp - Az_1*lenm) ;
 
             pfield->b.x2f(k,j,i) *= normalization;
                   
@@ -1566,10 +1584,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       }
 
       // Set B^3
-      for (int k = kl; k <= ku+1; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          pcoord->Face3Metric(k, j, il, iu,g_, gi_);
-          for (int i = il; i <= iu; ++i) {
+      for (int k = ks; k <= ke+1; ++k) {
+        for (int j = js; j <= je; ++j) {
+          pcoord->Face3Metric(k, j, is, ie,g_, gi_);
+          pmb->pcoord->Face3Area(k,   j,   is, ie, area);
+          for (int i = is; i <= ie; ++i) {
 
             // Prepare scratch arrays
             AthenaArray<Real> g_scratch;
@@ -1587,9 +1606,13 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                 &tmp,&Ay_2,&tmp);
             TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
                 &tmp,&Ay_1,&tmp);
+
+
+            Real lenm = pco->GetEdge2Length(k,j,i);
+            Real lenp = pco->GetEdge2Length(k,j,i+1);
                   
 
-            pfield->b.x3f(k,j,i) = 1.0/std::sqrt(-det) * (Ay_2-Ay_1) / (pcoord->dx1f(i) );
+            pfield->b.x3f(k,j,i) = 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm);
 
             //d Ax/dy
             Real Ax_2,Ax_1;
@@ -1598,7 +1621,11 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
                 &Ax_1,&tmp,&tmp);
 
-            pfield->b.x3f(k,j,i) -= 1.0/std::sqrt(-det) * (Ax_2-Ax_1) / (pcoord->dx2f(j) );
+
+            lenm = pco->GetEdge1Length(k,j,i);
+            lenp = pco->GetEdge1Length(k,j+1,i);
+
+            pfield->b.x3f(k,j,i) -= 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
 
             pfield->b.x3f(k,j,i) *= normalization;
 
@@ -1613,7 +1640,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     
 
   
-
+      area.DeleteAthenaArray();
     // Free vector potential arrays
       a_phi_edges.DeleteAthenaArray();
       a_phi_cells.DeleteAthenaArray();
