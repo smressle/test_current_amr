@@ -4757,12 +4757,10 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
 int LoadVectorPotentialBoundaryBufferToCoarser(
     MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3, const NeighborBlock& nb) {
 
-  MeshBlock *pmb = pmy_block_;
   Coordinates *pco = pmb->pcoord;
-  Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
-  // use the surface area aray as the edge length array
-  AthenaArray<Real> le1; //= pbval_->sarea_[0];
-  AthenaArray<Real> le2; // = pbval_->sarea_[1];
+  const Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
+  AthenaArray<Real> le1; 
+  AthenaArray<Real> le2; 
 
   AthenaArray<Real> cle;
 
