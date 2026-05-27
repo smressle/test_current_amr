@@ -31,6 +31,7 @@
 #include "../field/field.hpp"              // Field
 #include "../hydro/hydro.hpp"              // Hydro
 #include "../globals.hpp"
+#include "../bvals_interfaces.hpp"         // BoundaryData
 // Configuration checking
 #if not GENERAL_RELATIVITY
 #error "This problem generator must be used with general relativity"
@@ -225,6 +226,8 @@ static Real n_pow;
 static Real ud_t_in;
 static Real kappa_init;
 
+
+BoundaryData<> bd_var_flcor_;
 
 
 
@@ -1241,12 +1244,10 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   if (MAGNETIC_FIELDS_ENABLED) {
 
     // Prepare arrays of vector potential values
-    AthenaArray<Real> a_x_edges,a_y_edges,a_z_edges;
+    // Use emf arrays for communication
+    AthenaArray<Real> &a_x_edges = pfield->e.x1e, &a_y_edges = pfield->e.x2e, &a_z_edges = pfield->e.x3e;
     AthenaArray<Real> a_theta_0, a_theta_1, a_theta_2, a_theta_3;
     AthenaArray<Real> a_phi_0, a_phi_1, a_phi_2, a_phi_3;
-    a_x_edges.NewAthenaArray(ku+2,ju+2, iu+2);
-    a_y_edges.NewAthenaArray(ku+2,ju+2, iu+2);
-    a_z_edges.NewAthenaArray(ku+2,ju+2, iu+2);
     Real normalization;
 
  if (field_config == multi_loop) {
@@ -1377,6 +1378,47 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       throw std::runtime_error(msg.str().c_str());
     }
 
+
+
+
+
+    //   // Send non-polar EMF values
+    //   for (int n=0; n<pbval_->nneighbor; n++) {
+    //     NeighborBlock& nb = pbval_->neighbor[n];
+    //     if ((nb.ni.type != NeighborConnect::face) && (nb.ni.type != NeighborConnect::edge))
+    //       break;
+    //     if (bd_var_flcor_.sflag[nb.bufid] == BoundaryStatus::completed) continue;
+    //     int p = 0;
+    //     if (nb.snb.level == pmb->loc.level) {
+    //       if ((nb.ni.type == NeighborConnect::face)
+    //           || ((nb.ni.type == NeighborConnect::edge)
+    //               && (edge_flag_[nb.eid]))) {
+    //         p = LoadVectorPotentialBoundaryBufferSameLevel(pmb,pmb->pfield->fbvar->bd_var_flcor_.send[nb.bufid],
+    //                                                         a_x_edges,a_y_edges,a_z_edges, nb);
+    //       } else {
+    //         continue;
+    //       }
+    //     } else if (nb.snb.level == pmb->loc.level-1) {
+    //       p = LoadVectorPotentialBoundaryBufferToCoarser(pmb,pmb->pfield->fbvar->bd_var_flcor_.send[nb.bufid], 
+    //                                                         a_x_edges,a_y_edges,a_z_edgesnb);
+    //     } else {
+    //       continue;
+    //     }
+    //     if (nb.snb.rank == Globals::my_rank) { // on the same MPI rank
+    //       CopyVectorPotentialCorrectionBufferSameProcess(pmb,nb, p);
+    //     }
+    // #ifdef MPI_PARALLEL
+    //     else
+    //       MPI_Start(&(pmb->pfield->fbvar->bd_var_flcor_.req_send[nb.bufid]));
+    // #endif
+    //     pmb->pfield->fbvar->bd_var_flcor_.sflag[nb.bufid] = BoundaryStatus::completed;
+    //   }
+
+
+    pmb->pfield->fbvar.SendFluxCorrection();
+    pmb->pfield->fbvar.ReceiveFluxCorrection();
+
+
     AthenaArray<Real> area;
     area.NewAthenaArray(iu+2);
 
@@ -1473,9 +1515,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   
       area.DeleteAthenaArray();
     // Free vector potential arrays
-      a_x_edges.DeleteAthenaArray();
-      a_y_edges.DeleteAthenaArray();
-      a_z_edges.DeleteAthenaArray();
   }
 
   // Impose density and pressure floors
@@ -4640,6 +4679,45 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
 // }
 
 
+int GetVectorPotentialBufferSize(MeshBlock *pmb, const NeighborBlock& nb,
+                                  bool to_coarser) {
+  int nx1 = pmb->ie - pmb->is + 1;
+  int nx2 = pmb->je - pmb->js + 1;
+  int nx3 = pmb->ke - pmb->ks + 1;
+
+  // Use coarse dimensions if restricting
+  if (to_coarser) {
+    nx1 = pmb->cie - pmb->cis + 1;
+    nx2 = pmb->cje - pmb->cjs + 1;
+    nx3 = pmb->cke - pmb->cks + 1;
+  }
+
+  int size = 0;
+  if (nb.ni.type == NeighborConnect::face) {
+    if (nb.fid == BoundaryFace::inner_x1 ||
+        nb.fid == BoundaryFace::outer_x1) {
+      size = (nx3+1)*nx2       // a2
+           +  nx3*(nx2+1);     // a3
+
+    } else if (nb.fid == BoundaryFace::inner_x2 ||
+               nb.fid == BoundaryFace::outer_x2) {
+      size = (nx3+1)*nx1       // a1
+           +  nx3*(nx1+1);     // a3
+
+    } else if (nb.fid == BoundaryFace::inner_x3 ||
+               nb.fid == BoundaryFace::outer_x3) {
+      size = (nx2+1)*nx1       // a1
+           +  nx2*(nx1+1);     // a2
+    }
+
+  } else if (nb.ni.type == NeighborConnect::edge) {
+    if      (nb.eid <  4) size = nx3;   // x1x2: a3
+    else if (nb.eid <  8) size = nx2;   // x1x3: a2
+    else if (nb.eid < 12) size = nx1;   // x2x3: a1
+  }
+  // corners carry no vector potential data
+  return size;
+}
 //----------------------------------------------------------------------------------------
 //! \fn int LoadVectorPotentialBoundaryBufferSameLevel(Real *buf,
 //!                                                   const NeighborBlock& nb)
@@ -4996,3 +5074,103 @@ int LoadVectorPotentialBoundaryBufferToCoarser(
   cle.DeleteAthenaArray();
   return p;
 }
+
+// void CopyVectorPotentialCorrectionBufferSameProcess(Meshblock *pmb, NeighborBlock& nb, int ssize) {
+//   // Locate target buffer
+//   // 1) which MeshBlock?
+//   MeshBlock *ptarget_block = pmb->pmy_mesh_->FindMeshBlock(nb.snb.gid);
+//   // 2) which element in vector of BoundaryVariable *?
+//   BoundaryData<> *ptarget_bdata =
+//       &(ptarget_block->pbval->bvars[bvar_index]->bd_var_flcor_);
+//   std::memcpy(ptarget_bdata->recv[nb.targetid], bd_var_flcor_.send[nb.bufid],
+//               ssize*sizeof(Real));
+//   // finally, set the BoundaryStatus flag on the destination buffer
+//   ptarget_bdata->flag[nb.targetid] = BoundaryStatus::arrived;
+//   return;
+// }
+
+//----------------------------------------------------------------------------------------
+//! \fn void ReceiveVectorPotentialCorrection()
+//! \brief Receive and Apply the surface VectorPotential to the coarse neighbor(s) if needed
+
+// bool ReceiveVectorPotentialCorrection(MeshBlock *pmb) {
+//   bool flag = true;
+
+//   // Receive same-level non-polar EMF values
+//   if (recv_flx_same_lvl_) {
+//     for (int n=0; n<pbval_->nneighbor; n++) { // first correct the same level
+//       NeighborBlock& nb = pbval_->neighbor[n];
+//       if (nb.ni.type != NeighborConnect::face && nb.ni.type != NeighborConnect::edge)
+//         break;
+//       if (nb.snb.level!=loc.level) continue;
+//       if ((nb.ni.type == NeighborConnect::face)
+//           || ((nb.ni.type == NeighborConnect::edge) && (edge_flag_[nb.eid]))) {
+//         if (bd_var_flcor_.flag[nb.bufid] == BoundaryStatus::completed) continue;
+//         if (bd_var_flcor_.flag[nb.bufid] == BoundaryStatus::waiting) {
+//           if (nb.snb.rank == Globals::my_rank) { // on the same process
+//             flag = false;
+//             continue;
+//           }
+// #ifdef MPI_PARALLEL
+//           else { // NOLINT
+//             int test;
+//             // probe MPI communications.  This is a bit of black magic that seems to
+//             // promote communications to top of stack and gets them to complete more
+//             // quickly
+//             MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &test,
+//                        MPI_STATUS_IGNORE);
+//             MPI_Test(&(bd_var_flcor_.req_recv[nb.bufid]), &test, MPI_STATUS_IGNORE);
+//             if (!static_cast<bool>(test) ) {
+//               flag = false;
+//               continue;
+//             }
+//             bd_var_flcor_.flag[nb.bufid] = BoundaryStatus::arrived;
+//           }
+// #endif
+//         }
+//         // boundary arrived; apply EMF correction
+//         SetFluxBoundarySameLevel(bd_var_flcor_.recv[nb.bufid], nb);
+//         bd_var_flcor_.flag[nb.bufid] = BoundaryStatus::completed;
+//       }
+//     }
+//     if (!flag) return flag;  // is this flag always false?
+//     if (pmb->pmy_mesh->multilevel)
+//       ClearCoarseFluxBoundary();
+//     recv_flx_same_lvl_ = false;
+//   }
+
+//   // Receive finer non-polar EMF values
+//   if (pmb->pmy_mesh->multilevel) {
+//     for (int n=0; n<pbval_->nneighbor; n++) { // then from finer
+//       NeighborBlock& nb = pbval_->neighbor[n];
+//       if (nb.ni.type != NeighborConnect::face && nb.ni.type != NeighborConnect::edge)
+//         break;
+//       if (nb.snb.level!=pmb->loc.level + 1) continue;
+//       if (bd_var_flcor_.flag[nb.bufid] == BoundaryStatus::completed) continue;
+//       if (bd_var_flcor_.flag[nb.bufid] == BoundaryStatus::waiting) {
+//         if (nb.snb.rank == Globals::my_rank) {// on the same process
+//           flag = false;
+//           continue;
+//         }
+// #ifdef MPI_PARALLEL
+//         else { // NOLINT
+//           int test;
+//           MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &test,
+//                      MPI_STATUS_IGNORE);
+//           MPI_Test(&(bd_var_flcor_.req_recv[nb.bufid]), &test, MPI_STATUS_IGNORE);
+//           if (!static_cast<bool>(test)) {
+//             flag = false;
+//             continue;
+//           }
+//           bd_var_flcor_.flag[nb.bufid] = BoundaryStatus::arrived;
+//         }
+// #endif
+//       }
+//       // boundary arrived; apply EMF correction
+//       SetFluxBoundaryFromFiner(bd_var_flcor_.recv[nb.bufid], nb);
+//       bd_var_flcor_.flag[nb.bufid] = BoundaryStatus::completed;
+//     }
+//   }
+
+//   return flag;
+// }
