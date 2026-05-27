@@ -1241,127 +1241,40 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   if (MAGNETIC_FIELDS_ENABLED) {
 
     // Prepare arrays of vector potential values
-    AthenaArray<Real> a_phi_edges, a_phi_cells;
+    AthenaArray<Real> a_x_edges,a_y_edges,a_z_edges;
     AthenaArray<Real> a_theta_0, a_theta_1, a_theta_2, a_theta_3;
     AthenaArray<Real> a_phi_0, a_phi_1, a_phi_2, a_phi_3;
-    a_phi_edges.NewAthenaArray(ku+2,ju+2, iu+2);
-    a_phi_cells.NewAthenaArray(ku+1,ju+1, iu+1);
+    a_x_edges.NewAthenaArray(ku+2,ju+2, iu+2);
+    a_y_edges.NewAthenaArray(ku+2,ju+2, iu+2);
+    a_z_edges.NewAthenaArray(ku+2,ju+2, iu+2);
     Real normalization;
 
-    // Calculate vector potential in normal case
-    if (field_config == normal) {
+ if (field_config == multi_loop) {
 
       // Calculate edge-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku+1; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-            Real r, theta, phi;
-            int k_torus = k;
-            int j_torus = j;
-            int i_torus = i;
-
-            if (k_torus==ku+1) k_torus =ku;
-            if (j_torus==ju+1) j_torus =ju;
-            if (i_torus==iu+1) i_torus =iu;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
-                &r, &theta, &phi);
-
-
-            if (r >= rin) {
-              if (in_torus(k_torus,j_torus,i_torus) == true) {
-                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-
-                Real press = phydro->w(IPR,k_torus,j_torus,i_torus);
-                Real press_cutoff = std::max(press-potential_cutoff*pgas_over_rho_peak, static_cast<Real>(0.0));
-
-                Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
-                else a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
-                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
-                // else a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
-                //     * std::pow(press_cutoff, potential_rho_pow)
-                //     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
-                //     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
-              }
-             }
-            }
-          }
-        }
-
-      // Calculate cell-centered vector potential values for untilted disks
         for (int k = kl; k<=ku; ++k) {
         for (int j = jl; j <= ju; ++j) {
           for (int i = il; i <= iu; ++i) {
+
             Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0,0,0,
+            a_x_edges(k,j,i)=0.0;
+            a_y_edges(k,j,i)=0.0;
+            a_z_edges(k,j,i)=0.0;
+
+
+            // Set Az //
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k),0,0,0,
                 &r, &theta, &phi);
             if (r >= rin) {
               if (in_torus(k,j,i) == true) {
+                Real aphi = 0;
+
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
 
-                Real press = phydro->w(IPR,k,j,i);
-                Real press_cutoff = std::max(press-potential_cutoff*pgas_over_rho_peak, static_cast<Real>(0.0));
-
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
-                else a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
-                    * std::pow(rho_cutoff, potential_rho_pow)
-                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
-                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
-                // else a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
-                //     * std::pow(press_cutoff, potential_rho_pow)
-                //     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
-                //     * std::pow(std::cos(PI * scaled_theta),potential_costh_pow);
-              }
-            }
-            }
-          }
-        }
-
-
-
-      // Calculate magnetic field normalization
-      // if (beta_min < 0.0) {
-      //   normalization = 0.0;
-      // } else {
-      //   Real beta_min_actual = CalculateBetaMin();
-      //   normalization = std::sqrt(beta_min_actual/beta_min);
-      // }
-
-        normalization = 1.0 * extra_field_norm;
-
-    // Calculate vector potential in renormalized case
-    } 
-    else if (field_config == multi_loop) {
-
-      // Calculate edge-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku+1; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-
-            int k_torus = k;
-            int j_torus = j;
-            int i_torus = i;
-
-            if (k_torus==ku+1) k_torus =ku;
-            if (j_torus==ju+1) j_torus =ju;
-            if (i_torus==iu+1) i_torus =iu;
-            Real r, theta, phi;
-
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
-                &r, &theta, &phi);
-            if (r >= rin) {
-              if (in_torus(k_torus,j_torus,i_torus) == true) {
-                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-
-                Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_edges(k,j,i)=0.0;
-                a_phi_edges(k,j,i) = std::pow(r, potential_r_pow)
+                if (theta<potential_theta_min || theta>potential_theta_max) aphi=0.0;
+                aphi = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
@@ -1369,40 +1282,81 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::sin(PI * (r-rin)/loop_radius)
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
+
+              Real tmp,tmp,Az;
+              TransformAphi(aphi,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
+                &tmp,&tmp,&Az);
+
+              a_z_edges(k,j,i) = Az;
+    
               }
              }
-            }
-          }
-        }
 
-      // Calculate cell-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0,0,0,
+
+             // Set Ay //
+            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2v(j), pcoord->x3f(k),0,0,0,
                 &r, &theta, &phi);
             if (r >= rin) {
               if (in_torus(k,j,i) == true) {
+                Real aphi = 0;
+
                 Real rho = phydro->w(IDN,k,j,i);
                 Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+
                 Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
-                if (theta<potential_theta_min || theta>potential_theta_max) a_phi_cells(k,j,i)=0.0;
-                a_phi_cells(k,j,i) = std::pow(r, potential_r_pow)
+                if (theta<potential_theta_min || theta>potential_theta_max) aphi=0.0;
+                aphi = std::pow(r, potential_r_pow)
                     * std::pow(rho_cutoff, potential_rho_pow)
                     * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
                     * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
-                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow) 
+                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow)
                     * std::sin(PI * (r-rin)/loop_radius)
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
+
+              Real tmp,tmp,Ay;
+              TransformAphi(aphi,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
+                &tmp,&Ay,&tmp);
+
+              a_y_edges(k,j,i) = Ay;
+    
               }
-            }
+             }
+
+             // Set Ax //
+            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2f(j), pcoord->x3f(k),0,0,0,
+                &r, &theta, &phi);
+            if (r >= rin) {
+              if (in_torus(k,j,i) == true) {
+                Real aphi = 0;
+
+                Real rho = phydro->w(IDN,k,j,i);
+                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
+
+                Real scaled_theta = (theta-potential_theta_min)/(potential_theta_max-potential_theta_min);
+                if (theta<potential_theta_min || theta>potential_theta_max) aphi=0.0;
+                aphi = std::pow(r, potential_r_pow)
+                    * std::pow(rho_cutoff, potential_rho_pow)
+                    * std::pow(std::sin(N_loops_theta * PI * scaled_theta),1)
+                    * std::pow(std::sin(PI * scaled_theta),potential_sinth_pow)
+                    * std::pow(std::cos(PI * scaled_theta),potential_costh_pow)
+                    * std::sin(PI * (r-rin)/loop_radius)
+                    * std::exp(-r/potential_r_exp_cut)
+                    * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
+
+              Real tmp,tmp,Ax;
+              TransformAphi(aphi,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
+                &Ax,&tmp,&tmp);
+
+              a_x_edges(k,j,i) = Ax;
+    
+              }
+             }
+
+
             }
           }
         }
-
-
 
       // Calculate magnetic field normalization
       // if (beta_min < 0.0) {
@@ -1415,64 +1369,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
         normalization = 1.0 * extra_field_norm;
 
     // Calculate vector potential in renormalized case
-    } else if (field_config == MAD){
-      // Calculate edge-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku+1; ++k) {
-        for (int j = jl; j <= ju+1; ++j) {
-          for (int i = il; i <= iu+1; ++i) {
-            Real r, theta, phi;
-            int k_torus = k;
-            int j_torus = j;
-            int i_torus = i;
-
-            if (k_torus==ku+1) k_torus =ku;
-            if (j_torus==ju+1) j_torus =ju;
-            if (i_torus==iu+1) i_torus =iu;
-            GetBoyerLindquistCoordinates(pcoord->x1f(i), pcoord->x2f(j), pcoord->x3v(k_torus),0,0,0,
-                &r, &theta, &phi);
-            if (r >= rin) {
-              if (in_torus(k_torus,j_torus,i_torus) == true) {
-                Real rho = phydro->w(IDN,k_torus,j_torus,i_torus);
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_edges(k,j,i) = std::max( std::pow(r/20.0, 3.0) * std::pow(std::sin(theta),3.0) 
-                    * rho * std::exp(-r/400.0)-0.2 ,static_cast<Real>(0.0)) ;
-              }
-             }
-            }
-          }
-        }
-
-      // Calculate cell-centered vector potential values for untilted disks
-        for (int k = kl; k<=ku; ++k) {
-        for (int j = jl; j <= ju; ++j) {
-          for (int i = il; i <= iu; ++i) {
-            Real r, theta, phi;
-            GetBoyerLindquistCoordinates(pcoord->x1v(i), pcoord->x2v(j), pcoord->x3v(k),0,0,0,
-                &r, &theta, &phi);
-            if (r >= rin) {
-              if (in_torus(k,j,i) == true) {
-                Real rho = phydro->w(IDN,k,j,i);
-                Real rho_cutoff = std::max(rho-potential_cutoff, static_cast<Real>(0.0));
-                a_phi_cells(k,j,i) = std::max( std::pow(r/20.0, 3.0) * std::pow(std::sin(theta),3.0) 
-                    * rho * std::exp(-r/400.0)-0.2 ,static_cast<Real>(0.0)) ;
-              }
-            }
-            }
-          }
-        }
-
-
-
-      // // Calculate magnetic field normalization
-      // if (beta_min < 0.0) {
-      //   normalization = 0.0;
-      // } else {
-      //   Real beta_min_actual = CalculateBetaMin();
-      //   normalization = std::sqrt(beta_min_actual/beta_min);
-      // }
-
-      normalization = 0.5715/7.8780470912524105 * std::sqrt(10.0) * extra_field_norm ;
-
     }
     else {
       std::stringstream msg;
@@ -1485,49 +1381,27 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
     area.NewAthenaArray(iu+2);
 
 
+
       // Set B^1
       for (int k = ks; k <= ke; ++k) {
         for (int j = js; j <= je; ++j) {
-          pcoord->Face1Metric(k, j, is, ie+1,g_, gi_);
           pcoord->Face1Area(k,   j,   is, ie+1, area);
           for (int i = is; i <= ie+1; ++i) {
 
-
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch;
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch); 
-
-            g_scratch.DeleteAthenaArray();
-
             //d Az /dy
-            Real tmp, Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1f(i), pcoord->x2f(j+1),pcoord->x3v(k),0,
-                &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
-                &tmp,&tmp,&Az_1);
-                  
 
             Real lenm = pcoord->GetEdge3Length(k,j,i);
             Real lenp = pcoord->GetEdge3Length(k,j+1,i);
 
-            pfield->b.x1f(k,j,i) = 1.0/area(i) * (Az_2*lenp - Az_1*lenm)  ;
+            pfield->b.x1f(k,j,i) = 1.0/area(i) * (a_z_edges(k,j+1,i)*lenp - a_z_edges(k,j,i)*lenm)  ;
 
             //d Ay/dz
-            Real  Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k+1), 0,
-                &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k), 0,
-                &tmp,&Ay_1,&tmp);
 
 
             lenm= pcoord->GetEdge2Length(k,j,i);
             lenp = pcoord->GetEdge2Length(k+1,j,i);
 
-            pfield->b.x1f(k,j,i) -= 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm)  ;
+            pfield->b.x1f(k,j,i) -= 1.0/area(i) * (a_y_edges(k+1,j,i)*lenp - a_y_edges(k,j,i)*lenm)  ;
 
             pfield->b.x1f(k,j,i) *= normalization;
 
@@ -1538,44 +1412,23 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^2
       for (int k = ks; k <= ke; ++k) {
         for (int j = js; j <= je+1; ++j) {
-          pcoord->Face2Metric(k, j, il, iu,g_, gi_);
           pcoord->Face2Area(k,   j,   is, ie, area);
           for (int i = is; i <= ie; ++i) {
 
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch; 
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch);
-
-            g_scratch.DeleteAthenaArray();
 
             //d Ax /dz
-            Real tmp, Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k+1,j,i),pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k+1),0,
-                &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k), 0, 
-                &Ax_1,&tmp,&tmp);
-                  
-
             Real lenm = pcoord->GetEdge1Length(k,j,i);
             Real lenp = pcoord->GetEdge1Length(k+1,j,i);
 
-            pfield->b.x2f(k,j,i) = 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
+            pfield->b.x2f(k,j,i) = 1.0/area(i) * (a_x_edges(k+1,j,i)*lenp - a_x_edges(k,j,i)*lenm);
 
             //d Az/dx
             Real Az_2,Az_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2f(j),pcoord->x3v(k), 0, 
-                &tmp,&tmp,&Az_2);
-            TransformAphi(a_phi_edges(k,j,i)  ,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
-                &tmp,&tmp,&Az_1);
 
             lenm = pcoord->GetEdge1Length(k,j,i);
             lenp = pcoord->GetEdge1Length(k,j,i+1);
 
-            pfield->b.x2f(k,j,i) -= 1.0/area(i) * (Az_2*lenp - Az_1*lenm) ;
+            pfield->b.x2f(k,j,i) -= 1.0/area(i) * (a_z_edges(k,j,i+1)*lenp - a_z_edges(k,j,i)*lenm) ;
 
             pfield->b.x2f(k,j,i) *= normalization;
                   
@@ -1586,46 +1439,24 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
       // Set B^3
       for (int k = ks; k <= ke+1; ++k) {
         for (int j = js; j <= je; ++j) {
-          pcoord->Face3Metric(k, j, is, ie,g_, gi_);
           pcoord->Face3Area(k,   j,   is, ie, area);
           for (int i = is; i <= ie; ++i) {
 
-            // Prepare scratch arrays
-            AthenaArray<Real> g_scratch;
-            g_scratch.NewAthenaArray(NMETRIC);
-
-            for (int n = 0; n < NMETRIC; ++n) g_scratch(n) = g_(n,i);
- 
-            Real det = Determinant(g_scratch);
-
-            g_scratch.DeleteAthenaArray();
 
             //d Ay /dx
-            Real tmp, Ay_2,Ay_1;
-            TransformAphi(a_phi_edges(k,j,i+1),pcoord->x1f(i+1), pcoord->x2v(j),pcoord->x3f(k),0,
-                &tmp,&Ay_2,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
-                &tmp,&Ay_1,&tmp);
-
 
             Real lenm = pcoord->GetEdge2Length(k,j,i);
             Real lenp = pcoord->GetEdge2Length(k,j,i+1);
                   
 
-            pfield->b.x3f(k,j,i) = 1.0/area(i) * (Ay_2*lenp - Ay_1*lenm);
+            pfield->b.x3f(k,j,i) = 1.0/area(i) * (a_y_edges(k,j,i+1)*lenp - a_y_edges(k,j,i)*lenm);
 
             //d Ax/dy
-            Real Ax_2,Ax_1;
-            TransformAphi(a_phi_edges(k,j+1,i),pcoord->x1v(i), pcoord->x2f(j+1),pcoord->x3f(k),0,
-                &Ax_2,&tmp,&tmp);
-            TransformAphi(a_phi_edges(k,j,i),  pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
-                &Ax_1,&tmp,&tmp);
-
 
             lenm = pcoord->GetEdge1Length(k,j,i);
             lenp = pcoord->GetEdge1Length(k,j+1,i);
 
-            pfield->b.x3f(k,j,i) -= 1.0/area(i) * (Ax_2*lenp - Ax_1*lenm);
+            pfield->b.x3f(k,j,i) -= 1.0/area(i) * (a_x_edges(k,j+1,i)*lenp - a_x_edges(k,j,i)*lenm);
 
             pfield->b.x3f(k,j,i) *= normalization;
 
@@ -1642,8 +1473,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
   
       area.DeleteAthenaArray();
     // Free vector potential arrays
-      a_phi_edges.DeleteAthenaArray();
-      a_phi_cells.DeleteAthenaArray();
+      a_x_edges.DeleteAthenaArray();
+      a_y_edges.DeleteAthenaArray();
+      a_z_edges.DeleteAthenaArray();
   }
 
   // Impose density and pressure floors
@@ -4749,13 +4581,194 @@ void single_bh_metric(Real a, Real x1, Real x2, Real x3, ParameterInput *pin,
 }
 
 
+
+//----------------------------------------------------------------------------------------
+//! \fn void BoundaryVariable::CopyFluxCorrectionBufferSameProcess(NeighborBlock& nb,
+//!                                                                int ssize)
+//!  \brief Same as CopyVariableBufferSameProcess but for flux correction
+
+void BoundaryVariable::CopyFluxCorrectionBufferSameProcess(Meshblock *pmb, NeighborBlock& nb, int ssize) {
+  // Locate target buffer
+  // 1) which MeshBlock?
+  MeshBlock *ptarget_block = pmb->pmy_mesh_->FindMeshBlock(nb.snb.gid);
+  // 2) which element in vector of BoundaryVariable *?
+  BoundaryData<> *ptarget_bdata =
+      &(ptarget_block->pbval->bvars[bvar_index]->bd_var_flcor_);
+  std::memcpy(ptarget_bdata->recv[nb.targetid], bd_var_flcor_.send[nb.bufid],
+              ssize*sizeof(Real));
+  // finally, set the BoundaryStatus flag on the destination buffer
+  ptarget_bdata->flag[nb.targetid] = BoundaryStatus::arrived;
+  return;
+}
+//----------------------------------------------------------------------------------------
+//! \fn void SendVectorPotentialCorrection()
+//! \brief Restrict, pack and send the surface Vector Potential to the coarse neighbor(s) if needed
+
+void SendVectorPotentialCorrection(MeshBlock *pmb) {
+
+  // Send non-polar EMF values
+  for (int n=0; n<pbval_->nneighbor; n++) {
+    NeighborBlock& nb = pbval_->neighbor[n];
+    if ((nb.ni.type != NeighborConnect::face) && (nb.ni.type != NeighborConnect::edge))
+      break;
+    if (bd_var_flcor_.sflag[nb.bufid] == BoundaryStatus::completed) continue;
+    int p = 0;
+    if (nb.snb.level == pmb->loc.level) {
+      if ((nb.ni.type == NeighborConnect::face)
+          || ((nb.ni.type == NeighborConnect::edge)
+              && (edge_flag_[nb.eid]))) {
+        p = LoadFluxBoundaryBufferSameLevel(bd_var_flcor_.send[nb.bufid], nb);
+      } else {
+        continue;
+      }
+    } else if (nb.snb.level == pmb->loc.level-1) {
+      p = LoadFluxBoundaryBufferToCoarser(bd_var_flcor_.send[nb.bufid], nb);
+    } else {
+      continue;
+    }
+    if (nb.snb.rank == Globals::my_rank) { // on the same MPI rank
+      CopyFluxCorrectionBufferSameProcess(nb, p);
+    }
+#ifdef MPI_PARALLEL
+    else
+      MPI_Start(&(bd_var_flcor_.req_send[nb.bufid]));
+#endif
+    bd_var_flcor_.sflag[nb.bufid] = BoundaryStatus::completed;
+  }
+
+  return;
+}
+
+
+//----------------------------------------------------------------------------------------
+//! \fn int LoadVectorPotentialBoundaryBufferSameLevel(Real *buf,
+//!                                                   const NeighborBlock& nb)
+//! \brief Set Vector Potential correction buffers for sending to a block on the same level
+
+int LoadVectorPotentialBoundaryBufferSameLevel(
+     MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3,
+     const NeighborBlock& nb) {
+
+  int p = 0;
+  if (nb.ni.type == NeighborConnect::face) {
+      // x1 direction
+      if (nb.fid == BoundaryFace::inner_x1 || nb.fid == BoundaryFace::outer_x1) {
+        int i;
+        if (nb.fid == BoundaryFace::inner_x1) {
+          i = pmb->is;
+        } else {
+          i = pmb->ie + 1;
+        }
+        // pack e2
+        for (int k=pmb->ks; k<=pmb->ke+1; k++) {
+          for (int j=pmb->js; j<=pmb->je; j++)
+            buf[p++] = a2(k,j,i);
+        }
+        // pack e3
+        for (int k=pmb->ks; k<=pmb->ke; k++) {
+          for (int j=pmb->js; j<=pmb->je+1; j++)
+            buf[p++] = a3(k,j,i);
+        }
+        // x2 direction
+      } else if (nb.fid == BoundaryFace::inner_x2 || nb.fid == BoundaryFace::outer_x2) {
+          int j;
+        if (nb.fid == BoundaryFace::inner_x2) {
+          j = pmb->js;
+        } else {
+          j = pmb->je + 1;
+        }
+        // pack e1
+        for (int k=pmb->ks; k<=pmb->ke+1; k++) {
+          for (int i=pmb->is; i<=pmb->ie; i++)
+            buf[p++] = a1(k,j,i);
+        }
+        // pack e3
+        for (int k=pmb->ks; k<=pmb->ke; k++) {
+          for (int i=pmb->is; i<=pmb->ie+1; i++)
+            buf[p++] = a3(k,j,i);
+        }
+        // x3 direction
+      } else if (nb.fid == BoundaryFace::inner_x3 || nb.fid == BoundaryFace::outer_x3) {
+        int k;
+        if (nb.fid == BoundaryFace::inner_x3) {
+          k = pmb->ks;
+        } else {
+          k = pmb->ke + 1;
+        }
+        // pack e1
+        for (int j=pmb->js; j<=pmb->je+1; j++) {
+          for (int i=pmb->is; i<=pmb->ie; i++)
+            buf[p++] = a1(k,j,i);
+        }
+        // pack e2
+        for (int j=pmb->js; j<=pmb->je; j++) {
+          for (int i=pmb->is; i<=pmb->ie+1; i++)
+            buf[p++] = a2(k,j,i);
+        }
+      }
+    
+  } else if (nb.ni.type == NeighborConnect::edge) {
+    // x1x2 edge (both 2D and 3D)
+    if (nb.eid >= 0 && nb.eid < 4) {
+      int i, j;
+      if ((nb.eid & 1) == 0) {
+        i = pmb->is;
+      } else {
+        i = pmb->ie + 1;
+      }
+      if ((nb.eid & 2) == 0) {
+        j = pmb->js;
+      } else {
+        j = pmb->je + 1;
+      }
+      // pack e3
+      for (int k=pmb->ks; k<=pmb->ke; k++)
+          buf[p++] = a3(k,j,i);
+      // x1x3 edge
+    } else if (nb.eid >= 4 && nb.eid < 8) {
+      int i, k;
+      if ((nb.eid & 1) == 0) {
+        i = pmb->is;
+      } else {
+        i = pmb->ie + 1;
+      }
+      if ((nb.eid & 2) == 0) {
+        k = pmb->ks;
+      } else {
+        k = pmb->ke + 1;
+      }
+      // pack e2
+      for (int j=pmb->js; j<=pmb->je; j++)
+          buf[p++] = a2(k,j,i);
+      // x2x3 edge
+    } else if (nb.eid >= 8 && nb.eid < 12) {
+      int j, k;
+      if ((nb.eid & 1) == 0) {
+        j = pmb->js;
+      } else {
+        j = pmb->je + 1;
+      }
+      if ((nb.eid & 2) == 0) {
+        k = pmb->ks;
+      } else {
+        k = pmb->ke + 1;
+      }
+      // pack e1
+      for (int i=pmb->is; i<=pmb->ie; i++)
+        buf[p++] = a1(k,j,i);
+    }
+  }
+  return p;
+}
+
 //----------------------------------------------------------------------------------------
 //! \fn int LoadVectorPotentialBoundaryBufferToCoarser(Real *buf,
 //!                                                        const NeighborBlock& nb)
 //! \brief Set Vector Potential correction buffers for sending to a block on the coarser level
 
 int LoadVectorPotentialBoundaryBufferToCoarser(
-    MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3, const NeighborBlock& nb) {
+    MeshBlock *pmb,Real *buf, AthenaArray<Real> a1, AthenaArray<Real> a2, AthenaArray<Real> a3, 
+    const NeighborBlock& nb) {
 
   Coordinates *pco = pmb->pcoord;
   Coordinates *pcoarse = pmb->pmr->GetCoarseCoordinates();
