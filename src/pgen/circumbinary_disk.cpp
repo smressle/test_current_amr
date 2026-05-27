@@ -1283,7 +1283,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
 
-              Real tmp,tmp,Az;
+              Real tmp,Az;
               TransformAphi(aphi,pcoord->x1f(i), pcoord->x2f(j),pcoord->x3v(k),0,
                 &tmp,&tmp,&Az);
 
@@ -1314,7 +1314,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
 
-              Real Ay;
+              Real tmp,Ay;
               TransformAphi(aphi,pcoord->x1f(i), pcoord->x2v(j),pcoord->x3f(k),0,
                 &tmp,&Ay,&tmp);
 
@@ -1344,7 +1344,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
                     * std::exp(-r/potential_r_exp_cut)
                     * std::exp( -4*SQR(theta-PI/2.0)/SQR(potential_theta_scale_height));
 
-              Real Ax;
+              Real tmp, Ax;
               TransformAphi(aphi,pcoord->x1v(i), pcoord->x2f(j),pcoord->x3f(k),0,
                 &Ax,&tmp,&tmp);
 
