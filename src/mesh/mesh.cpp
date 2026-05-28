@@ -1920,7 +1920,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
     }
 
   AthenaArray<bool> completed;
-  completed.NewAthenaArray(nblocal);
+  completed.NewAthenaArray(nblocal+1);
 
   for (int i=0; i<nblocal; ++i) completed(i) = false;
 
@@ -1932,11 +1932,11 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
   // prepare to receive conserved variables
 // #pragma omp for private(pmb,pbval)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pbval->StartReceivingSubset(BoundaryCommSubset::all,
-                                    pbval->bvars_main_int);
-      }
+      // for (int i=0; i<nblocal; ++i) {
+      //   MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+      //   pbval->StartReceivingSubset(BoundaryCommSubset::all,
+      //                               pbval->bvars_main_int);
+      // }
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
@@ -1968,11 +1968,11 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         }
 
 // #pragma omp for private(pmb,pbval)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pbval->ClearBoundarySubset(BoundaryCommSubset::all,
-                                   pbval->bvars_main_int);
-      }
+      // for (int i=0; i<nblocal; ++i) {
+      //   MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+      //   pbval->ClearBoundarySubset(BoundaryCommSubset::all,
+      //                              pbval->bvars_main_int);
+      // }
             
        }
 // }
