@@ -1919,63 +1919,63 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
 
-  AthenaArray<bool> finished;
-  finished.NewAthenaArray(nblocal+1);
+//   AthenaArray<bool> finished;
+//   finished.NewAthenaArray(nblocal+1);
 
-  for (int i=0; i<nblocal; ++i) finished(i) = false;
+//   for (int i=0; i<nblocal; ++i) finished(i) = false;
 
-// #pragma omp parallel num_threads(nthreads){
-      MeshBlock *pmb;
-      BoundaryValues *pbval;
+// // #pragma omp parallel num_threads(nthreads){
+//       MeshBlock *pmb;
+//       BoundaryValues *pbval;
 
-      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
+//       if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
 
-  // prepare to receive conserved variables
-// #pragma omp for private(pmb,pbval)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::all);
-      }
-// #pragma omp for private(pmb)
-        for (int i=0; i<nblocal; ++i) {
-          MeshBlock *pmb = my_blocks(i);
-          pmb->pfield->fbvar.SendFluxCorrection();
-        }
+//   // prepare to receive conserved variables
+// // #pragma omp for private(pmb,pbval)
+//       for (int i=0; i<nblocal; ++i) {
+//         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+//         pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::all);
+//       }
+// // #pragma omp for private(pmb)
+//         for (int i=0; i<nblocal; ++i) {
+//           MeshBlock *pmb = my_blocks(i);
+//           pmb->pfield->fbvar.SendFluxCorrection();
+//         }
 
-  int nmb_left = nblocal;
-  // cycle through all MeshBlocks and perform all tasks possible
-  while (nmb_left > 0) {
-    //! \note
-    //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
-// #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
-    for (int i=0; i<nblocal; ++i) {
-      MeshBlock *pmb = my_blocks(i);
-      if (finished(i)) continue;
-      if (pmb->pfield->fbvar.ReceiveFluxCorrection()){
-        finished(i) = true;
-        nmb_left--;
-      }
-      fprintf(stderr,"nmb_left: %d\n", nmb_left);
-    }
-  }
+//   int nmb_left = nblocal;
+//   // cycle through all MeshBlocks and perform all tasks possible
+//   while (nmb_left > 0) {
+//     //! \note
+//     //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
+// // #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
+//     for (int i=0; i<nblocal; ++i) {
+//       MeshBlock *pmb = my_blocks(i);
+//       if (finished(i)) continue;
+//       if (pmb->pfield->fbvar.ReceiveFluxCorrection()){
+//         finished(i) = true;
+//         nmb_left--;
+//       }
+//       fprintf(stderr,"nmb_left: %d\n", nmb_left);
+//     }
+//   }
       
 
-// #pragma omp for private(pmb)
-        for (int i=0; i<nblocal; ++i) {
-          MeshBlock *pmb = my_blocks(i);
-          pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
+// // #pragma omp for private(pmb)
+//         for (int i=0; i<nblocal; ++i) {
+//           MeshBlock *pmb = my_blocks(i);
+//           pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
 
-        }
+//         }
 
-// #pragma omp for private(pmb,pbval)
-      for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pmb->pfield->fbvar.ClearBoundary(BoundaryCommSubset::all);
-      }
+// // #pragma omp for private(pmb,pbval)
+//       for (int i=0; i<nblocal; ++i) {
+//         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+//         pmb->pfield->fbvar.ClearBoundary(BoundaryCommSubset::all);
+//       }
             
-      //  }
-}
-  finished.DeleteAthenaArray();
+//       //  }
+// }
+//   finished.DeleteAthenaArray();
 
 
 
