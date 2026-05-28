@@ -1924,14 +1924,14 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
   for (int i=0; i<nblocal; ++i) finished(i) = false;
 
-// #pragma omp parallel num_threads(nthreads){
+#pragma omp parallel num_threads(nthreads){
       MeshBlock *pmb;
       BoundaryValues *pbval;
 
       if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
 
   // prepare to receive conserved variables
-// #pragma omp for private(pmb,pbval)
+#pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
         pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::all);
@@ -1940,7 +1940,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
   int nmb_left = nblocal;
   int n_loop = 0;
   while (nmb_left > 0) {
-// #pragma omp for private(pmb)
+#pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->fbvar.SendFluxCorrection();
@@ -1948,7 +1948,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
     //! \note
     //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
-// #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
+#pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
     for (int i=0; i<nblocal; ++i) {
       MeshBlock *pmb = my_blocks(i);
       if (finished(i)) continue;
@@ -1963,14 +1963,14 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
   }
       
 
-// #pragma omp for private(pmb)
+#pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
 
         }
 
-// #pragma omp for private(pmb,pbval)
+#pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
         pmb->pfield->fbvar.ClearBoundary(BoundaryCommSubset::all);
