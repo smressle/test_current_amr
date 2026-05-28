@@ -2013,6 +2013,7 @@ fprintf(stderr,"Finished Vector Potential Communication");
                                     pbval->bvars_main_int);
       }
 
+fprintf(stderr,"Done StartReceivingSubset");
 
       // send conserved variables
 #pragma omp for private(pmb,pbval)
@@ -2033,6 +2034,9 @@ fprintf(stderr,"Finished Vector Potential Communication");
         }
       }
 
+fprintf(stderr,"Sent Boundary Buffers");
+
+
       // wait to receive conserved variables
 #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
@@ -2049,6 +2053,9 @@ fprintf(stderr,"Finished Vector Potential Communication");
                                    pbval->bvars_main_int);
       }
 
+  fprintf(stderr,"Received Boundaries");
+
+
       // With AMR/SMR GR send primitives to enable cons->prim before prolongation
       if (GENERAL_RELATIVITY && multilevel) {
         // prepare to receive primitives
@@ -2058,6 +2065,8 @@ fprintf(stderr,"Finished Vector Potential Communication");
           pbval->StartReceivingSubset(BoundaryCommSubset::gr_amr,
                                       pbval->bvars_main_int);
         }
+
+  fprintf(stderr,"Start receiving prims");
 
         // send primitives
 #pragma omp for private(pmb,pbval)
@@ -2074,6 +2083,7 @@ fprintf(stderr,"Finished Vector Potential Communication");
             pmb->pscalars->sbvar.SendBoundaryBuffers();
           }
         }
+  fprintf(stderr,"prims sent");
 
         // wait to receive AMR/SMR GR primitives
 #pragma omp for private(pmb,pbval)
@@ -2095,6 +2105,10 @@ fprintf(stderr,"Finished Vector Potential Communication");
           }
         }
       } // multilevel
+
+
+        fprintf(stderr,"received prims");
+
 
       // perform fourth-order correction of midpoint initial condition:
       // (correct IC on all MeshBlocks or none; switch cannot be toggled independently)
