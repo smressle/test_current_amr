@@ -1505,7 +1505,7 @@ void FaceCenteredBoundaryVariable::ClearBoundary(BoundaryCommSubset phase) {
     bd_var_.flag[nb.bufid] = BoundaryStatus::waiting;
     bd_var_.sflag[nb.bufid] = BoundaryStatus::waiting;
     if (((nb.ni.type == NeighborConnect::face) || (nb.ni.type == NeighborConnect::edge))
-        && phase == BoundaryCommSubset::all) {
+        && ( phase == BoundaryCommSubset::all || phase == BoundaryCommSubset::flux_correct)) {
       bd_var_flcor_.flag[nb.bufid] = BoundaryStatus::waiting;
       bd_var_flcor_.sflag[nb.bufid] = BoundaryStatus::waiting;
     }
