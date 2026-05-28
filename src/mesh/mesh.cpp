@@ -1919,8 +1919,8 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
 
-  AthenaArray<bool> completed;
-  completed.NewAthenaArray(nblocal+1);
+  // AthenaArray<bool> completed;
+  // completed.NewAthenaArray(nblocal+1);
 
   for (int i=0; i<nblocal; ++i) completed(i) = false;
 
@@ -1932,11 +1932,11 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
   // prepare to receive conserved variables
 // #pragma omp for private(pmb,pbval)
-      // for (int i=0; i<nblocal; ++i) {
-      //   MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-      //   pbval->StartReceivingSubset(BoundaryCommSubset::all,
-      //                               pbval->bvars_main_int);
-      // }
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        pbval->StartReceivingSubset(BoundaryCommSubset::all,
+                                    pbval->bvars_main_int);
+      }
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
@@ -1951,9 +1951,9 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
     for (int i=0; i<nblocal; ++i) {
       MeshBlock *pmb = my_blocks(i);
-      if (completed(i)) continue;
+      // if (completed(i)) continue;
       if (pmb->pfield->fbvar.ReceiveFluxCorrection()){
-        completed(i) = true;
+        // completed(i) = true;
         nmb_left--;
       }
     }
@@ -1968,15 +1968,15 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         }
 
 // #pragma omp for private(pmb,pbval)
-      // for (int i=0; i<nblocal; ++i) {
-      //   MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-      //   pbval->ClearBoundarySubset(BoundaryCommSubset::all,
-      //                              pbval->bvars_main_int);
-      // }
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        pbval->ClearBoundarySubset(BoundaryCommSubset::all,
+                                   pbval->bvars_main_int);
+      }
             
        }
 // }
-  completed.DeleteAthenaArray();
+  // completed.DeleteAthenaArray();
 
 
 
