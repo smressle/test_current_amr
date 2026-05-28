@@ -1919,10 +1919,10 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
 
-  // AthenaArray<bool> finished;
-  // finished.NewAthenaArray(nblocal+1);
+  AthenaArray<bool> finished;
+  finished.NewAthenaArray(nblocal+1);
 
-  // for (int i=0; i<nblocal; ++i) finished(i) = false;
+  for (int i=0; i<nblocal; ++i) finished(i) = false;
 
 // #pragma omp parallel num_threads(nthreads){
       MeshBlock *pmb;
@@ -1934,8 +1934,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pbval->StartReceivingSubset(BoundaryCommSubset::all,
-                                    pbval->bvars_main_int);
+        pmb->pfield->fbvar->StartReceiving(BoundaryCommSubset::all);
       }
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
@@ -1951,9 +1950,9 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
     for (int i=0; i<nblocal; ++i) {
       MeshBlock *pmb = my_blocks(i);
-      // if (finished(i)) continue;
+      if (finished(i)) continue;
       if (pmb->pfield->fbvar.ReceiveFluxCorrection()){
-        // finished(i) = true;
+        finished(i) = true;
         nmb_left--;
       }
     }
@@ -1970,13 +1969,12 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pbval->ClearBoundarySubset(BoundaryCommSubset::all,
-                                   pbval->bvars_main_int);
+        pmb->pfield->fbvar->ClearBoundary(BoundaryCommSubset::all);
       }
             
-       }
+      //  }
 // }
-  // finished.DeleteAthenaArray();
+  finished.DeleteAthenaArray();
 
 
 
