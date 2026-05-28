@@ -1963,6 +1963,8 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
   }
       
 
+
+fprintf(stderr,"Setting Field!");
 #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
@@ -1970,6 +1972,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
         }
 
+fprintf(stderr,"Clearing Boundary \n");
 #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
@@ -1980,7 +1983,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 }
   finished.DeleteAthenaArray();
 
-
+fprintf(stderr,"Finished Vector Potential Communication", nmb_left, nblocal,n_loop);
 
 
 
