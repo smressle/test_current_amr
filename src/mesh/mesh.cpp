@@ -1968,6 +1968,30 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
 
+                    // Prepare index bounds
+          int il = pmb->is - NGHOST;
+          int iu = pmb->ie + NGHOST;
+          int jl = pmb->js;
+          int ju = pmb->je;
+          if (pmb->block_size.nx2 > 1) {
+            jl -= (NGHOST);
+            ju += (NGHOST);
+          }
+          int kl = pmb->ks;
+          int ku = pmb->ke;
+          if (pmb->block_size.nx3 > 1) {
+            kl -= (NGHOST);
+            ku += (NGHOST);
+          }
+
+
+            // Calculate cell-centered magnetic field
+          pfield->CalculateCellCenteredField(pmb->pfield->b, pmb->pfield->bcc, pmb->pcoord, 
+            il, iu, jl, ju, kl,ku);
+          peos->PrimitiveToConserved(pmb->phydro->w, pmb->pfield->bcc, pmb->phydro->u, pmb->pcoord, 
+            il, iu, jl, ju, kl, ku);
+  } 
+
         }
 
 // fprintf(stderr,"Clearing Boundary \n");

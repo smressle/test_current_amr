@@ -1451,8 +1451,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             pfield->b.x1f(k,j,i) -= 1.0/area(i) * (a_y_edges(k+1,j,i)*lenp - a_y_edges(k,j,i)*lenm)  ;
 
-            pfield->b.x1f(k,j,i) *= normalization;
-
           }
         }
       }
@@ -1478,7 +1476,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
 
             pfield->b.x2f(k,j,i) -= 1.0/area(i) * (a_z_edges(k,j,i+1)*lenp - a_z_edges(k,j,i)*lenm) ;
 
-            pfield->b.x2f(k,j,i) *= normalization;
                   
           }
         }
@@ -1505,8 +1502,6 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin) {
             lenp = pcoord->GetEdge1Length(k,j+1,i);
 
             pfield->b.x3f(k,j,i) -= 1.0/area(i) * (a_x_edges(k,j+1,i)*lenp - a_x_edges(k,j,i)*lenm);
-
-            pfield->b.x3f(k,j,i) *= normalization;
 
             if (std::isnan(pfield->b.x3f(k,j,i))){
               fprintf(stderr,"NAN in field \n  %g Ax_2: %g Ax_1: %g \n", a_x_edges(k,j+1,i),a_x_edges(k,j,i));
