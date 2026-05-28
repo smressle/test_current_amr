@@ -1955,6 +1955,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         finished(i) = true;
         nmb_left--;
       }
+      fprintf(stderr,"nmb_left: %d\n", nmb_left);
     }
   }
       
