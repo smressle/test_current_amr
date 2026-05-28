@@ -1934,7 +1934,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pmb->pfield->fbvar->StartReceiving(BoundaryCommSubset::all);
+        pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::all);
       }
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
@@ -1969,11 +1969,11 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 // #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
-        pmb->pfield->fbvar->ClearBoundary(BoundaryCommSubset::all);
+        pmb->pfield->fbvar.ClearBoundary(BoundaryCommSubset::all);
       }
             
       //  }
-// }
+}
   finished.DeleteAthenaArray();
 
 
