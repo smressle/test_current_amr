@@ -1983,7 +1983,7 @@ fprintf(stderr,"Clearing Boundary \n");
 }
   finished.DeleteAthenaArray();
 
-fprintf(stderr,"Finished Vector Potential Communication", nmb_left, nblocal,n_loop);
+fprintf(stderr,"Finished Vector Potential Communication");
 
 
 
