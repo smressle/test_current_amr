@@ -1924,23 +1924,22 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
   for (int i=0; i<nblocal; ++i) finished(i) = false;
 
-#pragma omp parallel num_threads(nthreads){
-      MeshBlock *pmb;
-      BoundaryValues *pbval;
+// #pragma omp parallel num_threads(nthreads){
+      // MeshBlock *pmb;
+      // BoundaryValues *pbval;
 
       if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
 
   // prepare to receive conserved variables
-#pragma omp for private(pmb,pbval)
+// #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        MeshBlock *pmb = my_blocks(i); 
         pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::flux_correct);
       }
 
   int nmb_left = nblocal;
-  int n_loop = 0;
   while (nmb_left > 0) {
-#pragma omp for private(pmb)
+// #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->fbvar.SendFluxCorrection();
@@ -1948,7 +1947,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
     //! \note
     //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
-#pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
+// #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
     for (int i=0; i<nblocal; ++i) {
       MeshBlock *pmb = my_blocks(i);
       if (finished(i)) continue;
@@ -1959,13 +1958,12 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
       // fprintf(stderr,"nmb_left: %d nblocal: %d n_loop: %d \n", nmb_left, nblocal,n_loop);
     }
 
-    n_loop = n_loop+1;
   }
       
 
 
 // fprintf(stderr,"Setting Field!");
-#pragma omp for private(pmb)
+// #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
@@ -1973,9 +1971,9 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         }
 
 // fprintf(stderr,"Clearing Boundary \n");
-#pragma omp for private(pmb,pbval)
+// #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
-        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        MeshBlock *pmb = my_blocks(i); 
         pmb->pfield->fbvar.ClearBoundary(BoundaryCommSubset::flux_correct);
       }
             
