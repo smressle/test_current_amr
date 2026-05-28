@@ -1919,6 +1919,65 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         pmb->pgrav->gbvar.SetupPersistentMPI();
     }
 
+  AthenaArray<bool> completed;
+  completed.NewAthenaArray(nblocal);
+
+  for (int i=0; i<nblocal; ++i) completed(i) = false;
+
+// #pragma omp parallel num_threads(nthreads){
+      MeshBlock *pmb;
+      BoundaryValues *pbval;
+
+      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
+
+  // prepare to receive conserved variables
+// #pragma omp for private(pmb,pbval)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        pbval->StartReceivingSubset(BoundaryCommSubset::all,
+                                    pbval->bvars_main_int);
+      }
+// #pragma omp for private(pmb)
+        for (int i=0; i<nblocal; ++i) {
+          MeshBlock *pmb = my_blocks(i);
+          pmb->pfield->fbvar.SendFluxCorrection();
+        }
+
+  int nmb_left = nblocal;
+  // cycle through all MeshBlocks and perform all tasks possible
+  while (nmb_left > 0) {
+    //! \note
+    //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
+// #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
+    for (int i=0; i<nblocal; ++i) {
+      MeshBlock *pmb = my_blocks(i);
+      if (completed(i)) continue;
+      if (pmb->pfield->fbvar.ReceiveFluxCorrection()){
+        completed(i) = true;
+        nmb_left--;
+      }
+    }
+  }
+      
+
+// #pragma omp for private(pmb)
+        for (int i=0; i<nblocal; ++i) {
+          MeshBlock *pmb = my_blocks(i);
+          pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
+
+        }
+
+// #pragma omp for private(pmb,pbval)
+      for (int i=0; i<nblocal; ++i) {
+        MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
+        pbval->ClearBoundarySubset(BoundaryCommSubset::all,
+                                   pbval->bvars_main_int);
+      }
+            
+       }
+// }
+  completed.DeleteAthenaArray();
+
 
 
 
@@ -1949,49 +2008,6 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
                                     pbval->bvars_main_int);
       }
 
-
-      if (res_flag == 0 && MAGNETIC_FIELDS_ENABLED) {
-#pragma omp for private(pmb)
-        for (int i=0; i<nblocal; ++i) {
-          pmb = my_blocks(i);
-          pmb->pfield->fbvar.SendFluxCorrection();
-        }
-        
-      bool done = false;
-
-      while (!done) {
-
-  #pragma omp single
-        done = true;
-
-        bool local_done = true;
-
-  #pragma omp for private(pmb)
-        for (int i = 0; i < nblocal; ++i) {
-          pmb = my_blocks(i);
-
-          bool block_done =
-              pmb->pfield->fbvar.ReceiveFluxCorrection();
-
-          local_done = local_done && block_done;
-        }
-
-  #pragma omp critical
-        {
-          done = done && local_done;
-        }
-
-  #pragma omp barrier
-      }
-
-#pragma omp for private(pmb)
-              for (int i=0; i<nblocal; ++i) {
-                pmb = my_blocks(i);
-                pmb->pfield->RecomputeMagneticFieldFromCorrectedVectorPotential();
-
-              }
-            
-       }
 
       // send conserved variables
 #pragma omp for private(pmb,pbval)
