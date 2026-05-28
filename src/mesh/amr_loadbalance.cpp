@@ -552,8 +552,8 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   } // if (nsend !=0)
 #endif // MPI_PARALLEL
 
- if (my_blocks(0)->pmr->pvars_fc_.size() > 0)
-    PrepareAndSendFaceFieldCorrection(newloc, ranklist, newrank, nslist, nbtold);
+ // if (my_blocks(0)->pmr->pvars_fc_.size() > 0)
+ //    PrepareAndSendFaceFieldCorrection(newloc, ranklist, newrank, nslist, nbtold);
 
   // Step 6. construct a new MeshBlock list (moving the data within the MPI rank)
   AthenaArray<MeshBlock*> newlist;
@@ -639,8 +639,8 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
 
 
 
-  if (my_blocks(0)->pmr->pvars_fc_.size() > 0)
-    ReceiveAndSetFaceFieldCorrection(newrank);
+  // if (my_blocks(0)->pmr->pvars_fc_.size() > 0)
+  //   ReceiveAndSetFaceFieldCorrection(newrank);
 
   // Step 7b. Prolongate MeshBlocks
   for (int n=nbs; n<=nbe; n++) {
@@ -1220,12 +1220,12 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
   int il = pb->cis, iu = pb->cie+1, jl = pb->cjs, ju = pb->cje + f2,
       kl = pb->cks, ku = pb->cke + f3;
   // Step FFC8. skip the surface fields contacting previously refined MeshBlocks
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x1]) il++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x1]) iu--;
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x2]) jl++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x2]) ju--;
-  if (pmr->flag_ffc_recv_[BoundaryFace::inner_x3]) kl++;
-  if (pmr->flag_ffc_recv_[BoundaryFace::outer_x3]) ku--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x1]) il++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x1]) iu--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x2]) jl++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x2]) ju--;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::inner_x3]) kl++;
+  // if (pmr->flag_ffc_recv_[BoundaryFace::outer_x3]) ku--;
 
   for (auto fc_pair : pmr->pvars_fc_) {
     FaceField *var_fc = std::get<0>(fc_pair);
