@@ -1407,7 +1407,7 @@ void FaceCenteredBoundaryVariable::StartReceiving(BoundaryCommSubset phase) {
   for (int n=0; n<pbval_->nneighbor; n++) {
     NeighborBlock& nb = pbval_->neighbor[n];
     if (nb.snb.rank != Globals::my_rank && phase != BoundaryCommSubset::gr_amr) {
-      if (phase != phase == BoundaryCommSubset::flux_correct) MPI_Start(&(bd_var_.req_recv[nb.bufid]));
+      if (phase != BoundaryCommSubset::flux_correct) MPI_Start(&(bd_var_.req_recv[nb.bufid]));
       if ( (phase == BoundaryCommSubset::all || phase == BoundaryCommSubset::flux_correct) &&
           (nb.ni.type == NeighborConnect::face || nb.ni.type == NeighborConnect::edge)) {
         if ((nb.snb.level > mylevel) ||
