@@ -1956,7 +1956,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         finished(i) = true;
         nmb_left--;
       }
-      fprintf(stderr,"nmb_left: %d nblocal: %d n_loop: %d \n", nmb_left, nblocal,n_loop);
+      // fprintf(stderr,"nmb_left: %d nblocal: %d n_loop: %d \n", nmb_left, nblocal,n_loop);
     }
 
     n_loop = n_loop+1;
@@ -1964,7 +1964,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
       
 
 
-fprintf(stderr,"Setting Field!");
+// fprintf(stderr,"Setting Field!");
 #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
@@ -1972,7 +1972,7 @@ fprintf(stderr,"Setting Field!");
 
         }
 
-fprintf(stderr,"Clearing Boundary \n");
+// fprintf(stderr,"Clearing Boundary \n");
 #pragma omp for private(pmb,pbval)
       for (int i=0; i<nblocal; ++i) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
@@ -1983,7 +1983,7 @@ fprintf(stderr,"Clearing Boundary \n");
 }
   finished.DeleteAthenaArray();
 
-fprintf(stderr,"Finished Vector Potential Communication");
+// fprintf(stderr,"Finished Vector Potential Communication");
 
 
 
@@ -2013,7 +2013,7 @@ fprintf(stderr,"Finished Vector Potential Communication");
                                     pbval->bvars_main_int);
       }
 
-fprintf(stderr,"Done StartReceivingSubset");
+// fprintf(stderr,"Done StartReceivingSubset");
 
       // send conserved variables
 #pragma omp for private(pmb,pbval)
@@ -2034,7 +2034,7 @@ fprintf(stderr,"Done StartReceivingSubset");
         }
       }
 
-fprintf(stderr,"Sent Boundary Buffers");
+// fprintf(stderr,"Sent Boundary Buffers");
 
 
       // wait to receive conserved variables
@@ -2053,7 +2053,7 @@ fprintf(stderr,"Sent Boundary Buffers");
                                    pbval->bvars_main_int);
       }
 
-  fprintf(stderr,"Received Boundaries");
+  // fprintf(stderr,"Received Boundaries");
 
 
       // With AMR/SMR GR send primitives to enable cons->prim before prolongation
@@ -2066,7 +2066,7 @@ fprintf(stderr,"Sent Boundary Buffers");
                                       pbval->bvars_main_int);
         }
 
-  fprintf(stderr,"Start receiving prims");
+  // fprintf(stderr,"Start receiving prims");
 
         // send primitives
 #pragma omp for private(pmb,pbval)
@@ -2083,7 +2083,7 @@ fprintf(stderr,"Sent Boundary Buffers");
             pmb->pscalars->sbvar.SendBoundaryBuffers();
           }
         }
-  fprintf(stderr,"prims sent");
+  // fprintf(stderr,"prims sent");
 
         // wait to receive AMR/SMR GR primitives
 #pragma omp for private(pmb,pbval)
@@ -2107,7 +2107,7 @@ fprintf(stderr,"Sent Boundary Buffers");
       } // multilevel
 
 
-        fprintf(stderr,"received prims");
+        // fprintf(stderr,"received prims");
 
 
       // perform fourth-order correction of midpoint initial condition:
