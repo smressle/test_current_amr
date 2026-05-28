@@ -100,14 +100,14 @@ void Field::CT(const Real wght, FaceField &b_out) {
 #pragma omp simd
       for (int i=is; i<=ie; ++i) {
         b_out.x3f(k,j,i) -= (wght/area(i))*(len(i+1)*e2(k,j,i+1) - len(i)*e2(k,j,i));
-        if (pmb->gid==20311 && i==4 && j==4 && k==12){
-          fprintf(stderr,"Below interface len2: %.15e %.15e e2: %.15e %.15e \n wgt: %g area: %g\n ",
-            len(i+1), len(i), e2(k,j,i+1), e2(k,j,i),wght,area(i));
-        }
-        if (pmb->gid==20315 && i==4 && j==4 && k==4){
-          fprintf(stderr,"above interface len2: %.15e %.15e e2: %.15e %.15e \n wgt: %g area: %g\n ",
-            len(i+1), len(i), e2(k,j,i+1), e2(k,j,i),wght,area(i));
-        }
+        // if (pmb->gid==20311 && i==4 && j==4 && k==12){
+        //   fprintf(stderr,"Below interface len2: %.15e %.15e e2: %.15e %.15e \n wgt: %g area: %g\n ",
+        //     len(i+1), len(i), e2(k,j,i+1), e2(k,j,i),wght,area(i));
+        // }
+        // if (pmb->gid==20315 && i==4 && j==4 && k==4){
+        //   fprintf(stderr,"above interface len2: %.15e %.15e e2: %.15e %.15e \n wgt: %g area: %g\n ",
+        //     len(i+1), len(i), e2(k,j,i+1), e2(k,j,i),wght,area(i));
+        // }
       }
       if (pmb->block_size.nx2 > 1) {
         pmb->pcoord->Edge1Length(k,j  ,is,ie,len);
@@ -116,14 +116,14 @@ void Field::CT(const Real wght, FaceField &b_out) {
         for (int i=is; i<=ie; ++i) {
           b_out.x3f(k,j,i) +=
               (wght/area(i))*(len_p1(i)*e1(k,j+1,i) - len(i)*e1(k,j,i));
-        if (pmb->gid==20311 && i==4 && j==4 && k==12){
-          fprintf(stderr,"Below interface len1: %.15e %.15e e1: %.15e %.15e \n wgt: %g area: %g \n",
-            len_p1(i), len(i), e1(k,j+1,i), e1(k,j,i),wght,area(i));
-        }
-        if (pmb->gid==20315 && i==4 && j==4 && k==4){
-          fprintf(stderr,"above interface len1: %.15e %.15e e1: %.15e %.15e \n wgt: %g area: %g\n ",
-            len_p1(i), len(i), e1(k,j+1,i), e1(k,j,i),wght,area(i));
-        }
+        // if (pmb->gid==20311 && i==4 && j==4 && k==12){
+        //   fprintf(stderr,"Below interface len1: %.15e %.15e e1: %.15e %.15e \n wgt: %g area: %g \n",
+        //     len_p1(i), len(i), e1(k,j+1,i), e1(k,j,i),wght,area(i));
+        // }
+        // if (pmb->gid==20315 && i==4 && j==4 && k==4){
+        //   fprintf(stderr,"above interface len1: %.15e %.15e e1: %.15e %.15e \n wgt: %g area: %g\n ",
+        //     len_p1(i), len(i), e1(k,j+1,i), e1(k,j,i),wght,area(i));
+        // }
         }
       }
     }

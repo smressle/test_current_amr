@@ -355,8 +355,8 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   bool bad_divergence=false;
   bool dummy_bool = false;
 
-  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        dummy_bool = my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Any Refinement in b");
+  // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+  //       dummy_bool = my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Any Refinement in b");
   // Step 1. construct new lists
   LogicalLocation *newloc = new LogicalLocation[ntot];
   int *newrank = new int[ntot];
@@ -650,26 +650,26 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
     if (oloc.level < nloc.level) { // c2f
       MeshBlock *pb = FindMeshBlock(n);
       ProlongateMeshBlock(pb);
-      if (MAGNETIC_FIELDS_ENABLED) 
-        dummy_bool =pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate c2f");
+      // if (MAGNETIC_FIELDS_ENABLED) 
+      //   dummy_bool =pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate c2f");
     }
     if(oloc.level==nloc.level){
       MeshBlock *pb = FindMeshBlock(n);
-      if (MAGNETIC_FIELDS_ENABLED) 
-        dummy_bool =pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate same level");
+      // if (MAGNETIC_FIELDS_ENABLED) 
+      //   dummy_bool =pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate same level");
     }
     if (oloc.level > nloc.level){
       MeshBlock *pb = FindMeshBlock(n);
-            if (MAGNETIC_FIELDS_ENABLED) 
-        dummy_bool = pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate f2c");
-        if (dummy_bool) fprintf(stderr,"bad meshblock n: %d on: %g gid: %g \n",n,on,pb->gid);
+        //     if (MAGNETIC_FIELDS_ENABLED) 
+        // dummy_bool = pb->pfield->CheckFieldDivergence(pb->pfield->b,"After prolongate f2c");
+        // if (dummy_bool) fprintf(stderr,"bad meshblock n: %d on: %g gid: %g \n",n,on,pb->gid);
     }
 
 
   }
 
-    if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Just after ProlongateMeshblock");
+    // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+    //     dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Just after ProlongateMeshblock");
 
 
   // deallocate arrays
@@ -714,13 +714,13 @@ void Mesh::RedistributeAndRefineMeshBlocks(ParameterInput *pin, int ntot) {
   for (int i=0; i<nblocal; ++i)
     my_blocks(i)->pbval->SearchAndSetNeighbors(tree, ranklist, nslist);
 
-  if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Initializing newly refined meshblocks");
+  // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+  //       dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"Before Initializing newly refined meshblocks");
 
   Initialize(2, pin);
 
-    if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
-        dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
+    // if (MAGNETIC_FIELDS_ENABLED) for (int i=0; i<nblocal; ++i) 
+    //     dummy_bool =my_blocks(i)->pfield->CheckFieldDivergence(my_blocks(i)->pfield->b,"After Refinement in b");
 
   ResetLoadBalanceVariables();
 
@@ -861,10 +861,10 @@ void Mesh::PrepareSendFineToCoarseAMR(MeshBlock* pb, Real *sendbuf) {
                             pb->cks, pb->cke+f3, p);
 
 
-    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        pb->cis, pb->cie,
-                         pb->cjs, pb->cje,
-                         pb->cks, pb->cke);
+    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+    //                     pb->cis, pb->cie,
+    //                      pb->cjs, pb->cje,
+    //                      pb->cks, pb->cke);
   }
   return;
 }
@@ -932,10 +932,10 @@ void Mesh::FillSameRankFineToCoarseAMR(MeshBlock* pob, MeshBlock* pmb,
                          pob->cks, pob->cke+f3);
 
 
-    pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
-                        pob->cis, pob->cie,
-                         pob->cjs, pob->cje,
-                         pob->cks, pob->cke);
+    // pmr->CheckFieldDivergenceAfterRestrict(*var_fc, *coarse_fc,
+    //                     pob->cis, pob->cie,
+    //                      pob->cjs, pob->cje,
+    //                      pob->cks, pob->cke);
     FaceField &src_b = *coarse_fc;
     FaceField &dst_b = *std::get<0>(*pmb_fc_it); // pmb->pfield->b;
     for (int k=kl, fk=pob->cks; fk<=pob->cke; k++, fk++) {
@@ -1241,15 +1241,15 @@ void Mesh::ProlongateMeshBlock(MeshBlock *pb) {
                                  pb->cjs, pb->cje, pb->cks, pb->cke);
 
 
-    pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
-    pb->cjs, pb->cje, pb->cks, pb->cke);
+    // pmr->CheckFieldDivergenceAfterProlongate(*coarse_fc,*var_fc,pb->cis, pb->cie,
+    // pb->cjs, pb->cje, pb->cks, pb->cke);
 
 
   }
 
 
 
-   bool dummy_bool = pb->pfield->CheckFieldDivergence(pb->pfield->b,"Just after ProlongateMeshblock in ProlongateMeshblock");
+   // bool dummy_bool = pb->pfield->CheckFieldDivergence(pb->pfield->b,"Just after ProlongateMeshblock in ProlongateMeshblock");
   return;
 }
 
