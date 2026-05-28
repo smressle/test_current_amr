@@ -1936,15 +1936,15 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         MeshBlock *pmb = my_blocks(i); pbval = pmb->pbval;
         pmb->pfield->fbvar.StartReceiving(BoundaryCommSubset::all);
       }
+
+  int nmb_left = nblocal;
+  while (nmb_left > 0) {
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
           MeshBlock *pmb = my_blocks(i);
           pmb->pfield->fbvar.SendFluxCorrection();
         }
 
-  int nmb_left = nblocal;
-  // cycle through all MeshBlocks and perform all tasks possible
-  while (nmb_left > 0) {
     //! \note
     //! KNOWN ISSUE: Workaround for unknown OpenMP race condition. See #183 on GitHub.
 // #pragma omp  for reduction(- : nmb_left) private(pmb) schedule(dynamic,1)
