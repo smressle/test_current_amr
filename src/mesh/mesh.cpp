@@ -1986,11 +1986,10 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
 
 
             // Calculate cell-centered magnetic field
-          pfield->CalculateCellCenteredField(pmb->pfield->b, pmb->pfield->bcc, pmb->pcoord, 
+          pmb->pfield->CalculateCellCenteredField(pmb->pfield->b, pmb->pfield->bcc, pmb->pcoord, 
             il, iu, jl, ju, kl,ku);
-          peos->PrimitiveToConserved(pmb->phydro->w, pmb->pfield->bcc, pmb->phydro->u, pmb->pcoord, 
+          pmb->peos->PrimitiveToConserved(pmb->phydro->w, pmb->pfield->bcc, pmb->phydro->u, pmb->pcoord, 
             il, iu, jl, ju, kl, ku);
-  } 
 
         }
 
