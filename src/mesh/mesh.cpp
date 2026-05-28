@@ -1938,6 +1938,7 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
       }
 
   int nmb_left = nblocal;
+  int n_loop = 0;
   while (nmb_left > 0) {
 // #pragma omp for private(pmb)
         for (int i=0; i<nblocal; ++i) {
@@ -1955,8 +1956,10 @@ void Mesh::Initialize(int res_flag, ParameterInput *pin) {
         finished(i) = true;
         nmb_left--;
       }
-      fprintf(stderr,"nmb_left: %d nblocal: %d \n", nmb_left, nblocal);
+      fprintf(stderr,"nmb_left: %d nblocal: %d n_loop: %d \n", nmb_left, nblocal,n_loop);
     }
+
+    n_loop = n_loop+1;
   }
       
 
