@@ -22,16 +22,6 @@
 #include "field_diffusion/field_diffusion.hpp"
 
 
-#pragma GCC optimize("no-finite-math-only")
-bool check_nan(float x) {
-    return std::isnan(x);
-}
-
-bool isnan_volatile(float x) {
-    volatile float v = x;
-    return v != v;   // NaN is the only value not equal to itself
-}
-
 
 //----------------------------------------------------------------------------------------
 //! \fn  void Field::ComputeCornerE
@@ -269,7 +259,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
           if (check_nan(e3(k,j,i)) || isnan_volatile(e3(k,j,i))){
 
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e3: %g de3_l3: %g de3_r3: %g de3_l1: %g de3_r1: %g e3_x3f(i-1): %g e3_x3f: %g e3_x1f(k-1): %g e3_x1f: %g \n",
-              i,j,k,e3(k,j,i), e3_l1 , de3_r1 , de3_l2 , de3_r2 , e3_x2f(k,j,i-1) , e3_x2f(k,j,i) , e3_x1f(k,j-1,i) , e3_x1f(k,j,i));
+              i,j,k,e3(k,j,i), de3_l1 , de3_r1 , de3_l2 , de3_r2 , e3_x2f(k,j,i-1) , e3_x2f(k,j,i) , e3_x1f(k,j-1,i) , e3_x1f(k,j,i));
             exit(0);
           }
         }
