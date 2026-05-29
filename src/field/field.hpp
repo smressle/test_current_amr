@@ -79,6 +79,18 @@ class Field {
 
   void RecomputeMagneticFieldFromCorrectedVectorPotential();
 
+
+    #pragma GCC optimize("no-finite-math-only")
+  bool check_nan(float x) {
+      return std::isnan(x);
+  }
+
+  bool isnan_volatile(float x) {
+      volatile float v = x;
+      return v != v;   // NaN is the only value not equal to itself
+  }
+
+
  private:
   // scratch space used to compute fluxes
   AthenaArray<Real> cc_e_;

@@ -372,7 +372,7 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
         // }  //zm 20 zp: 24)
 
         Real machine_precision = 1e-11; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
-        if (std::fabs(divb)>machine_precision || !(std::fabs(divb)<machine_precision) ){ //|| isnan_volatile(divb) || check_nan(divb)) {
+        if (std::fabs(divb)>machine_precision || !(std::fabs(divb)<machine_precision) || isnan_volatile(divb) || check_nan(divb)) {
           bad_divergence=true;
           fprintf(stderr, "nonzero divergence!! at location:  %s\n xyz: %g %g %g x3 faces: %g %g \n divb: %g machine precision: %g  \n ijk: %d %d %d\n face1: %g %g face2: %g %g face3: %g %g \n bx1: %g %g bx2: %g %g bx3: %g %g \n coarse ijk: %d %d %d \n x: %g y: %g zm %g zp: %g \n",
             code_location.c_str(),
