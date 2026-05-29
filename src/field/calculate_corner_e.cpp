@@ -168,9 +168,10 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
               isnan_volatile(cc_e_(IB2,k,j,i)) || check_nan(cc_e_(IB2,k,j,i)) ||
               isnan_volatile(cc_e_(IB3,k,j,i)) || check_nan(cc_e_(IB3,k,j,i)) ){
 
-            fprintf(stderr,"isnan cce!  ijk: %d %d %d \n cce: %g %g %g \n \n b: %g %g %g u: %g %g %g %g \n alpha: %g gamma: %g \n uu: %g %g %g bb: %g %g %g \n",
+            fprintf(stderr,"isnan cce!  ijk: %d %d %d \n cce: %g %g %g \n \n b: %g %g %g u: %g %g %g %g \n alpha: %g gamma: %g \n uu: %g %g %g bb: %g %g %g \n g: %g %g %g %g %g %g %g %g %g %g \n",
               i,j,k, cc_e_(IB1,k,j,i), cc_e_(IB2,k,j,i),cc_e_(IB3,k,j,i), b1,b2,b3,u0,u1,u2,u3,alpha,gamma,
-              uu1,uu2,uu3,bb1,bb2,bb3);
+              uu1,uu2,uu3,bb1,bb2,bb3, g_(I01,i),g_(I11,i),g_(I12,i),g_(I13,i),g_(I02,i),g_(I12,i),g_(I22,i),
+              g_(I23,i),g_(I03,i),g_(I13,i),g_(I23,i),g_(I33,i));
             exit(0);
           }
 
