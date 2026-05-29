@@ -1064,7 +1064,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
         }
       } else {
         // unpack e2
-        for (int j=pmb->js; j<=pmb->je; j++)
+        for (int j=pmb->js; j<=pmb->je; j++){
           e2(k,j,i) += buf[p++];
 
           if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
@@ -1072,6 +1072,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
               i,j,k,e2(k,j,i), buf[p-1]);
               exit(0);
            }
+         }
       } // KGF: shearing box
       // x2x3 edge
     } else if (nb.eid>=8 && nb.eid<12) {
@@ -1088,13 +1089,14 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
       }
       // unpack e1
       Real sign = (nb.polar && flip_across_pole_field[IB1]) ? -1.0 : 1.0;
-      for (int i=pmb->is; i<=pmb->ie; i++)
+      for (int i=pmb->is; i<=pmb->ie; i++){
         e1(k,j,i) += sign*buf[p++];
         if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
               fprintf(stderr, "isnan in setboudnarysamelevel. Neighbor edge x2x3 ijk: %d %d %d\n e1: %g buf: %g \n",
               i,j,k,e1(k,j,i), buf[p-1]);
               exit(0);
            }
+         }
     }
   }
   return;
