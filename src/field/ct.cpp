@@ -24,6 +24,18 @@
 #include <omp.h>
 #endif
 
+
+#pragma GCC optimize("no-finite-math-only")
+bool check_nan(float x) {
+    return std::isnan(x);
+}
+
+bool isnan_volatile(float x) {
+    volatile float v = x;
+    return v != v;   // NaN is the only value not equal to itself
+}
+
+
 //----------------------------------------------------------------------------------------
 //! \fn  void Field::CT
 //! \brief Constrained Transport implementation of dB/dt = -Curl(E), where E=-(v X B)
@@ -48,6 +60,12 @@ void Field::CT(const Real wght, FaceField &b_out) {
         for (int i=is; i<=ie+1; ++i) {
           b_out.x1f(k,j,i) -=
               (wght/area(i))*(len_p1(i)*e3(k,j+1,i) - len(i)*e3(k,j,i));
+
+          if (check_nan(b_out.x1f(k,j,i)) || isnan_volatile(b_out.x1f(k,j,i))){
+            fprintf(stderr,"isnan in CT!  ijk: %d %d %d \n wgth: %g area: %g len_p1(i): %g len(i): %g \n e3 j+1: %g e3: %g \n",
+              i,j,k,wght,area(i),len_p1(i),len(i), e3(k,j+1,i),e3(k,j,i));
+            exit(0)
+          }
         }
 
         if (pmb->block_size.nx3 > 1) {
@@ -57,6 +75,11 @@ void Field::CT(const Real wght, FaceField &b_out) {
           for (int i=is; i<=ie+1; ++i) {
             b_out.x1f(k,j,i) +=
                 (wght/area(i))*(len_p1(i)*e2(k+1,j,i) - len(i)*e2(k,j,i));
+
+          if (check_nan(b_out.x1f(k,j,i)) || isnan_volatile(b_out.x1f(k,j,i))){
+            fprintf(stderr,"isnan in CT!  ijk: %d %d %d \n wgth: %g area: %g len_p1(i): %g len(i): %g \n e2 k+1: %g e2: %g \n",
+              i,j,k, wght,area(i),len_p1(i),len(i), e2(k+1,j,i),e2(k,j,i));
+          }
           }
         }
       }
