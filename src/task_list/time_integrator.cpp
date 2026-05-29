@@ -1689,7 +1689,7 @@ TaskStatus TimeIntegratorTaskList::IntegrateField(MeshBlock *pmb, int stage) {
 
       pf->CT(stage_wghts[stage-1].beta*pmb->pmy_mesh->dt, pf->b);
 
-      // bool dummy_bool = false;
+      bool dummy_bool = false;
       if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After IntegrateField in b");
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After IntegrateField in b1");
 
