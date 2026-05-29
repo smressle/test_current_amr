@@ -847,8 +847,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
           }
         } else {
           // unpack e2
-          for (int k=pmb->ks; k<=pmb->ke+1; k++) {
-            for (int j=pmb->js; j<=pmb->je; j++)
+          for (int k=pmb->ks; k<=pmb->ke+1; k++) 
+            for (int j=pmb->js; j<=pmb->je; j++){
               e2(k,j,i) += buf[p++];
 
            if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
@@ -858,8 +858,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
            }
           }
           // unpack e3
-          for (int k=pmb->ks; k<=pmb->ke; k++) {
-            for (int j=pmb->js; j<=pmb->je+1; j++)
+          for (int k=pmb->ks; k<=pmb->ke; k++) 
+            for (int j=pmb->js; j<=pmb->je+1; j++){
               e3(k,j,i) += buf[p++];
               if ( pmb->pfield->check_nan(e3(k,j,i)) || pmb->pfield->isnan_volatile(e3(k,j,i))){
               fprintf(stderr, "isnan in setboudnarysamelevel. Neighbor Face x1 ijk: %d %d %d\n e3: %g buf: %g \n",
@@ -878,8 +878,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
         }
         // unpack e1
         Real sign = (nb.polar && flip_across_pole_field[IB1]) ? -1.0 : 1.0;
-        for (int k=pmb->ks; k<=pmb->ke+1; k++) {
-          for (int i=pmb->is; i<=pmb->ie; i++)
+        for (int k=pmb->ks; k<=pmb->ke+1; k++) 
+          for (int i=pmb->is; i<=pmb->ie; i++){
             e1(k,j,i) += sign*buf[p++];
             if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
               fprintf(stderr, "isnan in setboudnarysamelevel. Neighbor Face x2 ijk: %d %d %d\n e1: %g buf: %g \n",
@@ -889,8 +889,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
         }
         // unpack e3
         sign = (nb.polar && flip_across_pole_field[IB3]) ? -1.0 : 1.0;
-        for (int k=pmb->ks; k<=pmb->ke; k++) {
-          for (int i=pmb->is; i<=pmb->ie+1; i++)
+        for (int k=pmb->ks; k<=pmb->ke; k++) 
+          for (int i=pmb->is; i<=pmb->ie+1; i++){
             e3(k,j,i) += sign*buf[p++];
             if ( pmb->pfield->check_nan(e3(k,j,i)) || pmb->pfield->isnan_volatile(e3(k,j,i))){
               fprintf(stderr, "isnan in setboudnarysamelevel. Neighbor Face x1 ijk: %d %d %d\n e3: %g buf: %g \n",
@@ -907,8 +907,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
           k = pmb->ke + 1;
         }
         // unpack e1
-        for (int j=pmb->js; j<=pmb->je+1; j++) {
-          for (int i=pmb->is; i<=pmb->ie; i++)
+        for (int j=pmb->js; j<=pmb->je+1; j++) 
+          for (int i=pmb->is; i<=pmb->ie; i++){
             e1(k,j,i) += buf[p++];
 
             if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
@@ -918,8 +918,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundarySameLevel(Real *buf,
            }
         }
         // unpack e2
-        for (int j=pmb->js; j<=pmb->je; j++) {
-          for (int i=pmb->is; i<=pmb->ie+1; i++)
+        for (int j=pmb->js; j<=pmb->je; j++) 
+          for (int i=pmb->is; i<=pmb->ie+1; i++) {
             e2(k,j,i) += buf[p++];
             if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
               fprintf(stderr, "isnan in setboudnarysamelevel. Neighbor Face x3 ijk: %d %d %d\n e2: %g buf: %g \n",
@@ -1135,8 +1135,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
           kl = pmb->ks + pmb->block_size.nx3/2;
         }
         // unpack e2
-        for (int k=kl; k<=ku+1; k++) {
-          for (int j=jl; j<=ju; j++)
+        for (int k=kl; k<=ku+1; k++) 
+          for (int j=jl; j<=ju; j++){
             e2(k,j,i) += buf[p++];
 
          if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
@@ -1146,8 +1146,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
          }
         }
         // unpack e3
-        for (int k=kl; k<=ku; k++) {
-          for (int j=jl; j<=ju+1; j++)
+        for (int k=kl; k<=ku; k++) 
+          for (int j=jl; j<=ju+1; j++) {
             e3(k,j,i) += buf[p++];
           if ( pmb->pfield->check_nan(e3(k,j,i)) || pmb->pfield->isnan_volatile(e3(k,j,i))){
           fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor face x1 ijk: %d %d %d\n e3: %g buf: %g \n",
@@ -1175,8 +1175,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
         }
         // unpack e1
         Real sign = (nb.polar && flip_across_pole_field[IB1]) ? -1.0 : 1.0;
-        for (int k=kl; k<=ku+1; k++) {
-          for (int i=il; i<=iu; i++)
+        for (int k=kl; k<=ku+1; k++) 
+          for (int i=il; i<=iu; i++){
             e1(k,j,i) += sign*buf[p++];
             if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
               fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor face x2 ijk: %d %d %d\n e1: %g buf: %g \n",
@@ -1186,8 +1186,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
         }
         // unpack e3
         sign = (nb.polar && flip_across_pole_field[IB3]) ? -1.0 : 1.0;
-        for (int k=kl; k<=ku; k++) {
-          for (int i=il; i<=iu+1; i++)
+        for (int k=kl; k<=ku; k++) 
+          for (int i=il; i<=iu+1; i++){
             e3(k,j,i) += sign*buf[p++];
             if ( pmb->pfield->check_nan(e3(k,j,i)) || pmb->pfield->isnan_volatile(e3(k,j,i))){
               fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor face x2 ijk: %d %d %d\n e3: %g buf: %g \n",
@@ -1214,8 +1214,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
           jl = pmb->js + pmb->block_size.nx2/2;
         }
         // unpack e1
-        for (int j=jl; j<=ju+1; j++) {
-          for (int i=il; i<=iu; i++)
+        for (int j=jl; j<=ju+1; j++) 
+          for (int i=il; i<=iu; i++){
             e1(k,j,i) += buf[p++];
             if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
               fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor face x3 ijk: %d %d %d\n e1: %g buf: %g \n",
@@ -1224,8 +1224,8 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
            }
         }
         // unpack e2
-        for (int j=jl; j<=ju; j++) {
-          for (int i=il; i<=iu+1; i++)
+        for (int j=jl; j<=ju; j++) 
+          for (int i=il; i<=iu+1; i++){
             e2(k,j,i) += buf[p++];
             if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
               fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor face x3 ijk: %d %d %d\n e2: %g buf: %g \n",
