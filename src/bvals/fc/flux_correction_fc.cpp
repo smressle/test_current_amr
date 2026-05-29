@@ -1315,7 +1315,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
         }
         // unpack e3
         Real sign = (nb.polar && flip_across_pole_field[IB3]) ? -1.0 : 1.0;
-        for (int k = kl; k<=ku; k++)
+        for (int k = kl; k<=ku; k++){
           e3(k,j,i) += sign*buf[p++];
 
           if ( pmb->pfield->check_nan(e3(k,j,i)) || pmb->pfield->isnan_volatile(e3(k,j,i))){
@@ -1323,6 +1323,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
               i,j,k,e3(k,j,i), buf[p-1]);
               exit(0);
            }
+         }
         // x1x3 edge
       } else if (nb.eid>=4 && nb.eid<8) {
         int i, k, jl = pmb->js, ju = pmb->je;
@@ -1342,7 +1343,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
           jl = pmb->js + pmb->block_size.nx2/2;
         }
         // unpack e2
-        for (int j=jl; j<=ju; j++)
+        for (int j=jl; j<=ju; j++){
           e2(k,j,i) += buf[p++];
 
           if ( pmb->pfield->check_nan(e2(k,j,i)) || pmb->pfield->isnan_volatile(e2(k,j,i))){
@@ -1350,6 +1351,7 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
               i,j,k,e2(k,j,i), buf[p-1]);
               exit(0);
            }
+         }
         // x2x3 edge
       } else if (nb.eid>=8 && nb.eid<12) {
         int j, k, il = pmb->is, iu = pmb->ie;
@@ -1370,13 +1372,15 @@ void FaceCenteredBoundaryVariable::SetFluxBoundaryFromFiner(Real *buf,
         }
         // unpack e1
         Real sign = (nb.polar && flip_across_pole_field[IB1]) ? -1.0 : 1.0;
-        for (int i=il; i<=iu; i++)
+        for (int i=il; i<=iu; i++){
           e1(k,j,i) += sign*buf[p++];
+        
         if ( pmb->pfield->check_nan(e1(k,j,i)) || pmb->pfield->isnan_volatile(e1(k,j,i))){
               fprintf(stderr, "isnan in setboudnaryfrom finer. Neighbor edge x2x3 ijk: %d %d %d\n e1: %g buf: %g \n",
               i,j,k,e1(k,j,i), buf[p-1]);
               exit(0);
            }
+        }
       }
     } else if (pmb->block_size.nx2 > 1) { // 2D
       int i, j, k = pmb->ks;
