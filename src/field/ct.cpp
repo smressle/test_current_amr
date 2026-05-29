@@ -64,7 +64,7 @@ void Field::CT(const Real wght, FaceField &b_out) {
           if (check_nan(b_out.x1f(k,j,i)) || isnan_volatile(b_out.x1f(k,j,i))){
             fprintf(stderr,"isnan in CT!  ijk: %d %d %d \n wgth: %g area: %g len_p1(i): %g len(i): %g \n e3 j+1: %g e3: %g \n",
               i,j,k,wght,area(i),len_p1(i),len(i), e3(k,j+1,i),e3(k,j,i));
-            exit(0)
+            exit(0);
           }
         }
 
@@ -79,6 +79,7 @@ void Field::CT(const Real wght, FaceField &b_out) {
           if (check_nan(b_out.x1f(k,j,i)) || isnan_volatile(b_out.x1f(k,j,i))){
             fprintf(stderr,"isnan in CT!  ijk: %d %d %d \n wgth: %g area: %g len_p1(i): %g len(i): %g \n e2 k+1: %g e2: %g \n",
               i,j,k, wght,area(i),len_p1(i),len(i), e2(k+1,j,i),e2(k,j,i));
+            exit(0);
           }
           }
         }
