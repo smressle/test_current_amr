@@ -349,14 +349,14 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
           int cj = (j-js)/2 + pmb->cjs;
           int ck = (k-ks)/2 + pmb->cks;
 
-        if (std::fabs(pcc->x1v(ci)+190.0)<0.2 && std::fabs(pcc->x2v(cj)+190.0)<0.2 &&  std::fabs(pcc->x3f(ck)-24.0)<0.2 && i==4 && j==4 && k==4){
-          fprintf(stderr, "B above interface at %s ijk: %d %d %d B: %g \n xyz coarse : %g %g %g \n xyz fine: %g %g %g \n gid: %d\n", code_location.c_str(),i,j,k,b.x3f(k,j,i),
-            pcc->x1v(ci),pcc->x2v(cj),pcc->x3f(ck),pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k+1), pmb->gid);
-        }   
-        if (std::fabs(pcc->x1v(i)+190.0)<0.2 && std::fabs(pcc->x2v(cj)+190.0)<0.2 &&  std::fabs(pcc->x3f(ck+1)-24.0)<0.2 && i==4 && j==4 && k==11){
-          fprintf(stderr, "B below interface at %s ijk: %d %d %d B %g\n xyz coarse : %g %g %g \n xyz fine: %g %g %g \n gid: %d \n", code_location.c_str(),i,j,k+1,b.x3f(k+1,j,i),
-            pcc->x1v(ci),pcc->x2v(cj),pcc->x3f(ck+1), pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k+1), pmb->gid);
-        }  //zm 20 zp: 24)
+        // if (std::fabs(pcc->x1v(ci)+190.0)<0.2 && std::fabs(pcc->x2v(cj)+190.0)<0.2 &&  std::fabs(pcc->x3f(ck)-24.0)<0.2 && i==4 && j==4 && k==4){
+        //   fprintf(stderr, "B above interface at %s ijk: %d %d %d B: %g \n xyz coarse : %g %g %g \n xyz fine: %g %g %g \n gid: %d\n", code_location.c_str(),i,j,k,b.x3f(k,j,i),
+        //     pcc->x1v(ci),pcc->x2v(cj),pcc->x3f(ck),pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k+1), pmb->gid);
+        // }   
+        // if (std::fabs(pcc->x1v(i)+190.0)<0.2 && std::fabs(pcc->x2v(cj)+190.0)<0.2 &&  std::fabs(pcc->x3f(ck+1)-24.0)<0.2 && i==4 && j==4 && k==11){
+        //   fprintf(stderr, "B below interface at %s ijk: %d %d %d B %g\n xyz coarse : %g %g %g \n xyz fine: %g %g %g \n gid: %d \n", code_location.c_str(),i,j,k+1,b.x3f(k+1,j,i),
+        //     pcc->x1v(ci),pcc->x2v(cj),pcc->x3f(ck+1), pmb->pcoord->x1v(i), pmb->pcoord->x2v(j), pmb->pcoord->x3f(k+1), pmb->gid);
+        // }  //zm 20 zp: 24)
 
         Real machine_precision = 1e-11; //static_cast<Real>(std::numeric_limits<Real>::epsilon());
         if (std::fabs(divb)>machine_precision || !(std::fabs(divb)<machine_precision)) {
