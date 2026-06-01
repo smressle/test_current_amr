@@ -299,8 +299,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     }
 
 
-    if (pmb->pfield->isnan_volatile(flux_hll[IBY]) || pmb->pfield->check_nan(flux_hll[IBY]) ||
-          pmb->pfield->isnan_volatile(flux_hll[IBZ]) || pmb->pfield->check_nan(flux_hll[IBZ]) ) {
+    if (pmy_block->pfield->isnan_volatile(flux_hll[IBY]) || pmy_block->pfield->check_nan(flux_hll[IBY]) ||
+          pmy_block->pfield->isnan_volatile(flux_hll[IBZ]) || pmy_block->pfield->check_nan(flux_hll[IBZ]) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in flu_hll!  %d %d %d \n lambda_r: %g lambda_l: %g lambda_diff: %g \n cons_r: %g %g cons_l: %g %g  \n flux_l: %g %g flux_r: %g %g \n cons_hll: %g %g \n",
           i,j,k, lambda_r,lambda_l, lambda_r-lambda_l,
           cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY], cons_hll[IBY],cons_hll[IBZ]);
@@ -324,8 +324,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     ey(k,j,i) = -flux_interface[IBY];
     ez(k,j,i) = flux_interface[IBZ];
 
-    if (pmb->pfield->isnan_volatile(ey(k,j,i)) || pmb->pfield->check_nan(ey(k,j,i)) ||
-          pmb->pfield->isnan_volatile(ez(k,j,i)) || pmb->pfield->check_nan(ez(k,j,i)) ) {
+    if (pmy_block->pfield->isnan_volatile(ey(k,j,i)) || pmy_block->pfield->check_nan(ey(k,j,i)) ||
+          pmy_block->pfield->isnan_volatile(ez(k,j,i)) || pmy_block->pfield->check_nan(ez(k,j,i)) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g \n",
           i,j,k, lambda_r,lambda_l);
         exit(0);
