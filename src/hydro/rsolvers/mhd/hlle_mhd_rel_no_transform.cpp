@@ -298,6 +298,15 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
                      + lambda_r*lambda_l * (cons_r[n] - cons_l[n])) / (lambda_r-lambda_l);
     }
 
+
+    if (pmb->pfield->isnan_volatile(flux_hll[IBY]) || pmb->pfield->check_nan(flux_hll[IBY]) ||
+          pmb->pfield->isnan_volatile(flux_hll[IBZ]) || pmb->pfield->check_nan(flux_hll[IBZ]) ) {
+        fprintf(stderr,"isnan hlle_mhd_rel in flu_hll!  %d %d %d \n lambda_r: %g lambda_l: %g lambda_diff: %g \n cons_r: %g %g cons_l: %g %g  \n flux_l: %g %g flux_r: %g %g \n cons_hll: %g %g \n",
+          i,j,k, lambda_r,lambda_l, lambda_r-lambda_l,
+          cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY], cons_hll[IBY],cons_hll[IBZ]);
+      } 
+
+
     // Determine region of wavefan
     Real *flux_interface;
     if (lambda_l >= 0.0) {  // L region
@@ -314,6 +323,13 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     }
     ey(k,j,i) = -flux_interface[IBY];
     ez(k,j,i) = flux_interface[IBZ];
+
+    if (pmb->pfield->isnan_volatile(ey(k,j,i)) || pmb->pfield->check_nan(ey(k,j,i)) ||
+          pmb->pfield->isnan_volatile(ez(k,j,i)) || pmb->pfield->check_nan(ez(k,j,i)) ) {
+        fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g v_interface: %g \n\n",
+          i,j,k, lambda_r,lambda_l, v_interface);
+        exit(0);
+      } 
 
     wct(k,j,i) =
         GetWeightForCT(flux_interface[IDN], prim_l(IDN,i), prim_r(IDN,i), dxw(i), dt);
