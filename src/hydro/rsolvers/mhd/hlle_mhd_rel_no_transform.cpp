@@ -326,8 +326,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
 
     if (pmb->pfield->isnan_volatile(ey(k,j,i)) || pmb->pfield->check_nan(ey(k,j,i)) ||
           pmb->pfield->isnan_volatile(ez(k,j,i)) || pmb->pfield->check_nan(ez(k,j,i)) ) {
-        fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g v_interface: %g \n\n",
-          i,j,k, lambda_r,lambda_l, v_interface);
+        fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g \n",
+          i,j,k, lambda_r,lambda_l);
         exit(0);
       } 
 
