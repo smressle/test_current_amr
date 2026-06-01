@@ -33,6 +33,17 @@
 #include "../eos/eos.hpp"
 #include "reconstruction.hpp"
 
+
+    #pragma GCC optimize("no-finite-math-only")
+  bool check_isnan(float x) {
+      return std::isnan(x);
+  }
+
+  bool isnan_vol(float x) {
+      volatile float v = x;
+      return v != v;   // NaN is the only value not equal to itself
+  }
+
 //----------------------------------------------------------------------------------------
 //! \fn Reconstruction::PiecewiseParabolicX1(const int k, const int j,
 //!                              const int il, const int iu,
@@ -321,6 +332,14 @@ void Reconstruction::PiecewiseParabolicX1(
     for (int i=il; i<=iu; ++i) {
       wl(n,i+1) = ql_iph(n,i);
       wr(n,i  ) = qr_imh(n,i);
+
+      if (check_isnan(wl(n,i+1)) || isnan_vol(wr(n,i)) ){
+        fprintf(stderr,"isnan in ppm x1!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n By: %g %g %g %g \n Bz: %g %g %g %g \n",
+          n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
+          bcc(IB2,k,j,i-2),bcc(IB2,k,j,i-1),bcc(IB2,k,j,i+1),bcc(IB2,k,j,i+2),
+          bcc(IB3,k,j,i-2),bcc(IB3,k,j,i-1),bcc(IB3,k,j,i+1),bcc(IB3,k,j,i+2) );
+        exit(0);
+      }
     }
   }
 #pragma omp simd
@@ -620,6 +639,14 @@ void Reconstruction::PiecewiseParabolicX2(
     for (int i=il; i<=iu; ++i) {
       wl(n,i) = ql_jph(n,i);
       wr(n,i) = qr_jmh(n,i);
+
+      if (check_isnan(wl(n,i)) || isnan_vol(wr(n,i)) ){
+        fprintf(stderr,"isnan in ppm x2!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n Bx: %g %g %g %g \n Bz: %g %g %g %g \n",
+          n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
+          bcc(IB1,k,j-2,i),bcc(IB1,k,j-1,i),bcc(IB1,k,j+1,i),bcc(IB1,k,j+2,i),
+          bcc(IB3,k,j-2,i),bcc(IB3,k,j-1,i),bcc(IB3,k,j+1,i),bcc(IB3,k,j+2,i) );
+        exit(0);
+      }
     }
   }
 #pragma omp simd
@@ -911,6 +938,15 @@ void Reconstruction::PiecewiseParabolicX3(
     for (int i=il; i<=iu; ++i) {
       wl(n,i) = ql_kph(n,i);
       wr(n,i) = qr_kmh(n,i);
+
+
+      if (check_isnan(wl(n,i)) || isnan_vol(wr(n,i)) ){
+        fprintf(stderr,"isnan in ppm x3!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n Bx: %g %g %g %g \n By: %g %g %g %g \n",
+          n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
+          bcc(IB1,k-2,j,i),bcc(IB1,k-1,j,i),bcc(IB1,k+1,j,i),bcc(IB1,k+2,j,i),
+          bcc(IB2,k-2,j,i),bcc(IB2,k-1,j,i),bcc(IB2,k+1,j,i),bcc(IB2,k+2,j,i) );
+        exit(0);
+      }
     }
   }
 #pragma omp simd
