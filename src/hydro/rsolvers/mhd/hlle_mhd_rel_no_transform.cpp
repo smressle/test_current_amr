@@ -19,6 +19,8 @@
 #include "../../../eos/eos.hpp"                  // EquationOfState
 #include "../../../mesh/mesh.hpp"                // MeshBlock
 #include "../../hydro.hpp"
+#include "../../field.hpp"
+
 
 //----------------------------------------------------------------------------------------
 // Riemann solver
