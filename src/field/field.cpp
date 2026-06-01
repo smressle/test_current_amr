@@ -393,6 +393,37 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
   face2m.DeleteAthenaArray();
   face3p.DeleteAthenaArray();
   face3m.DeleteAthenaArray();
+
+  int il = is - NGHOST;
+  int iu = ie + NGHOST;
+  int jl = js;
+  int ju = je;
+  if (block_size.nx2 > 1) {
+    jl -= (NGHOST);
+    ju += (NGHOST);
+  }
+  int kl = ks;
+  int ku = ke;
+  if (block_size.nx3 > 1) {
+    kl -= (NGHOST);
+    ku += (NGHOST);
+  }
+
+
+  for(int k=kl; k<=ku; k++) {
+    for(int j=jl; j<=ju; j++) {
+      for(int i=il; i<=iu; i++) {
+
+        Real b_var = b.x1f(k,j,i) + b.x1f(k,j,i+1) + b.x2f(k,j,i) + b.x2f(k,j+1,i) + b.x3f(k,j,i) + b.x3f(k+1,j,i);
+
+        if (isnan_volatile(b_var) || check_nan(b_var)){
+          fprintf(stderr, "NAN b in %s \n ijk: %d %d %d \n bx1: %g %g bx2: %g %g bx3: %g %g\n",code_location.c_str(), i,j,k,
+            b.x1f(k,j,i),b.x1f(k,j,i+1),b.x2f(k,j,i),b.x2f(k,j+1,i),b.x3f(k,j,i),b.x3f(k+1,j,i) )
+        }
+      }
+    }
+  }
+
   return bad_divergence;
 }
 
