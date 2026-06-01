@@ -303,9 +303,11 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
 
     if (pmy_block->pfield->isnan_volatile(flux_hll[IBY]) || pmy_block->pfield->check_nan(flux_hll[IBY]) ||
           pmy_block->pfield->isnan_volatile(flux_hll[IBZ]) || pmy_block->pfield->check_nan(flux_hll[IBZ]) ) {
-        fprintf(stderr,"isnan hlle_mhd_rel in flu_hll!  %d %d %d \n lambda_r: %g lambda_l: %g lambda_diff: %g \n cons_r: %g %g cons_l: %g %g  \n flux_l: %g %g flux_r: %g %g  \n",
+        fprintf(stderr,"isnan hlle_mhd_rel in flu_hll!  %d %d %d \n lambda_r: %g lambda_l: %g lambda_diff: %g \n cons_r: %g %g cons_l: %g %g  \n flux_l: %g %g flux_r: %g %g  \n bcon_r: %g %g bcon_l: %g %g \n ucon_r: %g %g ucon_l: %g %g \n",
           i,j,k, lambda_r,lambda_l, lambda_r-lambda_l,
-          cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY]);
+          cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY],
+          bcon_r[ivy], bcon_r[ivz], bcon_l[ivy],bcon_l[ivz],
+          ucon_r[ivy], ucon_r[ivz], ucon_l[ivy],ucon_l[ivz]);
       } 
 
 
