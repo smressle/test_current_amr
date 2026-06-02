@@ -339,7 +339,7 @@ void Reconstruction::PiecewiseParabolicX1(
           bcc(IB2,k,j,i-2),bcc(IB2,k,j,i-1),bcc(IB2,k,j,i+1),bcc(IB2,k,j,i+2),
           bcc(IB3,k,j,i-2),bcc(IB3,k,j,i-1),bcc(IB3,k,j,i+1),bcc(IB3,k,j,i+2));
         for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
-          pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3]);
+          pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
     }
@@ -647,6 +647,8 @@ void Reconstruction::PiecewiseParabolicX2(
           n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
           bcc(IB1,k,j-2,i),bcc(IB1,k,j-1,i),bcc(IB1,k,j+1,i),bcc(IB1,k,j+2,i),
           bcc(IB3,k,j-2,i),bcc(IB3,k,j-1,i),bcc(IB3,k,j+1,i),bcc(IB3,k,j+2,i) );
+      for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+          pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
     }
@@ -947,6 +949,8 @@ void Reconstruction::PiecewiseParabolicX3(
           n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
           bcc(IB1,k-2,j,i),bcc(IB1,k-1,j,i),bcc(IB1,k+1,j,i),bcc(IB1,k+2,j,i),
           bcc(IB2,k-2,j,i),bcc(IB2,k-1,j,i),bcc(IB2,k+1,j,i),bcc(IB2,k+2,j,i) );
+        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+          pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
     }

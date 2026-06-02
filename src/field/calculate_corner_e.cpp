@@ -222,7 +222,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e1: %g de1_l3: %g de1_r3: %g de1_l2: %g de1_r2: %g e1_x2f(k-1): %g e1_x2f: %g e1_x3f(j-1): %g e1_x3f: %g \n",
               i,j,k,e1(k,j,i), de1_l3, de1_r3, de1_l2, de1_r2, e1_x2f(k-1,j,i),e1_x2f(k,j,i),e1_x3f(k,j-1,i),e1_x3f(k,j,i) );
             for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
-              pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3]);
+              pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
 
@@ -243,6 +243,8 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
 
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e2: %g de2_l3: %g de2_r3: %g de2_l1: %g de2_r1: %g e2_x3f(i-1): %g e2_x3f: %g e2_x1f(k-1): %g e2_x1f: %g \n",
               i,j,k,e2(k,j,i), de2_l3 ,de2_r3 , de2_l1 , de2_r1 , e2_x3f(k,j,i-1),e2_x3f(k,j,i) , e2_x1f(k-1,j,i) , e2_x1f(k,j,i));
+            for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+              pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
 
@@ -265,7 +267,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e3: %g de3_l3: %g de3_r3: %g de3_l1: %g de3_r1: %g e3_x3f(i-1): %g e3_x3f: %g e3_x1f(k-1): %g e3_x1f: %g \n",
               i,j,k,e3(k,j,i), de3_l1 , de3_r1 , de3_l2 , de3_r2 , e3_x2f(k,j,i-1) , e3_x2f(k,j,i) , e3_x1f(k,j-1,i) , e3_x1f(k,j,i));
           for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3) fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
-          pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3]);
+          pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
         }

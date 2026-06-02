@@ -308,6 +308,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
           cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY],
           bcon_r[ivy], bcon_r[ivz], bcon_l[ivy],bcon_l[ivz],
           ucon_r[ivy], ucon_r[ivz], ucon_l[ivy],ucon_l[ivz]);
+        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+          pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
       } 
 
 
@@ -332,6 +334,8 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
           pmy_block->pfield->isnan_volatile(ez(k,j,i)) || pmy_block->pfield->check_nan(ez(k,j,i)) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g \n",
           i,j,k, lambda_r,lambda_l);
+        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+          pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       } 
 

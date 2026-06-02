@@ -421,7 +421,7 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
             b.x1f(k,j,i),b.x1f(k,j,i+1),b.x2f(k,j,i),b.x2f(k,j+1,i),b.x3f(k,j,i),b.x3f(k+1,j,i) );
 
           for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
-          pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3]);
+          pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
           exit(0);
         }
       }
