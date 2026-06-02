@@ -252,7 +252,7 @@ void MeshRefinement::RestrictFieldX1(
                )/tarea;
 
 
-          if ( pmb->pfield->check_nan(course(ck,cj,ci)) || pmb->pfield->isnan_volatile(couse(ck,cj,ci)) ){
+          if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x1! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j+1,i),fine(k+1  ,j,i),fine(k+1  ,j+1,i),
@@ -337,7 +337,7 @@ void MeshRefinement::RestrictFieldX2(
                +fine(k+1,j,i)*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1))
               /tarea;
 
-          if ( pmb->pfield->check_nan(course(ck,cj,ci)) || pmb->pfield->isnan_volatile(couse(ck,cj,ci)) ){
+          if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x2! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j,i+1),fine(k+1  ,j,i),fine(k+1  ,j,i+1),
@@ -426,7 +426,7 @@ void MeshRefinement::RestrictFieldX3(
                ) /tarea;
 
 
-          if ( pmb->pfield->check_nan(course(ck,cj,ci)) || pmb->pfield->isnan_volatile(couse(ck,cj,ci)) ){
+          if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x3! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j,i+1),fine(k  ,j+1,i),fine(k  ,j+1,i+1),
@@ -726,6 +726,7 @@ void MeshRefinement::ProlongateSharedFieldX1(
                                   (ccval - gx2c*(x2c - fx2m) + gx3c*(fx3p - x3c) );
             fine(fk+1,fj+1,fi) = 0.25*csarea_x1_(i)/sarea_x1_[1][1](fi) * 
                                   (ccval + gx2c*(fx2p - x2c) + gx3c*(fx3p - x3c) );
+
 
 
 
