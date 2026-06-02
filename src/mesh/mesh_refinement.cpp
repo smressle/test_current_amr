@@ -733,15 +733,14 @@ void MeshRefinement::ProlongateSharedFieldX1(
                  pmb->pfield->check_nan(fine(fk+1,fj,fi))   || pmb->pfield->isnan_volatile(fine(fk+1,fj,fi))  ||
                  pmb->pfield->check_nan(fine(fk+1,fj+1,fi)) || pmb->pfield->isnan_volatile(fine(fk+1,fj+1,fi))  ){
 
-              fprintf(stderr,"isnan in ProlongateSharedFieldX1! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx2m: %g dx2p: %g dx3m: %g dx3p: %g \n ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
+              fprintf(stderr,"isnan in ProlongateSharedFieldX1! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx2m: %g dx2p: %g dx3m: %g dx3p: %g \n filimits: %d %d ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
                 fi, fj, fk, i, j, k,
                 fine(fk  ,fj,  fi), fine(fk  ,fj+1,  fi), fine(fk+1  ,fj,  fi), fine(fk+1  ,fj+1,  fi),
                sarea_x1_[0][0](fi), sarea_x1_[0][1](fi), sarea_x1_[1][0](fi), sarea_x1_[1][1](fi),
                csarea_x1_(i),
                coarse(k,j,i), coarse(k-1,j,i), coarse(k,j-1,i), coarse(k+1,j,i), coarse(k,j+1,i),
                dx2m, dx2p, dx3m, dx3p,
-               si, ei, sj, ej, sk, ek,
-               );
+               fsi,fei, si, ei, sj, ej, sk, ek);
               exit(0);
             }
 
@@ -877,15 +876,14 @@ void MeshRefinement::ProlongateSharedFieldX2(
                  pmb->pfield->check_nan(fine(fk+1,fj,fi))   || pmb->pfield->isnan_volatile(fine(fk+1,fj,fi))  ||
                  pmb->pfield->check_nan(fine(fk+1,fj,fi+1)) || pmb->pfield->isnan_volatile(fine(fk+1,fj,fi+1))  ){
 
-              fprintf(stderr,"isnan in ProlongateSharedFieldX2! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx1m: %g dx1p: %g dx3m: %g dx3p: %g \n ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
+              fprintf(stderr,"isnan in ProlongateSharedFieldX2! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx1m: %g dx1p: %g dx3m: %g dx3p: %g \n filimits: %d %d ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
                 fi, fj, fk, i, j, k,
                 fine(fk  ,fj,  fi), fine(fk  ,fj,  fi+1), fine(fk+1  ,fj,  fi), fine(fk+1  ,fj,  fi+1),
                sarea_x1_[0][0](fi), sarea_x1_[0][0](fi+1), sarea_x1_[1][0](fi), sarea_x1_[1][0](fi+1),
                csarea_x2_(i),
                coarse(k,j,i), coarse(k-1,j,i), coarse(k,j,i-1), coarse(k+1,j,i), coarse(k,j,i+1),
                dx1m, dx1p, dx3m, dx3p,
-               si, ei, sj, ej, sk, ek,
-               );
+               fsi,fei,si, ei, sj, ej, sk, ek);
               exit(0);
             }
 
@@ -1037,15 +1035,14 @@ void MeshRefinement::ProlongateSharedFieldX3(
                  pmb->pfield->check_nan(fine(fk,fj+1,fi))   || pmb->pfield->isnan_volatile(fine(fk,fj+1,fi))  ||
                  pmb->pfield->check_nan(fine(fk,fj+1,fi+1)) || pmb->pfield->isnan_volatile(fine(fk,fj+1,fi+1))  ){
 
-              fprintf(stderr,"isnan in ProlongateSharedFieldX3! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx1m: %g dx1p: %g dx2m: %g dx2p: %g \n ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
+              fprintf(stderr,"isnan in ProlongateSharedFieldX3! fi fj fk: %d %d %d i j k : %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n csarea: %g \n coarse: %g %g %g %g %g \n dx1m: %g dx1p: %g dx2m: %g dx2p: %g \n filimits: %d %d ilimits: %d %d jlimits: %d %d klimits: %d %d \n",
                 fi, fj, fk, i, j, k,
                 fine(fk  ,fj,  fi), fine(fk  ,fj,  fi+1), fine(fk  ,fj+1,  fi), fine(fk  ,fj+1,  fi+1),
                sarea_x1_[0][0](fi), sarea_x1_[0][0](fi+1), sarea_x1_[0][1](fi), sarea_x1_[0][1](fi+1),
                csarea_x3_(i),
                coarse(k,j,i), coarse(k,j-1,i), coarse(k,j,i-1), coarse(k,j+1,i), coarse(k,j,i+1),
                dx1m, dx1p, dx2m, dx2p,
-               si, ei, sj, ej, sk, ek,
-               );
+               fsi,fei, si, ei, sj, ej, sk, ek);
               exit(0);
             }
 
