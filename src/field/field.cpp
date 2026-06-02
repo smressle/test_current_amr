@@ -419,6 +419,9 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
         if (isnan_volatile(b_var) || check_nan(b_var)){
           fprintf(stderr, "NAN b in %s \n ijk: %d %d %d \n bx1: %g %g bx2: %g %g bx3: %g %g\n",code_location.c_str(), i,j,k,
             b.x1f(k,j,i),b.x1f(k,j,i+1),b.x2f(k,j,i),b.x2f(k,j+1,i),b.x3f(k,j,i),b.x3f(k+1,j,i) );
+
+          for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+          pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3]);
           exit(0);
         }
       }
