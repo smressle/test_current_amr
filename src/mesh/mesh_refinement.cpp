@@ -254,7 +254,7 @@ void MeshRefinement::RestrictFieldX1(
 
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
-            fprintf(stderr,"isnan in Restrict Field x1! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
+            fprintf(stderr,"isnan in Restrict Field x1! ci cj ck: %d %d %d i j k  %d %d %d \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j+1,i),fine(k+1  ,j,i),fine(k+1  ,j+1,i),
                sarea_x1_[0][0](i), sarea_x1_[0][1](i), sarea_x1_[1][0](i), sarea_x1_[1][1](i),
                tarea, si,ei, csi,cei,csj,cej,csk,cek);
@@ -339,7 +339,7 @@ void MeshRefinement::RestrictFieldX2(
 
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
-            fprintf(stderr,"isnan in Restrict Field x2! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
+            fprintf(stderr,"isnan in Restrict Field x2! ci cj ck: %d %d %d i j k  %d %d %d \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j,i+1),fine(k+1  ,j,i),fine(k+1  ,j,i+1),
                sarea_x2_[0][0](i), sarea_x2_[0][0](i+1), sarea_x2_[1][0](i), sarea_x2_[1][0](i+1),
                tarea, si,ei, csi,cei,csj,cej,csk,cek);
@@ -428,7 +428,7 @@ void MeshRefinement::RestrictFieldX3(
 
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
-            fprintf(stderr,"isnan in Restrict Field x3! ci cj ck: %d %d %d i j k  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %g %g ck limits: %g %g \n",
+            fprintf(stderr,"isnan in Restrict Field x3! ci cj ck: %d %d %d i j k %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
               ci, cj, ck, i, j, k, fine(k  ,j,i), fine(k  ,j,i+1),fine(k  ,j+1,i),fine(k  ,j+1,i+1),
                sarea_x3_[0][0](i), sarea_x3_[0][0](i+1), sarea_x3_[0][1](i), sarea_x3_[0][1](i+1),
                tarea, si,ei, csi,cei,csj,cej,csk,cek);
