@@ -1260,19 +1260,20 @@ void MeshRefinement::ProlongateInternalField(
 
             for (int dj=0; dj<=1; ++dj){
               for (int dk=0; dk<=1; ++dk){
-                if ( pmb->pfield->isnan_volatile(fine.x1f(fk+dk,fj+dj,fi+1)) ||pmb->pfield->check_nan(fine.x1f(fk+dk,fj+dj,fi+1)) )
+                if ( pmb->pfield->isnan_volatile(fine.x1f(fk+dk,fj+dj,fi+1)) ||pmb->pfield->check_nan(fine.x1f(fk+dk,fj+dj,fi+1)) ){
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x1 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+1,fj+dj,fk+dk, 
                     sarea_x1_[0+dk][0+dj](fi  ), sarea_x1_[0+dk][0+dj](fi+1  ),sarea_x1_[0+dk][0+dj](fi+2  ),
                     fine.x1f(fk+dk,fj+dj,fi  ), fine.x1f(fk+dk,fj+dj,fi+1  ));
-                exit(0);
+                  exit(0);
+                }
               }
             }
           
             for (int di=0; di<=1; ++di){
               for (int dk=0; dk<=1; ++dk){
-                if ( pmb->pfield->isnan_volatile(fine.x2f(fk+dk,fj+1,fi+di)) ||pmb->pfield->check_nan(fine.x2f(fk+dk,fj+1,fi+di)) )
+                if ( pmb->pfield->isnan_volatile(fine.x2f(fk+dk,fj+1,fi+di)) ||pmb->pfield->check_nan(fine.x2f(fk+dk,fj+1,fi+di)) ){
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x2 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+di,fj+1,fk+dk, 
@@ -1280,17 +1281,19 @@ void MeshRefinement::ProlongateInternalField(
                     fine.x2f(fk+dk,fj,fi +di ), fine.x2f(fk+dk,fj+2,fi+di  ));
                 exit(0);
               }
+              }
             }
 
             for (int di=0; di<=1; ++di){
               for (int dj=0; dj<=1; ++dj){
-                if ( pmb->pfield->isnan_volatile(fine.x3f(fk+1,fj+di,fi+di)) ||pmb->pfield->check_nan(fine.x3f(fk+1,fj+dj,fi+di)) )
+                if ( pmb->pfield->isnan_volatile(fine.x3f(fk+1,fj+di,fi+di)) ||pmb->pfield->check_nan(fine.x3f(fk+1,fj+dj,fi+di)) ){
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x3 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+di,fj+dj,fk+1, 
                     sarea_x3_[0][0+dj](fi +di ), sarea_x3_[1][0+dj](fi+di  ),sarea_x3_[2][0+dj](fi+di  ),
                     fine.x3f(fk,fj+dj,fi +di ), fine.x3f(fk+2,fj+dj,fi+di  ));
                 exit(0);
+              }
               }
             }
 
