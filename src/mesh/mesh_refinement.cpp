@@ -1260,7 +1260,7 @@ void MeshRefinement::ProlongateInternalField(
 
             for (int dj=0; dj<=1; ++dj){
               for (int dk=0; dk<=1; ++dk){
-                if ( pmb->isnan_volatile(fine.x1f(fk+dk,fj+dj,fi+1)) ||pmb->check_nan(fine.x1f(fk+dk,fj+dj,fi+1)) )
+                if ( pmb->pfield->isnan_volatile(fine.x1f(fk+dk,fj+dj,fi+1)) ||pmb->pfield->check_nan(fine.x1f(fk+dk,fj+dj,fi+1)) )
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x1 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+1,fj+dj,fk+dk, 
@@ -1272,7 +1272,7 @@ void MeshRefinement::ProlongateInternalField(
           
             for (int di=0; di<=1; ++di){
               for (int dk=0; dk<=1; ++dk){
-                if ( pmb->isnan_volatile(fine.x2f(fk+dk,fj+1,fi+di)) ||pmb->check_nan(fine.x2f(fk+dk,fj+1,fi+di)) )
+                if ( pmb->pfield->isnan_volatile(fine.x2f(fk+dk,fj+1,fi+di)) ||pmb->pfield->check_nan(fine.x2f(fk+dk,fj+1,fi+di)) )
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x2 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+di,fj+1,fk+dk, 
@@ -1284,7 +1284,7 @@ void MeshRefinement::ProlongateInternalField(
 
             for (int di=0; di<=1; ++di){
               for (int dj=0; dj<=1; ++dj){
-                if ( pmb->isnan_volatile(fine.x3f(fk+1,fj+di,fi+di)) ||pmb->check_nan(fine.x3f(fk+1,fj+dj,fi+di)) )
+                if ( pmb->pfield->isnan_volatile(fine.x3f(fk+1,fj+di,fi+di)) ||pmb->pfield->check_nan(fine.x3f(fk+1,fj+dj,fi+di)) )
 
                   fprintf(stderr,"isnan in ProlongateInternalField! x3 \n fi fj fk: %d %d %d \n sarea: %g %g %g fine: %g %g \n", 
                     fi+di,fj+dj,fk+1, 
