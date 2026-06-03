@@ -216,6 +216,15 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
 
+
+    if (pmy_block->pfield->isnan_volatile(lambda_p_l) || pmy_block->pfield->check_nan(lambda_p_l) ||
+        pmy_block->pfield->isnan_volatile(lambda_m_l) || pmy_block->pfield->check_nan(lambda_m_l) ){
+
+      fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_l: %g lambda_m_l: %g  \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g\n",
+        i,j,k, lambda_p_l,lambda_m_l, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii);
+    exit(0);
+    }
+
     // Calculate wavespeeds in right state
     Real lambda_p_r, lambda_m_r;
     Real wgas_r = rho_r + gamma_adi/(gamma_adi-1.0) * pgas_r;
@@ -224,6 +233,14 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_r, pgas_r, ucon_r[0], ucon_r[ivx],
                                               b_sq_r, g00, g0i, gii,
                                               &lambda_p_r, &lambda_m_r);
+
+    if (pmy_block->pfield->isnan_volatile(lambda_p_r) || pmy_block->pfield->check_nan(lambda_p_r) ||
+        pmy_block->pfield->isnan_volatile(lambda_m_r) || pmy_block->pfield->check_nan(lambda_m_r) ){
+
+      fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_r: %g lambda_m_r: %g  \n wgas_r: %g pgas_r: %g ucon0 %g ucon_r: %g bsq_r: %g \n g00: %g g0i: %g gii: %g\n",
+        i,j,k, lambda_p_r,lambda_m_r, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii);
+    exit(0);
+    }
 
     // Calculate extremal wavespeeds
     Real lambda_l = std::min(lambda_m_l, lambda_m_r);
@@ -308,7 +325,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
           cons_r[IBY], cons_r[IBZ], cons_l[IBY], cons_r[IBZ], flux_l[IBY], flux_l[IBZ],flux_r[IBZ], flux_r[IBY],
           bcon_r[ivy], bcon_r[ivz], bcon_l[ivy],bcon_l[ivz],
           ucon_r[ivy], ucon_r[ivz], ucon_l[ivy],ucon_l[ivz]);
-        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %d neighbor: %d i1 i2 i3: %d %d %d \n ",
           pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
       } 
 
