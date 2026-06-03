@@ -212,6 +212,21 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real lambda_p_l, lambda_m_l;
     Real wgas_l = rho_l + gamma_adi/(gamma_adi-1.0) * pgas_l;
     Real wgas_without_rho_l = gamma_adi/(gamma_adi-1.0) * pgas_l;
+
+
+    if (pmy_block->pfield->isnan_volatile(wgas_l) || pmy_block->pfield->check_nan(wgas_l) ||
+        pmy_block->pfield->isnan_volatile(pgas_l) || pmy_block->pfield->check_nan(pgas_l) ||
+        pmy_block->pfield->isnan_volatile(ucon_l[0]) || pmy_block->pfield->check_nan(ucon_l[0]) ||
+        pmy_block->pfield->isnan_volatile(ucon_l[ivx]) || pmy_block->pfield->check_nan(ucon_l[ivx]) ||
+        pmy_block->pfield->isnan_volatile(b_sq_l) || pmy_block->pfield->check_nan(b_sq_l) ||
+        pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
+        pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
+        pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
+
+      fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
+        i,j,k, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii,gamma_adi);
+    exit(0);
+    }
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_l, pgas_l, ucon_l[0], ucon_l[ivx],
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
@@ -229,6 +244,20 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real lambda_p_r, lambda_m_r;
     Real wgas_r = rho_r + gamma_adi/(gamma_adi-1.0) * pgas_r;
     Real wgas_without_rho_r = gamma_adi/(gamma_adi-1.0) * pgas_r;
+
+    if (pmy_block->pfield->isnan_volatile(wgas_r) || pmy_block->pfield->check_nan(wgas_r) ||
+        pmy_block->pfield->isnan_volatile(pgas_r) || pmy_block->pfield->check_nan(pgas_r) ||
+        pmy_block->pfield->isnan_volatile(ucon_r[0]) || pmy_block->pfield->check_nan(ucon_r[0]) ||
+        pmy_block->pfield->isnan_volatile(ucon_r[ivx]) || pmy_block->pfield->check_nan(ucon_r[ivx]) ||
+        pmy_block->pfield->isnan_volatile(b_sq_r) || pmy_block->pfield->check_nan(b_sq_r) ||
+        pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
+        pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
+        pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
+
+      fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_r: %g pgas_r: %g ucon0 %g ucon_t: %g bsq_t: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
+        i,j,k, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii,gamma_adi);
+    exit(0);
+    }
 
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_r, pgas_r, ucon_r[0], ucon_r[ivx],
                                               b_sq_r, g00, g0i, gii,
