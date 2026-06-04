@@ -227,6 +227,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         i,j,k, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii,gamma_adi);
     exit(0);
     }
+    
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_l, pgas_l, ucon_l[0], ucon_l[ivx],
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
@@ -380,7 +381,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
           pmy_block->pfield->isnan_volatile(ez(k,j,i)) || pmy_block->pfield->check_nan(ez(k,j,i)) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g \n",
           i,j,k, lambda_r,lambda_l);
-        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %g neighbor: %d i1 i2 i3: %d %d %d \n ",
+        for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %d neighbor: %d i1 i2 i3: %d %d %d \n ",
           pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       } 

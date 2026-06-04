@@ -81,12 +81,12 @@ class Field {
 
 
     #pragma GCC optimize("no-finite-math-only")
-  bool check_nan(float x) {
+  bool check_nan(Real x) {
       return std::isnan(x);
   }
 
-  bool isnan_volatile(float x) {
-      volatile float v = x;
+  bool isnan_volatile(Real x) {
+      volatile Real v = x;
       return v != v;   // NaN is the only value not equal to itself
   }
 

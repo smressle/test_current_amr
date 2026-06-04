@@ -35,12 +35,12 @@
 
 
     #pragma GCC optimize("no-finite-math-only")
-  bool check_isnan(float x) {
+  bool check_isnan(Real x) {
       return std::isnan(x);
   }
 
-  bool isnan_vol(float x) {
-      volatile float v = x;
+  bool isnan_vol(Real x) {
+      volatile Real v = x;
       return v != v;   // NaN is the only value not equal to itself
   }
 
