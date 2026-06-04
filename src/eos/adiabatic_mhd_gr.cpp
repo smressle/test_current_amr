@@ -877,17 +877,17 @@ void EquationOfState::FastMagnetosonicSpeedsGR(Real wgas, Real pgas, Real u0, Re
   *p_lambda_minus = (a1 >= 0.0) ? (-a1 - s) / 2.0 : -2.0 * a0 / (a1 - s);
 
 
-  Real plamp = (a1 >= 0.0) ? -2.0 * a0 / (a1 + s) : (-a1 + s) / 2.0;
-  Real plamm = (a1 >= 0.0) ? (-a1 - s) / 2.0 : -2.0 * a0 / (a1 - s);
+  // Real plamp = (a1 >= 0.0) ? -2.0 * a0 / (a1 + s) : (-a1 + s) / 2.0;
+  // Real plamm = (a1 >= 0.0) ? (-a1 - s) / 2.0 : -2.0 * a0 / (a1 - s);
 
 
-  if ( pmy_block_->pfield->isnan_volatile(plamp) || pmy_block_->pfield->check_nan(plamp) ||
-      pmy_block_->pfield->isnan_volatile(plamm) || pmy_block_->pfield->check_nan(plamm) ){
-      fprintf(stderr, "isnan in FastMagnetosonicSpeedsGR!! gamma_adi: %g cs_sq: %g va_sq: %g cms_sq: %g \n a: %g b: %g c: %g c1: %g a0: %g s: %g \n g00: %g g01: %g g11: %g \n u0: %g u1: %g b_sq: %g wgas: %g pgas: %g \n", 
-        gamma_adi, cs_sq,va_sq,cms_sq, a,b,c,a1,a0,s, g00,g01,g11,u0,u1,b_sq,wgas,pgas);
-    exit(0);
+  // if ( pmy_block_->pfield->isnan_volatile(plamp) || pmy_block_->pfield->check_nan(plamp) ||
+  //     pmy_block_->pfield->isnan_volatile(plamm) || pmy_block_->pfield->check_nan(plamm) ){
+  //     fprintf(stderr, "isnan in FastMagnetosonicSpeedsGR!! gamma_adi: %g cs_sq: %g va_sq: %g cms_sq: %g \n a: %g b: %g c: %g c1: %g a0: %g s: %g \n g00: %g g01: %g g11: %g \n u0: %g u1: %g b_sq: %g wgas: %g pgas: %g \n", 
+  //       gamma_adi, cs_sq,va_sq,cms_sq, a,b,c,a1,a0,s, g00,g01,g11,u0,u1,b_sq,wgas,pgas);
+  //   exit(0);
 
-  }
+  // }
   return;
 }
 

@@ -1632,12 +1632,8 @@ TaskStatus TimeIntegratorTaskList::IntegrateHydro(MeshBlock *pmb, int stage) {
 
       const Real wght = stage_wghts[stage-1].beta*pmb->pmy_mesh->dt;
       ph->AddFluxDivergence(wght, ph->u);
-      bool dummy_bool;
-      // if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddFluxDivergence");
       // add coordinate (geometric) source terms
-      pmb->pcoord->AddCoordTermsDivergence(wght, ph->flux, ph->w, pf->bcc, ph->u);      
-      // if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddCoordTermsDivergence");
-
+      pmb->pcoord->AddCoordTermsDivergence(wght, ph->flux, ph->w, pf->bcc, ph->u);
 
       // Hardcode an additional flux divergence weighted average for the penultimate
       // stage of SSPRK(5,4) since it cannot be expressed in a 3S* framework
@@ -1735,11 +1731,6 @@ TaskStatus TimeIntegratorTaskList::AddSourceTerms(MeshBlock *pmb, int stage) {
         ps_s.DeleteAthenaArray();
 
 
-       //  bool dummy_bool;
-       // if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddSourceTerms");
-
-
-
       }
     }
     return TaskStatus::next;
@@ -1829,10 +1820,6 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
           ps_r, ps_r);
         ps_r.DeleteAthenaArray();
         ps_s.DeleteAthenaArray();
-
-        bool dummy_bool;
-       if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddRadSourceTerms");
-
 
       }
     }
