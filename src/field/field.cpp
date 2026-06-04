@@ -425,7 +425,7 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
           exit(0);
         }
 
-        for (int n_hydro = 0; n_hydro<=NHYDRO; n_hydro++) {
+        for (int n_hydro = 0; n_hydro<NHYDRO; n_hydro++) {
           if (isnan_volatile(pmb->phydro->w(n_hydro,k,j,i)) || check_nan(pmb->phydro->w(n_hydro,k,j,i))){
             fprintf(stderr,"NAN hydro variable!! in %s \n ijk: %d %d %d \n n_hydro: %d  den: %g press: %g v: %g %g %g \n bx: %g %g by: %g %g bz: %g %g \n bcc: %g %g %g \n",
               code_location.c_str(),i,j,k,n_hydro,
