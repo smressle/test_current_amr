@@ -214,63 +214,63 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real wgas_without_rho_l = gamma_adi/(gamma_adi-1.0) * pgas_l;
 
 
-    if (pmy_block->pfield->isnan_volatile(wgas_l) || pmy_block->pfield->check_nan(wgas_l) ||
-        pmy_block->pfield->isnan_volatile(pgas_l) || pmy_block->pfield->check_nan(pgas_l) ||
-        pmy_block->pfield->isnan_volatile(ucon_l[0]) || pmy_block->pfield->check_nan(ucon_l[0]) ||
-        pmy_block->pfield->isnan_volatile(ucon_l[ivx]) || pmy_block->pfield->check_nan(ucon_l[ivx]) ||
-        pmy_block->pfield->isnan_volatile(b_sq_l) || pmy_block->pfield->check_nan(b_sq_l) ||
-        pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
-        pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
-        pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
+    // if (pmy_block->pfield->isnan_volatile(wgas_l) || pmy_block->pfield->check_nan(wgas_l) ||
+    //     pmy_block->pfield->isnan_volatile(pgas_l) || pmy_block->pfield->check_nan(pgas_l) ||
+    //     pmy_block->pfield->isnan_volatile(ucon_l[0]) || pmy_block->pfield->check_nan(ucon_l[0]) ||
+    //     pmy_block->pfield->isnan_volatile(ucon_l[ivx]) || pmy_block->pfield->check_nan(ucon_l[ivx]) ||
+    //     pmy_block->pfield->isnan_volatile(b_sq_l) || pmy_block->pfield->check_nan(b_sq_l) ||
+    //     pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
+    //     pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
+    //     pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
 
-      fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
-        i,j,k, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii,gamma_adi);
-    exit(0);
-    }
+    //   fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
+    //     i,j,k, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii,gamma_adi);
+    // exit(0);
+    // }
     
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_l, pgas_l, ucon_l[0], ucon_l[ivx],
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
 
 
-    if (pmy_block->pfield->isnan_volatile(lambda_p_l) || pmy_block->pfield->check_nan(lambda_p_l) ||
-        pmy_block->pfield->isnan_volatile(lambda_m_l) || pmy_block->pfield->check_nan(lambda_m_l) ){
+    // if (pmy_block->pfield->isnan_volatile(lambda_p_l) || pmy_block->pfield->check_nan(lambda_p_l) ||
+    //     pmy_block->pfield->isnan_volatile(lambda_m_l) || pmy_block->pfield->check_nan(lambda_m_l) ){
 
-      fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_l: %g lambda_m_l: %g  \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g\n",
-        i,j,k, lambda_p_l,lambda_m_l, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii);
-    exit(0);
-    }
+    //   fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_l: %g lambda_m_l: %g  \n wgas_l: %g pgas_l: %g ucon0 %g ucon_l: %g bsq_l: %g \n g00: %g g0i: %g gii: %g\n",
+    //     i,j,k, lambda_p_l,lambda_m_l, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii);
+    // exit(0);
+    // }
 
     // Calculate wavespeeds in right state
     Real lambda_p_r, lambda_m_r;
     Real wgas_r = rho_r + gamma_adi/(gamma_adi-1.0) * pgas_r;
     Real wgas_without_rho_r = gamma_adi/(gamma_adi-1.0) * pgas_r;
 
-    if (pmy_block->pfield->isnan_volatile(wgas_r) || pmy_block->pfield->check_nan(wgas_r) ||
-        pmy_block->pfield->isnan_volatile(pgas_r) || pmy_block->pfield->check_nan(pgas_r) ||
-        pmy_block->pfield->isnan_volatile(ucon_r[0]) || pmy_block->pfield->check_nan(ucon_r[0]) ||
-        pmy_block->pfield->isnan_volatile(ucon_r[ivx]) || pmy_block->pfield->check_nan(ucon_r[ivx]) ||
-        pmy_block->pfield->isnan_volatile(b_sq_r) || pmy_block->pfield->check_nan(b_sq_r) ||
-        pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
-        pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
-        pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
+    // if (pmy_block->pfield->isnan_volatile(wgas_r) || pmy_block->pfield->check_nan(wgas_r) ||
+    //     pmy_block->pfield->isnan_volatile(pgas_r) || pmy_block->pfield->check_nan(pgas_r) ||
+    //     pmy_block->pfield->isnan_volatile(ucon_r[0]) || pmy_block->pfield->check_nan(ucon_r[0]) ||
+    //     pmy_block->pfield->isnan_volatile(ucon_r[ivx]) || pmy_block->pfield->check_nan(ucon_r[ivx]) ||
+    //     pmy_block->pfield->isnan_volatile(b_sq_r) || pmy_block->pfield->check_nan(b_sq_r) ||
+    //     pmy_block->pfield->isnan_volatile(g00) || pmy_block->pfield->check_nan(g00)     ||
+    //     pmy_block->pfield->isnan_volatile(g0i) || pmy_block->pfield->check_nan(g0i) ||
+    //     pmy_block->pfield->isnan_volatile(gii) || pmy_block->pfield->check_nan(gii)    ){
 
-      fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_r: %g pgas_r: %g ucon0 %g ucon_t: %g bsq_t: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
-        i,j,k, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii,gamma_adi);
-    exit(0);
-    }
+    //   fprintf(stderr,"isnan in hlle_mhd_rel before lambda calc! ijk: %d %d %d \n wgas_r: %g pgas_r: %g ucon0 %g ucon_t: %g bsq_t: %g \n g00: %g g0i: %g gii: %g gamma_adi: %g \n",
+    //     i,j,k, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii,gamma_adi);
+    // exit(0);
+    // }
 
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_r, pgas_r, ucon_r[0], ucon_r[ivx],
                                               b_sq_r, g00, g0i, gii,
                                               &lambda_p_r, &lambda_m_r);
 
-    if (pmy_block->pfield->isnan_volatile(lambda_p_r) || pmy_block->pfield->check_nan(lambda_p_r) ||
-        pmy_block->pfield->isnan_volatile(lambda_m_r) || pmy_block->pfield->check_nan(lambda_m_r) ){
+    // if (pmy_block->pfield->isnan_volatile(lambda_p_r) || pmy_block->pfield->check_nan(lambda_p_r) ||
+    //     pmy_block->pfield->isnan_volatile(lambda_m_r) || pmy_block->pfield->check_nan(lambda_m_r) ){
 
-      fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_r: %g lambda_m_r: %g  \n wgas_r: %g pgas_r: %g ucon0 %g ucon_r: %g bsq_r: %g \n g00: %g g0i: %g gii: %g\n",
-        i,j,k, lambda_p_r,lambda_m_r, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii);
-    exit(0);
-    }
+    //   fprintf(stderr,"isnan in hlle_mhd_rel lambdas! ijk: %d %d %d \n lambda_p_r: %g lambda_m_r: %g  \n wgas_r: %g pgas_r: %g ucon0 %g ucon_r: %g bsq_r: %g \n g00: %g g0i: %g gii: %g\n",
+    //     i,j,k, lambda_p_r,lambda_m_r, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii);
+    // exit(0);
+    // }
 
     // Calculate extremal wavespeeds
     Real lambda_l = std::min(lambda_m_l, lambda_m_r);
