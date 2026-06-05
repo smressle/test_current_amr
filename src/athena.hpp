@@ -34,6 +34,10 @@ using Real = double;
 #endif
 #endif
 
+
+#define DEBUG_CHECKS false
+
+
 // for OpenMP 4.0 SIMD vectorization, control width of SIMD lanes
 #if defined(__AVX512F__)
 #define SIMD_WIDTH 8

@@ -329,6 +329,8 @@ void Field::RecomputeMagneticFieldFromCorrectedVectorPotential(){
 
 
 }
+
+#if DEBUG_CHECKS
 bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
 
   MeshBlock *pmb = pmy_block;
@@ -443,3 +445,4 @@ bool Field::CheckFieldDivergence(FaceField &b, std::string code_location){
   return bad_divergence;
 }
 
+#endif

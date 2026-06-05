@@ -33,7 +33,7 @@
 #include "../eos/eos.hpp"
 #include "reconstruction.hpp"
 
-
+#if DEBUG_CHECKS
     #pragma GCC optimize("no-finite-math-only")
   bool check_isnan(Real x) {
       return std::isnan(x);
@@ -43,6 +43,7 @@
       volatile Real v = x;
       return v != v;   // NaN is the only value not equal to itself
   }
+#endif
 
 //----------------------------------------------------------------------------------------
 //! \fn Reconstruction::PiecewiseParabolicX1(const int k, const int j,
@@ -333,6 +334,7 @@ void Reconstruction::PiecewiseParabolicX1(
       wl(n,i+1) = ql_iph(n,i);
       wr(n,i  ) = qr_imh(n,i);
 
+#if DEBUG_CHECKS
       if (check_isnan(wl(n,i+1)) || isnan_vol(wr(n,i)) ){
         fprintf(stderr,"isnan in ppm x1!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n By: %g %g %g %g \n Bz: %g %g %g %g \n",
           n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
@@ -342,6 +344,7 @@ void Reconstruction::PiecewiseParabolicX1(
           pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
+#endif
     }
   }
 #pragma omp simd
@@ -642,6 +645,7 @@ void Reconstruction::PiecewiseParabolicX2(
       wl(n,i) = ql_jph(n,i);
       wr(n,i) = qr_jmh(n,i);
 
+#if DEBUG_CHECKS
       if (check_isnan(wl(n,i)) || isnan_vol(wr(n,i)) ){
         fprintf(stderr,"isnan in ppm x2!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n Bx: %g %g %g %g \n Bz: %g %g %g %g \n",
           n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
@@ -651,6 +655,7 @@ void Reconstruction::PiecewiseParabolicX2(
           pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
+#endif
     }
   }
 #pragma omp simd
@@ -943,7 +948,7 @@ void Reconstruction::PiecewiseParabolicX3(
       wl(n,i) = ql_kph(n,i);
       wr(n,i) = qr_kmh(n,i);
 
-
+#if DEBUG_CHECKS
       if (check_isnan(wl(n,i)) || isnan_vol(wr(n,i)) ){
         fprintf(stderr,"isnan in ppm x3!! n: %d ijk: %d %d %d \n  \n Bxcc: %g bycc: %g bzcc: %g \n Bx: %g %g %g %g \n By: %g %g %g %g \n",
           n,i,j,k,bcc(IB1,k,j,i), bcc(IB2,k,j,i), bcc(IB3,k,j,i),
@@ -953,6 +958,7 @@ void Reconstruction::PiecewiseParabolicX3(
           pmy_block_->loc.level,pmy_block_->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       }
+#endif
     }
   }
 #pragma omp simd

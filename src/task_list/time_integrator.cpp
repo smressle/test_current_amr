@@ -1633,14 +1633,16 @@ TaskStatus TimeIntegratorTaskList::IntegrateHydro(MeshBlock *pmb, int stage) {
       const Real wght = stage_wghts[stage-1].beta*pmb->pmy_mesh->dt;
       ph->AddFluxDivergence(wght, ph->u);
 
+#if DEBUG_CHECKS
       bool dummy_bool;
      if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddFluxDivergence in b");
-
+#endif
       // add coordinate (geometric) source terms
       pmb->pcoord->AddCoordTermsDivergence(wght, ph->flux, ph->w, pf->bcc, ph->u);
 
+#if DEBUG_CHECKS
       if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After AddCoordTermsDivergence in b");
-
+#endif
 
       // Hardcode an additional flux divergence weighted average for the penultimate
       // stage of SSPRK(5,4) since it cannot be expressed in a 3S* framework
@@ -1696,10 +1698,11 @@ TaskStatus TimeIntegratorTaskList::IntegrateField(MeshBlock *pmb, int stage) {
 
       pf->CT(stage_wghts[stage-1].beta*pmb->pmy_mesh->dt, pf->b);
 
+#if DEBUG_CHECKS
       bool dummy_bool = false;
       if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After IntegrateField in b");
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After IntegrateField in b1");
-
+#endif
     }
     return TaskStatus::next;
   }
@@ -1828,10 +1831,11 @@ TaskStatus TimeIntegratorTaskList::RadSourceTerms(MeshBlock *pmb, int stage)
         ps_r.DeleteAthenaArray();
         ps_s.DeleteAthenaArray();
 
+#if DEBUG_CHECKS
         bool dummy_bool;
         if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After RadSourceTerms in b");
 
-
+#endif
       }
     }
 
@@ -1964,11 +1968,16 @@ TaskStatus TimeIntegratorTaskList::UpdateMetric(MeshBlock *pmb, int stage)
   bool dummy_bool;
   if (METRIC_EVOLUTION && pmb->pmy_mesh->update_metric_this_timestep) {
 
+#if DEBUG_CHECKS
     if (MAGNETIC_FIELDS_ENABLED) dummy_bool =  pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"Before UpdateMetric in b");
+#endif
       pmb->pcoord->UpdateUserMetric(t_end_stage,pmb);
+
       if (pmb->pmy_mesh->multilevel) pmb->pmr->UpdateCoarseMetric(t_end_stage,pmb);
 
+#if DEBUG_CHECKS
       if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After UpdateMetric in b");
+#endif
       // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After UpdateMetric in b1");
    }
 
@@ -2111,8 +2120,10 @@ TaskStatus TimeIntegratorTaskList::SetBoundariesField(MeshBlock *pmb, int stage)
   bool dummy_bool;
   if (stage <= nstages) {
     pmb->pfield->fbvar.SetBoundaries();
+#if DEBUG_CHECKS
     if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After SetBoundariesField in b");
     // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After SetBoundariesField in b1");
+#endif
 
     return TaskStatus::success;
   }
@@ -2263,9 +2274,11 @@ TaskStatus TimeIntegratorTaskList::Prolongation(MeshBlock *pmb, int stage) {
     Real dt = (stage_wghts[(stage-1)].beta)*(pmb->pmy_mesh->dt);
     pbval->ProlongateBoundaries(t_end_stage, dt, pmb->pbval->bvars_main_int);
 
+#if DEBUG_CHECKS
   bool dummy_bool;
   if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After boundary prolongation in b");
   // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After boundary prolongation in b1");
+#endif
 
 
     return TaskStatus::success;
@@ -2300,8 +2313,10 @@ TaskStatus TimeIntegratorTaskList::Primitives(MeshBlock *pmb, int stage) {
                                     ph->w1, pf->bcc, pmb->pcoord,
                                     il, iu, jl, ju, kl, ku);
 
+#if DEBUG_CHECKS
     if (MAGNETIC_FIELDS_ENABLED) dummy_bool = pmb->pfield->CheckFieldDivergence(pmb->pfield->b,"After Cons2prim in b");
     // if (MAGNETIC_FIELDS_ENABLED) pmb->pfield->CheckFieldDivergence(pmb->pfield->b1,"After Cons2prim in b1");
+#endif
     if (pmb->porb->orbital_advection_defined) {
       pmb->porb->ResetOrbitalSystemConversionFlag();
     }

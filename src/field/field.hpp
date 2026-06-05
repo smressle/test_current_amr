@@ -75,11 +75,14 @@ class Field {
   void ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc);
   void ComputeCornerE_STS();
 
+#if DEBUG_CHECKS
   bool CheckFieldDivergence(FaceField &b, std::string code_location);
+#endif 
 
   void RecomputeMagneticFieldFromCorrectedVectorPotential();
 
 
+#if DEBUG_CHECKS
     #pragma GCC optimize("no-finite-math-only")
   bool check_nan(Real x) {
       return std::isnan(x);
@@ -90,7 +93,7 @@ class Field {
       return v != v;   // NaN is the only value not equal to itself
   }
 
-
+#endif
  private:
   // scratch space used to compute fluxes
   AthenaArray<Real> cc_e_;

@@ -164,6 +164,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
           cc_e_(IB2,k,j,i) = b3 * u1 - b1 * u3;
           cc_e_(IB3,k,j,i) = b1 * u2 - b2 * u1;
 
+#if DEBUG_CHECKS
           if (isnan_volatile(cc_e_(IB1,k,j,i)) || check_nan(cc_e_(IB1,k,j,i)) ||
               isnan_volatile(cc_e_(IB2,k,j,i)) || check_nan(cc_e_(IB2,k,j,i)) ||
               isnan_volatile(cc_e_(IB3,k,j,i)) || check_nan(cc_e_(IB3,k,j,i)) ){
@@ -174,6 +175,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
               g_(I23,i),g_(I03,i),g_(I13,i),g_(I23,i),g_(I33,i));
             exit(0);
           }
+#endif
 
 
 
@@ -217,6 +219,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
           e1(k,j,i) = 0.25*(de1_l3 + de1_r3 + de1_l2 + de1_r2 + e1_x2f(k-1,j,i) +
                             e1_x2f(k,j,i) + e1_x3f(k,j-1,i) + e1_x3f(k,j,i));
 
+#if DEBUG_CHECKS
           if (check_nan(e1(k,j,i)) || isnan_volatile(e1(k,j,i))){
 
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e1: %g de1_l3: %g de1_r3: %g de1_l2: %g de1_r2: %g e1_x2f(k-1): %g e1_x2f: %g e1_x3f(j-1): %g e1_x3f: %g \n",
@@ -225,6 +228,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
               pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
+#endif
 
           Real de2_l3 = (1.0-w_x1f(k-1,j,i))*(e2_x3f(k,j,i  ) - cc_e_(IB2,k-1,j,i  )) +
                         (    w_x1f(k-1,j,i))*(e2_x3f(k,j,i-1) - cc_e_(IB2,k-1,j,i-1));
@@ -239,6 +243,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
                             e2_x3f(k,j,i) + e2_x1f(k-1,j,i) + e2_x1f(k,j,i));
 
 
+#if DEBUG_CHECKS
           if (check_nan(e2(k,j,i)) || isnan_volatile(e2(k,j,i))){
 
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e2: %g de2_l3: %g de2_r3: %g de2_l1: %g de2_r1: %g e2_x3f(i-1): %g e2_x3f: %g e2_x1f(k-1): %g e2_x1f: %g \n",
@@ -247,7 +252,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
               pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
-
+#endif
 
           Real de3_l2 = (1.0-w_x1f(k,j-1,i))*(e3_x2f(k,j,i  ) - cc_e_(IB3,k,j-1,i  )) +
                         (    w_x1f(k,j-1,i))*(e3_x2f(k,j,i-1) - cc_e_(IB3,k,j-1,i-1));
@@ -261,7 +266,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
           e3(k,j,i) = 0.25*(de3_l1 + de3_r1 + de3_l2 + de3_r2 + e3_x2f(k,j,i-1) +
                             e3_x2f(k,j,i) + e3_x1f(k,j-1,i) + e3_x1f(k,j,i));
 
-
+#if DEBUG_CHECKS
           if (check_nan(e3(k,j,i)) || isnan_volatile(e3(k,j,i))){
 
             fprintf(stderr,"isnan in corner e! ijk: %d %d %d \n e3: %g de3_l3: %g de3_r3: %g de3_l1: %g de3_r1: %g e3_x3f(i-1): %g e3_x3f: %g e3_x1f(k-1): %g e3_x1f: %g \n",
@@ -270,6 +275,7 @@ void Field::ComputeCornerE(AthenaArray<Real> &w, AthenaArray<Real> &bcc) {
           pmb->loc.level,pmb->pbval->nblevel[i1][i2][i3],i1,i2,i3);
             exit(0);
           }
+#endif
         }
       }
     }
