@@ -875,7 +875,7 @@ void EquationOfState::FastMagnetosonicSpeedsGR(Real wgas, Real pgas, Real u0, Re
   Real s = std::sqrt(std::max(SQR(a1) - 4.0 * a0, static_cast<Real>(0.0)));
   *p_lambda_plus = (a1 >= 0.0) ? -2.0 * a0 / (a1 + s) : (-a1 + s) / 2.0;
   *p_lambda_minus = (a1 >= 0.0) ? (-a1 - s) / 2.0 : -2.0 * a0 / (a1 - s);
-
+#if DEBUG_CHECKS
   if ( pmy_block_->pfield->isnan_volatile(*p_lambda_plus) || pmy_block_->pfield->check_nan(*p_lambda_plus) ||
       pmy_block_->pfield->isnan_volatile(*p_lambda_minus) || pmy_block_->pfield->check_nan(*p_lambda_minus) ){
       fprintf(stderr, "isnan in FastMagnetosonicSpeedsGR!! gamma_adi: %g cs_sq: %g va_sq: %g cms_sq: %g \n a: %g b: %g c: %g c1: %g a0: %g s: %g \n g00: %g g01: %g g11: %g \n u0: %g u1: %g b_sq: %g wgas: %g pgas: %g \n", 
@@ -883,6 +883,7 @@ void EquationOfState::FastMagnetosonicSpeedsGR(Real wgas, Real pgas, Real u0, Re
     exit(0);
 
   }
+#endif
   return;
 }
 
