@@ -213,7 +213,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     Real wgas_l = rho_l + gamma_adi/(gamma_adi-1.0) * pgas_l;
     Real wgas_without_rho_l = gamma_adi/(gamma_adi-1.0) * pgas_l;
 
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(wgas_l) || pmy_block->pfield->check_nan(wgas_l) ||
         pmy_block->pfield->isnan_volatile(pgas_l) || pmy_block->pfield->check_nan(pgas_l) ||
         pmy_block->pfield->isnan_volatile(ucon_l[0]) || pmy_block->pfield->check_nan(ucon_l[0]) ||
@@ -227,12 +227,13 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         i,j,k, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii,gamma_adi);
     exit(0);
     }
+#endif
     
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_l, pgas_l, ucon_l[0], ucon_l[ivx],
                                               b_sq_l, g00, g0i, gii,
                                               &lambda_p_l, &lambda_m_l);
 
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(lambda_p_l) || pmy_block->pfield->check_nan(lambda_p_l) ||
         pmy_block->pfield->isnan_volatile(lambda_m_l) || pmy_block->pfield->check_nan(lambda_m_l) ){
 
@@ -240,12 +241,13 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         i,j,k, lambda_p_l,lambda_m_l, wgas_l,pgas_l,ucon_l[0],ucon_l[ivx],b_sq_l,g00,g0i,gii);
     exit(0);
     }
+#endif
 
     // Calculate wavespeeds in right state
     Real lambda_p_r, lambda_m_r;
     Real wgas_r = rho_r + gamma_adi/(gamma_adi-1.0) * pgas_r;
     Real wgas_without_rho_r = gamma_adi/(gamma_adi-1.0) * pgas_r;
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(wgas_r) || pmy_block->pfield->check_nan(wgas_r) ||
         pmy_block->pfield->isnan_volatile(pgas_r) || pmy_block->pfield->check_nan(pgas_r) ||
         pmy_block->pfield->isnan_volatile(ucon_r[0]) || pmy_block->pfield->check_nan(ucon_r[0]) ||
@@ -259,11 +261,11 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         i,j,k, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii,gamma_adi);
     exit(0);
     }
-
+#endif
     pmy_block->peos->FastMagnetosonicSpeedsGR(wgas_r, pgas_r, ucon_r[0], ucon_r[ivx],
                                               b_sq_r, g00, g0i, gii,
                                               &lambda_p_r, &lambda_m_r);
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(lambda_p_r) || pmy_block->pfield->check_nan(lambda_p_r) ||
         pmy_block->pfield->isnan_volatile(lambda_m_r) || pmy_block->pfield->check_nan(lambda_m_r) ){
 
@@ -271,7 +273,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         i,j,k, lambda_p_r,lambda_m_r, wgas_r,pgas_r,ucon_r[0],ucon_r[ivx],b_sq_r,g00,g0i,gii);
     exit(0);
     }
-
+#endif
     // Calculate extremal wavespeeds
     Real lambda_l = std::min(lambda_m_l, lambda_m_r);
     Real lambda_r = std::max(lambda_p_l, lambda_p_r);
@@ -347,7 +349,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
                      + lambda_r*lambda_l * (cons_r[n] - cons_l[n])) / (lambda_r-lambda_l);
     }
 
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(flux_hll[IBY]) || pmy_block->pfield->check_nan(flux_hll[IBY]) ||
           pmy_block->pfield->isnan_volatile(flux_hll[IBZ]) || pmy_block->pfield->check_nan(flux_hll[IBZ]) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in flu_hll!  %d %d %d \n lambda_r: %g lambda_l: %g lambda_diff: %g \n cons_r: %g %g cons_l: %g %g  \n flux_l: %g %g flux_r: %g %g  \n bcon_r: %g %g bcon_l: %g %g \n ucon_r: %g %g ucon_l: %g %g \n",
@@ -358,7 +360,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
         for (int i1=0; i1<=2; ++i1) for (int i2=0; i2<=2; ++i2) for (int i3=0; i3<=2; ++i3)fprintf(stderr,"mesh refinement levels. \n Current: %d neighbor: %d i1 i2 i3: %d %d %d \n ",
           pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
       } 
-
+#endif
 
     // Determine region of wavefan
     Real *flux_interface;
@@ -376,7 +378,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
     }
     ey(k,j,i) = -flux_interface[IBY];
     ez(k,j,i) = flux_interface[IBZ];
-
+#if DEBUG_CHECKS
     if (pmy_block->pfield->isnan_volatile(ey(k,j,i)) || pmy_block->pfield->check_nan(ey(k,j,i)) ||
           pmy_block->pfield->isnan_volatile(ez(k,j,i)) || pmy_block->pfield->check_nan(ez(k,j,i)) ) {
         fprintf(stderr,"isnan hlle_mhd_rel in ey ez!  %d %d %d \n lambda_r: %g lambda_l: %g \n",
@@ -385,7 +387,7 @@ void Hydro::RiemannSolver(const int k, const int j, const int il, const int iu,
           pmy_block->loc.level,pmy_block->pbval->nblevel[i1][i2][i3],i1,i2,i3);
         exit(0);
       } 
-
+#endif
     wct(k,j,i) =
         GetWeightForCT(flux_interface[IDN], prim_l(IDN,i), prim_r(IDN,i), dxw(i), dt);
   }
