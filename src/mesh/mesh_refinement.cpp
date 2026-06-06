@@ -251,7 +251,7 @@ void MeshRefinement::RestrictFieldX1(
                + fine(k+1,j,i)*sarea_x1_[1][0](i) + fine(k+1,j+1,i)*sarea_x1_[1][1](i)
                )/tarea;
 
-
+#if DEBUG_CHECKS
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x1! ci cj ck: %d %d %d i j k  %d %d %d \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
@@ -261,7 +261,7 @@ void MeshRefinement::RestrictFieldX1(
             exit(0);
           }
 
-
+#endif
 
             // Real new_flux = coarse(ck,cj,ci) * csarea_x1_(ci); 
 
@@ -336,7 +336,7 @@ void MeshRefinement::RestrictFieldX2(
               (fine(k  ,j,i)*sarea_x2_[0][0](i) + fine(k  ,j,i+1)*sarea_x2_[0][0](i+1)
                +fine(k+1,j,i)*sarea_x2_[1][0](i) + fine(k+1,j,i+1)*sarea_x2_[1][0](i+1))
               /tarea;
-
+#if DEBUG_CHECKS
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x2! ci cj ck: %d %d %d i j k  %d %d %d \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
@@ -345,7 +345,7 @@ void MeshRefinement::RestrictFieldX2(
                tarea, si,ei, csi,cei,csj,cej,csk,cek);
             exit(0);
           }
-
+#endif
 
 
 
@@ -425,7 +425,7 @@ void MeshRefinement::RestrictFieldX3(
                + fine(k,j+1,i)*sarea_x3_[0][1](i) + fine(k,j+1,i+1)*sarea_x3_[0][1](i+1)
                ) /tarea;
 
-
+#if DEBUG_CHECKS
           if ( pmb->pfield->check_nan(coarse(ck,cj,ci)) || pmb->pfield->isnan_volatile(coarse(ck,cj,ci)) ){
 
             fprintf(stderr,"isnan in Restrict Field x3! ci cj ck: %d %d %d i j k %d %d %d  \n fine: %g %g %g %g \n sarea: %g %g %g %g \n carea: %g \n i limits: %d %d ci limits: %d %d cj limits: %d %d ck limits: %d %d \n",
@@ -434,7 +434,7 @@ void MeshRefinement::RestrictFieldX3(
                tarea, si,ei, csi,cei,csj,cej,csk,cek);
             exit(0);
           }
-
+#endif
 
 
             // Real new_flux = coarse(ck,cj,ci) * csarea_x3_(ci); 
@@ -727,7 +727,7 @@ void MeshRefinement::ProlongateSharedFieldX1(
             fine(fk+1,fj+1,fi) = 0.25*csarea_x1_(i)/sarea_x1_[1][1](fi) * 
                                   (ccval + gx2c*(fx2p - x2c) + gx3c*(fx3p - x3c) );
 
-
+#if DEBUG_CHECKS
             if ( pmb->pfield->check_nan(fine(fk,fj,fi))     || pmb->pfield->isnan_volatile(fine(fk,fj,fi))   ||
                  pmb->pfield->check_nan(fine(fk,fj+1,fi))   || pmb->pfield->isnan_volatile(fine(fk,fj+1,fi))  ||
                  pmb->pfield->check_nan(fine(fk+1,fj,fi))   || pmb->pfield->isnan_volatile(fine(fk+1,fj,fi))  ||
@@ -744,7 +744,7 @@ void MeshRefinement::ProlongateSharedFieldX1(
               exit(0);
             }
 
-
+#endif
 
 
             // Real new_flux = fine(fk,fj  ,fi  )*sarea_x1_[0][0](fi) + fine(fk,fj+1  ,fi)*sarea_x1_[0][1](fi)
@@ -870,7 +870,7 @@ void MeshRefinement::ProlongateSharedFieldX2(
 
 
 
-
+#if DEBUG_CHECKS
             if ( pmb->pfield->check_nan(fine(fk,fj,fi))     || pmb->pfield->isnan_volatile(fine(fk,fj,fi))   ||
                  pmb->pfield->check_nan(fine(fk,fj,fi+1))   || pmb->pfield->isnan_volatile(fine(fk,fj,fi+1))  ||
                  pmb->pfield->check_nan(fine(fk+1,fj,fi))   || pmb->pfield->isnan_volatile(fine(fk+1,fj,fi))  ||
@@ -886,7 +886,7 @@ void MeshRefinement::ProlongateSharedFieldX2(
                fsi,fei,si, ei, sj, ej, sk, ek);
               exit(0);
             }
-
+#endif
 
 
             // Real new_flux = fine(fk,fj  ,fi  )*sarea_x2_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x2_[0][0](fi+1)
@@ -1029,7 +1029,7 @@ void MeshRefinement::ProlongateSharedFieldX3(
             fine(fk,fj+1,fi+1) = 0.25*csarea_x3_(i)/sarea_x3_[0][1](fi+1) * 
                                   (ccval + gx1c*(fx1p - x1c) + gx2c*(fx2p - x2c) );
 
-
+#if DEBUG_CHECKS
             if ( pmb->pfield->check_nan(fine(fk,fj,fi))     || pmb->pfield->isnan_volatile(fine(fk,fj,fi))   ||
                  pmb->pfield->check_nan(fine(fk,fj,fi+1))   || pmb->pfield->isnan_volatile(fine(fk,fj,fi+1))  ||
                  pmb->pfield->check_nan(fine(fk,fj+1,fi))   || pmb->pfield->isnan_volatile(fine(fk,fj+1,fi))  ||
@@ -1045,7 +1045,7 @@ void MeshRefinement::ProlongateSharedFieldX3(
                fsi,fei, si, ei, sj, ej, sk, ek);
               exit(0);
             }
-
+#endif
 
 
             // Real new_flux = fine(fk,fj  ,fi  )*sarea_x3_[0][0](fi) + fine(fk,fj  ,fi+1)*sarea_x3_[0][0](fi+1)
@@ -1257,7 +1257,7 @@ void MeshRefinement::ProlongateInternalField(
                     fine.x3f(fk  ,fj+1,fi+1)*sarea_x3_[0][1](fi+1))
                + Wzz + Sdx2*Uxyz + Sdx1*Vxyz) /sarea_x3_[1][1](fi+1);
 
-
+#if DEBUG_CHECKS
             for (int dj=0; dj<=1; ++dj){
               for (int dk=0; dk<=1; ++dk){
                 if ( pmb->pfield->isnan_volatile(fine.x1f(fk+dk,fj+dj,fi+1)) ||pmb->pfield->check_nan(fine.x1f(fk+dk,fj+dj,fi+1)) ){
@@ -1270,7 +1270,7 @@ void MeshRefinement::ProlongateInternalField(
                 }
               }
             }
-          
+
             for (int di=0; di<=1; ++di){
               for (int dk=0; dk<=1; ++dk){
                 if ( pmb->pfield->isnan_volatile(fine.x2f(fk+dk,fj+1,fi+di)) ||pmb->pfield->check_nan(fine.x2f(fk+dk,fj+1,fi+di)) ){
@@ -1297,7 +1297,7 @@ void MeshRefinement::ProlongateInternalField(
               }
             }
 
-
+#endif
 
 
         }
