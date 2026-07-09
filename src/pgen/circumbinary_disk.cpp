@@ -695,24 +695,37 @@ if (max_second_bh_refinement_level>0){
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_2(ir,iph);
+                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX2) ) * n_l_bh_2(0,ir,iph) + 
+                                                     ( y-orbit_quantities(IY2) ) * n_l_bh_2(1,ir,iph) + 
+                                                     ( z-orbit_quantities(IZ2) ) * n_l_bh_2(2,ir,iph);
+                theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+                if (theta_arg>1)  theta_arg=1.0;
+                if (theta_arg<-1) theta_arg=-1.0;
+                pseudo_theta = std::acos(theta_arg);
               }
 
               
-              Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
-              Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
-              Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
+              Real mesh_block_widthx = pmb->block_size.nx1 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0) / std::pow(2.0,max_second_bh_refinement_level);
+              Real mesh_block_widthy = pmb->block_size.nx2 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0) / std::pow(2.0,max_second_bh_refinement_level);
+              Real mesh_block_widthz = pmb->block_size.nx3 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0) / std::pow(2.0,max_second_bh_refinement_level);
 
-          
+              Real mesh_block_width_l;
+              if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
+              else{
+                mesh_block_width_l = mesh_block_widthx * n_l_bh_2(0,ir,iph)  + 
+                                     mesh_block_widthy * n_l_bh_2(1,ir,iph)  + 
+                                     mesh_block_widthz * n_l_bh_2(0,ir,iph);
+              }
 
               Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
 
-              Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
+              Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
 
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -788,24 +801,38 @@ if (max_second_bh_refinement_level>0){
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_1(ir,iph);
+
+                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX1) ) * n_l_bh_1(0,ir,iph) + 
+                                                     ( y-orbit_quantities(IY1) ) * n_l_bh_1(1,ir,iph) + 
+                                                     ( z-orbit_quantities(IZ1) ) * n_l_bh_1(2,ir,iph);
+                theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+                if (theta_arg>1)  theta_arg=1.0;
+                if (theta_arg<-1) theta_arg=-1.0;
+                pseudo_theta = std::acos(theta_arg);
               }
 
 
               
-              Real mesh_block_widthx = pmb->block_size.nx1 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0);
-              Real mesh_block_widthy = pmb->block_size.nx2 * box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0);
-              Real mesh_block_widthz = pmb->block_size.nx3 * z_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0);
-
+              Real mesh_block_widthx = pmb->block_size.nx1 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0) / std::pow(2.0,max_second_bh_refinement_level);
+              Real mesh_block_widthy = pmb->block_size.nx2 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0) / std::pow(2.0,max_second_bh_refinement_level);
+              Real mesh_block_widthz = pmb->block_size.nx3 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0) / std::pow(2.0,max_second_bh_refinement_level);
+              Real mesh_block_width_l;
+              if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
+              else{
+                mesh_block_width_l = mesh_block_widthx * n_l_bh_1(0,ir,iph)  + 
+                                     mesh_block_widthy * n_l_bh_1(1,ir,iph)  + 
+                                     mesh_block_widthz * n_l_bh_1(0,ir,iph);
+              }
         
               Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
 
-              Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
+              Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
 
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -875,9 +902,16 @@ if (max_second_bh_refinement_level>0){
           if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
           else{
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+            Real pseudo_r_dot_angular_momentum_vector = x * n_l(0,ir,iph) + y * n_l(1,ir,iph) + z*n_l(2,ir,iph);
+            theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+            if (theta_arg>1) theta_arg=1.0;
+            if (theta_arg<-1) theta_arg=-1.0;
+            pseudo_theta = std::acos(theta_arg);
           }
 
-          Real z_density_midplane = pseudo_r * std::cos(theta_density_midplane);
+
+
+          // Real z_density_midplane = pseudo_r * std::cos(theta_density_midplane);
 
           
           for (int n_level = 1; n_level<=max_smr_refinement_level; n_level++){
@@ -893,6 +927,14 @@ if (max_second_bh_refinement_level>0){
             Real mesh_block_widthx = pmb->block_size.nx1 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx1*1.0) / std::pow(2.0,n_level);
             Real mesh_block_widthy = pmb->block_size.nx2 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx2*1.0) / std::pow(2.0,n_level);
             Real mesh_block_widthz = pmb->block_size.nx3 * total_box_radius*2.0/(pmb->pmy_mesh->mesh_size.nx3*1.0) / std::pow(2.0,n_level);
+
+            Real mesh_block_width_l;
+           if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
+            else{
+              mesh_block_width_l = mesh_block_widthx * n_l(0,ir,iph)  + 
+                                   mesh_block_widthy * n_l(1,ir,iph)  + 
+                                   mesh_block_widthz * n_l(0,ir,iph);
+            }
 
         
 
@@ -923,7 +965,7 @@ if (max_second_bh_refinement_level>0){
 
             Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
 
-            Real theta_mesh_block_widthz = std::asin(mesh_block_widthz/pseudo_r);
+            Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
 
 
 
@@ -934,8 +976,8 @@ if (max_second_bh_refinement_level>0){
             //     z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
             //     z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
 
-            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_widthz) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_widthz) ) {
+            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
 
               if (n_level>max_level_required) max_level_required=n_level;
