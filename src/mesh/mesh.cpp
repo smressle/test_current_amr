@@ -1281,14 +1281,84 @@ void Mesh::OutputMeshStructure(int ndim) {
 }
 
 void Mesh::FindDensityMidplane(){
+
+
+  void get_four_velocity(Real uu1, Real uu2, Real uu3, AthenaArray<Real> g,AthenaArray<Real> gi,
+                         Real *u0, Real *u1, Real *u2, Real *u3){
+      Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
+               + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
+               + g(I33,i)*uu3*uu3;
+      Real gamma = std::sqrt(1.0 + tmp);
+
+      // Calculate 4-velocity
+      Real alpha = std::sqrt(-1.0/gi(I00,i));
+      *u0 = gamma/alpha;
+      *u1 = uu1 - alpha * gamma * gi(I01,i);
+      *u2 = uu2 - alpha * gamma * gi(I02,i);
+      *u3 = uu3 - alpha * gamma * gi(I03,i);
+
+      return;
+  }
+  void lower_four_velocity(Real u0, Real u1, Real u2, Real u3, AthenaArray<Real> g,
+                           Real *ud_0, Real *ud_1, Real *ud_2, Real *ud_3){
+         // Extract metric coefficients
+    const Real &g00_ = g(I00,i);
+    const Real &g01_ = g(I01,i);
+    const Real &g02_ = g(I02,i);
+    const Real &g03_ = g(I03,i);
+    const Real &g10_ = g(I01,i);
+    const Real &g11_  = g(I11,i);
+    const Real &g12_  = g(I12,i);
+    const Real &g13_  = g(I13,i);
+    const Real &g20_  = g(I02,i);
+    const Real &g21_  = g(I12,i);
+    const Real &g22_  = g(I22,i);
+    const Real &g23_  = g(I23,i);
+    const Real &g30_  = g(I03,i);
+    const Real &g31_  = g(I13,i);
+    const Real &g32_  = g(I23,i);
+    const Real &g33_  = g(I33,i);
+
+    // Set lowered components
+    *ud_0 = g00_ *u0 + g01_ *u1 + g02_ *u2 + g03_ *u3;
+    *ud_1 = g10_ *u0 + g11_ *u1 + g12_ *u2 + g13_ *u3;
+    *ud_2 = g20_ *u0 + g21_ *u1 + g22_ *u2 + g23_ *u3;
+    *ud_3 = g30_ *u0 + g31_ *u1 + g32_ *u2 + g33_ *u3;
+
+    return;
+
+  }
+  void get_angular_momentum_vector(Real x, Real y, Real z, Real ud_0, Real ud_1, Real ud_2, Real ud_3, 
+                                   Real *lx, Real *ly, Real *lz){
+            *lx = y * ud_3 - z * ud_2;
+            *ly = z * ud_1 - x * ud_3;
+            *lz = x * ud_2 - y * ud_1;
+            return;
+
+  }
+
+
   MeshBlock *pmb = my_blocks(0);
   AthenaArray<Real> vol(pmb->ncells1);
+
+  AthenaArray<Real> &g = pmb->ruser_meshblock_data[0];
+  AthenaArray<Real> &gi = pmb->ruser_meshblock_data[1];
+
 
 
   AthenaArray<Real> r_cells,phi_cells;
 
   r_cells.NewAthenaArray(N_radial_bins_for_density_midplane);
   phi_cells.NewAthenaArray(N_phi_bins_for_density_midplane);
+
+
+  AthenaArray mass_weighted_lx_for_density_midplane, mass_weighted_ly_for_density_midplane, mass_weighted_lz_for_density_midplane;
+
+
+  mass_weighted_lx_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane);
+  mass_weighted_ly_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane);
+  mass_weighted_lz_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane);
+
 
   Real dlogr = dlogr_for_density_midplane;
   Real dphi  = dphi_for_density_midplane;
@@ -1318,6 +1388,12 @@ void Mesh::FindDensityMidplane(){
   mass_weighted_theta_for_density_midplane_bh_1.ZeroClear();
   mass_weighted_theta_for_density_midplane_bh_2.ZeroClear();
 
+
+  mass_weighted_lx_for_density_midplane.ZeroClear();
+  mass_weighted_ly_for_density_midplane.ZeroClear();
+  mass_weighted_lz_for_density_midplane.ZeroClear();
+
+
   total_mass_for_density_midplane.ZeroClear();
   total_mass_for_density_midplane_bh_1.ZeroClear();
   total_mass_for_density_midplane_bh_2.ZeroClear();
@@ -1330,6 +1406,7 @@ void Mesh::FindDensityMidplane(){
 
     for (int k=ks; k<=ke; ++k) {
       for (int j=js; j<=je; ++j) {
+        pmb->pcoord->CellMetric(k, j, pmb->is, pmb->ie, g, gi);
         pmb->pcoord->CellVolume(k, j, pmb->is, pmb->ie, vol);
           for (int i=is; i<=ie; ++i) {
             Real x = pmb->pcoord->x1v(i);
@@ -1353,7 +1430,7 @@ void Mesh::FindDensityMidplane(){
             if (th_arg<-1) th_arg=-1.0;
             Real theta_bh1 = std::acos(th_arg);
 
-          if (r_bh2<= 0.0) continue;
+            if (r_bh2<= 0.0) continue;
             th_arg = (z-zbh2)/r_bh2;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;
@@ -1363,6 +1440,7 @@ void Mesh::FindDensityMidplane(){
             Real phi = std::atan2(y,x);
             phi = std::fmod(phi, 2.0*PI);
             if (phi < 0.0) phi += 2.0*PI;
+
 
 
             Real phi_bh1 = std::atan2(y-ybh1,x-xbh1);
@@ -1403,14 +1481,40 @@ void Mesh::FindDensityMidplane(){
             iph_bh2 = std::max(0, std::min(iph_bh2, N_phi_bins_for_density_midplane-1));
 
 
+
+            Real u0,u1,u2,u3;
+            get_four_velocity(pmb->phydro->w(IVX,k,j,i), pmb->phydro->w(IVY,k,j,i), pmb->phydro->w(IVZ,k,j,i), 
+                            g,gi, &u0, &u1, &u2, &u3);
+            Real ud_0,ud_1,ud_2,ud_3;
+            lower_four_velocity(u0, u1, u2, u3, g,&ud_0, &ud_1, &ud_2, &ud_3);
+
+
+
+
             if (valid_total_r){
-              mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i);
+
+              Real lx,ly,lz
+        
+              get_angular_momentum_vector(x,y,z,ud_0,ud_1,ud_2,ud_3,&lx, &ly, &lz);
+
+
+              mass_weighted_lx_for_density_midplane(ir,iph) += lx * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_ly_for_density_midplane(ir,iph) += ly * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_lz_for_density_midplane(ir,iph) += lz * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+
               total_mass_for_density_midplane(ir,iph) += pmb->phydro->w(IDN,k,j,i) * vol(i);
             }
 
 
             if (valid_r_bh1){
               mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+
+              Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
+              boost_lowered_vector_wrapper(1, t, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
+              Real lx,ly,lz
+              get_angular_momentum_vector(x-xbh,y-ybh,z-zbh,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
+
               total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
             }
 
@@ -1435,6 +1539,26 @@ void Mesh::FindDensityMidplane(){
 
       MPI_Allreduce(MPI_IN_PLACE,
                     mass_weighted_theta_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+
+
+      MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_lx_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+      MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_ly_for_density_midplane.data(),
+                    size,
+                    MPI_ATHENA_REAL,
+                    MPI_SUM,
+                    MPI_COMM_WORLD);
+      MPI_Allreduce(MPI_IN_PLACE,
+                    mass_weighted_lz_for_density_midplane.data(),
                     size,
                     MPI_ATHENA_REAL,
                     MPI_SUM,
@@ -1485,9 +1609,18 @@ void Mesh::FindDensityMidplane(){
         if (total_mass_for_density_midplane(ir,iph) > 0.0) {
           mass_weighted_theta_for_density_midplane(ir,iph)
             /= total_mass_for_density_midplane(ir,iph);
+          mass_weighted_lx_for_density_midplane(ir,iph)
+            /= total_mass_for_density_midplane(ir,iph);
+          mass_weighted_ly_for_density_midplane(ir,iph)
+            /= total_mass_for_density_midplane(ir,iph);
+          mass_weighted_lz_for_density_midplane(ir,iph)
+            /= total_mass_for_density_midplane(ir,iph);
         }
         else{
           mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
+          mass_weighted_lx_for_density_midplane(ir,iph) = 0.0;
+          mass_weighted_ly_for_density_midplane(ir,iph) = 0.0;
+          mass_weighted_lz_for_density_midplane(ir,iph) = 1.0;
         }
 
 
@@ -1551,7 +1684,9 @@ void Mesh::FindDensityMidplane(){
 
 r_cells.DeleteAthenaArray();
 phi_cells.DeleteAthenaArray();
-
+mass_weighted_lx_for_density_midplane.DeleteAthenaArray();
+mass_weighted_ly_for_density_midplane.DeleteAthenaArray();
+mass_weighted_lz_for_density_midplane.DeleteAthenaArray();
 
 }
 

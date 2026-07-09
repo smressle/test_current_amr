@@ -168,3 +168,26 @@ void __attribute__((weak)) Mesh::get_bh_positions( Real t, Real *xbh1,Real *ybh1
   return;
 
 }
+void __attribute__((weak)) Mesh::get_prime_coords_wrapper(int BH_INDEX, Real t, Real x, Real y, Real z, 
+                                  Real *x_prime, Real *y_prime, Real *z_prime){
+
+
+  *x_prime = 0.0;
+  *y_prime = 0.0;
+  *z_prime = 0.0;
+
+  return;
+
+}
+void __attribute__((weak)) Mesh::boost_lowered_vector_wrapper( int BH_INDEX, Real t, Real u0, Real u1, Real u2, Real u3, 
+                                Real *u0_prime, Real *u1_prime, Real *u2_prime, Real *u3_prime){
+
+
+  *u0_prime = 0.0;
+  *u1_prime = 0.0;
+  *u2_prime = 0.0;
+  *u3_prime = 0.0;
+
+  return;
+
+}

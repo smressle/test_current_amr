@@ -3059,6 +3059,57 @@ void BoostVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, Athena
 
 }
 
+void BoostLoweredVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3, AthenaArray<Real> &orbit_quantities, Real *pa0, Real *pa1, Real *pa2, Real *pa3){
+
+
+  Real vxbh,vybh,vzbh;
+  if (BH_INDEX==1){
+    vxbh = -orbit_quantities(IV1X);
+    vybh = -orbit_quantities(IV1Y);
+    vzbh = -orbit_quantities(IV1Z);
+
+  }
+  else if (BH_INDEX==2){
+    vxbh = -orbit_quantities(IV2X);
+    vybh = -orbit_quantities(IV2Y);
+    vzbh = -orbit_quantities(IV2Z);
+  }
+  else{
+    fprintf(stderr,"Choose a valid BH_INDEX!!!: %d",BH_INDEX);
+    exit(0);
+  }
+
+
+
+  Real vsq = SQR(vxbh) + SQR(vybh) + SQR(vzbh);
+  Real beta_mag = std::sqrt(vsq);
+  Real Lorentz = std::sqrt(1.0/(1.0 - vsq));
+
+  Real nx = vxbh/beta_mag;
+  Real ny = vybh/beta_mag;
+  Real nz = vzbh/beta_mag;
+
+  *pa0 =    Lorentz * (a0 + vxbh * a1 + vybh * a2 + vzbh * a3);
+
+  *pa1 =                       Lorentz * vxbh * ( a0 ) +
+            (1.0 + (Lorentz - 1.0) * nx * nx) * ( a1 ) + 
+            (      (Lorentz - 1.0) * nx * ny) * ( a2 ) +
+            (      (Lorentz - 1.0) * nx * nz) * ( a3 ) ;
+  
+  *pa2 =                       Lorentz * vybh * ( a0 ) +
+            (      (Lorentz - 1.0) * ny * nx) * ( a1 ) + 
+            (1.0 + (Lorentz - 1.0) * ny * ny) * ( a2 ) +
+            (      (Lorentz - 1.0) * ny * nz) * ( a3 );  
+ 
+  *pa3 =                       Lorentz * vzbh * ( a0 ) +
+            (      (Lorentz - 1.0) * nz * nx) * ( a1 ) + 
+            (      (Lorentz - 1.0) * nz * ny) * ( a2 ) +
+            (1.0 + (Lorentz - 1.0) * nz * nz) * ( a3 );  
+
+  return;
+
+}
+
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
@@ -4482,6 +4533,50 @@ void Mesh::get_bh_positions( Real t, Real *xbh1,Real *ybh1,Real *zbh1, Real *xbh
 
   *zbh1 = orbit_quantities(IZ1);
   *zbh2 = orbit_quantities(IZ2);
+
+  orbit_quantities.DeleteAthenaArray();
+
+  return;
+}
+
+void Mesh::get_prime_coords_wrapper(int BH_INDEX, Real t, Real x, Real y, Real z, 
+  Real *x_prime, Real *y_prime, Real *z_prime){
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+  Real xprime,yprime,zprime, rprime,Rprime;
+
+  get_prime_coords(BH_INDEX, x,y,z, orbit_quantities, &xprime, &yprime, &zprime, &rprime, &Rprime);
+
+  *x_prime = xprime;
+  *y_prime = yprime;
+  *z_prime = zprime;
+
+
+  orbit_quantities.DeleteAthenaArray();
+  return;
+}
+
+void Mesh::boost_lowered_vector_wrapper( int BH_INDEX, Real t, Real u0, Real u1, Real u2, Real u3, 
+                                Real *u0_prime, Real *u1_prime, Real *u2_prime, Real *u3_prime){
+
+  AthenaArray<Real> orbit_quantities;
+  orbit_quantities.NewAthenaArray(Norbit);
+
+  get_orbit_quantities(t,orbit_quantities);
+
+  Real u0prime,u1prime,u2prime,u3prime;
+
+  BoostLoweredVector(BH_INDEX,t,u0,u1,u2,u3, orbit_quantities,&u0prime,&u1prime,&u2prime,&u3prime);
+
+
+  *u0_prime = u0prime;
+  *u1_prime = u1prime;
+  *u2_prime = u2prime;
+  *u3_prime = u3prime;
 
   orbit_quantities.DeleteAthenaArray();
 
