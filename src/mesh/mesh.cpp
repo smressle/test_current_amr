@@ -1353,7 +1353,7 @@ void Mesh::FindDensityMidplane(){
 
   AthenaArray<Real> mass_weighted_lx_for_density_midplane, mass_weighted_ly_for_density_midplane, mass_weighted_lz_for_density_midplane;
   AthenaArray<Real> mass_weighted_lx_for_density_midplane_bh_1, mass_weighted_ly_for_density_midplane_bh_1, mass_weighted_lz_for_density_midplane_bh_1;
-  AthenaArray<Real> mass_weighted_lx_for_density_midplane_bh_2, mass_weighted_ly_for_density_midplane_bh_2, mass_weighted_lz_for_density_midplane_bh_1;
+  AthenaArray<Real> mass_weighted_lx_for_density_midplane_bh_2, mass_weighted_ly_for_density_midplane_bh_2, mass_weighted_lz_for_density_midplane_bh_2;
 
 
   mass_weighted_lx_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane);
@@ -1526,9 +1526,10 @@ void Mesh::FindDensityMidplane(){
               mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
               Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
-              boost_lowered_vector_wrapper(1, t, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
+              boost_lowered_vector_wrapper(1, time, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
 
-              get_prime_coords_wrapper(1 t, x,y,z, &xprime, &yprime, &zprime){
+              Real xprime,yprime,zprime;
+              get_prime_coords_wrapper(1, time, x,y,z, &xprime, &yprime, &zprime){
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
@@ -1545,9 +1546,11 @@ void Mesh::FindDensityMidplane(){
 
 
               Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
-              boost_lowered_vector_wrapper(2, t, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
+              boost_lowered_vector_wrapper(2, time, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
 
-              get_prime_coords_wrapper(2 t, x,y,z, &xprime, &yprime, &zprime){
+              Real xprime,yprime,zprime;
+
+              get_prime_coords_wrapper(2, time, x,y,z, &xprime, &yprime, &zprime){
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
