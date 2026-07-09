@@ -139,11 +139,27 @@ Mesh::Mesh(ParameterInput *pin, int mesh_test) :
   total_mass_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
   total_mass_for_density_midplane_bh_2.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
+  n_l.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  n_l_bh_1.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  n_l_bh_2.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
     for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
       for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph){
         mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
         mass_weighted_theta_for_density_midplane_bh_1(ir,iph) = PI/2.0;
         mass_weighted_theta_for_density_midplane_bh_2(ir,iph) = PI/2.0;
+
+        n_l(0,ir,iph) = 0.0;
+        n_l(1,ir,iph) = 0.0;
+        n_l(2,ir,iph) = 1.0;
+
+        n_l_bh_1(0,ir,iph) = 0.0;
+        n_l_bh_1(1,ir,iph) = 0.0;
+        n_l_bh_1(2,ir,iph) = 1.0;
+
+        n_l_bh_2(0,ir,iph) = 0.0;
+        n_l_bh_2(1,ir,iph) = 0.0;
+        n_l_bh_2(2,ir,iph) = 1.0;
 
 
       }
@@ -723,11 +739,29 @@ Mesh::Mesh(ParameterInput *pin, IOWrapper& resfile, int mesh_test) :
   total_mass_for_density_midplane_bh_1.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
   total_mass_for_density_midplane_bh_2.NewAthenaArray(N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
 
+  n_l.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  n_l_bh_1.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+  n_l_bh_2.NewAthenaArray(3,N_radial_bins_for_density_midplane,N_phi_bins_for_density_midplane);
+
+
   for (int ir = 0; ir < N_radial_bins_for_density_midplane; ++ir) 
     for (int iph = 0; iph < N_phi_bins_for_density_midplane; ++iph){
       mass_weighted_theta_for_density_midplane(ir,iph) = PI/2.0;
       mass_weighted_theta_for_density_midplane_bh_1(ir,iph) = PI/2.0;
       mass_weighted_theta_for_density_midplane_bh_2(ir,iph) = PI/2.0;
+
+      n_l(0,ir,iph) = 0.0;
+      n_l(1,ir,iph) = 0.0;
+      n_l(2,ir,iph) = 1.0;
+
+      n_l_bh_1(0,ir,iph) = 0.0;
+      n_l_bh_1(1,ir,iph) = 0.0;
+      n_l_bh_1(2,ir,iph) = 1.0;
+
+      n_l_bh_2(0,ir,iph) = 0.0;
+      n_l_bh_2(1,ir,iph) = 0.0;
+      n_l_bh_2(2,ir,iph) = 1.0;
+
     }
 
   Real Lx1 = mesh_size.x1max-mesh_size.x1min;
@@ -1123,6 +1157,10 @@ Mesh::~Mesh() {
   mass_weighted_theta_for_density_midplane.DeleteAthenaArray();
   mass_weighted_theta_for_density_midplane_bh_1.DeleteAthenaArray();
   mass_weighted_theta_for_density_midplane_bh_2.DeleteAthenaArray();
+
+  n_l.DeleteAthenaArray();
+  n_l_bh_1.DeleteAthenaArray();
+  n_l_bh_2.DeleteAthenaArray();
 
   total_mass_for_density_midplane.DeleteAthenaArray();
   total_mass_for_density_midplane_bh_1.DeleteAthenaArray();
@@ -1745,6 +1783,32 @@ void Mesh::FindDensityMidplane(){
           mass_weighted_ly_for_density_midplane_bh_2(ir,iph) = 0.0;
           mass_weighted_lz_for_density_midplane_bh_2(ir,iph) = 1.0;
         }
+
+
+
+        Real l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane(ir,iph)) + 
+                                 SQR(mass_weighted_ly_for_density_midplane(ir,iph)) + 
+                                 SQR(mass_weighted_lz_for_density_midplane(ir,iph)) );
+        n_l(0,ir,iph) = mass_weighted_lx_for_density_midplane(ir,iph)/l_norm;
+        n_l(1,ir,iph) = mass_weighted_ly_for_density_midplane(ir,iph)/l_norm;
+        n_l(2,ir,iph) = mass_weighted_lz_for_density_midplane(ir,iph)/l_norm;
+
+
+        l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane_bh_1(ir,iph)) + 
+                                 SQR(mass_weighted_ly_for_density_midplane_bh_1(ir,iph)) + 
+                                 SQR(mass_weighted_lz_for_density_midplane_bh_1(ir,iph)) );
+        n_l_bh_1(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_1(ir,iph)/l_norm;
+        n_l_bh_1(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_1(ir,iph)/l_norm;
+        n_l_bh_1(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_1(ir,iph)/l_norm;
+
+        l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane_bh_2(ir,iph)) + 
+                                 SQR(mass_weighted_ly_for_density_midplane_bh_2(ir,iph)) + 
+                                 SQR(mass_weighted_lz_for_density_midplane_bh_2(ir,iph)) );
+        n_l_bh_2(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_2(ir,iph)/l_norm;
+        n_l_bh_2(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_2(ir,iph)/l_norm;
+        n_l_bh_2(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_2(ir,iph)/l_norm;
+
+
 
       }
     }

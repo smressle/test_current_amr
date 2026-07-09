@@ -264,6 +264,7 @@ class Mesh {
   AthenaArray<Real> mass_weighted_theta_for_density_midplane,total_mass_for_density_midplane;
   AthenaArray<Real> mass_weighted_theta_for_density_midplane_bh_1,total_mass_for_density_midplane_bh_1;
   AthenaArray<Real> mass_weighted_theta_for_density_midplane_bh_2,total_mass_for_density_midplane_bh_2;
+  AthenaArray<Real> n_l,n_l_bh_1,n_l_bh_2;
 
 
   // functions
