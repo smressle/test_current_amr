@@ -1352,6 +1352,8 @@ void Mesh::FindDensityMidplane(){
 
 
   AthenaArray<Real> mass_weighted_lx_for_density_midplane, mass_weighted_ly_for_density_midplane, mass_weighted_lz_for_density_midplane;
+  AthenaArray<Real> mass_weighted_lx_for_density_midplane_bh_1, mass_weighted_ly_for_density_midplane_bh_1, mass_weighted_lz_for_density_midplane_bh_1;
+  AthenaArray<Real> mass_weighted_lx_for_density_midplane_bh_2, mass_weighted_ly_for_density_midplane_bh_2, mass_weighted_lz_for_density_midplane_bh_1;
 
 
   mass_weighted_lx_for_density_midplane.NewAthenaArray(N_radial_bins_for_density_midplane);
