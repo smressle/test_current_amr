@@ -1280,8 +1280,6 @@ void Mesh::OutputMeshStructure(int ndim) {
   return;
 }
 
-void Mesh::FindDensityMidplane(){
-
 
   void get_four_velocity(Real uu1, Real uu2, Real uu3, AthenaArray<Real> g,AthenaArray<Real> gi,
                          Real *u0, Real *u1, Real *u2, Real *u3){
@@ -1337,6 +1335,7 @@ void Mesh::FindDensityMidplane(){
 
   }
 
+void Mesh::FindDensityMidplane(){
 
   MeshBlock *pmb = my_blocks(0);
   AthenaArray<Real> vol(pmb->ncells1);
