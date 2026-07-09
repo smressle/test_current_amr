@@ -1529,7 +1529,7 @@ void Mesh::FindDensityMidplane(){
               boost_lowered_vector_wrapper(1, time, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
 
               Real xprime,yprime,zprime;
-              get_prime_coords_wrapper(1, time, x,y,z, &xprime, &yprime, &zprime){
+              get_prime_coords_wrapper(1, time, x,y,z, &xprime, &yprime, &zprime);
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
@@ -1550,7 +1550,7 @@ void Mesh::FindDensityMidplane(){
 
               Real xprime,yprime,zprime;
 
-              get_prime_coords_wrapper(2, time, x,y,z, &xprime, &yprime, &zprime){
+              get_prime_coords_wrapper(2, time, x,y,z, &xprime, &yprime, &zprime);
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
