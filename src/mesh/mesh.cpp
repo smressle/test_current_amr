@@ -1564,16 +1564,16 @@ void Mesh::FindDensityMidplane(){
               mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
               Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
-              boost_lowered_vector_wrapper(1, time, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
+              boost_lowered_vector_wrapper(1, time, ud_0,ud_1,ud_2,ud_3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
 
               Real xprime,yprime,zprime;
               get_prime_coords_wrapper(1, time, x,y,z, &xprime, &yprime, &zprime);
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
-              mass_weighted_lx_for_density_midplane_bh_1(ir,iph) += lx * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-              mass_weighted_ly_for_density_midplane_bh_1(ir,iph) += ly * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-              mass_weighted_lz_for_density_midplane_bh_1(ir,iph) += lz * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_lx_for_density_midplane_bh_1(ir_bh1,iph_bh1) += lx * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_ly_for_density_midplane_bh_1(ir_bh1,iph_bh1) += ly * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_lz_for_density_midplane_bh_1(ir_bh1,iph_bh1) += lz * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
 
               total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
@@ -1584,7 +1584,7 @@ void Mesh::FindDensityMidplane(){
 
 
               Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
-              boost_lowered_vector_wrapper(2, time, u0,u1,u2,u3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
+              boost_lowered_vector_wrapper(2, time, ud_0,ud_1,ud_2,ud_3, &ud0_prime, &ud1_prime, &ud2_prime, &ud3_prime);
 
               Real xprime,yprime,zprime;
 
@@ -1592,9 +1592,9 @@ void Mesh::FindDensityMidplane(){
               Real lx,ly,lz;
               get_angular_momentum_vector(xprime,yprime,zprime,ud0_prime,ud1_prime,ud2_prime,ud3_prime,&lx, &ly, &lz);
 
-              mass_weighted_lx_for_density_midplane_bh_2(ir,iph) += lx * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-              mass_weighted_ly_for_density_midplane_bh_2(ir,iph) += ly * pmb->phydro->w(IDN,k,j,i) *vol(i); 
-              mass_weighted_lz_for_density_midplane_bh_2(ir,iph) += lz * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_lx_for_density_midplane_bh_2(ir_bh2,iph_bh2) += lx * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_ly_for_density_midplane_bh_2(ir_bh2,iph_bh2) += ly * pmb->phydro->w(IDN,k,j,i) *vol(i); 
+              mass_weighted_lz_for_density_midplane_bh_2(ir_bh2,iph_bh2) += lz * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
 
               total_mass_for_density_midplane_bh_2(ir_bh2,iph_bh2) += pmb->phydro->w(IDN,k,j,i) * vol(i);
@@ -1789,6 +1789,7 @@ void Mesh::FindDensityMidplane(){
         Real l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane(ir,iph)) + 
                                  SQR(mass_weighted_ly_for_density_midplane(ir,iph)) + 
                                  SQR(mass_weighted_lz_for_density_midplane(ir,iph)) );
+        if (l_norm>0)
         n_l(0,ir,iph) = mass_weighted_lx_for_density_midplane(ir,iph)/l_norm;
         n_l(1,ir,iph) = mass_weighted_ly_for_density_midplane(ir,iph)/l_norm;
         n_l(2,ir,iph) = mass_weighted_lz_for_density_midplane(ir,iph)/l_norm;
