@@ -1281,7 +1281,7 @@ void Mesh::OutputMeshStructure(int ndim) {
 }
 
 
-  void get_four_velocity(Real uu1, Real uu2, Real uu3, AthenaArray<Real> g,AthenaArray<Real> gi,
+  void get_four_velocity(int i, Real uu1, Real uu2, Real uu3, AthenaArray<Real> g,AthenaArray<Real> gi,
                          Real *u0, Real *u1, Real *u2, Real *u3){
       Real tmp = g(I11,i)*uu1*uu1 + 2.0*g(I12,i)*uu1*uu2 + 2.0*g(I13,i)*uu1*uu3
                + g(I22,i)*uu2*uu2 + 2.0*g(I23,i)*uu2*uu3
@@ -1297,7 +1297,7 @@ void Mesh::OutputMeshStructure(int ndim) {
 
       return;
   }
-  void lower_four_velocity(Real u0, Real u1, Real u2, Real u3, AthenaArray<Real> g,
+  void lower_four_velocity(int i,Real u0, Real u1, Real u2, Real u3, AthenaArray<Real> g,
                            Real *ud_0, Real *ud_1, Real *ud_2, Real *ud_3){
          // Extract metric coefficients
     const Real &g00_ = g(I00,i);
@@ -1496,10 +1496,10 @@ void Mesh::FindDensityMidplane(){
 
 
             Real u0,u1,u2,u3;
-            get_four_velocity(pmb->phydro->w(IVX,k,j,i), pmb->phydro->w(IVY,k,j,i), pmb->phydro->w(IVZ,k,j,i), 
+            get_four_velocity(i, pmb->phydro->w(IVX,k,j,i), pmb->phydro->w(IVY,k,j,i), pmb->phydro->w(IVZ,k,j,i), 
                             g,gi, &u0, &u1, &u2, &u3);
             Real ud_0,ud_1,ud_2,ud_3;
-            lower_four_velocity(u0, u1, u2, u3, g,&ud_0, &ud_1, &ud_2, &ud_3);
+            lower_four_velocity(i, u0, u1, u2, u3, g,&ud_0, &ud_1, &ud_2, &ud_3);
 
 
 
