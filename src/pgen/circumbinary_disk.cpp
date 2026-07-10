@@ -697,11 +697,11 @@ if (max_second_bh_refinement_level>0){
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_2(ir,iph);
 
                 /* Convert theta density midplane to coordinates aligned with angualar momentum */
-                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
-                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
-                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane);
+                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
+                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-                zprime_midplane = n_2_bh_1(0,ir,iph) * x_midplane + n_l_bh_2(1,ir,iph) * y_midplane + n_l_bh_2(2,ir,iph) * z_midplane
+                zprime_midplane = n_2_bh_1(0,ir,iph) * x_midplane + n_l_bh_2(1,ir,iph) * y_midplane + n_l_bh_2(2,ir,iph) * z_midplane;
                 theta_arg = zprime_midplane/(pseudo_r+SMALL);
                 if (theta_arg>1) theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -816,11 +816,11 @@ if (max_second_bh_refinement_level>0){
 
 
                 /* Convert theta density midplane to coordinates aligned with angualar momentum */
-                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
-                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
-                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane);
+                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
+                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-                zprime_midplane = n_l_bh_1(0,ir,iph) * x_midplane + n_l_bh_1(1,ir,iph) * y_midplane + n_l_bh_1(2,ir,iph) * z_midplane
+                zprime_midplane = n_l_bh_1(0,ir,iph) * x_midplane + n_l_bh_1(1,ir,iph) * y_midplane + n_l_bh_1(2,ir,iph) * z_midplane;
                 theta_arg = zprime_midplane/(pseudo_r+SMALL);
                 if (theta_arg>1) theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -928,11 +928,11 @@ if (max_second_bh_refinement_level>0){
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
 
             /* Convert theta density midplane to coordinates aligned with angualar momentum */
-            Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
-            Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
-            Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+            Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane);
+            Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
+            Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-            zprime_midplane = n_l(0,ir,iph) * x_midplane + n_l(1,ir,iph) * y_midplane + n_l(2,ir,iph) * z_midplane
+            zprime_midplane = n_l(0,ir,iph) * x_midplane + n_l(1,ir,iph) * y_midplane + n_l(2,ir,iph) * z_midplane;
             theta_arg = zprime_midplane/(pseudo_r+SMALL);
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
