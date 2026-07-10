@@ -738,8 +738,8 @@ if (max_second_bh_refinement_level>0){
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -859,8 +859,8 @@ if (max_second_bh_refinement_level>0){
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -1020,8 +1020,8 @@ if (max_second_bh_refinement_level>0){
             //     z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
             //     z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
 
-            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
+            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
 
 
               if (n_level>max_level_required) max_level_required=n_level;
