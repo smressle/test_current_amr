@@ -701,7 +701,9 @@ if (max_second_bh_refinement_level>0){
                 Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
                 Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-                zprime_midplane = n_2_bh_1(0,ir,iph) * x_midplane + n_l_bh_2(1,ir,iph) * y_midplane + n_l_bh_2(2,ir,iph) * z_midplane;
+                Real zprime_midplane = pmb->pmy_mesh->n_l_bh_2(0,ir,iph) * x_midplane + 
+                                       pmb->pmy_mesh->n_l_bh_2(1,ir,iph) * y_midplane + 
+                                       pmb->pmy_mesh->n_l_bh_2(2,ir,iph) * z_midplane;
                 theta_arg = zprime_midplane/(pseudo_r+SMALL);
                 if (theta_arg>1) theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -820,7 +822,9 @@ if (max_second_bh_refinement_level>0){
                 Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
                 Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-                zprime_midplane = n_l_bh_1(0,ir,iph) * x_midplane + n_l_bh_1(1,ir,iph) * y_midplane + n_l_bh_1(2,ir,iph) * z_midplane;
+                Real zprime_midplane = pmb->pmy_mesh->n_l_bh_1(0,ir,iph) * x_midplane + 
+                                       pmb->pmy_mesh->n_l_bh_1(1,ir,iph) * y_midplane + 
+                                       pmb->pmy_mesh->n_l_bh_1(2,ir,iph) * z_midplane;
                 theta_arg = zprime_midplane/(pseudo_r+SMALL);
                 if (theta_arg>1) theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -932,7 +936,9 @@ if (max_second_bh_refinement_level>0){
             Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane);
             Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane);
 
-            zprime_midplane = n_l(0,ir,iph) * x_midplane + n_l(1,ir,iph) * y_midplane + n_l(2,ir,iph) * z_midplane;
+            Real zprime_midplane = pmb->pmy_mesh->n_l(0,ir,iph) * x_midplane + 
+                                   pmb->pmy_mesh->n_l(1,ir,iph) * y_midplane + 
+                                   pmb->pmy_mesh->n_l(2,ir,iph) * z_midplane;
             theta_arg = zprime_midplane/(pseudo_r+SMALL);
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
