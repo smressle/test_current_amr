@@ -738,8 +738,8 @@ if (max_second_bh_refinement_level>0){
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -859,8 +859,8 @@ if (max_second_bh_refinement_level>0){
 
 
 
-             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
+             if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
 
                 max_level_required=max_second_bh_refinement_level;
                 any_in_refinement_region=1;
@@ -944,7 +944,9 @@ if (max_second_bh_refinement_level>0){
             if (theta_arg<-1) theta_arg=-1.0;
             theta_density_midplane = std::acos(theta_arg);
 
-            Real pseudo_r_dot_angular_momentum_vector = x * pmb->pmy_mesh->n_l(0,ir,iph) + y * pmb->pmy_mesh->n_l(1,ir,iph) + z*pmb->pmy_mesh->n_l(2,ir,iph);
+            Real pseudo_r_dot_angular_momentum_vector = x * pmb->pmy_mesh->n_l(0,ir,iph) + 
+                                                        y * pmb->pmy_mesh->n_l(1,ir,iph) + 
+                                                        z * pmb->pmy_mesh->n_l(2,ir,iph);
             theta_arg = pseudo_r_dot_angular_momentum_vector/(pseudo_r+SMALL);
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
@@ -1018,8 +1020,8 @@ if (max_second_bh_refinement_level>0){
             //     z < (z_density_midplane + z_radius-mesh_block_widthz/2.0) && 
             //     z > (z_density_midplane-z_radius+mesh_block_widthz/2.0)  ){
 
-            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width) &&
-               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width) ) {
+            if (pseudo_r < box_radius &&  (pseudo_theta < theta_density_midplane + pseudo_theta_scale_height -theta_mesh_block_width/2.0) &&
+               pseudo_theta > (theta_density_midplane - pseudo_theta_scale_height + theta_mesh_block_width/2.0) ) {
 
 
               if (n_level>max_level_required) max_level_required=n_level;
