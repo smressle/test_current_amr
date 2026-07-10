@@ -695,9 +695,9 @@ if (max_second_bh_refinement_level>0){
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_2(ir,iph);
-                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX2) ) * n_l_bh_2(0,ir,iph) + 
-                                                     ( y-orbit_quantities(IY2) ) * n_l_bh_2(1,ir,iph) + 
-                                                     ( z-orbit_quantities(IZ2) ) * n_l_bh_2(2,ir,iph);
+                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX2) ) * pmb->pmy_mesh->n_l_bh_2(0,ir,iph) + 
+                                                     ( y-orbit_quantities(IY2) ) * pmb->pmy_mesh->n_l_bh_2(1,ir,iph) + 
+                                                     ( z-orbit_quantities(IZ2) ) * pmb->pmy_mesh->n_l_bh_2(2,ir,iph);
                 theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
                 if (theta_arg>1)  theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -712,9 +712,9 @@ if (max_second_bh_refinement_level>0){
               Real mesh_block_width_l;
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
               else{
-                mesh_block_width_l = mesh_block_widthx * n_l_bh_2(0,ir,iph)  + 
-                                     mesh_block_widthy * n_l_bh_2(1,ir,iph)  + 
-                                     mesh_block_widthz * n_l_bh_2(0,ir,iph);
+                mesh_block_width_l = mesh_block_widthx * std::fabs(pmb->pmy_mesh->n_l_bh_2(0,ir,iph) ) + 
+                                     mesh_block_widthy * std::fabs(pmb->pmy_mesh->n_l_bh_2(1,ir,iph) ) + 
+                                     mesh_block_widthz * std::fabs(pmb->pmy_mesh->n_l_bh_2(2,ir,iph) );
               }
 
               Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
@@ -802,9 +802,9 @@ if (max_second_bh_refinement_level>0){
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_1(ir,iph);
 
-                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX1) ) * n_l_bh_1(0,ir,iph) + 
-                                                     ( y-orbit_quantities(IY1) ) * n_l_bh_1(1,ir,iph) + 
-                                                     ( z-orbit_quantities(IZ1) ) * n_l_bh_1(2,ir,iph);
+                Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX1) ) * pmb->pmy_mesh->n_l_bh_1(0,ir,iph) + 
+                                                     ( y-orbit_quantities(IY1) ) * pmb->pmy_mesh->n_l_bh_1(1,ir,iph) + 
+                                                     ( z-orbit_quantities(IZ1) ) * pmb->pmy_mesh->n_l_bh_1(2,ir,iph);
                 theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
                 if (theta_arg>1)  theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
@@ -819,9 +819,9 @@ if (max_second_bh_refinement_level>0){
               Real mesh_block_width_l;
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
               else{
-                mesh_block_width_l = mesh_block_widthx * n_l_bh_1(0,ir,iph)  + 
-                                     mesh_block_widthy * n_l_bh_1(1,ir,iph)  + 
-                                     mesh_block_widthz * n_l_bh_1(0,ir,iph);
+                mesh_block_width_l = mesh_block_widthx * std::fabs(pmb->pmy_mesh->n_l_bh_1(0,ir,iph))  + 
+                                     mesh_block_widthy * std::fabs(pmb->pmy_mesh->n_l_bh_1(1,ir,iph))  + 
+                                     mesh_block_widthz * std::fabs(pmb->pmy_mesh->n_l_bh_1(2,ir,iph));
               }
         
               Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
@@ -902,7 +902,7 @@ if (max_second_bh_refinement_level>0){
           if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
           else{
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
-            Real pseudo_r_dot_angular_momentum_vector = x * n_l(0,ir,iph) + y * n_l(1,ir,iph) + z*n_l(2,ir,iph);
+            Real pseudo_r_dot_angular_momentum_vector = x * pmb->pmy_mesh->n_l(0,ir,iph) + y * pmb->pmy_mesh->n_l(1,ir,iph) + z*pmb->pmy_mesh->n_l(2,ir,iph);
             theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
@@ -931,9 +931,9 @@ if (max_second_bh_refinement_level>0){
             Real mesh_block_width_l;
            if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) )  mesh_block_width_l = mesh_block_widthz;
             else{
-              mesh_block_width_l = mesh_block_widthx * n_l(0,ir,iph)  + 
-                                   mesh_block_widthy * n_l(1,ir,iph)  + 
-                                   mesh_block_widthz * n_l(0,ir,iph);
+              mesh_block_width_l = mesh_block_widthx * std::fabs(pmb->pmy_mesh->n_l(0,ir,iph))  + 
+                                   mesh_block_widthy * std::fabs(pmb->pmy_mesh->n_l(1,ir,iph))  + 
+                                   mesh_block_widthz * std::fabs(pmb->pmy_mesh->n_l(2,ir,iph));
             }
 
         
