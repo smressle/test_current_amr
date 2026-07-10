@@ -695,6 +695,18 @@ if (max_second_bh_refinement_level>0){
               if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_2(ir,iph);
+
+                /* Convert theta density midplane to coordinates aligned with angualar momentum */
+                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
+                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
+                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+
+                zprime_midplane = n_2_bh_1(0,ir,iph) * x_midplane + n_l_bh_2(1,ir,iph) * y_midplane + n_l_bh_2(2,ir,iph) * z_midplane
+                theta_arg = zprime_midplane/(pseudo_r+SMALL);
+                if (theta_arg>1) theta_arg=1.0;
+                if (theta_arg<-1) theta_arg=-1.0;
+                theta_density_midplane = std::acos(theta_arg);
+
                 Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX2) ) * pmb->pmy_mesh->n_l_bh_2(0,ir,iph) + 
                                                      ( y-orbit_quantities(IY2) ) * pmb->pmy_mesh->n_l_bh_2(1,ir,iph) + 
                                                      ( z-orbit_quantities(IZ2) ) * pmb->pmy_mesh->n_l_bh_2(2,ir,iph);
@@ -802,6 +814,18 @@ if (max_second_bh_refinement_level>0){
               else{
                 theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane_bh_1(ir,iph);
 
+
+                /* Convert theta density midplane to coordinates aligned with angualar momentum */
+                Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
+                Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
+                Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+
+                zprime_midplane = n_l_bh_1(0,ir,iph) * x_midplane + n_l_bh_1(1,ir,iph) * y_midplane + n_l_bh_1(2,ir,iph) * z_midplane
+                theta_arg = zprime_midplane/(pseudo_r+SMALL);
+                if (theta_arg>1) theta_arg=1.0;
+                if (theta_arg<-1) theta_arg=-1.0;
+                theta_density_midplane = std::acos(theta_arg);
+
                 Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX1) ) * pmb->pmy_mesh->n_l_bh_1(0,ir,iph) + 
                                                      ( y-orbit_quantities(IY1) ) * pmb->pmy_mesh->n_l_bh_1(1,ir,iph) + 
                                                      ( z-orbit_quantities(IZ1) ) * pmb->pmy_mesh->n_l_bh_1(2,ir,iph);
@@ -902,6 +926,18 @@ if (max_second_bh_refinement_level>0){
           if ( (ir<0) or (ir>pmb->pmy_mesh->N_radial_bins_for_density_midplane-1) ) ;
           else{
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
+
+            /* Convert theta density midplane to coordinates aligned with angualar momentum */
+            Real x_midplane = pseudo_r*std::cos(pseudo_phi) * std::sin(theta_density_midplane)
+            Real y_midplane = pseudo_r*std::sin(pseudo_phi) * std::sin(theta_density_midplane)
+            Real z_midplane = pseudo_r*                       std::cos(theta_density_midplane)
+
+            zprime_midplane = n_l(0,ir,iph) * x_midplane + n_l(1,ir,iph) * y_midplane + n_l(2,ir,iph) * z_midplane
+            theta_arg = zprime_midplane/(pseudo_r+SMALL);
+            if (theta_arg>1) theta_arg=1.0;
+            if (theta_arg<-1) theta_arg=-1.0;
+            theta_density_midplane = std::acos(theta_arg);
+
             Real pseudo_r_dot_angular_momentum_vector = x * pmb->pmy_mesh->n_l(0,ir,iph) + y * pmb->pmy_mesh->n_l(1,ir,iph) + z*pmb->pmy_mesh->n_l(2,ir,iph);
             theta_arg = pseudo_r_dot_angular_momentum_vector/(pseudo_r+SMALL);
             if (theta_arg>1) theta_arg=1.0;
