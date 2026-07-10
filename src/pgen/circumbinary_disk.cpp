@@ -677,7 +677,7 @@ if (max_second_bh_refinement_level>0){
               // /****** / Find location of  midplane for density /****/
               Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX2)) + SQR(y-orbit_quantities(IY2)) + SQR(z-orbit_quantities(IZ2)) );
               if (pseudo_r <= 0.0) continue;
-              Real theta_arg = (z-orbit_quantities(IZ2)) /pseudo_r;
+              Real theta_arg = (z-orbit_quantities(IZ2)) /(pseudo_r+SMALL);
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
               Real pseudo_theta = std::acos(theta_arg);
@@ -698,7 +698,7 @@ if (max_second_bh_refinement_level>0){
                 Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX2) ) * pmb->pmy_mesh->n_l_bh_2(0,ir,iph) + 
                                                      ( y-orbit_quantities(IY2) ) * pmb->pmy_mesh->n_l_bh_2(1,ir,iph) + 
                                                      ( z-orbit_quantities(IZ2) ) * pmb->pmy_mesh->n_l_bh_2(2,ir,iph);
-                theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+                theta_arg = pseudo_r_dot_angular_momentum_vector/(pseudo_r+SMALL);
                 if (theta_arg>1)  theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
                 pseudo_theta = std::acos(theta_arg);
@@ -717,9 +717,9 @@ if (max_second_bh_refinement_level>0){
                                      mesh_block_widthz * std::fabs(pmb->pmy_mesh->n_l_bh_2(2,ir,iph) );
               }
 
-              Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+              Real pseudo_theta_scale_height = std::atan(z_radius/(pseudo_r+SMALL));
 
-              Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
+              Real theta_mesh_block_width = std::atan(mesh_block_width_l/(pseudo_r+SMALL));
 
 
 
@@ -783,7 +783,7 @@ if (max_second_bh_refinement_level>0){
               // /****** / Find location of  midplane for density /****/
               Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX1)) + SQR(y-orbit_quantities(IY1)) + SQR(z-orbit_quantities(IZ1)) );
               if (pseudo_r <= 0.0) continue;
-              Real theta_arg = (z-orbit_quantities(IZ1)) /pseudo_r;
+              Real theta_arg = (z-orbit_quantities(IZ1)) /(pseudo_r+SMALL);
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
               Real pseudo_theta = std::acos(theta_arg);
@@ -805,7 +805,7 @@ if (max_second_bh_refinement_level>0){
                 Real pseudo_r_dot_angular_momentum_vector = ( x-orbit_quantities(IX1) ) * pmb->pmy_mesh->n_l_bh_1(0,ir,iph) + 
                                                      ( y-orbit_quantities(IY1) ) * pmb->pmy_mesh->n_l_bh_1(1,ir,iph) + 
                                                      ( z-orbit_quantities(IZ1) ) * pmb->pmy_mesh->n_l_bh_1(2,ir,iph);
-                theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+                theta_arg = pseudo_r_dot_angular_momentum_vector/(pseudo_r+SMALL);
                 if (theta_arg>1)  theta_arg=1.0;
                 if (theta_arg<-1) theta_arg=-1.0;
                 pseudo_theta = std::acos(theta_arg);
@@ -824,9 +824,9 @@ if (max_second_bh_refinement_level>0){
                                      mesh_block_widthz * std::fabs(pmb->pmy_mesh->n_l_bh_1(2,ir,iph));
               }
         
-              Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+              Real pseudo_theta_scale_height = std::atan(z_radius/(pseudo_r+SMALL));
 
-              Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
+              Real theta_mesh_block_width = std::atan(mesh_block_width_l/(pseudo_r+SMALL));
 
 
 
@@ -884,7 +884,7 @@ if (max_second_bh_refinement_level>0){
           // /****** / Find location of  midplane for density /****/
           Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
           if (pseudo_r <= 0.0) continue;
-          Real theta_arg = z/pseudo_r;
+          Real theta_arg = z/(pseudo_r+SMALL);
           if (theta_arg>1) theta_arg=1.0;
           if (theta_arg<-1) theta_arg=-1.0;
           Real pseudo_theta = std::acos(theta_arg);
@@ -903,7 +903,7 @@ if (max_second_bh_refinement_level>0){
           else{
             theta_density_midplane = pmb->pmy_mesh->mass_weighted_theta_for_density_midplane(ir,iph);
             Real pseudo_r_dot_angular_momentum_vector = x * pmb->pmy_mesh->n_l(0,ir,iph) + y * pmb->pmy_mesh->n_l(1,ir,iph) + z*pmb->pmy_mesh->n_l(2,ir,iph);
-            theta_arg = pseudo_r_dot_angular_momentum_vector/pseudo_r;
+            theta_arg = pseudo_r_dot_angular_momentum_vector/(pseudo_r+SMALL);
             if (theta_arg>1) theta_arg=1.0;
             if (theta_arg<-1) theta_arg=-1.0;
             pseudo_theta = std::acos(theta_arg);
@@ -963,9 +963,9 @@ if (max_second_bh_refinement_level>0){
               if (n_level>=2) box_radius = total_box_radius/std::pow(2.,n_level-2)*0.9999;
             }
 
-            Real pseudo_theta_scale_height = std::asin(z_radius/pseudo_r);
+            Real pseudo_theta_scale_height = std::atan(z_radius/(pseudo_r+SMALL));
 
-            Real theta_mesh_block_width = std::asin(mesh_block_width_l/pseudo_r);
+            Real theta_mesh_block_width = std::atan(mesh_block_width_l/(pseudo_r+SMALL));
 
 
 
