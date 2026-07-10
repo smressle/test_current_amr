@@ -33,7 +33,7 @@
 #include <string>     // string
 
 
-#include <cfenv>
+// #include <cfenv>
 
 
 // Athena++ headers
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
   //--- Step 1. --------------------------------------------------------------------------
   // Initialize MPI environment, if necessary
 
-  feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
+  // feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW);
 
 #ifdef MPI_PARALLEL
 #ifdef OPENMP_PARALLEL
