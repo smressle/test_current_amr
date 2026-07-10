@@ -33,7 +33,7 @@
 #include <string>     // string
 
 
-// #include <cfenv>
+#include <cfenv>
 
 
 // Athena++ headers
