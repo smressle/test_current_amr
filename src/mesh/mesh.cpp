@@ -1789,25 +1789,31 @@ void Mesh::FindDensityMidplane(){
         Real l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane(ir,iph)) + 
                                  SQR(mass_weighted_ly_for_density_midplane(ir,iph)) + 
                                  SQR(mass_weighted_lz_for_density_midplane(ir,iph)) );
-        if (l_norm>0)
-        n_l(0,ir,iph) = mass_weighted_lx_for_density_midplane(ir,iph)/l_norm;
-        n_l(1,ir,iph) = mass_weighted_ly_for_density_midplane(ir,iph)/l_norm;
-        n_l(2,ir,iph) = mass_weighted_lz_for_density_midplane(ir,iph)/l_norm;
+        if (l_norm>0){
+          n_l(0,ir,iph) = mass_weighted_lx_for_density_midplane(ir,iph)/l_norm;
+          n_l(1,ir,iph) = mass_weighted_ly_for_density_midplane(ir,iph)/l_norm;
+          n_l(2,ir,iph) = mass_weighted_lz_for_density_midplane(ir,iph)/l_norm;
+       }
 
 
         l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane_bh_1(ir,iph)) + 
                                  SQR(mass_weighted_ly_for_density_midplane_bh_1(ir,iph)) + 
                                  SQR(mass_weighted_lz_for_density_midplane_bh_1(ir,iph)) );
-        n_l_bh_1(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_1(ir,iph)/l_norm;
-        n_l_bh_1(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_1(ir,iph)/l_norm;
-        n_l_bh_1(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_1(ir,iph)/l_norm;
+        if (l_norm>0){
+          n_l_bh_1(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_1(ir,iph)/l_norm;
+          n_l_bh_1(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_1(ir,iph)/l_norm;
+          n_l_bh_1(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_1(ir,iph)/l_norm;
+      }
 
         l_norm = std::sqrt( SQR(mass_weighted_lx_for_density_midplane_bh_2(ir,iph)) + 
                                  SQR(mass_weighted_ly_for_density_midplane_bh_2(ir,iph)) + 
                                  SQR(mass_weighted_lz_for_density_midplane_bh_2(ir,iph)) );
-        n_l_bh_2(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_2(ir,iph)/l_norm;
-        n_l_bh_2(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_2(ir,iph)/l_norm;
-        n_l_bh_2(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_2(ir,iph)/l_norm;
+
+        if (l_norm>0){
+          n_l_bh_2(0,ir,iph) = mass_weighted_lx_for_density_midplane_bh_2(ir,iph)/l_norm;
+          n_l_bh_2(1,ir,iph) = mass_weighted_ly_for_density_midplane_bh_2(ir,iph)/l_norm;
+          n_l_bh_2(2,ir,iph) = mass_weighted_lz_for_density_midplane_bh_2(ir,iph)/l_norm;
+        }
 
 
 
