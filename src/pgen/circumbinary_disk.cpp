@@ -621,6 +621,11 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin) {
 
 int RefinementCondition(MeshBlock *pmb)
 {
+
+  return 0;
+
+
+  
   int refine = 0;
 
     Real DX,DY,DZ;
