@@ -686,6 +686,8 @@ if (max_second_bh_refinement_level>0){
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
               Real pseudo_theta = std::acos(theta_arg);
+              if (std::fabs(y-orbit_quantities(IY2))<1e-2 && std::fabs(x-orbit_quantities(IX2))<1e-2) continue;
+
               Real pseudo_phi = std::atan2(y-orbit_quantities(IY2),x-orbit_quantities(IX2));
               pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
               if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
@@ -806,6 +808,7 @@ if (max_second_bh_refinement_level>0){
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
               Real pseudo_theta = std::acos(theta_arg);
+              if (std::fabs(y-orbit_quantities(IY1))<1e-2 && std::fabs(x-orbit_quantities(IX1))<1e-2) continue;
               Real pseudo_phi = std::atan2(y-orbit_quantities(IY1),x-orbit_quantities(IX1));
               pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
               if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
@@ -921,6 +924,7 @@ if (max_second_bh_refinement_level>0){
           if (theta_arg>1) theta_arg=1.0;
           if (theta_arg<-1) theta_arg=-1.0;
           Real pseudo_theta = std::acos(theta_arg);
+          if (std::fabs(y)<1e-2 && std::fabs(x)<1e-2) continue;
           Real pseudo_phi = std::atan2(y,x);
           pseudo_phi = std::fmod(pseudo_phi, 2.0*PI);
           if (pseudo_phi < 0.0) pseudo_phi += 2.0*PI;
