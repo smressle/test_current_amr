@@ -1472,20 +1472,20 @@ void Mesh::FindDensityMidplane(){
 
             Real r_bh1 = std::sqrt( SQR(x-xbh1) + SQR(y-ybh1) + SQR(z-zbh1) );
             Real r_bh2 = std::sqrt( SQR(x-xbh2) + SQR(y-ybh2) + SQR(z-zbh2) );
-            if (r<= 0.0) continue;
+            if (r<= r_min_for_density_midplane) continue;
             Real th_arg = z/r;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;
             Real theta = std::acos(th_arg);
 
 
-            if (r_bh1<= 0.0) continue;
+            if (r_bh1<= r_min_for_density_midplane) continue;
             th_arg = (z-zbh1)/r_bh1;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;
             Real theta_bh1 = std::acos(th_arg);
 
-            if (r_bh2<= 0.0) continue;
+            if (r_bh2<= r_min_for_density_midplane) continue;
             th_arg = (z-zbh2)/r_bh2;
             if (th_arg>1) th_arg=1.0;
             if (th_arg<-1) th_arg=-1.0;

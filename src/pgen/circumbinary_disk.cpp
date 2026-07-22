@@ -678,7 +678,7 @@ if (max_second_bh_refinement_level>0){
 
               // /****** / Find location of  midplane for density /****/
               Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX2)) + SQR(y-orbit_quantities(IY2)) + SQR(z-orbit_quantities(IZ2)) );
-              if (pseudo_r <= 0.0) continue;
+              if (pseudo_r <= pmb->pmy_mesh->r_min_for_density_midplane) continue;
               Real theta_arg = (z-orbit_quantities(IZ2)) /(pseudo_r+SMALL);
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
@@ -800,7 +800,7 @@ if (max_second_bh_refinement_level>0){
 
               // /****** / Find location of  midplane for density /****/
               Real pseudo_r = std::sqrt( SQR(x-orbit_quantities(IX1)) + SQR(y-orbit_quantities(IY1)) + SQR(z-orbit_quantities(IZ1)) );
-              if (pseudo_r <= 0.0) continue;
+              if (pseudo_r <= pmb->pmy_mesh->r_min_for_density_midplane) continue;
               Real theta_arg = (z-orbit_quantities(IZ1)) /(pseudo_r+SMALL);
               if (theta_arg>1) theta_arg=1.0;
               if (theta_arg<-1) theta_arg=-1.0;
@@ -916,7 +916,7 @@ if (max_second_bh_refinement_level>0){
 
           // /****** / Find location of  midplane for density /****/
           Real pseudo_r = std::sqrt( SQR(x) + SQR(y) + SQR(z) );
-          if (pseudo_r <= 0.0) continue;
+          if (pseudo_r <= pmb->pmy_mesh->r_min_for_density_midplane) continue;
           Real theta_arg = z/(pseudo_r+SMALL);
           if (theta_arg>1) theta_arg=1.0;
           if (theta_arg<-1) theta_arg=-1.0;
