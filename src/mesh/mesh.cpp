@@ -1537,7 +1537,7 @@ void Mesh::FindDensityMidplane(){
 
             bool valid_r_bh2 = ( (ir_bh2>=0) && (ir_bh2<N_radial_bins_for_density_midplane) );
 
-            Real iph_float = 0.0
+            Real iph_float = 0.0;
             int iph = 0;
 
             if (valid_total_phi){
