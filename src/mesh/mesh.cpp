@@ -1491,20 +1491,35 @@ void Mesh::FindDensityMidplane(){
             if (th_arg<-1) th_arg=-1.0;
             Real theta_bh2 = std::acos(th_arg);
 
-            
-            Real phi = std::atan2(y,x);
-            phi = std::fmod(phi, 2.0*PI);
-            if (phi < 0.0) phi += 2.0*PI;
+            Real phi=0.0;
+            bool valid_total_phi = true;
+            if (std::fabs(y)<1e-2 && std::fabs(x)<1e-2) valid_total_phi=false;
+            else{
+              phi = std::atan2(y,x);
+              phi = std::fmod(phi, 2.0*PI);
+              if (phi < 0.0) phi += 2.0*PI;
+           }
 
 
+            Real phi_bh1=0.0;
+            bool valid_phi_bh1 = true;
 
-            Real phi_bh1 = std::atan2(y-ybh1,x-xbh1);
-            phi_bh1 = std::fmod(phi_bh1, 2.0*PI);
-            if (phi_bh1 < 0.0) phi_bh1 += 2.0*PI;
+            if (std::fabs(y-ybh1)<1e-2 && std::fabs(x-xbh1)<1e-2) valid_phi_bh1 = false;
+            else{
+              phi_bh1 = std::atan2(y-ybh1,x-xbh1);
+              phi_bh1 = std::fmod(phi_bh1, 2.0*PI);
+              if (phi_bh1 < 0.0) phi_bh1 += 2.0*PI;
+            }
 
-            Real phi_bh2 = std::atan2(y-ybh2,x-xbh2);
-            phi_bh2 = std::fmod(phi_bh2, 2.0*PI);
-            if (phi_bh2 < 0.0) phi_bh2 += 2.0*PI;
+            Real phi_bh2 = 0.0;
+            bool valid_phi_bh2 = true;
+
+            if (std::fabs(y-ybh2)<1e-2 && std::fabs(x-xbh2)<1e-2) valid_phi_bh2 = false;
+            else{
+              phi_bh2 = std::atan2(y-ybh2,x-xbh2);
+              phi_bh2 = std::fmod(phi_bh2, 2.0*PI);
+              if (phi_bh2 < 0.0) phi_bh2 += 2.0*PI;
+            }
 
             Real ir_float = std::log(r/r_min_for_density_midplane)/dlogr;
             int ir   = static_cast<int>(std::floor(ir_float));
@@ -1522,18 +1537,32 @@ void Mesh::FindDensityMidplane(){
 
             bool valid_r_bh2 = ( (ir_bh2>=0) && (ir_bh2<N_radial_bins_for_density_midplane) );
 
+            Real iph_float = 0.0
+            int iph = 0;
 
-            Real iph_float = phi/dphi;
-            int iph   = static_cast<int>(std::floor(iph_float));
-            iph = std::max(0, std::min(iph, N_phi_bins_for_density_midplane-1));
+            if (valid_total_phi){
+              iph_float = phi/dphi;
+              iph   = static_cast<int>(std::floor(iph_float));
+              iph = std::max(0, std::min(iph, N_phi_bins_for_density_midplane-1));
+            }
 
-            Real iph_bh1_float = phi_bh1/dphi;
-            int iph_bh1   = static_cast<int>(std::floor(iph_bh1_float));
-            iph_bh1 = std::max(0, std::min(iph_bh1, N_phi_bins_for_density_midplane-1));
+            Real iph_bh1_float = 0.0;
+            int iph_bh1 = 0;
 
-            Real iph_bh2_float = phi_bh2/dphi;
-            int iph_bh2   = static_cast<int>(std::floor(iph_bh2_float));
-            iph_bh2 = std::max(0, std::min(iph_bh2, N_phi_bins_for_density_midplane-1));
+            if (valid_phi_bh1){
+              iph_bh1_float = phi_bh1/dphi;
+              iph_bh1   = static_cast<int>(std::floor(iph_bh1_float));
+              iph_bh1 = std::max(0, std::min(iph_bh1, N_phi_bins_for_density_midplane-1));
+            }
+
+            Real iph_bh2_float = 0.0;
+            int iph_bh2 = 0;
+
+            if (valid_phi_bh2){
+              iph_bh2_float = phi_bh2/dphi;
+              iph_bh2   = static_cast<int>(std::floor(iph_bh2_float));
+              iph_bh2 = std::max(0, std::min(iph_bh2, N_phi_bins_for_density_midplane-1));
+            }
 
 
 
@@ -1546,7 +1575,7 @@ void Mesh::FindDensityMidplane(){
 
 
 
-            if (valid_total_r){
+            if (valid_total_r && valid_total_phi){
               mass_weighted_theta_for_density_midplane(ir,iph) += theta * pmb->phydro->w(IDN,k,j,i) *vol(i);
 
               Real lx,ly,lz;
@@ -1562,7 +1591,7 @@ void Mesh::FindDensityMidplane(){
             }
 
 
-            if (valid_r_bh1){
+            if (valid_r_bh1 && valid_phi_bh1){
               mass_weighted_theta_for_density_midplane_bh_1(ir_bh1,iph_bh1) += theta_bh1 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
               Real ud0_prime,ud1_prime,ud2_prime,ud3_prime;
@@ -1581,7 +1610,7 @@ void Mesh::FindDensityMidplane(){
               total_mass_for_density_midplane_bh_1(ir_bh1,iph_bh1) += pmb->phydro->w(IDN,k,j,i) * vol(i);
             }
 
-            if (valid_r_bh2){
+            if (valid_r_bh2 && valid_phi_bh2){
               mass_weighted_theta_for_density_midplane_bh_2(ir_bh2,iph_bh2) += theta_bh2 * pmb->phydro->w(IDN,k,j,i) *vol(i); 
 
 
