@@ -2719,13 +2719,13 @@ void get_uniform_box_spacing(const RegionSize box_size, Real *DX, Real *DY, Real
     *DY = (box_size.x2max-box_size.x2min)/(1. * box_size.nx2);
     *DZ = (box_size.x3max-box_size.x3min)/(1. * box_size.nx3);
   }
-  else if std::strcmp(COORDINATE_SYSTEM, "cylindrical")==0 {
+  else if (std::strcmp(COORDINATE_SYSTEM, "cylindrical")==0 ){
     *DX = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
     *DY = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
     *DZ = (box_size.x3max-box_size.x3min)/(1. * box_size.nx3);
 
   }
-  else if std::strcmp(COORDINATE_SYSTEM, "spherical_polar")==0 {
+  else if (std::strcmp(COORDINATE_SYSTEM, "spherical_polar")==0 ){
     *DX = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
     *DY = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
     *DZ = (box_size.x1max-box_size.x1min) *2./(1. * box_size.nx1);
@@ -2943,7 +2943,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
 static void TransformAphi(Real a3_ks, Real x1,
                      Real x2, Real x3, Real a, Real *pa1, Real *pa2, Real *pa3) {
 
-  if std::strcmp(COORDINATE_SYSTEM, "gr_user")==0{
+  if (std::strcmp(COORDINATE_SYSTEM, "gr_user")==0){
     Real x = x1;
     Real y = x2;
     Real z = x3;
