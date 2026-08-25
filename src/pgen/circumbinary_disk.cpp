@@ -3205,7 +3205,7 @@ void BoostLoweredVector(int BH_INDEX, Real t,Real a0, Real a1, Real a2, Real a3,
 /// Keep divB=0 with new metric
 
 void  MeshBlock::PreserveDivbNewMetric(ParameterInput *pin){
-  int SCALE_DIVERGENCE = false; 
+  int SCALE_DIVERGENCE = true; 
   //int SCALE_DIVERGENCE = pin->GetOrAddBoolean("problem","scale_divergence",false);
 
 
