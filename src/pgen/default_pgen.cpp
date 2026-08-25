@@ -124,16 +124,16 @@ void __attribute__((weak)) HydroSourceTerms::ApplyBondiBoundaries(Real time,Mesh
 
 void __attribute__((weak)) EquationOfState::GetRadii(Real t, Real x1, Real x2, Real x3, Real a, Real *r1, Real *r2) {
 
-  if (COORDINATE_SYSTEM=="cartesian"){
+  if (std::strcmp(COORDINATE_SYSTEM, "cartesian") == 0){
     (*r1) =std::sqrt( SQR(x1) + SQR(x2) + SQR(x3) );
   }
-  else if (COORDINATE_SYSTEM=="spherical_polar" or COORDINATE_SYSTEM=="schwarzschild" or COORDINATE_SYSTEM=="kerr-schild"){
+  else if ( (std::strcmp(COORDINATE_SYSTEM, "spherical_polar") == 0) or (std::strcmp(COORDINATE_SYSTEM, "schwarzschild") == 0) or (std::strcmp(COORDINATE_SYSTEM, "kerr-schild") == 0) ){
     (*r1) = x1;
   }
-  else if (COORDINATE_SYSTEM=="cylindrical"){
+  else if (std::strcmp(COORDINATE_SYSTEM, "cylindrical") == 0){
     (*r1) =std::sqrt( SQR(x1) + SQR(x3));
   }
-  else if (COORDINATE_SYSTEM=="gr_user"){
+  else if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
       Real x = x1;
       Real y = x2;
       Real z = x3;
