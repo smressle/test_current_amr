@@ -480,7 +480,7 @@ void Mesh::InitUserMeshData(ParameterInput *pin) {
 
   if (METRIC_EVOLUTION)  EnrollUserMetricWithoutPin(Binary_BH_Metric);
 
-  black_hole_smoothing_radius = 4.0;
+  black_hole_smoothing_radius = 0.0;
   black_hole_smoothing_radius_before_restart = 4.0;
 
 
