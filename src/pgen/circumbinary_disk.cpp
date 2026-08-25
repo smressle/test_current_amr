@@ -2902,12 +2902,12 @@ void convert_spherical_to_cartesian_ks(Real r, Real th, Real phi, Real ax, Real 
 static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real x1,
                      Real x2, Real x3, Real a, Real *pa0, Real *pa1, Real *pa2, Real *pa3) {
 
-  if std::strcmp(COORDINATE_SYSTEM, "schwarzschild") == 0{
+  if (std::strcmp(COORDINATE_SYSTEM, "schwarzschild") == 0){
     *pa0 = a0_bl;
     *pa1 = a1_bl;
     *pa2 = a2_bl;
     *pa3 = a3_bl;
-  } else if std::strcmp(COORDINATE_SYSTEM, "kerr-schild") == 0 {
+  } else if (std::strcmp(COORDINATE_SYSTEM, "kerr-schild") == 0) {
     Real r = x1;
     Real delta = SQR(r) - 2.0*m*r + SQR(a);
     *pa0 = a0_bl + 2.0*m*r/delta * a1_bl;
@@ -2915,7 +2915,7 @@ static void TransformVector(Real a0_bl, Real a1_bl, Real a2_bl, Real a3_bl, Real
     *pa2 = a2_bl;
     *pa3 = a3_bl + a/delta * a1_bl;
   }
-    else if std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0{
+    else if (std::strcmp(COORDINATE_SYSTEM, "gr_user") == 0){
     Real x = x1;
     Real y = x2;
     Real z = x3;
